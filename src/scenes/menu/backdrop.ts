@@ -9,7 +9,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, uiColumnX } from '../../game/constants';
 import { t } from '../../i18n';
 import { PIGMENT } from '../../ui/ink/palette';
-import { fitIllustrationToSheet } from '../../ui/desktopBackdrop';
+import { attachDesktopBackdrop, fitIllustrationToSheet } from '../../ui/desktopBackdrop';
 import { LOTUS_SINK, MOUNTAIN_DROP } from './constants';
 import type { MenuScene } from '../MenuScene';
 
@@ -58,6 +58,31 @@ export function drawBackground(self: MenuScene): void {
   }
 
   drawColumnVeil(self);
+  // What the page scenes paint beyond the column on the desktop — the same plates, faint — so
+  // a page off the front page here lies on the same desk as How to Play does. Under the paper,
+  // and shown only while the landscape is put away (`showLandscape`).
+  attachDesktopBackdrop(self)?.setVisible(false).setData('menuPageBackdrop', true);
+}
+
+/**
+ * Puts the landscape up for the front page, or away for every other page.
+ *
+ * Everything the illustration is made of sits between the paper at -10 and the page's own
+ * objects at 0: the plates, the mist and wakes, the river and lotus touch zones, the column
+ * veil, the leaves. A page off the front page is a sheet of paper like the Guide and History
+ * scenes are, so all of it is hidden rather than covered — a cover would have to be interactive
+ * to stop the touch zones underneath it, and a full-sheet interactive object over a page is the
+ * press-through trap this scene has already been caught by once.
+ */
+export function showLandscape(self: MenuScene, shown: boolean): void {
+  for (const child of self.children.list) {
+    const object = child as Phaser.GameObjects.GameObject & { depth: number; setVisible?: (v: boolean) => unknown };
+    if (object.getData?.('menuPageBackdrop')) {
+      object.setVisible?.(!shown);
+      continue;
+    }
+    if (object.depth > -10 && object.depth < 0) object.setVisible?.(shown);
+  }
 }
 
 /**

@@ -1,5 +1,6 @@
 import { preloadConquestMapArt } from '../ui/conquestMapArt';
 import { preloadStoryPrints } from '../ui/storyPrint';
+import { preloadThroneHall } from '../ui/ascent/throneHall';
 import Phaser from 'phaser';
 import { pressBeganUnderSheet } from '../ui/inputGeneration';
 import { ACTION_BAR_HEIGHT, COLORS, GAME_HEIGHT, GAME_WIDTH, HEADER_HEIGHT, PLAYER_KINGDOM_ID, REALTIME_TICK_MS, mapViewWidth, surfaceWidth, uiColumnX } from '../game/constants';
@@ -480,6 +481,7 @@ export class MapScene extends Phaser.Scene {
   preload(): void {
     preloadConquestMapArt(this, import.meta.env.BASE_URL);
     preloadStoryPrints(this, import.meta.env.BASE_URL);
+    preloadThroneHall(this, import.meta.env.BASE_URL);
   }
 
   create(): void {

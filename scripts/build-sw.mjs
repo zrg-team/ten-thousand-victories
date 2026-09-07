@@ -72,7 +72,9 @@ const isOptional = (rel) => rel.startsWith('faces/')
   // install-critical shell prevents the optional pack from delaying first offline readiness.
   || /^art\/conquest-dongho(?:-v\d+)?\//.test(rel)
   // Card illustrations retain icon/band fallbacks when optional art is unavailable.
-  || rel.startsWith('art/story-prints/');
+  || rel.startsWith('art/story-prints/')
+  // The throne hall retains its procedural fallback if the print is unavailable.
+  || rel.startsWith('art/ascent/');
 
 const walk = (dir) => {
   const out = [];

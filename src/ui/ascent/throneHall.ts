@@ -1,12 +1,14 @@
 /**
  * The throne hall, empty, on the morning a new king takes it.
  *
- * Drawn for the one screen that announces the reign (`showMandate`). The reference is a Nguyễn
+ * The authored Đông Hồ print is used on the opening-choice screen (`showMandate`), with live
+ * player standards layered above it. The procedural hall below remains an offline fallback.
+ * Its original reference is a Nguyễn
  * court painting — the tiered tile roof with its carp-and-pearl ridge, the colonnade, the flight
  * of steps down into a paved courtyard, the pair of bronze đỉnh at the foot of them, banners at
  * either side. Everything in that picture is here **except the people**: the court has not been
  * summoned yet, which is the whole point of the screen. The only thing on the dais is the seat,
- * and the only saturated red on it is the player's own standard, twice.
+ * with the player's own standard at each side.
  *
  * This is a UI diorama at a fixed pixel size, not a map prop — it never enters the scatter, the
  * bake or `proportion.ts`, so it takes no `unitScale` key. Its scale comes from the box it is
@@ -21,6 +23,33 @@ type G = Phaser.GameObjects.Graphics;
 
 /** Height the diorama draws at, for the width it is given. Fixed: the composition is not fluid. */
 export const THRONE_HALL_HEIGHT = 186;
+export const THRONE_HALL_TEXTURE = 'throne-hall-dongho-v1';
+
+export function preloadThroneHall(scene: Phaser.Scene, base: string): void {
+  if (!scene.textures.exists(THRONE_HALL_TEXTURE)) {
+    scene.load.image(THRONE_HALL_TEXTURE, `${base}art/ascent/throne-hall-dongho-v1.webp`);
+  }
+}
+
+function addStandards(scene: Phaser.Scene, view: Phaser.GameObjects.Container, width: number, seed: number): void {
+  for (const side of [-1, 1]) {
+    const flag = createPlayerLandFlag(scene, true, seed);
+    flag.setScale(1.3).setPosition(width / 2 + side * (width / 2 - 26), THRONE_HALL_HEIGHT - 10);
+    view.add(flag);
+  }
+}
+
+export function throneHallDiorama(scene: Phaser.Scene, width: number, seed: number): Phaser.GameObjects.Container {
+  if (!scene.textures.exists(THRONE_HALL_TEXTURE)) return proceduralThroneHall(scene, width, seed);
+  const view = scene.add.container(0, 0);
+  const print = scene.add.image(width / 2, THRONE_HALL_HEIGHT / 2, THRONE_HALL_TEXTURE);
+  // Fit the complete print; never crop the roof tips, clouds or courtyard on compact screens.
+  print.setScale(Math.min(width / print.width, THRONE_HALL_HEIGHT / print.height));
+  print.setData('throneHallPrint', true);
+  view.add(print);
+  addStandards(scene, view, width, seed);
+  return view;
+}
 
 /**
  * A tiled roof in elevation: the eave line curves *up* at the corners, never down.
@@ -204,7 +233,7 @@ function emptyThrone(g: G, cx: number, baseY: number, seed: number): void {
  * Returns a container laid out from its own (0, 0); the caller places it and adds
  * `THRONE_HALL_HEIGHT` to its cursor.
  */
-export function throneHallDiorama(scene: Phaser.Scene, width: number, seed: number): Phaser.GameObjects.Container {
+function proceduralThroneHall(scene: Phaser.Scene, width: number, seed: number): Phaser.GameObjects.Container {
   const view = scene.add.container(0, 0);
   const g = scene.add.graphics();
   view.add(g);
@@ -350,11 +379,7 @@ export function throneHallDiorama(scene: Phaser.Scene, width: number, seed: numb
 
   // The two standards. Same flag the provinces will fly, one at each side of the court — the only
   // sỏi son on the screen, and the reason the courtyard is otherwise all paper and soot.
-  for (const side of [-1, 1]) {
-    const flag = createPlayerLandFlag(scene, true, seed);
-    flag.setScale(1.3).setPosition(cx + side * (width / 2 - 26), groundY - 2);
-    view.add(flag);
-  }
+  addStandards(scene, view, width, seed);
 
   return view;
 }

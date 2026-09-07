@@ -19,7 +19,7 @@ import { dongHoWordmark } from '../../ui/ink/dongHoWordmark';
 import { royalScroll } from '../../ui/ink/royalScroll';
 import { isDesktopPlatform } from '../../platform/layout';
 import { SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
-import { pageFloor } from './helpers';
+import { pageFloor, renderPageHead } from './helpers';
 import type { MenuScene } from '../MenuScene';
 
 /**
@@ -41,7 +41,7 @@ export function renderMain(self: MenuScene): void {
   const secondaryX = Math.round((GAME_WIDTH - secondaryWidth) / 2);
   const classicHeight = Math.max(30, self.vh(32));
   const playHeight = Math.max(48, self.vh(58));
-  const continueHeight = saved ? 44 : 0;
+  const continueHeight = saved ? Math.max(24, self.vh(30)) : 0;
   const innerGaps = saved ? 3 : 2;
   // Preserve a full touch row for Continue even on the shortest sheet. On tall phones,
   // the column starts beside the illustration instead of sinking toward the footer.
@@ -52,13 +52,14 @@ export function renderMain(self: MenuScene): void {
     room - playHeight - continueHeight - classicHeight - 6 * (innerGaps + 2), 44, 64);
   const rowHeight = playHeight + continueHeight + ledgerHeight + classicHeight;
   const gap = Phaser.Math.Clamp(Math.floor((room - rowHeight) / (innerGaps + 2)), 4, 10);
+  const continueGap = saved ? 6 : gap;
   let cursor = artFloor;
 
   self.tourTargets.play = { x: 54, y: cursor, width: 282, height: playHeight };
   self.content.push(self.ui.button(self.tourTargets.play, t('ascent.menu.title'), () => {
     startAscentRun(self);
   }, { variant: 'primary', fontSize: '17px' }).setData('menuPrimary', true));
-  cursor += playHeight + gap;
+  cursor += playHeight + continueGap;
 
   // This resumes a classic save. Dragon Ascent remains the primary action, and a new
   // install has no empty or disabled Continue row.
@@ -71,7 +72,7 @@ export function renderMain(self: MenuScene): void {
     const linkWidth = resume.getData('linkWidth') as number;
     resume.setPosition(Math.round((GAME_WIDTH - linkWidth) / 2), cursor + continueHeight / 2);
     self.content.push(resume);
-    cursor += continueHeight + gap;
+    cursor += continueHeight + continueGap;
   }
 
   self.renderDynastyTablet(secondaryX, cursor, secondaryWidth, ledgerHeight);
@@ -172,19 +173,9 @@ function renderDesktopMain(self: MenuScene): void {
  * climbed on top of each other. Each one now starts below the last one actually ended.
  */
 export function renderClassic(self: MenuScene): void {
-  const bandTop = self.vy(250);
+  const bandTop = renderPageHead(self, t('ascent.menu.classicTitle'));
   let cursor = bandTop;
   const built: Phaser.GameObjects.Container[] = [];
-  const title = self.add.text(GAME_WIDTH / 2, cursor, t('ascent.menu.classicTitle'), {
-    color: '#2a2118',
-    fontFamily: TITLE_FONT,
-    fontSize: '20px',
-    fontStyle: '700',
-    align: 'center',
-    wordWrap: { width: GAME_WIDTH - 56 },
-  }).setOrigin(0.5, 0);
-  self.content.push(title);
-  cursor += title.height + 16;
 
   /**
    * The Skirmish, and only the Skirmish.
@@ -240,18 +231,17 @@ export function renderClassic(self: MenuScene): void {
   }
 
   /**
-   * Centred in the band between the wordmark and the way back.
+   * Centred in the band between the head and the way back.
    *
    * The page offers one card. Laid out from the top it sat under the title with half a screen of
    * nothing beneath it, which reads as a page that failed to finish loading rather than a page
    * with one thing on it. Shifted after the fact rather than placed there, because `InkUI.card`
    * grows to whatever its body wraps to — a line longer in Vietnamese — and only the card knows
-   * how tall it ended up.
+   * how tall it ended up. The head stays where every page's head is.
    */
   const blockHeight = cursor - 14 - bandTop;
   const shift = Math.max(0, Math.round((pageFloor() - bandTop - blockHeight) / 2));
   if (shift > 0) {
-    title.setY(title.y + shift);
     for (const card of built) card.setY(card.y + shift);
     if (self.tourTargets.skirmish) self.tourTargets.skirmish.y += shift;
   }
@@ -322,7 +312,8 @@ function startClassicTour(self: MenuScene): void {
 }
 
 export function renderConfirmNew(self: MenuScene): void {
-  const panel = self.ui.card({ x: 28, y: self.vy(528), width: GAME_WIDTH - 56, height: self.vh(178) }, {
+  const top = renderPageHead(self, t('menu.startNewQuestion'), t('menu.savedSnapshotKept'));
+  const panel = self.ui.card({ x: 28, y: top, width: GAME_WIDTH - 56, height: self.vh(120) }, {
     title: t('menu.startNewQuestion'),
     body: t('menu.savedSnapshotKept'),
     border: INK_UI.gold,
@@ -330,7 +321,7 @@ export function renderConfirmNew(self: MenuScene): void {
   });
   self.content.push(panel);
 
-  self.content.push(self.ui.button({ x: 54, y: self.vy(632), width: 282, height: self.vh(46) }, t('menu.startNewCampaign'), () => {
+  self.content.push(self.ui.button({ x: 54, y: top + (panel.getData('cardHeight') as number) + 14, width: 282, height: self.vh(46) }, t('menu.startNewCampaign'), () => {
     self.startGame(createInitialGameState());
     // Note: full campaign setup is via "Start Campaign" → CampaignScene
   }, { variant: 'danger', fontSize: '14px' }));
@@ -392,7 +383,7 @@ function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
   const doors: Array<{ id: string; label: string; icon: CardIconId; onPress: () => void }> = [
     { id: 'guide', label: t('guide.menu.button'), icon: 'scroll', onPress: () => self.scene.start('GuideScene') },
     { id: 'history', label: t('history.menu.button'), icon: 'book', onPress: () => self.scene.start('HistoryScene') },
-    { id: 'settings', label: t('menu.settings'), icon: 'gear', onPress: () => { self.mode = 'settings'; self.render(); } },
+    { id: 'settings', label: t('menu.settings'), icon: 'gear', onPress: () => self.scene.start('SettingsScene') },
   ];
   doors.forEach((door, index) => {
     const button = self.ui.button(

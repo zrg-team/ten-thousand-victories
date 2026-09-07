@@ -41,9 +41,6 @@ export function renderLegacyShop(self: MenuScene): void {
   const PAD = 20;
   const W = GAME_WIDTH - PAD * 2;
   const headTop = self.renderDynastyTitleBar(t('empire.legacy.shopTitle'), false) + 10;
-  // Paper under the whole page: the front page's landscape and seal are painted behind every
-  // mode, and the list scrolled over mountains. A shop is read on a plain sheet.
-  self.content.push(self.add.rectangle(0, 56, GAME_WIDTH, pageFloor() - 56, INK_UI.parchment, 0.96).setOrigin(0, 0));
 
   // ── The header: points, and the three slots that ride ──────────────────
   const HEAD_H = 122;

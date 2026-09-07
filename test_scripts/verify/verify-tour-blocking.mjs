@@ -5,9 +5,13 @@
 // card is the only thing you should be able to press.
 //
 // What was not correct: `startTour` runs from `create` and only on the front page, but `render`
-// changes `mode` without going near `create`. Open Settings while the tour is up and the veil came
+// changes `mode` without going near `create`. Open Settings while the tour was up and the veil came
 // with you: framing nothing, deafening everything. Tapping a map-theme option did exactly nothing,
 // which is what "changing map type does not work any more" was.
+//
+// Settings is its own scene now, so leaving the front page shuts the menu down, tour and all. The
+// second half presses a real row on the settings page — the roads setting, since the map theme is
+// no longer offered — to prove the page underneath is alive.
 //
 // Driven with `?tour=1`, which is the only way to see any of this: `hasSeenTour` refuses to run the
 // tour under `navigator.webdriver`, so every other harness in this repo is blind to it.
@@ -54,11 +58,9 @@ check(onFront.blockers.length === 1,
 
 // Now walk away from the page the tour is about.
 await page.evaluate(() => {
-  const m = window.__phaserGame.scene.getScene('MenuScene');
-  m.mode = 'settings';
-  m.render();
+  window.__phaserGame.scene.getScene('MenuScene').scene.start('SettingsScene');
 });
-await page.waitForTimeout(700);
+await page.waitForTimeout(1000);
 
 const onSettings = await blockers();
 check(!onSettings.touring, 'leaving the front page ends the tour', `mode ${onSettings.mode}`);
@@ -68,33 +70,35 @@ check(onSettings.blockers.length === 0,
 
 // The thing the player was actually trying to do.
 const themed = await page.evaluate(async () => {
-  const M = await import('/src/ui/mapTheme.ts');
-  const m = window.__phaserGame.scene.getScene('MenuScene');
-  const want = M.MAP_THEME_OPTIONS.find((o) => o.id !== M.getMapTheme());
+  const L = await import('/src/game/lifeSettings.ts');
+  const { t } = await import('/src/i18n/index.ts');
+  const s = window.__phaserGame.scene.getScene('SettingsScene');
+  const before = L.getLifeSettings().traffic;
+  const want = L.TRAFFIC_DENSITIES.find((id) => id !== before);
+  const wanted = t(`menu.traffic.${want}`);
   const texts = [];
   const walk = (o) => { if (o.type === 'Text') texts.push(o); if (o.list) o.list.forEach(walk); };
-  m.children.list.forEach(walk);
-  const label = texts.find((t) => t.text && t.text.length > 2
-    && t.text.toLowerCase().includes(want.id.split('-')[0]));
-  if (!label) return { found: false, before: M.getMapTheme() };
+  s.children.list.forEach(walk);
+  const label = texts.find((entry) => entry.text === wanted);
+  if (!label) return { found: false, before };
   const bb = label.getBounds();
   const d = window.__phaserGame.scale.displayScale;
   return {
-    found: true, before: M.getMapTheme(), want: want.id, text: label.text,
+    found: true, before, want, text: label.text,
     x: (bb.x + bb.width / 2) / d.x, y: (bb.y + bb.height / 2) / d.y,
   };
 });
-check(themed.found, 'the map-theme row is on the settings sheet', themed.text ?? 'not found');
+check(themed.found, 'the roads row is on the settings page', themed.text ?? 'not found');
 
 if (themed.found) {
   await page.mouse.click(themed.x, themed.y);
-  await page.waitForTimeout(2200);
+  await page.waitForTimeout(600);
   const after = await page.evaluate(async () => {
-    const M = await import('/src/ui/mapTheme.ts');
-    return { stored: M.getMapTheme(), active: M.getActiveMapTheme().id };
+    const L = await import('/src/game/lifeSettings.ts');
+    return { stored: L.getLifeSettings().traffic };
   });
-  check(after.stored === themed.want && after.active === themed.want,
-    'and tapping an option actually changes the map theme',
+  check(after.stored === themed.want,
+    'and tapping an option actually changes the setting',
     `${themed.before} → ${after.stored} (asked for ${themed.want})`);
 }
 

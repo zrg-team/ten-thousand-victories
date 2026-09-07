@@ -29,7 +29,7 @@ import { t } from '../../i18n';
 import { INK_UI } from '../../ui/InkUI';
 import { TITLE_FONT, UI_FONT } from '../../ui/fonts';
 import { motionMs } from '../../game/lifeSettings';
-import { drawHatch, pageFloor } from './helpers';
+import { drawHatch, pageFloor, renderPageHead } from './helpers';
 import type { MenuScene } from '../MenuScene';
 
 /**
@@ -86,22 +86,18 @@ function noteSeenTrait(reign: number): void {
  */
 export function renderDynastyTitleBar(self: MenuScene, title: string = t('dynasty.title'), withMark = true): number {
   const store = getDynasty();
-  // A band of parchment under the head: the front page's seal is painted at the top of the
-  // sheet behind every mode, and a title set straight onto it printed through the emblem.
-  self.content.push(self.add.rectangle(0, 0, GAME_WIDTH, 56, INK_UI.parchment, 0.94).setOrigin(0, 0));
-  self.content.push(self.add.text(GAME_WIDTH / 2, 28, title, {
-    color: '#2a2118', fontFamily: TITLE_FONT, fontSize: '20px', fontStyle: '700', align: 'center',
-  }).setOrigin(0.5));
-  const rule = self.add.rectangle(GAME_WIDTH / 2, 47, 120, 1.5, INK_UI.gold, 0.85);
-  self.content.push(rule);
+  // The head every page off the front page shares (`renderPageHead`). It used to stand on a
+  // band of parchment because the front page's seal was painted behind every mode; the
+  // landscape is put away on these pages now, and the head sits on the sheet.
+  const bodyTop = renderPageHead(self, title);
   // The house's mark rides the head's right edge once there is a house: the same banner the
   // chip carries in-run, so the page and the run agree about whose ledger this is.
   if (withMark && store.founder) {
     const mark = drawHouseBanner(self, houseBanner(), 22, 30);
-    mark.setPosition(GAME_WIDTH - 44, 13);
+    mark.setPosition(GAME_WIDTH - 44, 11);
     self.content.push(mark);
   }
-  return 58;
+  return bodyTop;
 }
 
 /**

@@ -38,6 +38,7 @@ import { takeReloadReason } from '../../game/resilience';
 import { pushToast } from '../../systems/empire/notifications';
 import { ARRIVING_PAGES, PAGE_ARRIVAL_BAND, PAGE_ARRIVAL_RISE } from './constants';
 import { openMainScroll } from './scrollOpening';
+import { showLandscape } from './backdrop';
 import type { MenuScene } from '../MenuScene';
 
 /**
@@ -244,19 +245,19 @@ export function render(self: MenuScene): void {
     self.copilotFor = undefined;
   }
   clearContent(self);
+  // The landscape is the front page's. Every other page is a sheet of paper, like the three
+  // page scenes it stands beside in the footer.
+  showLandscape(self, self.mode === 'main');
   const columnVeil = self.children.list.find((child) => child.getData?.('menuColumnVeil')) as Phaser.GameObjects.Graphics | undefined;
-  columnVeil?.setVisible(!isDesktopSheet() || self.mode !== 'main');
+  columnVeil?.setVisible(self.mode === 'main' && !isDesktopSheet());
   if (!self.lineageSwipeArmed) {
     self.lineageSwipeArmed = true;
     self.input.on('pointermove', (pointer: Phaser.Input.Pointer) => self.onLineageSwipe(pointer));
   }
-  // The ledger draws its own head (`renderDynastyTitleBar`): a masthead that spent the top
-  // 236 units of a 620 sheet on a name the player had just read is why the page scrolled.
-  const bannerEditor = self.mode === 'temple' && Boolean(self.templeSheet?.bannerState());
-  if (self.mode !== 'dynasty' && self.mode !== 'legacy' && !bannerEditor) renderTitle(self);
-  // The wordmark is outside the arrival on purpose: it is the same block of type on every page,
-  // and a title that re-landed on each navigation would be the one thing on the sheet that never
-  // holds still.
+  // The wordmark is the front page's. Every other page draws its own head (`renderPageHead`):
+  // a masthead that spent the top 236 units of a 620 sheet on a name the player had just read
+  // is why the ledger scrolled, and why the Temple's title stood on a mountain.
+  if (self.mode === 'main') renderTitle(self);
   const pageStart = self.content.length;
   renderPage(self);
   // Last, and on every mode rather than only the front page: it is app chrome, not a row of this
@@ -366,10 +367,6 @@ function renderPage(self: MenuScene): void {
   // The Temple's unsaved dress does not survive leaving the page. Anything else would let a
   // player wander to the shop and back and find their king wearing a change they abandoned.
   if (self.mode !== 'temple') self.templeSheet = undefined;
-  if (self.mode === 'settings') {
-    self.renderSettings();
-    return;
-  }
   if (self.mode === 'confirm-new') {
     self.renderConfirmNew();
   } else if (self.mode === 'legacy') {
@@ -386,79 +383,27 @@ function renderPage(self: MenuScene): void {
 }
 
 /**
- * The wordmark.
+ * The wordmark, on the front page and nowhere else.
  *
  * It was set at 36 units on a 390-wide sheet with the seal at 44 — a mark and a title that both
  * sat there being legible while the landscape behind them was the loudest thing on the page. A
- * front page has a subject, and on this one it has to be the name. So: half again the type, a
- * third again the device, and the block spaced as a block — device, name, country, rule — rather
- * than four things that happen to be stacked.
+ * front page has a subject, and on this one it has to be the name.
  *
- * Both lines are printed twice, the lower copy offset by two units. That is the woodblock's
- * doubled pull, not a drop shadow: it is the same colour family as the ink, not a grey.
+ * It used to be printed again, smaller and pulled twice like a woodblock, at the top of every
+ * page off the front page. Those pages carry their own head now (`renderPageHead`), the same one
+ * the Guide, History and Settings scenes carry, because a page you have gone into has a heading,
+ * not a masthead — and 236 units of a 620 sheet is a third of the screen spent on a name the
+ * player read on the page they came from.
  */
 function renderTitle(self: MenuScene): void {
-  if (self.mode === 'main') {
-    if (isDesktopSheet()) return;
-    const title = dongHoWordmark(self, GAME_WIDTH / 2, self.vy(44) + 7,
-      Phaser.Math.Clamp(260 * self.vScale, 226, 260));
-    const subtitle = self.ui.label(GAME_WIDTH / 2, title.y + title.displayHeight / 2 + 4,
-      'TEN THOUSAND VICTORIES', 'caption', {
-        fontFamily: UI_FONT, fontSize: '9px', color: INK_UI_HEX.mutedText,
-      }).setOrigin(0.5, 0).setLetterSpacing(1.4);
-    self.content.push(title, subtitle);
-    return;
-  }
-  // `pull` is how far the second impression sits off the first. It scales with the type: the
-  // 46-unit name can carry a 2-unit slip and read as a woodblock pulled twice, while the same
-  // slip under a 14-unit line is a third of its stroke width and just prints muddy.
-  const wordmark = (text: string, y: number, size: number, spacing: number, pull = 2) => {
-    const style = {
-      fontFamily: TITLE_FONT,
-      fontSize: `${Math.round(size * self.vScale)}px`,
-      fontStyle: '700',
-      align: 'center',
-    };
-    const under = self.ui.label(GAME_WIDTH / 2 + pull, self.vy(y + pull * 1.5), text, 'title', { ...style, color: '#301509' }).setOrigin(0.5);
-    const over = self.ui.label(GAME_WIDTH / 2, self.vy(y), text, 'title', { ...style, color: '#2a2118' }).setOrigin(0.5);
-    // Letter-spacing is what makes a short line read as a wordmark rather than as a caption, and
-    // it is the only thing holding ĐẠI VIỆT's two words apart at this size.
-    under.setLetterSpacing?.(spacing);
-    over.setLetterSpacing?.(spacing);
-    return [under, over];
-  };
-
-  const title = wordmark('VẠN THẮNG', 152, 46, 2);
-  // Both lines are the mark, and the mark does not change with the language: the game is called
-  // Vạn Thắng in Vietnamese and in English, and the line under it says what that means for the
-  // half of the audience it does not mean anything to yet. Hardcoded rather than keyed for the
-  // same reason — a name handed to a catalog is a name somebody eventually translates.
-  //
-  // Fitted rather than sized, because it is a long line on a 390-unit sheet: set at 21, measured,
-  // and stepped down until it clears the margins. A wordmark that runs off the page is not one.
-  const sub = wordmark('TEN THOUSAND VICTORIES', 188, 21, 3, 1);
-  // 200, not the sheet's margin and not the width of the name. Fitted to the margin the gloss
-  // comes out as wide as VẠN THẮNG above it, and two lines of equal width are two titles rather
-  // than a title and the thing it means.
-  const SUB_MAX = 200;
-  // Measured and re-measured rather than solved in one step. Phaser reports a Text's width
-  // without the letter-spacing it was just given, so a single divide lands about a spacing-unit
-  // per character too wide — twenty-two characters at three units is a fifth of the line. Three
-  // passes converge on the real width whether the metric includes the spacing or not.
-  let subSize = 21 * self.vScale;
-  for (let pass = 0; pass < 3 && sub[1].width > SUB_MAX; pass += 1) {
-    subSize = Math.max(9, subSize * (SUB_MAX / sub[1].width));
-    for (const line of sub) {
-      line.setFontSize(Math.round(subSize));
-    }
-  }
-  // The rule is the bottom of the wordmark, so it tracks the line above it rather than sitting at
-  // a width of its own — and it stops at 206. The karst tops reach 204 in the design, so a rule
-  // hung any lower is ruled straight across a mountain, which is what the first pass did: it read
-  // as a stray stroke rather than as part of the mark.
-  const ruleWidth = Phaser.Math.Clamp(Math.round(sub[1].width + 28), 186, 300);
-  const rule = self.add.rectangle(GAME_WIDTH / 2, self.vy(206), ruleWidth, 2, INK_UI.gold, 0.88);
-  self.content.push(...title, ...sub, rule);
+  if (isDesktopSheet()) return;
+  const title = dongHoWordmark(self, GAME_WIDTH / 2, self.vy(44) + 7,
+    Phaser.Math.Clamp(260 * self.vScale, 226, 260));
+  const subtitle = self.ui.label(GAME_WIDTH / 2, title.y + title.displayHeight / 2 + 4,
+    'TEN THOUSAND VICTORIES', 'caption', {
+      fontFamily: UI_FONT, fontSize: '9px', color: INK_UI_HEX.mutedText,
+    }).setOrigin(0.5, 0).setLetterSpacing(1.4);
+  self.content.push(title, subtitle);
 }
 
 /**

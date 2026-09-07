@@ -187,7 +187,7 @@ try {
     await page.waitForTimeout(600);
     // Every string on the page, containers included — `InkUI.button` puts its label inside one, so
     // a flat pass over `children.list` sees the captions and misses every button in the game.
-    const readAllText = (target = page) => target.evaluate(() => {
+    const readAllText = (target = page, sceneKey = 'MenuScene') => target.evaluate((key) => {
       const found = [];
       const walk = (list) => {
         for (const child of list) {
@@ -195,9 +195,9 @@ try {
           if (Array.isArray(child.list)) walk(child.list);
         }
       };
-      walk(window.__phaserGame.scene.getScene('MenuScene').children.list);
+      walk(window.__phaserGame.scene.getScene(key).children.list);
       return found;
-    });
+    }, sceneKey);
 
     // The notice is the version line itself now: the incoming worker's semver, next to the one
     // running, and an instruction — the line that only stated a fact left players not knowing
@@ -210,12 +210,10 @@ try {
       front.filter((text) => /version/i.test(text)).join(' / '),
     );
 
-    await page.evaluate(() => {
-      const scene = window.__phaserGame.scene.getScene('MenuScene');
-      scene.mode = 'settings';
-      scene.render();
-    });
-    const settings = await readAllText();
+    // Settings is its own scene, reached the way the footer reaches it.
+    await page.evaluate(() => window.__phaserGame.scene.getScene('MenuScene').scene.start('SettingsScene'));
+    await page.waitForTimeout(900);
+    const settings = await readAllText(page, 'SettingsScene');
     check(
       'settings prints the package version, build number and date',
       settings.some((text) => /^Version \d+\.\d+\.\d+ {2}· {2}build \d+ {2}· {2}\d+ \w+ \d{4}$/.test(text)),
@@ -223,24 +221,33 @@ try {
     );
     check('settings offers Reload', settings.some((text) => /Reload to update/i.test(text)));
 
-    // Nothing on the settings plate may fall off the bottom of the sheet.
+    // The Reload button must be reachable: scrolled to the foot, it sits whole above the Back bar.
+    // `getBounds` answers in design units, so the camera's render-scale zoom does not enter into it.
     const overflow = await page.evaluate(() => {
-      const scene = window.__phaserGame.scene.getScene('MenuScene');
-      let lowest = 0;
-      for (const child of scene.children.list) {
-        if (child.depth < 0 || typeof child.getBounds !== 'function') continue;
-        const bounds = child.getBounds();
-        if (bounds.height > 0 && bounds.height < 400) lowest = Math.max(lowest, bounds.bottom);
-      }
-      // Design units, not buffer pixels: `applyRenderScale` zooms the camera by RENDER_SCALE, so
-      // the canvas is twice the sheet and comparing against it passes anything.
-      const height = scene.scale.gameSize.height / (scene.cameras.main.zoom || 1);
-      return { lowest: Math.round(lowest), height: Math.round(height) };
+      // The page scrolls now, so "fits" means the Reload button can be brought fully into the
+      // list window, above the Back bar — not that every row sits on one sheet.
+      const fits = () => {
+        const scene = window.__phaserGame.scene.getScene('SettingsScene');
+        scene.scroll?.setScroll(1e6);
+        let reload;
+        let back;
+        const walk = (list) => {
+          for (const child of list) {
+            if (child.type === 'Text' && /Reload to update|Tải lại để cập nhật/.test(child.text ?? '')) reload = child;
+            if (child.type === 'Text' && /Back|Quay lại/.test(child.text ?? '')) back = child;
+            if (Array.isArray(child.list)) walk(child.list);
+          }
+        };
+        walk(scene.children.list);
+        if (!reload || !back) return { reload: Boolean(reload), lowest: -1, limit: -1 };
+        return { reload: true, lowest: Math.round(reload.getBounds().bottom), limit: Math.round(back.getBounds().top) };
+      };
+      return fits();
     });
     check(
-      'the settings plate fits the sheet',
-      overflow.lowest <= overflow.height,
-      `lowest ${overflow.lowest} of ${overflow.height}`,
+      'the settings page brings Reload above the Back bar',
+      overflow.reload && overflow.lowest <= overflow.limit,
+      `reload bottom ${overflow.lowest}, back bar top ${overflow.limit}`,
     );
 
     // ── The other client ─────────────────────────────────────────────────────────────────────
@@ -314,34 +321,32 @@ try {
         for (let attempt = 0; attempt < 60 && !registration.waiting; attempt += 1) {
           await new Promise((resolve) => setTimeout(resolve, 500));
         }
-        const scene = window.__phaserGame.scene.getScene('MenuScene');
-        scene.mode = 'settings';
-        scene.render();
-        let lowest = 0;
-        for (const child of scene.children.list) {
-          if (child.depth < 0 || typeof child.getBounds !== 'function') continue;
-          const bounds = child.getBounds();
-          if (bounds.height > 0 && bounds.height < 400) lowest = Math.max(lowest, bounds.bottom);
-        }
-        const found = [];
-        const walk = (list) => {
-          for (const child of list) {
-            if (child.type === 'Text' && child.text?.trim()) found.push(child.text);
-            if (Array.isArray(child.list)) walk(child.list);
-          }
+        window.__phaserGame.scene.getScene('MenuScene').scene.start('SettingsScene');
+        await new Promise((resolve) => setTimeout(resolve, 900));
+        // The page scrolls now, so "fits" means the Reload button can be brought fully into the
+        // list window, above the Back bar — not that every row sits on one sheet.
+        const fits = () => {
+          const scene = window.__phaserGame.scene.getScene('SettingsScene');
+          scene.scroll?.setScroll(1e6);
+          let reload;
+          let back;
+          const walk = (list) => {
+            for (const child of list) {
+              if (child.type === 'Text' && /Reload to update|Tải lại để cập nhật/.test(child.text ?? '')) reload = child;
+              if (child.type === 'Text' && /Back|Quay lại/.test(child.text ?? '')) back = child;
+              if (Array.isArray(child.list)) walk(child.list);
+            }
+          };
+          walk(scene.children.list);
+          if (!reload || !back) return { reload: Boolean(reload), lowest: -1, limit: -1 };
+          return { reload: true, lowest: Math.round(reload.getBounds().bottom), limit: Math.round(back.getBounds().top) };
         };
-        walk(scene.children.list);
-        return {
-          waiting: Boolean(registration.waiting),
-          lowest: Math.round(lowest),
-          height: Math.round(scene.scale.gameSize.height / (scene.cameras.main.zoom || 1)),
-          reload: found.some((text) => /Reload|Tải lại/i.test(text)),
-        };
+        return { waiting: Boolean(registration.waiting), ...fits() };
       });
       check(
-        `the settings plate fits a ${height}-tall sheet in ${language}`,
-        fit.waiting && fit.reload && fit.lowest <= fit.height,
-        `lowest ${fit.lowest} of ${fit.height}${fit.reload ? '' : ' — no Reload button'}`,
+        `the settings page brings Reload above the Back bar on a ${height}-tall sheet in ${language}`,
+        fit.waiting && fit.reload && fit.lowest <= fit.limit,
+        `reload bottom ${fit.lowest}, back bar top ${fit.limit}${fit.reload ? '' : ' — no Reload button'}`,
       );
       await shortContext.close();
     }
