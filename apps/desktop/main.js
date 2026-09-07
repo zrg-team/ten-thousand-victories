@@ -71,10 +71,120 @@ function serveWeb() {
 
 let win = null;
 
+// ── Display mode ─────────────────────────────────────────────────────────────────────────────
+/**
+ * Three modes, and only macOS has three.
+ *
+ * Chromium never takes an exclusive, mode-setting fullscreen — not on any platform. What
+ * `setFullScreen(true)` gives on Windows and Linux is already a frameless window covering the
+ * monitor, which is what a game means by *borderless*, and it is why the Steam Overlay composites
+ * over it and alt-tab is instant. So on those two platforms an extra "Fullscreen" tile beside
+ * "Borderless" would be a control that does nothing, and it is not offered.
+ *
+ * macOS is the one that genuinely differs. `setFullScreen(true)` there moves the window to its own
+ * fullscreen *Space*: a separate desktop with the swipe animation, the menu bar hidden, and app
+ * switching that has to slide desktops. `setSimpleFullScreen(true)` is the pre-Lion behaviour —
+ * a borderless window over the current desktop, which is the mode a player alt-tabbing between the
+ * game and a guide actually wants. Both are worth offering, so on macOS both are.
+ */
+const MODES = process.platform === 'darwin'
+  ? ['windowed', 'borderless', 'fullscreen']
+  : ['windowed', 'borderless'];
+
+/**
+ * Where the mode and the window's shape are remembered.
+ *
+ * The main process owns this rather than the game's `localStorage`, and it has to: the window is
+ * created before any page script runs, so a preference the renderer holds would arrive one frame
+ * after the window it describes. `userData` is per-user and survives an update, which is the same
+ * place Chromium keeps its own profile.
+ */
+const STATE_FILE = path.join(app.getPath('userData'), 'window-state.json');
+
+const readState = () => {
+  try {
+    const state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+    return {
+      mode: MODES.includes(state.mode) ? state.mode : 'windowed',
+      covering: MODES.includes(state.covering) && state.covering !== 'windowed' ? state.covering : null,
+      bounds: state.bounds && typeof state.bounds.width === 'number' ? state.bounds : null,
+    };
+  } catch {
+    // No file on a first launch, and a corrupt one is not worth a dialog — a game that will not
+    // start because it cannot parse its own window size is a worse bug than a forgotten size.
+    return { mode: 'windowed', covering: null, bounds: null };
+  }
+};
+
+let displayMode = 'windowed';
+/**
+ * The last mode that covered the screen, so F toggles back into the one the player chose.
+ *
+ * Without it, a macOS player who picked the native Space in settings and then pressed F twice would
+ * land in borderless — the key would have quietly rewritten their setting.
+ */
+let lastCovering = null;
+
+const saveState = () => {
+  try {
+    fs.mkdirSync(path.dirname(STATE_FILE), { recursive: true });
+    // `getNormalBounds` and not `getBounds`: while the window is borderless the bounds *are* the
+    // monitor, and saving those would make the next windowed launch a frameless-sized window.
+    const bounds = win && !win.isDestroyed() ? win.getNormalBounds() : null;
+    fs.writeFileSync(STATE_FILE, JSON.stringify({ mode: displayMode, covering: lastCovering, bounds }, null, 2));
+  } catch {
+    // A read-only profile is not a reason to fail a quit.
+  }
+};
+
+/**
+ * Leaves whichever mode is on, then enters the asked-for one.
+ *
+ * The leave step is not optional on macOS: a window in a fullscreen Space that is told to become
+ * simple-fullscreen keeps the Space and gains nothing, so the two have to be unwound in order.
+ */
+function applyDisplayMode(mode) {
+  if (!win || win.isDestroyed()) return;
+  displayMode = MODES.includes(mode) ? mode : 'windowed';
+  if (displayMode !== 'windowed') lastCovering = displayMode;
+
+  if (process.platform === 'darwin' && win.isSimpleFullScreen()) win.setSimpleFullScreen(false);
+  if (win.isFullScreen()) win.setFullScreen(false);
+
+  if (displayMode === 'borderless') {
+    if (process.platform === 'darwin') win.setSimpleFullScreen(true);
+    else win.setFullScreen(true);
+  } else if (displayMode === 'fullscreen') {
+    win.setFullScreen(true);
+  }
+  saveState();
+}
+
+/**
+ * Only restores a saved rectangle if some display still contains it.
+ *
+ * A window remembered on a second monitor that is no longer plugged in is a window opened off the
+ * edge of the world, with no frame on screen to drag it back by.
+ */
+function usableBounds(bounds) {
+  if (!bounds) return null;
+  const { screen } = require('electron');
+  const visible = screen.getAllDisplays().some((display) => {
+    const area = display.workArea;
+    return bounds.x < area.x + area.width && bounds.x + bounds.width > area.x
+      && bounds.y < area.y + area.height && bounds.y + bounds.height > area.y;
+  });
+  return visible ? bounds : null;
+}
+
 function createWindow() {
+  const saved = readState();
+  lastCovering = saved.covering;
+  const bounds = usableBounds(saved.bounds);
   win = new BrowserWindow({
-    width: 1280,
-    height: 720,
+    width: bounds ? bounds.width : 1280,
+    height: bounds ? bounds.height : 720,
+    ...(bounds ? { x: bounds.x, y: bounds.y } : {}),
     minWidth: 960,
     minHeight: 540,
     // The paper, so the first frame is not a white flash before the splash.
@@ -90,7 +200,12 @@ function createWindow() {
     },
   });
   win.setMenuBarVisibility(false);
+  // Before `show`, so a player who left the game borderless does not watch it open as a 1280x720
+  // window and then jump. `show: false` above holds the frame back until this has run.
+  applyDisplayMode(saved.mode);
   win.once('ready-to-show', () => win.show());
+  // Not on 'closed': the window is gone by then and `getNormalBounds` has nothing to report.
+  win.on('close', saveState);
   // Off-origin links — the repository, the coffee — open in the player's own browser, not here.
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (!url.startsWith(`${ORIGIN_SCHEME}://`)) shell.openExternal(url);
@@ -107,8 +222,16 @@ function createWindow() {
 }
 
 // ── The bridge the preload calls ─────────────────────────────────────────────────────────────
+/**
+ * F / F11. Windowed goes to the last fullscreen-ish mode the player chose, and anything else comes
+ * back to windowed — so the key and the settings row can never disagree about what is on screen.
+ */
 ipcMain.on('shell:toggle-fullscreen', () => {
-  if (win) win.setFullScreen(!win.isFullScreen());
+  if (!win) return;
+  applyDisplayMode(displayMode === 'windowed' ? (lastCovering || 'borderless') : 'windowed');
+});
+ipcMain.on('shell:set-display-mode', (_event, mode) => {
+  if (typeof mode === 'string') applyDisplayMode(mode);
 });
 ipcMain.on('shell:quit', () => app.quit());
 // Synchronous on purpose: the preload needs `os` and `version` before the page's first script,
@@ -118,6 +241,8 @@ ipcMain.on('shell:describe-sync', (event) => {
     os: process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'macos' : 'linux',
     version: app.getVersion(),
     steam: Boolean(steam),
+    displayMode,
+    displayModes: MODES,
   };
 });
 ipcMain.on('steam:unlock-achievement', (_event, id) => {

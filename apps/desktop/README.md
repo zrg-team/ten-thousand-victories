@@ -65,6 +65,15 @@ on Windows. Run them on the target OS and architecture with Electron installed f
 For cross-compilation, invoke `npx electron-builder` directly from `apps/desktop` with the
 desired target flags so it downloads the matching runtime instead.
 
+## The window
+
+`Windowed` and `Borderless`, and on macOS also `Fullscreen` — chosen in Settings, switched with
+<kbd>F</kbd>/<kbd>F11</kbd>, and remembered in `window-state.json` under `userData`. The count
+differs by platform on purpose: Chromium's fullscreen already *is* a borderless window everywhere
+except macOS, which additionally has the native fullscreen Space. The reasoning, the persistence
+rules and the gate are in
+[`docs/development/desktop-builds.md`](../../docs/development/desktop-builds.md#display-modes).
+
 ## What it does not do
 
 - **No unpacking, no embedded server.** The mobile cabinet archives the build and serves it over

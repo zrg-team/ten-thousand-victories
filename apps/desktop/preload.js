@@ -20,6 +20,18 @@ const descriptor = {
   os: described.os,
   version: described.version,
   toggleFullscreen: () => ipcRenderer.send('shell:toggle-fullscreen'),
+  /**
+   * The window's shape, as a mode the settings page can offer.
+   *
+   * `displayMode` is a snapshot of what the window was at launch, not a live reading — the page
+   * reads it once to light the right tile, and the F key routes through the main process, which is
+   * the only place that knows the truth. `displayModes` is what this platform actually has: two
+   * everywhere, three on macOS, because only macOS has a fullscreen Space distinct from a
+   * borderless window.
+   */
+  displayMode: described.displayMode,
+  displayModes: described.displayModes,
+  setDisplayMode: (mode) => ipcRenderer.send('shell:set-display-mode', mode),
   quit: () => ipcRenderer.send('shell:quit'),
   ready: () => { /* no native splash to lift — the window shows on `ready-to-show` */ },
 };

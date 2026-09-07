@@ -29,6 +29,16 @@ export type ShellKind = 'web' | 'mobile' | 'desktop';
 export type ShellOS = 'ios' | 'android' | 'windows' | 'macos' | 'linux';
 
 /**
+ * How a cabinet's window covers the screen.
+ *
+ * `borderless` is a frameless window the size of the display, on the desktop the player is already
+ * on: the Steam Overlay composites over it and alt-tab is instant. `fullscreen` is the platform's
+ * own — and it only differs from `borderless` on macOS, where it means a separate fullscreen Space.
+ * Which of these a cabinet offers is the cabinet's to say; see `shellDisplayModes`.
+ */
+export type DisplayMode = 'windowed' | 'borderless' | 'fullscreen';
+
+/**
  * What a shell writes onto `window.__shell` before this bundle loads.
  *
  * Every field but `kind` is optional so that a half-built shell still boots the game rather than
@@ -66,6 +76,21 @@ export interface ShellDescriptor {
    * window, not the document. Optional; the web fallback is the document API.
    */
   toggleFullscreen?: () => void;
+
+  /**
+   * How the window covers the screen, and which of those a cabinet on this platform can offer.
+   *
+   * `displayMode` is what the window was at launch — a snapshot, not a live reading, because the
+   * F key and the settings row both go through the shell and the shell is the only side that knows
+   * the answer. `displayModes` is the platform's own list: Chromium never takes an exclusive
+   * fullscreen, so on Windows and Linux `setFullScreen` already *is* a borderless window and there
+   * is nothing to offer beside it; macOS additionally has the native fullscreen Space, and lists
+   * all three. The settings page draws whatever is in the list rather than assuming three.
+   */
+  displayMode?: DisplayMode;
+  displayModes?: DisplayMode[];
+  setDisplayMode?: (mode: DisplayMode) => void;
+
   /** Close the application. A tab has no such thing, so the game only offers it inside a shell. */
   quit?: () => void;
   /**
@@ -185,6 +210,32 @@ export function toggleFullscreen(scale: { isFullscreen: boolean; startFullscreen
   }
   if (scale.isFullscreen) scale.stopFullscreen();
   else scale.startFullscreen();
+}
+
+/**
+ * The display modes this cabinet offers, or an empty list where the question does not arise.
+ *
+ * Empty on the web and on mobile — a tab does not own a window and a phone has no windowed mode —
+ * and empty in an older cabinet that predates the bridge, so the settings row simply is not drawn
+ * rather than drawn dead.
+ */
+export function shellDisplayModes(): DisplayMode[] {
+  const modes = window.__shell?.displayModes;
+  return Array.isArray(modes) && typeof window.__shell?.setDisplayMode === 'function' ? modes : [];
+}
+
+/** The mode the window was in at launch; `windowed` when the shell does not say. */
+export function shellDisplayMode(): DisplayMode {
+  return window.__shell?.displayMode ?? 'windowed';
+}
+
+/** Ask the cabinet to change how the window covers the screen. */
+export function setShellDisplayMode(mode: DisplayMode): void {
+  try {
+    window.__shell?.setDisplayMode?.(mode);
+  } catch {
+    // Same rule as every other callback here: the shell's failure must not become the game's.
+  }
 }
 
 /** The Steam bridge, or undefined outside the Steam cabinet. */

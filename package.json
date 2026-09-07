@@ -28,6 +28,7 @@
     "verify:lost-ground": "node test_scripts/verify/verify-lost-ground.mjs",
     "verify:draft-depth": "node test_scripts/verify/verify-draft-depth.mjs",
     "verify:legacy": "node test_scripts/verify/verify-legacy.mjs",
+    "verify:display": "node test_scripts/verify/verify-display-mode.mjs",
     "verify:perf": "node test_scripts/verify/verify-listeners.mjs && node test_scripts/verify/verify-fps-cap.mjs && node test_scripts/verify/verify-tick-clock.mjs",
     "build": "tsc && vite build && node scripts/build-sw.mjs",
     "build:shell": "tsc && vite build --mode shell",

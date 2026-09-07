@@ -230,6 +230,13 @@ export const enCore = {
   "menu.layout.desktop": "Desktop",
   "menu.layout.portraitNote": "Desktop needs a landscape window — this one is taller than it is wide, so the phone column is shown. Rotate, or widen the window, and relaunch.",
   "menu.layout.applyNote": "Changing the layout relaunches the game.",
+  // How the cabinet's window covers the screen. Desktop only — a tab does not own a window — and
+  // the row draws only the modes the cabinet says it has, which is two everywhere but macOS.
+  "menu.display": "WINDOW",
+  "menu.display.windowed": "Windowed",
+  "menu.display.borderless": "Borderless",
+  "menu.display.fullscreen": "Fullscreen",
+  "menu.display.note": "Remembered for next launch. F or F11 switches without coming here.",
   // How big the desktop's chrome is drawn. Applies on the next launch.
   "menu.uiScale": "INTERFACE",
   "menu.uiScale.small": "Small",
@@ -814,6 +821,11 @@ export const viCore = {
   "menu.layout.desktop": "Máy tính",
   "menu.layout.portraitNote": "Bố cục máy tính cần cửa sổ nằm ngang — cửa sổ này cao hơn rộng nên vẫn hiện cột điện thoại. Xoay ngang, hoặc mở rộng cửa sổ, rồi mở lại.",
   "menu.layout.applyNote": "Đổi bố cục sẽ mở lại trò chơi.",
+  "menu.display": "CỬA SỔ",
+  "menu.display.windowed": "Cửa sổ",
+  "menu.display.borderless": "Không viền",
+  "menu.display.fullscreen": "Toàn màn hình",
+  "menu.display.note": "Được nhớ cho lần mở sau. Phím F hoặc F11 đổi ngay, không cần vào đây.",
   "menu.uiScale": "CỠ GIAO DIỆN",
   "menu.uiScale.small": "Nhỏ",
   "menu.uiScale.normal": "Vừa",
