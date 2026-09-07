@@ -136,6 +136,7 @@ window.render_game_to_text = () => {
     return JSON.stringify({
       mode: 'menu',
       bannerEditor: menu.templeSheet?.bannerState(),
+      wardrobe: menu.templeSheet?.wardrobeState(),
       language: getLanguage(),
       languageOptions: ['vi', 'en'],
       actions: ['guide', 'history', 'settings'],
@@ -287,6 +288,7 @@ window.render_game_to_text = () => {
           ui: {
             screen: ascentUi?.openPromptKey || 'map',
             bannerEditor: state.pendingAscentPrompt?.kind === 'coronation' ? ascentUi?.coronationSheet?.bannerState() : undefined,
+            wardrobe: state.pendingAscentPrompt?.kind === 'coronation' ? ascentUi?.coronationSheet?.wardrobeState() : undefined,
             chronicleTab: ascentUi?.openPromptKey === 'lane:chronicle'
               ? ascentUi.chronicleTab ?? 'actions'
               : null,

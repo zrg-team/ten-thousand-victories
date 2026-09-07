@@ -1,0 +1,434 @@
+[
+  {
+    "id": "royal-dinh-hat-1",
+    "era": "dinh",
+    "slot": "hat",
+    "name": "Mũ bình đính viền gấm",
+    "cost": 140,
+    "sex": "any"
+  },
+  {
+    "id": "royal-dinh-hat-2",
+    "era": "dinh",
+    "slot": "hat",
+    "name": "Khăn võ tướng",
+    "cost": 160,
+    "sex": "any"
+  },
+  {
+    "id": "royal-dinh-hat-3",
+    "era": "dinh",
+    "slot": "hat",
+    "name": "Khăn vấn lụa",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-dinh-robe-1",
+    "era": "dinh",
+    "slot": "robe",
+    "name": "Giao lĩnh dệt ô",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-dinh-robe-2",
+    "era": "dinh",
+    "slot": "robe",
+    "name": "Giáp da buộc dây",
+    "cost": 200,
+    "sex": "any"
+  },
+  {
+    "id": "royal-dinh-robe-3",
+    "era": "dinh",
+    "slot": "robe",
+    "name": "Đối khâm viền gấm",
+    "cost": 220,
+    "sex": "any"
+  },
+  {
+    "id": "royal-dinh-ornament-1",
+    "era": "dinh",
+    "slot": "ornament",
+    "name": "Đai dệt ô",
+    "cost": 80,
+    "sex": "any"
+  },
+  {
+    "id": "royal-dinh-ornament-2",
+    "era": "dinh",
+    "slot": "ornament",
+    "name": "Dải lụa thắt nút",
+    "cost": 100,
+    "sex": "any"
+  },
+  {
+    "id": "royal-dinh-ornament-3",
+    "era": "dinh",
+    "slot": "ornament",
+    "name": "Dây thao đôi",
+    "cost": 120,
+    "sex": "any"
+  },
+  {
+    "id": "royal-ly-hat-1",
+    "era": "ly",
+    "slot": "hat",
+    "name": "Phốc đầu viền hoa",
+    "cost": 140,
+    "sex": "any"
+  },
+  {
+    "id": "royal-ly-hat-2",
+    "era": "ly",
+    "slot": "hat",
+    "name": "Mũ võ quan",
+    "cost": 160,
+    "sex": "any"
+  },
+  {
+    "id": "royal-ly-hat-3",
+    "era": "ly",
+    "slot": "hat",
+    "name": "Khăn vấn hoa sen",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-ly-robe-1",
+    "era": "ly",
+    "slot": "robe",
+    "name": "Viên lĩnh hoa sen",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-ly-robe-2",
+    "era": "ly",
+    "slot": "robe",
+    "name": "Giáp phiến buộc dây",
+    "cost": 200,
+    "sex": "any"
+  },
+  {
+    "id": "royal-ly-robe-3",
+    "era": "ly",
+    "slot": "robe",
+    "name": "Giao lĩnh dây hoa",
+    "cost": 220,
+    "sex": "any"
+  },
+  {
+    "id": "royal-ly-ornament-1",
+    "era": "ly",
+    "slot": "ornament",
+    "name": "Đai hoa sen",
+    "cost": 80,
+    "sex": "any"
+  },
+  {
+    "id": "royal-ly-ornament-2",
+    "era": "ly",
+    "slot": "ornament",
+    "name": "Dải lụa mây",
+    "cost": 100,
+    "sex": "any"
+  },
+  {
+    "id": "royal-ly-ornament-3",
+    "era": "ly",
+    "slot": "ornament",
+    "name": "Đai hoa dây",
+    "cost": 120,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tran-hat-1",
+    "era": "tran",
+    "slot": "hat",
+    "name": "Mũ đinh tự gấm",
+    "cost": 140,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tran-hat-2",
+    "era": "tran",
+    "slot": "hat",
+    "name": "Mũ trận viền đồng",
+    "cost": 160,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tran-hat-3",
+    "era": "tran",
+    "slot": "hat",
+    "name": "Đinh tự dải lụa",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tran-robe-1",
+    "era": "tran",
+    "slot": "robe",
+    "name": "Viên lĩnh mây",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tran-robe-2",
+    "era": "tran",
+    "slot": "robe",
+    "name": "Giáp phiến vảy nhỏ",
+    "cost": 200,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tran-robe-3",
+    "era": "tran",
+    "slot": "robe",
+    "name": "Giao lĩnh viền sóng",
+    "cost": 220,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tran-ornament-1",
+    "era": "tran",
+    "slot": "ornament",
+    "name": "Đai mây cuộn",
+    "cost": 80,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tran-ornament-2",
+    "era": "tran",
+    "slot": "ornament",
+    "name": "Dây thao võ tướng",
+    "cost": 100,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tran-ornament-3",
+    "era": "tran",
+    "slot": "ornament",
+    "name": "Đai viền sóng",
+    "cost": 120,
+    "sex": "any"
+  },
+  {
+    "id": "royal-le-hat-1",
+    "era": "le",
+    "slot": "hat",
+    "name": "Mũ xung thiên",
+    "cost": 140,
+    "sex": "any"
+  },
+  {
+    "id": "royal-le-hat-2",
+    "era": "le",
+    "slot": "hat",
+    "name": "Phốc đầu võ quan",
+    "cost": 160,
+    "sex": "any"
+  },
+  {
+    "id": "royal-le-hat-3",
+    "era": "le",
+    "slot": "hat",
+    "name": "Phốc đầu thêu hoa",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-le-robe-1",
+    "era": "le",
+    "slot": "robe",
+    "name": "Long bào Lê",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-le-robe-2",
+    "era": "le",
+    "slot": "robe",
+    "name": "Bào võ quan hổ",
+    "cost": 200,
+    "sex": "any"
+  },
+  {
+    "id": "royal-le-robe-3",
+    "era": "le",
+    "slot": "robe",
+    "name": "Bào văn quan hạc",
+    "cost": 220,
+    "sex": "any"
+  },
+  {
+    "id": "royal-le-ornament-1",
+    "era": "le",
+    "slot": "ornament",
+    "name": "Đai ngọc chạm mây",
+    "cost": 80,
+    "sex": "any"
+  },
+  {
+    "id": "royal-le-ornament-2",
+    "era": "le",
+    "slot": "ornament",
+    "name": "Đai võ quan",
+    "cost": 100,
+    "sex": "any"
+  },
+  {
+    "id": "royal-le-ornament-3",
+    "era": "le",
+    "slot": "ornament",
+    "name": "Đai hoa mai",
+    "cost": 120,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tayson-hat-1",
+    "era": "tayson",
+    "slot": "hat",
+    "name": "Khăn vấn chỉ thêu",
+    "cost": 140,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tayson-hat-2",
+    "era": "tayson",
+    "slot": "hat",
+    "name": "Mũ trận bọc vải",
+    "cost": 160,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tayson-hat-3",
+    "era": "tayson",
+    "slot": "hat",
+    "name": "Khăn vấn nếp cao",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tayson-robe-1",
+    "era": "tayson",
+    "slot": "robe",
+    "name": "Giao lĩnh thêu mây",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tayson-robe-2",
+    "era": "tayson",
+    "slot": "robe",
+    "name": "Áo trận buộc giáp",
+    "cost": 200,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tayson-robe-3",
+    "era": "tayson",
+    "slot": "robe",
+    "name": "Giao lĩnh viền trúc",
+    "cost": 220,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tayson-ornament-1",
+    "era": "tayson",
+    "slot": "ornament",
+    "name": "Đai thao nút kép",
+    "cost": 80,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tayson-ornament-2",
+    "era": "tayson",
+    "slot": "ornament",
+    "name": "Dải lụa chéo",
+    "cost": 100,
+    "sex": "any"
+  },
+  {
+    "id": "royal-tayson-ornament-3",
+    "era": "tayson",
+    "slot": "ornament",
+    "name": "Đai gấm hoa",
+    "cost": 120,
+    "sex": "any"
+  },
+  {
+    "id": "royal-nguyen-hat-1",
+    "era": "nguyen",
+    "slot": "hat",
+    "name": "Cửu long thông thiên",
+    "cost": 140,
+    "sex": "any"
+  },
+  {
+    "id": "royal-nguyen-hat-2",
+    "era": "nguyen",
+    "slot": "hat",
+    "name": "Phốc đầu võ ban",
+    "cost": 160,
+    "sex": "any"
+  },
+  {
+    "id": "royal-nguyen-hat-3",
+    "era": "nguyen",
+    "slot": "hat",
+    "name": "Vành dây cung đình",
+    "cost": 180,
+    "sex": "woman"
+  },
+  {
+    "id": "royal-nguyen-robe-1",
+    "era": "nguyen",
+    "slot": "robe",
+    "name": "Hoàng bào thêu rồng",
+    "cost": 180,
+    "sex": "any"
+  },
+  {
+    "id": "royal-nguyen-robe-2",
+    "era": "nguyen",
+    "slot": "robe",
+    "name": "Bào võ quan kỳ lân",
+    "cost": 200,
+    "sex": "any"
+  },
+  {
+    "id": "royal-nguyen-robe-3",
+    "era": "nguyen",
+    "slot": "robe",
+    "name": "Nhật Bình hoa phượng",
+    "cost": 220,
+    "sex": "woman"
+  },
+  {
+    "id": "royal-nguyen-ornament-1",
+    "era": "nguyen",
+    "slot": "ornament",
+    "name": "Đai ngọc cung đình",
+    "cost": 80,
+    "sex": "any"
+  },
+  {
+    "id": "royal-nguyen-ornament-2",
+    "era": "nguyen",
+    "slot": "ornament",
+    "name": "Đai võ ban chạm hoa",
+    "cost": 100,
+    "sex": "any"
+  },
+  {
+    "id": "royal-nguyen-ornament-3",
+    "era": "nguyen",
+    "slot": "ornament",
+    "name": "Dải ngũ sắc",
+    "cost": 120,
+    "sex": "any"
+  }
+]

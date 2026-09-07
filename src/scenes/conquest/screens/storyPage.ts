@@ -11,6 +11,7 @@
  */
 import { GAME_HEIGHT, GAME_WIDTH } from '../../../game/constants';
 import { hudSheetHeight } from '../../../game/cameraLayout';
+import { addStoryIllustration } from '../../../ui/storyIllustration';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import {
   heldBeat,
@@ -69,7 +70,9 @@ export function showStoryPage(self: ConquestUIScene, storyId: string): void {
     LANE_FOOTER_HEIGHT,
   );
 
-  let used = 0;
+  const held = heldBeat(state, story);
+  const shownFragment = held?.fragment.id ?? story.spoken[story.spoken.length - 1];
+  let used = addStoryIllustration(self, body, story.templateId, shownFragment, bodyWidth);
 
   // The person, face first. A story with nobody in it skips straight to the record.
   if (hero) {
@@ -80,19 +83,23 @@ export function showStoryPage(self: ConquestUIScene, storyId: string): void {
     frame.lineStyle(1.2, INK_UI.brush, 0.5);
     frame.strokeRect(0, 0, faceSize, faceSize);
     holder.add(frame);
-    holder.add(self.ui.label(faceSize + 12, 6, heroName(hero), 'label', { fontSize: '15px' }));
+    const name = self.ui.label(faceSize + 12, 2, heroName(hero), 'label', { fontSize: '15px', wordWrap: { width: bodyWidth - faceSize - 16 } });
+    holder.add(name);
+    let personHeight = Math.max(faceSize, name.height + 6);
     const regard = storyRegard(state, story);
     const regardText = regard ? storyText(`${story.templateId}.regard.${regard}`, params) : undefined;
     if (regardText && regardText !== `${story.templateId}.regard.${regard}`) {
-      holder.add(self.ui.label(faceSize + 12, 30, regardText, 'body', {
+      const regardLabel = self.ui.label(faceSize + 12, name.height + 8, regardText, 'body', {
         fontSize: '11px',
         color: INK_UI_HEX.mutedText,
         fontStyle: 'italic',
         wordWrap: { width: bodyWidth - faceSize - 16 },
-      }));
+      });
+      holder.add(regardLabel);
+      personHeight = Math.max(personHeight, regardLabel.y + regardLabel.height);
     }
     body.add(holder);
-    used += faceSize + 14;
+    used += personHeight + 14;
   }
 
   // ── Đã xảy ra: the case this story has been building, in order, dated ──
@@ -238,7 +245,6 @@ export function showStoryPage(self: ConquestUIScene, storyId: string): void {
   // holding it and this is the only place it can be answered. Drawn exactly like the prompt
   // would have been — same options, same prices, same closed-when-unaffordable — because a beat
   // answered here must not behave differently from the same beat answered mid-run.
-  const held = heldBeat(state, story);
   if (held) {
     heading(t('ascent.story.heldBeat'));
     const key = (suffix: string) => `${story.templateId}.${held.fragment.id}.${suffix}`;

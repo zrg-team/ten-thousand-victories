@@ -9,8 +9,7 @@
  * the advisor line is compared against `prompt.advisorKey` before it is drawn at all.
  */
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
-import { drawStoryBand } from '../../../ui/ink/storyBand';
-import { addStoryPrint, storyBeatPrint } from '../../../ui/storyPrint';
+import { addStoryIllustration } from '../../../ui/storyIllustration';
 import { storyText } from '../../../i18n/story';
 import { INK_UI, INK_UI_HEX } from '../../../ui/InkUI';
 import { iconForOption } from '../../../ui/CardIcons';
@@ -40,52 +39,19 @@ export function showStoryBeat(self: ConquestUIScene, prompt: Extract<AscentPromp
     0,
   );
 
-  let used = 0;
+  let used = addStoryIllustration(self, body, prompt.templateId, prompt.fragmentId, bodyWidth, prompt.band);
 
-  // Symbolic scenes describe the selected moment; the actual cast still uses its own portrait.
-  // Other moments, and missing optional artwork, retain the procedural impression.
-  const printKind = storyBeatPrint(prompt.templateId, prompt.fragmentId);
-  const hasPrint = printKind && self.textures.exists(`story-print:${printKind}`);
-  if (hasPrint || prompt.band) {
-    const bandHeight = hasPrint ? 138 : 62;
-    const faceWidth = prompt.speakerHeroId ? 62 : 0;
+  // Give the print the full sheet width; identify its real speaker on a separate measured row.
+  const speaker = self.state.heroes.find(hero => hero.id === prompt.speakerHeroId);
+  if (speaker) {
     const holder = self.add.container(0, used);
-
-    if (prompt.speakerHeroId) {
-      const speaker = self.state.heroes.find((hero) => hero.id === prompt.speakerHeroId);
-      if (speaker) {
-        holder.add(renderHeroFaceInBox(self, speaker,
-          { x: 0, y: (bandHeight - 62) / 2, width: faceWidth, height: 62 }));
-      }
-    }
-
-    if (hasPrint) {
-      addStoryPrint(self, holder, printKind,
-        { x: faceWidth, y: 0, width: bodyWidth - faceWidth, height: bandHeight });
-    } else if (prompt.band) {
-      const band = drawStoryBand(
-        self,
-        prompt.band,
-        `${prompt.storyId}:${prompt.fragmentId}`,
-        bodyWidth - faceWidth,
-        bandHeight,
-      );
-      band.setPosition(faceWidth, 0);
-      holder.add(band);
-    }
-
-    const frame = self.add.graphics();
-    frame.lineStyle(1.2, INK_UI.brush, 0.5);
-    if (hasPrint) {
-      if (faceWidth > 0) frame.strokeRect(0, (bandHeight - 62) / 2, faceWidth, 62);
-    } else {
-      frame.strokeRect(0, 0, bodyWidth, bandHeight);
-      if (faceWidth > 0) frame.lineBetween(faceWidth, 0, faceWidth, bandHeight);
-    }
-    holder.add(frame);
-
+    holder.add(renderHeroFaceInBox(self, speaker, { x: 0, y: 0, width: 44, height: 44 }));
+    const name = self.ui.label(56, 8, heroName(speaker), 'label', {
+      fontSize: '13px', wordWrap: { width: bodyWidth - 60 },
+    });
+    holder.add(name);
     body.add(holder);
-    used += bandHeight + 12;
+    used += Math.max(44, name.height + 16) + 12;
   }
 
   if (prompt.options.length === 0) {

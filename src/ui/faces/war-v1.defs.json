@@ -1,0 +1,56 @@
+[
+  {
+    "key": "royal-ly-hat-2",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -46.61666666666667,
+    "w": 68,
+    "h": 47.373333333333335
+  },
+  {
+    "key": "royal-ly-robe-2",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tran-hat-2",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -50.698315467075034,
+    "w": 68,
+    "h": 43.372128637059724
+  },
+  {
+    "key": "royal-tran-robe-2",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tayson-hat-2",
+    "layer": 52,
+    "tint": "none",
+    "cx": 3,
+    "cy": -45.15895953757226,
+    "w": 74,
+    "h": 41.99036608863199
+  },
+  {
+    "key": "royal-tayson-robe-2",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  }
+]

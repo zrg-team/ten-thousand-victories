@@ -60,7 +60,7 @@ async function pick(page, kind, value, host = 'menu') {
 const page = await open('vi', 844);
 await page.screenshot({ path: `${OUT}/vi-top.png` });
 const initial = await page.evaluate(() => JSON.parse(window.render_game_to_text()).bannerEditor);
-check('six named motifs and two earned locks', initial.options.length === 6 && initial.options.filter((x) => x.locked).length === 2, initial);
+check('sixteen signs with twelve unlockable choices', initial.options.length === 16 && initial.options.filter((x) => x.locked).length === 12, initial);
 const field = await pick(page, 'field', 0xaa3a2c);
 check('field tap changes preview and text state without losing scroll', field.banner.field === 0xaa3a2c && field.text.field === 0xaa3a2c && field.before === field.after);
 const trim = await pick(page, 'trim', 0xaa3a2c);
