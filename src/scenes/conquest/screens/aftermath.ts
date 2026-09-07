@@ -10,6 +10,7 @@
  * nothing at all without a `pendingAftermath`, which is why `openAftermath` checks the modal
  * layer afterwards and dismisses itself.
  */
+import { addStoryIllustration } from '../../../ui/storyIllustration';
 import { storyText, storyTitle } from '../../../i18n/story';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import { INK_UI, INK_UI_HEX } from '../../../ui/InkUI';
@@ -50,7 +51,7 @@ export function showStoryOutcome(self: ConquestUIScene, report: NonNullable<Game
     0,
   );
 
-  let used = 0;
+  let used = addStoryIllustration(self, body, report.templateId, report.fragmentId, bodyWidth);
 
   // The class of the path, where the story has one. Same three inks as the spine, so the two
   // screens are legibly about the same thing.

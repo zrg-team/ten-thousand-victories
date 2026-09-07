@@ -23,7 +23,7 @@ import {
 } from '../../state/dynasty';
 import { cabinetProgress, getCabinet } from '../../state/cabinet';
 import { dynastyFounderHero } from '../../ui/dynastyPortrait';
-import { drawHouseBanner, houseBanner } from '../../ui/ascent/houseBanner';
+import { drawHouseSign, houseBanner } from '../../ui/ascent/houseBanner';
 import { renderHeroFaceInBox } from '../../ui/FaceRenderer';
 import { t } from '../../i18n';
 import { INK_UI } from '../../ui/InkUI';
@@ -93,7 +93,7 @@ export function renderDynastyTitleBar(self: MenuScene, title: string = t('dynast
   // The house's mark rides the head's right edge once there is a house: the same banner the
   // chip carries in-run, so the page and the run agree about whose ledger this is.
   if (withMark && store.founder) {
-    const mark = drawHouseBanner(self, houseBanner(), 22, 30);
+    const mark = drawHouseSign(self, houseBanner(), 22, 30);
     mark.setPosition(GAME_WIDTH - 44, 11);
     self.content.push(mark);
   }
@@ -160,7 +160,7 @@ export function renderDynastySheet(self: MenuScene): void {
         self.content.push(renderHeroFaceInBox(self, founder,
           { x: GAME_WIDTH / 2 - 38, y: top + 10, width: 68, height: 68 }));
       }
-      const mark = drawHouseBanner(self, houseBanner(), 34, 44);
+      const mark = drawHouseSign(self, houseBanner(), 34, 44);
       mark.setPosition(GAME_WIDTH / 2 + 42, top + 20);
       self.content.push(mark);
       self.content.push(self.ui.label(GAME_WIDTH / 2, top + 10 + 68 + 6, houseText, 'label', houseStyle)

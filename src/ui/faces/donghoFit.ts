@@ -3,7 +3,7 @@ import type { HeroLookPart } from './heroLook';
 
 export interface FittedFacePart extends FacePartDef {
   /** Normalized source interval. Only wings and separated ear pairs need slices. */
-  crop?: { left: number; right: number };
+  crop?: { left: number; right: number; top?: number; bottom?: number };
 }
 
 // Measured opaque forehead edges at y=-35 in the committed generated head PNGs.
@@ -55,6 +55,40 @@ export const DONGHO_HAT_CONTACTS: Record<string, [number, number, number]> = {
 export function fitDonghoPart(def: FacePartDef, head?: FacePartDef): FittedFacePart[] {
   if (!head || !FOREHEAD[head.key]) return [{ ...def }];
   const [left, right] = FOREHEAD[head.key], center = (left + right) / 2;
+  if (def.key.startsWith('royal-') && def.key.includes('-hat-')) {
+    const sx = (right - left + 4) / 60;
+    // Crown height encloses tall, narrow heads. Independently fit the wing slices
+    // so broad heads do not push court-cap wings outside the cartouche.
+    const sy = Math.max(sx, (-35 - (head.cy - head.h / 2) + 1) / 30);
+    const fit = { ...def, cx: center + def.cx * sx, cy: -35 + (def.cy + 35) * sy, w: def.w * sx, h: def.h * sy };
+    const winged = /royal-(ly-hat-1|le-hat-[23]|nguyen-hat-2)$/.test(def.key);
+    if (!winged) return [fit];
+    const a = (64 - 30) / 128, b = (64 + 30) / 128;
+    return [{ ...fit, crop: { left: a, right: b } }, ...([-1, 1] as const).map(side => {
+      const edge = center + side * 30 * sx, scale = Math.min(sx, (63 - Math.abs(edge)) / 34);
+      return { ...fit, cx: edge - side * 30 * scale, w: def.w * scale,
+        crop: { left: side < 0 ? 0 : b, right: side < 0 ? a : 1 } };
+    })];
+  }
+  if (def.key.startsWith('beard-') && !def.key.startsWith('beard-moustache')) {
+    const chin = head.cy + head.h / 2 - 2;
+    const sx = (right - left) / 52;
+    const base = { ...def, cx: center + def.cx * sx, w: def.w * sx };
+    // Composite resources have a separate moustache above the negative-space mouth.
+    // Keep that upper piece below the nose; attach only the beard mass to the chin.
+    const split: Record<string, number> = { 'beard-long': 16,
+      'beard-threepart': 15, 'beard-forked': 16, 'beard-patriarch': 16 };
+    const seam = split[def.key];
+    if (seam !== undefined) {
+      const ratio = (seam - (def.cy - def.h / 2)) / def.h;
+      return [{ ...base, crop: { left: 0, right: 1, bottom: ratio } },
+        { ...base, cy: def.cy + chin - seam - 1, crop: { left: 0, right: 1, top: ratio } }];
+    }
+    // Stubble and chinstraps cover the jaw; pointed goatees begin at its bottom.
+    const jaw = /chinstrap|stubble/.test(def.key);
+    const full = def.key.startsWith('beard-full');
+    return [{ ...base, cy: chin + (full ? def.h * .12 : jaw ? -def.h / 2 + 2 : def.h / 2 - 2) }];
+  }
   const contact = DONGHO_HAT_CONTACTS[def.key];
   if (contact) {
     const [l, r, front] = contact;

@@ -1,0 +1,66 @@
+{
+  "generator": "built-in image_gen",
+  "prompts": "docs/hero-war-dongho-v1-prompts.json",
+  "parts": [
+    {
+      "id": "royal-ly-hat-2",
+      "source": "docs/art/hero-war-v1/royal-ly-hat-2.png",
+      "sourceBounds": {
+        "left": 163,
+        "top": 113,
+        "right": 1362,
+        "bottom": 948
+      }
+    },
+    {
+      "id": "royal-ly-robe-2",
+      "source": "docs/art/hero-war-v1/royal-ly-robe-2.png",
+      "sourceBounds": {
+        "left": 67,
+        "top": 63,
+        "right": 1515,
+        "bottom": 919
+      }
+    },
+    {
+      "id": "royal-tran-hat-2",
+      "source": "docs/art/hero-war-v1/royal-tran-hat-2.png",
+      "sourceBounds": {
+        "left": 184,
+        "top": 41,
+        "right": 1489,
+        "bottom": 873
+      }
+    },
+    {
+      "id": "royal-tran-robe-2",
+      "source": "docs/art/hero-war-v1/royal-tran-robe-2.png",
+      "sourceBounds": {
+        "left": 73,
+        "top": 71,
+        "right": 1511,
+        "bottom": 956
+      }
+    },
+    {
+      "id": "royal-tayson-hat-2",
+      "source": "docs/art/hero-war-v1/royal-tayson-hat-2.png",
+      "sourceBounds": {
+        "left": 349,
+        "top": 180,
+        "right": 1386,
+        "bottom": 768
+      }
+    },
+    {
+      "id": "royal-tayson-robe-2",
+      "source": "docs/art/hero-war-v1/royal-tayson-robe-2.png",
+      "sourceBounds": {
+        "left": 86,
+        "top": 67,
+        "right": 1500,
+        "bottom": 924
+      }
+    }
+  ]
+}

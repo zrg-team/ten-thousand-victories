@@ -12,6 +12,8 @@ import { ACTIVE_HERO_FACE_ART_PACK, heroFaceHeadwearSupported } from './faces/ar
 import donghoV2Defs from './faces/dongho-v2.defs.json';
 import { donghoWardrobeParts } from './faces/donghoWardrobe';
 import { donghoHead, fitDonghoPart } from './faces/donghoFit';
+import royalDefs from './faces/royal.defs.json';
+import warDefs from './faces/war-v1.defs.json';
 
 /**
  * Hero portraits, composed from independently versioned part atlases.
@@ -45,7 +47,10 @@ const FACE_ATLAS_TEXTURE_KEY = FACE_ART_PACK.texture;
 
 const ACTIVE_PART_DEFS: readonly FacePartDef[] = FACE_ART_PACK.id === 'dongho-v2'
   ? donghoV2Defs as FacePartDef[] : FACE_PART_DEFS;
-const PART_BY_KEY = new Map<string, FacePartDef>(ACTIVE_PART_DEFS.map((part) => [part.key, part]));
+const PART_BY_KEY = new Map<string, FacePartDef>([...ACTIVE_PART_DEFS, ...royalDefs as FacePartDef[], ...warDefs as FacePartDef[]].map((part) => [part.key, part]));
+const ROYAL_ATLAS = 'face:royal';
+const WAR_ATLAS = 'face:royal:war-v1';
+const WAR_PARTS = new Set(warDefs.map(part => part.key));
 
 /**
  * Visual extent of a portrait at scale 1, relative to its container origin.
@@ -120,6 +125,8 @@ function cartoucheInk(g: Phaser.GameObjects.Graphics, rank: number, k = 1): void
  */
 export function preloadHeroFaces(scene: Phaser.Scene): void {
   const baseUrl = import.meta.env.BASE_URL;
+  if (!scene.textures.exists(ROYAL_ATLAS)) scene.load.atlas(ROYAL_ATLAS, `${baseUrl}faces-royal/atlas.svg`, `${baseUrl}faces-royal/atlas.json`);
+  if (!scene.textures.exists(WAR_ATLAS)) scene.load.atlas(WAR_ATLAS, `${baseUrl}faces-royal/war-v1/atlas.png`, `${baseUrl}faces-royal/war-v1/atlas.json`);
   if (scene.textures.exists(FACE_ATLAS_TEXTURE_KEY)) return;
   scene.load.atlas(FACE_ATLAS_TEXTURE_KEY, `${baseUrl}${FACE_ART_PACK.image}`, `${baseUrl}${FACE_ART_PACK.atlas}`);
 }
@@ -330,7 +337,7 @@ function buildLookLayers(scene: Phaser.Scene, source: HeroLook): Phaser.GameObje
   }
   if (!heroFacesReady(scene)) return root;
   if (FACE_ART_PACK.id === 'dongho-v2') look.parts = donghoWardrobeParts(look);
-  const fittedHead = FACE_ART_PACK.id === 'dongho-v2' ? donghoHead(look.parts, PART_BY_KEY) : undefined;
+  const fittedHead = donghoHead(look.parts, PART_BY_KEY);
 
   // Paint order comes from the manifest, not from the order the wardrobe happened to push
   // parts in — the throat is layer 25 and a collar is 35, and the wardrobe builds the garment
@@ -339,20 +346,22 @@ function buildLookLayers(scene: Phaser.Scene, source: HeroLook): Phaser.GameObje
   const stack = look.parts
     .flatMap(wanted => {
       const def = PART_BY_KEY.get(wanted.key);
-      return def ? fitDonghoPart(def, fittedHead).map(fit => ({ wanted, def: fit })) : [];
+      return def ? fitDonghoPart(def, FACE_ART_PACK.id === 'dongho-v2' || /^(beard-|royal-)/.test(def.key) ? fittedHead : undefined).map(fit => ({ wanted, def: fit })) : [];
     })
     .sort((a, b) => a.def.layer - b.def.layer);
 
   for (const { wanted, def } of stack) {
     // A missing frame means the committed atlas is stale; draw what we can rather than throwing
     // in the middle of a roster list. The verification suite catches the mismatch.
-    if (!scene.textures.get(FACE_ATLAS_TEXTURE_KEY).has(def.key)) continue;
+    const atlas = WAR_PARTS.has(def.key) ? WAR_ATLAS : def.key.startsWith('royal-') ? ROYAL_ATLAS : FACE_ATLAS_TEXTURE_KEY;
+    if (!scene.textures.exists(atlas) || !scene.textures.get(atlas).has(def.key)) continue;
 
-    const image = scene.add.image(def.cx, def.cy, FACE_ATLAS_TEXTURE_KEY, def.key);
+    const image = scene.add.image(def.cx, def.cy, atlas, def.key);
     image.setDisplaySize(def.w, def.h);
     if (def.crop) {
       const frame = image.frame;
-      image.setCrop(def.crop.left * frame.width, 0, (def.crop.right - def.crop.left) * frame.width, frame.height);
+      const top = def.crop.top ?? 0, bottom = def.crop.bottom ?? 1;
+      image.setCrop(def.crop.left * frame.width, top * frame.height, (def.crop.right - def.crop.left) * frame.width, (bottom - top) * frame.height);
     }
     if (wanted.tint !== 'none') image.setTint(look.palette[wanted.tint]);
     root.add(image);

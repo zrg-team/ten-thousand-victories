@@ -4,20 +4,7 @@ import { getDynasty, type DynastyBanner } from '../../state/dynasty';
 import { ROYAL_HOUSES } from '../faces/kingLook';
 import { BANNER_EMBLEM_SIZE, drawBannerEmblem } from './bannerEmblems';
 
-/**
- * The house's mark — two colours and a glyph, on a hanging silk.
- *
- * **This is chrome, not a flag system.** `ArmyRenderer` already flies the realm's own standard
- * over every marching column, drawn from a `flagSeed` and the kingdom colour, and it is left
- * exactly as it is: putting the house's banner on the map would mean re-baking a column's
- * standard on a store read, which is a rendering change this feature has no business making.
- * What the banner does instead is identify the *house* wherever the house appears — the Tông
- * Phả sheet, the coronation, the next-reign screen — which is the job a company banner does in
- * Battle Brothers and the reason a player recognises their own save at a glance.
- *
- * Drawn rather than baked because there are never more than two on a screen at once and both
- * sit on pages, not on frames.
- */
+/** The same dynasty sign mounted on a ceremonial flag. */
 export function drawHouseBanner(
   scene: Phaser.Scene,
   banner: DynastyBanner,
@@ -56,8 +43,7 @@ export function drawHouseBanner(
   g.lineStyle(1.1 * unit, edge, 0.9).strokeRect(x + 3 * unit, y + 3 * unit, side - 6 * unit, side - 6 * unit);
   g.fillStyle(banner.field).fillRect(x + 7 * unit, y + 7 * unit, side - 14 * unit, side - 14 * unit);
   g.lineStyle(1.1 * unit, edge).strokeRect(x + 7 * unit, y + 7 * unit, side - 14 * unit, side - 14 * unit);
-  const markColour = Math.abs(luma(banner.trim) - luma(banner.field)) >= 80
-    ? banner.trim : luma(banner.field) > 140 ? INK_UI.brush : 0xf3e6c4;
+  const markColour = banner.trim;
   // Sparse woven ticks; omit at the smallest dynasty-chip sizes.
   if (width >= 70) {
     g.lineStyle(0.65 * unit, markColour, 0.22);
@@ -76,6 +62,26 @@ export function drawHouseBanner(
   emblem.setScale(side * 0.66 / BANNER_EMBLEM_SIZE);
   root.add(emblem);
   root.setData('houseBanner', { ...banner, width, height });
+  return root;
+}
+
+/** A standalone identity seal, using the exact same device and colours as the flag. */
+export function drawHouseSign(
+  scene: Phaser.Scene, sign: DynastyBanner, width: number, height: number,
+): Phaser.GameObjects.Container {
+  const root = scene.add.container(0, 0).setData('houseSign', { ...sign, width, height });
+  const radius = Math.min(width, height) * 0.46;
+  const x = width / 2, y = height / 2;
+  const g = scene.add.graphics();
+  g.fillStyle(sign.field).fillCircle(x, y, radius);
+  g.lineStyle(Math.max(1, radius * 0.05), sign.trim).strokeCircle(x, y, radius);
+  g.lineStyle(Math.max(0.6, radius * 0.02), luma(sign.field) > 140 ? INK_UI.brush : 0xf3e6c4, 0.65)
+    .strokeCircle(x, y, radius * 0.91);
+  root.add(g);
+  const colour = sign.trim;
+  root.add(drawBannerEmblem(scene, sign.emblem, colour,
+    luma(colour) > 140 ? INK_UI.brush : 0xf3e6c4, sign.field)
+    .setPosition(x, y).setScale(radius * 1.5 / BANNER_EMBLEM_SIZE));
   return root;
 }
 

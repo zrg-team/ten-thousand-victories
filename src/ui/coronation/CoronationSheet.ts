@@ -3,7 +3,7 @@ import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type InkUI } from '../Ink
 import { CARD_ICON_SIZE, drawCardIcon, type CardIconId } from '../CardIcons';
 import { UI_FONT } from '../fonts';
 import { renderLookInBox } from '../FaceRenderer';
-import { drawHouseBanner } from '../ascent/houseBanner';
+import { drawHouseBanner, drawHouseSign } from '../ascent/houseBanner';
 import { bannerEmblem, drawBannerEmblem } from '../ascent/bannerEmblems';
 import { PIGMENT } from '../ink/palette';
 import { dynastyRankRarity, getDynasty, type DynastyBanner, type DynastyFounder } from '../../state/dynasty';
@@ -16,7 +16,11 @@ import {
   type KingChoice,
 } from '../faces/kingLook';
 import type { HeroLook, HeroLookPart } from '../faces/heroLook';
-import { t } from '../../i18n';
+import { t, getLanguage } from '../../i18n';
+import { ROYAL_WARDROBE, royalItemFits, royalWardrobeItem } from '../../data/royalWardrobe';
+import { getLegacy, ownsDynastySign, purchaseDynastySign, purchaseRoyalWardrobe } from '../../state/legacy';
+import { SIGN_COSTS, type DynastySign } from '../../data/dynastySigns';
+import { royalField } from '../faces/royalWardrobe';
 import type { HeroEra } from '../../state/types';
 import { soundDirector } from '../sound/SoundDirector';
 import { ACTIVE_HERO_FACE_ART_PACK } from '../faces/artPack';
@@ -87,10 +91,24 @@ export class CoronationSheet {
    * navigation. As a step it inherits all three for free.
    */
   grid?: GridField;
+  wardrobeOpen = false;
+  wardrobeMessage = '';
+  wardrobeState() {
+    if (!this.wardrobeOpen) return undefined;
+    const store = getLegacy();
+    return { era: this.choice.era, points: store.points, owned: store.wardrobe ?? [],
+      equipped: this.look().parts.filter(p => p.key.startsWith('royal-')).map(p => p.key),
+      items: ROYAL_WARDROBE.filter(i => royalItemFits(i, this.choice)).map(i => ({
+        id: i.id, slot: i.slot, cost: i.cost, owned: store.wardrobe?.includes(i.id) ?? false,
+      })), message: this.wardrobeMessage };
+  }
   choice: KingChoice;
   houseIndex: number;
   givenName: string;
   banner: DynastyBanner;
+  signPreview?: DynastySign;
+  signDisplay: 'sign' | 'flag' = 'sign';
+  signMessage = '';
 
   constructor(private readonly host: CoronationSheetHost) {
     const store = getDynasty();
@@ -135,6 +153,7 @@ export class CoronationSheet {
   }
 
   title(): string {
+    if (this.wardrobeOpen) return getLanguage() === 'vi' ? 'Ngự phục' : 'Royal wardrobe';
     if (this.grid) return t(GRID_TITLE[this.grid]);
     switch (this.current()) {
       case 'name': return t('coronation.name.title');
@@ -145,6 +164,9 @@ export class CoronationSheet {
   }
 
   subtitle(): string {
+    if (this.wardrobeOpen) return getLanguage() === 'vi'
+      ? '54 món · Mở khóa vĩnh viễn bằng điểm Di sản. Chọn thời đại ở màn trước.'
+      : '54 parts · Permanent unlocks with Legacy points. Change era on the previous screen.';
     if (this.grid) return t('coronation.pick.subtitle');
     switch (this.current()) {
       case 'name': return t('coronation.name.subtitle');
@@ -168,6 +190,9 @@ export class CoronationSheet {
    * run it exists to serve.
    */
   foot(): { back?: { label: string; onTap: () => void }; close: { label: string; onTap: () => void } } {
+    if (this.wardrobeOpen) return { close: { label: t('coronation.pick.done'), onTap: () => {
+      this.wardrobeOpen = false; this.wardrobeMessage = ''; this.host.redraw();
+    } } };
     if (this.grid) {
       // One control, and it is the way out. Choosing closes the grid by itself — a picker that
       // asks for a second tap to confirm what was just tapped is a dialog, not a wardrobe.
@@ -236,12 +261,16 @@ export class CoronationSheet {
     if (this.current() !== 'banner' || this.grid) return undefined;
     return {
       ...this.banner, emblemName: t(`coronation.emblem.${bannerEmblem(this.banner.emblem)}`),
-      options: BANNER_EMBLEMS.map((id) => ({ id, name: t(`coronation.emblem.${id}`), locked: emblemLocked(id) })),
+      preview: this.signPreview ?? bannerEmblem(this.banner.emblem), display: this.signDisplay,
+      points: getLegacy().points, currency: 'legacy', message: this.signMessage,
+      options: BANNER_EMBLEMS.map((id) => ({ id, name: t(`coronation.emblem.${id}`),
+        locked: emblemLocked(id), cost: SIGN_COSTS[id], owned: ownsDynastySign(id) })),
     };
   }
 
   /** Draws the current step into `body`, and returns the height it used. */
   draw(body: Phaser.GameObjects.Container, width: number): number {
+    if (this.wardrobeOpen) return this.drawRoyalWardrobe(body, width);
     if (this.grid) return this.drawGrid(body, width, this.grid);
     switch (this.current()) {
       case 'name': return this.drawName(body, width);
@@ -301,7 +330,7 @@ export class CoronationSheet {
     y = this.stepper(body, width, y, t('coronation.field.headwear'),
       hatLabel(kingHat(this.choice, rank)),
       t('coronation.of', { n: this.at('hat') + 1, total: hats.length }),
-      (delta) => { this.choice.hat += delta; this.host.redraw(); },
+      (delta) => { delete this.choice.royalHat; this.choice.hat += delta; this.host.redraw(); },
       { open: 'hat' });
 
     const hair = kingHairPool(this.choice, kingHat(this.choice, rank));
@@ -326,15 +355,24 @@ export class CoronationSheet {
     y = this.stepper(body, width, y, t('coronation.field.dress'),
       dressLabel(this.visibleGarments(this.choice, rank)),
       t('coronation.of', { n: this.at('dress') + 1, total: KING_DRESS_COUNT }),
-      (delta) => { this.choice.dress += delta; this.host.redraw(); },
+      (delta) => { delete this.choice.royalRobe; this.choice.dress += delta; this.host.redraw(); },
       { open: 'dress' });
+
+    const wardrobeVi = getLanguage() === 'vi';
+    body.add(this.host.ui.button({ x: 0, y, width, height: 42 },
+      wardrobeVi ? 'Ngự phục · 54 món để mở khóa' : 'Royal wardrobe · 54 unlockable parts', () => {
+        this.wardrobeOpen = true; this.host.redraw();
+      }, { fontSize: '12px' }).setData('royalWardrobeOpen', true));
+    y += 49;
 
     y = this.swatchRow(body, width, y, t('coronation.field.skin'), SKINS, this.choice.skin,
       (index) => { this.choice.skin = index; this.host.redraw(); });
     y = this.swatchRow(body, width, y, t('coronation.field.hairColour'), HAIRS, this.choice.hairColour,
       (index) => { this.choice.hairColour = index; this.host.redraw(); });
-    y = this.swatchRow(body, width, y, t('coronation.field.robe'), KING_ROBES, this.choice.robe,
-      (index) => { this.choice.robe = index; this.host.redraw(); });
+    if (!this.look().parts.some(p => royalWardrobeItem(p.key)?.slot === 'robe')) {
+      y = this.swatchRow(body, width, y, t('coronation.field.robe'), KING_ROBES, this.choice.robe,
+        (index) => { this.choice.robe = index; this.host.redraw(); });
+    }
 
     if (jadeLocked()) y = this.lockRow(body, width, y, t('coronation.lock.jade'), t('coronation.lock.jade.how'));
 
@@ -389,48 +427,75 @@ export class CoronationSheet {
 
   private drawBanner(body: Phaser.GameObjects.Container, width: number): number {
     const scene = this.host.scene;
-    const emblem = bannerEmblem(this.banner.emblem);
+    const emblem = this.signPreview ?? bannerEmblem(this.banner.emblem);
     const name = t(`coronation.emblem.${emblem}`);
-    const mark = drawHouseBanner(scene, this.banner, 126, 138);
-    mark.setPosition(4, 2);
-    body.add(mark);
-    const textX = 146;
+    const preview = { ...this.banner, emblem };
+    const previewBody = scene.add.container(0, 39);
+    body.add(previewBody);
+    (['sign', 'flag'] as const).forEach((display, i) => {
+      body.add(this.host.ui.button({ x: i * (width + 6) / 2, y: 0, width: (width - 6) / 2, height: 30 },
+        t(`coronation.sign.${display}`), () => { this.signDisplay = display; this.host.redraw(true); },
+        { variant: this.signDisplay === display ? 'primary' : 'ghost', fontSize: '11px' })
+        .setData('signDisplay', display));
+    });
+    const mark = this.signDisplay === 'sign'
+      ? drawHouseSign(scene, preview, 108, 114) : drawHouseBanner(scene, preview, 108, 114);
+    mark.setPosition(0, 0);
+    previewBody.add(mark);
+    const textX = 120;
     const textWidth = width - textX - 4;
-    body.add(this.host.ui.label(textX, 14, t('coronation.banner.heirloom'), 'caption', {
+    previewBody.add(this.host.ui.label(textX, 4, t('coronation.banner.heirloom'), 'caption', {
       fontSize: '8.5px', color: '#8a5f1c', wordWrap: { width: textWidth },
     }));
-    body.add(this.host.ui.label(textX, 33, t('coronation.house', { name: this.house() }), 'label', {
+    previewBody.add(this.host.ui.label(textX, 23, t('coronation.house', { name: this.house() }), 'label', {
       fontSize: '19px', wordWrap: { width: textWidth },
     }));
     const rule = scene.add.graphics().lineStyle(1, INK_UI.gold, 0.7);
-    rule.lineBetween(textX, 63, width - 5, 63);
-    body.add(rule);
-    body.add(this.host.ui.label(textX, 73, name, 'label', { fontSize: '12px' }));
-    body.add(this.host.ui.label(textX, 94, t(`coronation.motif.${emblem}`), 'caption', {
+    rule.lineBetween(textX, 53, width - 5, 53);
+    previewBody.add(rule);
+    previewBody.add(this.host.ui.label(textX, 63, name, 'label', { fontSize: '12px' }));
+    previewBody.add(this.host.ui.label(textX, 84, t(`coronation.motif.${emblem}`), 'caption', {
       fontSize: '10px', wordWrap: { width: textWidth },
     }));
-    let y = 150;
+    let y = 164;
+    const store = getLegacy(), lockedPreview = !ownsDynastySign(emblem, store);
+    body.add(this.host.ui.label(0, y, t('coronation.sign.balance', { points: store.points }), 'label', { fontSize: '11px' }));
+    y += 22;
+    if (lockedPreview) {
+      const cost = SIGN_COSTS[emblem], affordable = store.points >= cost;
+      body.add(this.host.ui.button({ x: 0, y, width, height: 36 },
+        affordable ? t('coronation.sign.buy', { cost }) : t('coronation.sign.need', { points: cost - store.points }), () => {
+          if (!purchaseDynastySign(emblem)) { this.signMessage = t('coronation.sign.failed'); this.host.redraw(true); return; }
+          this.banner = { ...this.banner, emblem }; this.signMessage = ''; this.host.redraw(true);
+        }, { variant: affordable ? 'primary' : 'disabled', fontSize: '11px' }).setData('signPurchase', emblem));
+      y += 43;
+    }
+    const shopNote = this.host.ui.label(0, y, this.signMessage || t('coronation.sign.permanent'), 'caption', {
+      fontSize: '9px', wordWrap: { width },
+    });
+    body.add(shopNote); y += shopNote.height + 12;
     y = this.bannerSwatches(body, width, y, 'field', FIELD_COLOURS);
     y = this.bannerSwatches(body, width, y, 'trim', BANNER_TRIMS);
     body.add(this.host.ui.label(0, y, t('coronation.banner.emblem'), 'label', { fontSize: '11px' }));
     y += 22;
     const gap = 7;
     const cardWidth = (width - gap * 2) / 3;
-    const cardHeight = 78;
+    const cardHeight = 84;
     BANNER_EMBLEMS.forEach((id, index) => {
       const x = (index % 3) * (cardWidth + gap);
       const top = y + Math.floor(index / 3) * (cardHeight + gap);
-      const selected = emblem === id;
+      const selected = this.banner.emblem === id;
       const locked = emblemLocked(id);
       const tile = this.host.ui.crayonTile({ x, y: top, width: cardWidth, height: cardHeight }, { selected });
       body.add(tile);
       const pigments = [PIGMENT.hoePale, PIGMENT.sonPale, PIGMENT.chamPale,
         PIGMENT.hoePale, PIGMENT.tram, PIGMENT.giDongPale];
-      const device = drawBannerEmblem(scene, id, pigments[index]);
-      device.setPosition(x + cardWidth / 2, top + 27).setScale(0.64).setAlpha(locked ? 0.45 : 1);
+      const device = drawBannerEmblem(scene, id, pigments[index % pigments.length]);
+      device.setPosition(x + cardWidth / 2, top + 27).setScale(0.64).setAlpha(locked ? 0.7 : 1);
       body.add(device);
       body.add(this.host.ui.label(x + cardWidth / 2, top + 51, t(`coronation.emblem.${id}`), 'label', {
         fontSize: '10px', color: locked ? INK_UI_HEX.mutedText : INK_UI_HEX.inkText,
+        wordWrap: { width: cardWidth - 8 }, align: 'center',
       }).setOrigin(0.5, 0));
       if (selected) this.bannerCheck(body, x + cardWidth - 10, top + 10, INK_UI.cinnabar);
       if (locked) {
@@ -438,20 +503,21 @@ export class CoronationSheet {
         lock.strokeRoundedRect(x + 7, top + 6, 5, 6, 2).strokeRect(x + 5, top + 10, 9, 7);
         body.add(lock);
         body.add(this.host.ui.label(x + cardWidth / 2, top + 65,
-          t(id === 'branch' ? 'coronation.banner.unlockEmpires' : 'coronation.banner.unlockMandate'), 'caption',
+          t('coronation.sign.price', { cost: SIGN_COSTS[id] }), 'caption',
           { fontSize: '8px', color: '#8a5f1c' }).setOrigin(0.5, 0));
       }
       const zone = scene.add.zone(x, top, cardWidth, cardHeight).setOrigin(0)
-        .setInteractive({ useHandCursor: !locked }).setData('bannerChoice', { kind: 'emblem', value: id, locked });
+        .setInteractive({ useHandCursor: true }).setData('bannerChoice', { kind: 'emblem', value: id, locked });
       zone.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-        if (locked || scrollGestureConsumedTap(pointer)) return;
+        if (scrollGestureConsumedTap(pointer)) return;
         soundDirector.tap();
-        this.banner = { ...this.banner, emblem: id };
-        this.host.redraw(true);
+        this.signPreview = id; this.signMessage = '';
+        if (ownsDynastySign(id)) this.banner = { ...this.banner, emblem: id };
+        this.host.redraw(!locked);
       });
       body.add(zone);
     });
-    y += cardHeight * 2 + gap + 12;
+    y += Math.ceil(BANNER_EMBLEMS.length / 3) * (cardHeight + gap) + 5;
     const note = this.host.ui.label(0, y, t('coronation.banner.inspiration'), 'caption', {
       fontSize: '9px', wordWrap: { width },
     });
@@ -513,7 +579,7 @@ export class CoronationSheet {
     const store = getDynasty();
     let y = this.drawPortrait(body, width, 0, 138);
 
-    const mark = drawHouseBanner(scene, this.banner, 40, 54);
+    const mark = drawHouseSign(scene, this.banner, 40, 54);
     mark.setPosition(width - 48, 6);
     body.add(mark);
 
@@ -658,6 +724,8 @@ export class CoronationSheet {
         // Choosing a part off the grid is a pick, not a nudge — the card voice.
         soundDirector.card();
         this.choice[field] = index;
+        if (field === 'hat') delete this.choice.royalHat;
+        if (field === 'dress') delete this.choice.royalRobe;
         this.grid = undefined;
         this.host.redraw();
       });
@@ -676,6 +744,56 @@ export class CoronationSheet {
   }
 
   // -- widgets ---------------------------------------------------------------
+  private drawRoyalWardrobe(body: Phaser.GameObjects.Container, width: number): number {
+    const vi = getLanguage() === 'vi', store = getLegacy(), scene = this.host.scene;
+    const items = ROYAL_WARDROBE.filter(item => royalItemFits(item, this.choice));
+    const owned = store.wardrobe ?? [];
+    const info = `${store.points.toLocaleString()} ${vi ? 'điểm Di sản' : 'Legacy points'} · ${owned.length}/54 ${vi ? 'đã mở' : 'owned'}`;
+    body.add(this.host.ui.label(0, 0, info, 'label', { fontSize: '12px', wordWrap: { width } }));
+    body.add(this.host.ui.label(0, 26, this.wardrobeMessage || (vi
+      ? 'Mua một lần, dùng qua mọi triều đại. Chỉ thay đổi diện mạo.'
+      : 'Buy once, keep across reigns. Appearance only.'), 'caption', { fontSize: '10px', wordWrap: { width } }));
+    const cols = width < 240 ? 2 : 3, gap = 7, cell = (width - gap * (cols - 1)) / cols;
+    const height = 180, start = 62;
+    items.forEach((item, index) => {
+      const x = index % cols * (cell + gap), y = start + Math.floor(index / cols) * (height + gap);
+      const field = royalField(item.slot), selected = this.choice[field] === item.id;
+      const has = owned.includes(item.id), affordable = store.points >= item.cost;
+      body.add(this.host.ui.panel({ x, y, width: cell, height }, {
+        border: selected ? INK_UI.cinnabar : has ? INK_UI.gold : INK_UI.softBrush, fillAlpha: .5,
+      }));
+      const option = { ...this.choice, [field]: item.id };
+      body.add(renderLookInBox(scene, buildKingLook(option, this.rank(), item.id),
+        { x: x + 3, y: y + 3, width: cell - 6, height: 109 }, .7));
+      body.add(this.host.ui.label(x + 4, y + 114, item.name, 'caption', {
+        fontSize: '10px', align: 'center', wordWrap: { width: cell - 8 },
+      }).setFixedSize(cell - 8, 0));
+      const action = has ? selected ? (vi ? 'Tháo' : 'Remove') : (vi ? 'Mặc' : 'Equip')
+        : `${vi ? 'Mở' : 'Unlock'} · ${item.cost}`;
+      body.add(this.host.ui.label(x + 3, y + 150, action, 'label', {
+        fontSize: '10px', align: 'center', color: !has && !affordable ? INK_UI_HEX.mutedText : INK_UI_HEX.inkText,
+      }).setFixedSize(cell - 6, 0));
+      const zone = scene.add.zone(x, y + 139, cell, 41).setOrigin(0).setInteractive({ useHandCursor: true });
+      zone.setData('royalItem', item.id);
+      zone.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+        if (scrollGestureConsumedTap(pointer)) return;
+        if (!has && !purchaseRoyalWardrobe(item.id)) {
+          const short = Math.max(0, item.cost - getLegacy().points);
+          this.wardrobeMessage = short > 0
+            ? (vi ? `Cần thêm ${short} điểm Di sản.` : `Earn ${short} more Legacy points to unlock this part.`)
+            : (vi ? 'Chưa lưu được. Điểm chưa bị trừ.' : 'Could not save. Your points were not spent.');
+        } else {
+          if (has && selected) delete this.choice[field]; else this.choice[field] = item.id;
+          this.wardrobeMessage = has ? '' : (vi ? `Đã mở: ${item.name}` : `Unlocked: ${item.name}`);
+          soundDirector.card();
+        }
+        this.host.redraw(true);
+      });
+      body.add(zone);
+    });
+    return start + Math.ceil(items.length / cols) * (height + gap) + 10;
+  }
+
   private drawPortrait(body: Phaser.GameObjects.Container, width: number, y: number, height: number): number {
     const box = { x: (width - height * 0.82) / 2, y: y + 4, width: height * 0.82, height };
     body.add(this.host.ui.panel(box, { border: INK_UI.gold, fillAlpha: 0.42 }));
@@ -688,7 +806,8 @@ export class CoronationSheet {
 
   private drawCaption(body: Phaser.GameObjects.Container, width: number, y: number): number {
     const rank = this.rank();
-    const line = [hatLabel(kingHat(this.choice, rank)), dressLabel(this.visibleGarments(this.choice, rank))]
+    const worn = this.look().parts.map(p => royalWardrobeItem(p.key)).filter(Boolean);
+    const line = [worn.find(i => i?.slot === 'hat')?.name ?? hatLabel(kingHat(this.choice, rank)), dressLabel(this.visibleGarments(this.choice, rank))]
       .filter(Boolean).join(' · ');
     const text = this.host.scene.add.text(0, y, line, {
       color: INK_UI_HEX.inkText, fontFamily: UI_FONT, fontSize: '10.5px', align: 'center',
@@ -943,6 +1062,8 @@ export function hatLabel(key: string): string {
 
 /** What the garment stack adds up to — the collar names the dress, and the bổ tử qualifies it. */
 export function dressLabel(parts: HeroLookPart[]): string {
+  const royal = parts.map(p => royalWardrobeItem(p.key)).find(item => item?.slot === 'robe');
+  if (royal) return royal.name;
   const keys = parts.map((part) => part.key);
   const has = (prefix: string): boolean => keys.some((key) => key.startsWith(prefix));
   let name = '';

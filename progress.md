@@ -1,5 +1,23 @@
 Original prompt: Please implement the proposed Vạn Thắng documentation and Phaser 3 TypeScript mobile-vertical MVP plan.
 
+## 2026-09-07 — generated Đông Hồ war wardrobe refinement
+
+- Follow-up request: generate more beautiful war hats and armour, grounded in Vietnamese history and Đông Hồ style.
+- Generated three matching pairs (Lý, Trần, Tây Sơn) using built-in ImageGen and the accepted petition print as drawing-style reference. Redesigned six existing purchasable IDs; prices, ownership, 54-item inventory and era gates remain intact. Source masters and exact prompts preserved in docs/art/hero-war-v1 and docs/hero-war-dongho-v1-prompts.json.
+- Added extraction/packing script, six PNG cutouts and a 1024×428 runtime atlas. New cap definitions seat each measured center-front band at the shared forehead attachment; no changes to faces. Corrected the first Lý helmet's backdrop glow and metallic treatment through ImageGen; all accepted masters have clean production mattes.
+- Passed new generated-art checks: six nonempty transparent cutouts with no matte, all six generated frames actually used by the renderer, 672 head/hat/eye combinations without eye obstruction, and atlas loading with all three art packs. Existing 54-item purchase/persistence and actual EN/VI/phone/desktop Temple suite still passes. TypeScript, production build and installed game-skill client pass with existing font-path/bundle-size/module warnings only.
+- Visually inspected the generated masters, per-era in-game sheets and complete assembled sets; the skill screenshot/text state has no browser errors. Final comparison: output/hero-war-v1/complete-sets.png; evidence: output/hero-war-v1/report.json. Rebuild with npm run faces:war; test with npm run verify:war-art (DEV_URL override supported). History/evidence limits are recorded in docs/research/vietnamese-royal-wardrobe.md. No required work remains.
+
+## 2026-09-07 — royal wardrobe expansion
+
+- Request: richer Vietnamese royal/general clothing, chin-mounted beards, dynasty-point unlocks for every new item, at least 50 new parts.
+- Added 54 authored vector resources (18 hats, 18 robes, 18 ornaments), period-filtered across six eras, as a supplemental atlas. Existing art packs and saves retain their IDs. Source generator: scripts/faces/royal-wardrobe.mjs.
+- Legacy points are the existing spendable dynasty currency; lifetime XP remains untouched. Ownership and debit use one storage write; duplicate purchases are idempotent, failures do not charge. Royal wardrobe previews and purchase/equip controls live in both Coronation and Temple.
+- Added chin-relative facial hair fitting, separating composite moustache/beard resources while keeping full-jaw beards continuous. All 16 head shapes fit the 18 new caps; wide-head crowns expand independently of long wings.
+- Completed validation: 54 distinct asset hashes/frames and purchases, 176 beard fits, 288 new hat fits, no-free-equip and era guards, exact balance/duplicate/failed-storage cases, EN/VI shop handlers, saved choice round trips and reload. Real mouse entry/purchase/save/reload passed in the actual Temple at 390×664, 390×844 and 1440×900. The text-state hook reports prices, ownership, selected items and balance.
+- Existing creator fit suite passed 53,232 combinations; Legacy regression passed 16/16. Final TypeScript/production build and installed web-game skill client passed (existing font-path, large-bundle and skill script module warnings only). Inspected all six era galleries, complete costumes, beard close-up, actual phone/desktop shops and skill screenshot/text state. Added historical limits and references in docs/research/vietnamese-royal-wardrobe.md.
+- Artifacts: output/royal-wardrobe/complete-outfits.png, per-era galleries, temple*.png, beards.png, report.json and skill-final/. Rebuild with npm run faces:royal; validate against a dev server with npm run verify:royal-wardrobe (DEV_URL can override the standard 5179 port). No required work remains. Concurrent story-illustration changes were preserved.
+
 ## 2026-09-07 — raise Auto fallback to 40 FPS
 
 - User requested 40 FPS instead of the 30 FPS minimum target. Clarity now targets 40; the normal target stays 60. Preserved buffer/ground resolution, decoration density, labels, manual choices, and fixed-session behavior. Explicit legacy low-30 remains a diagnostic profile only.
@@ -735,3 +753,22 @@ Original prompt: Please implement the proposed Vạn Thắng documentation and P
 - User again requested bugs/butterflies; previous 1–2px pale wings and subpixel gnats were hard to notice. Added dark wing outlines and ochre/indigo interiors; butterflies remain below 3 design pixels across, gnats below one, with depth scaling and a small visibility floor.
 - Replaced tiny repeated loops with staggered seeded curved flights, small height changes, banking and flutter, alternating with brief resting pauses. Distributed insects across seven meadow spots rather than random overlapping foreground positions. Field teardown owns delayed flights and wing tweens.
 - TypeScript passes. Mobile/wide meadow checks verify >2px travel, flight and rest states, wing motion, small size, bake exclusion, foreground layering, and three rebuilds with no orphaned flight or flap tweens. Inspected battle and skill smoke images, no console errors. Ambient check now pauses combat so random battle-moment overlays cannot conceal the visual fixture.
+
+## 2026-09-07 — Story graphics in the shared Đông Hồ style
+- User requested improved story graphics using Đông Hồ art and consistency with the rest of the game.
+- Added a shared illustration header to story prompts, outcome reports, and story detail pages. Existing selected-moment prints remain complete and proportional. Detail pages select only the held/currently known fragment, never an unseen future event.
+- Replaced twelve faint procedural strips with composed woodcut settings using the map's own architecture, bamboo, mountain and grain blocks, shared pigments, paper fibres, cloud ornaments and stronger contours. These also serve as missing-image fallbacks without additional downloads.
+- Moved prompt speakers to a named portrait row below the full-width illustration. Story detail portrait/name/regard rows now reserve measured text height to prevent wrapping into following sections.
+- Validation: TypeScript and production build passed (existing font-path/chunk-size warnings). Existing Chronicle verification 15/15 passed. Targeted visual/pointer review 16/16 passed for VI 390×844, EN 390×620 and VI desktop 1440×900: prompt, detail, report, missing-art fallback, and real choice clicks after scrolling. No browser errors. Inspected all twelve settings, phone/desktop screenshots and render_game_to_text; required installed web-game client also ran.
+- Artifacts and reproducible review driver: output/story-graphics/ (verify.mjs, results.json, bands.png and per-screen screenshots). BrowserOS neo tools were unavailable, so used local Playwright. Concurrent wardrobe/portrait changes preserved. No required work remains.
+
+## 2026-09-07 — dynasty signs
+
+- Request: replace flag customization with an identifying sign usable on flags, add about ten icons, and support dynasty-score unlocks.
+- Added ten original vector signs (16 total), standalone sign/flag previews, identity seals on Dynasty and coronation, and permanent purchases using the existing banked Legacy currency. Old era rewards remain available. Kept stable saved emblem IDs and existing unrelated work.
+- Validation in progress: build, purchase/persistence edge cases, EN/VI real pointer flows, phone/desktop screenshots and installed skill client.
+
+- Completed: 16 localized signs (10 new), free/earned ownership plus permanent 60–240 Legacy-point purchases, explicit preview/unlock flow, exact selected pigments with contrasting outlines, shared standalone/flag rendering, and sign identity seals on Dynasty/coronation. Lifetime XP is never spent.
+- Validation passes: sign model/transactions (all IDs, exact/insufficient balances, duplicate purchase, storage failure, old deeds, coexistence with wardrobe, unchanged XP), real EN/VI pointer flows at 390x844, 320x568 and 1440x900, both previews, last-row access, colours, save/reload, and purchase-then-discard ownership. Existing banner editor checks including drag guards and live coronation pass; Legacy regression 16/16 passes. Production build passes with existing font-path and bundle-size warnings.
+- Visually inspected all 16 standalone signs and flags, phone/desktop locked and purchased states, complete grid, Dynasty identity, and installed skill-client screenshot/text state. No browser errors. Evidence: output/dynasty-signs/; repeat with DEV_URL set and node test_scripts/verify/verify-dynasty-signs.mjs. Preserved concurrent wardrobe/story work. No required work remains.
+

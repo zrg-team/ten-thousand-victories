@@ -4,10 +4,16 @@ import { applyResourceDelta } from '../systems/ResourceSystem';
 import { addCourtModifier } from '../systems/CourtSystem';
 import { REALM_PROJECTS } from '../data/edicts';
 import { t } from '../i18n';
+import { royalWardrobeItem } from '../data/royalWardrobe';
+import { dynastySign, SIGN_COSTS } from '../data/dynastySigns';
+import { deedDone } from './cabinet';
 
 const LEGACY_KEY = 'mandate:legacy:v1';
 
 interface LegacyStore {
+  /** Permanent cosmetic ownership. Purchased atomically with its point debit. */
+  wardrobe?: string[];
+  signs?: string[];
   points: number;
   bestScore: number;
   ascensions: number;
@@ -230,6 +236,10 @@ export function getLegacy(): LegacyStore {
       loadout,
       codes: Array.isArray(parsed.codes) ? parsed.codes.filter((id) => typeof id === 'string') : [],
       ladder: LADDER_VERSION,
+      wardrobe: Array.isArray(parsed.wardrobe)
+        ? [...new Set(parsed.wardrobe.filter((id): id is string => typeof id === 'string' && !!royalWardrobeItem(id)))] : [],
+      signs: Array.isArray(parsed.signs)
+        ? [...new Set(parsed.signs.filter((id): id is string => typeof id === 'string' && !!dynastySign(id)))] : [],
     };
   } catch {
     return emptyLegacy();
@@ -243,6 +253,41 @@ function writeLegacy(store: LegacyStore): void {
 
 export function ownsPerk(id: string): boolean {
   return perkLevel(id) > 0;
+}
+
+export function ownsRoyalWardrobe(id: string): boolean {
+  return getLegacy().wardrobe?.includes(id) ?? false;
+}
+
+/** Old era rewards remain free, alongside permanent point purchases. */
+export function ownsDynastySign(id: string, store: LegacyStore = getLegacy()): boolean {
+  const sign = dynastySign(id);
+  if (!sign) return false;
+  return SIGN_COSTS[sign] === 0 || (store.signs?.includes(sign) ?? false)
+    || (sign === 'branch' && deedDone('era-empires'))
+    || (sign === 'tortoise' && deedDone('era-mandate'));
+}
+
+/** Debit and ownership persist together. Repeated purchases never charge twice. */
+export function purchaseDynastySign(id: string): boolean {
+  const sign = dynastySign(id), store = getLegacy();
+  if (!sign) return false;
+  if (ownsDynastySign(sign, store)) return true;
+  if (!canUseLocalStorage() || !Number.isFinite(store.points) || store.points < SIGN_COSTS[sign]) return false;
+  store.points -= SIGN_COSTS[sign];
+  store.signs = [...(store.signs ?? []), sign];
+  try { writeLegacy(store); return true; } catch { return false; }
+}
+
+/** One localStorage write: a failed save neither grants an item nor loses points. */
+export function purchaseRoyalWardrobe(id: string): boolean {
+  const item = royalWardrobeItem(id), store = getLegacy();
+  if (!item || !canUseLocalStorage() || !Number.isFinite(store.points)) return false;
+  if (store.wardrobe?.includes(id)) return true;
+  if (store.points < item.cost) return false;
+  store.points -= item.cost;
+  store.wardrobe = [...(store.wardrobe ?? []), id];
+  try { writeLegacy(store); return true; } catch { return false; }
 }
 
 /** Banks points outside a run's own payout — a cabinet copy past Lv3 melting, for one. */

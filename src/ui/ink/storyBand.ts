@@ -1,186 +1,107 @@
 import Phaser from 'phaser';
-import { PIGMENT } from './palette';
-import { inkPath, washFill, type Pt } from './stroke';
+import { PIGMENT as P } from './palette';
+import { inkPath, printedShape } from './stroke';
+import { bamboo, boThoc, dinh, house, karst } from './props';
 import type { StoryBand } from '../../state/types';
 
-/**
- * The band behind a story card.
- *
- * Twelve generic impressions, chosen by tag rather than by story, and **never** one image per
- * story. A template binds a random hero and a random province, so a picture specific to one
- * instance is a lie on every other map: an illustration of "the fisherman of Vân Đồn" is wrong
- * the moment the story binds somewhere else. The same band showing up across many stories is
- * correct rather than a compromise, because the stories are generic templates and should look
- * like it. Twelve bands, once, instead of twenty illustrations.
- *
- * Drawn from the same woodblock primitives as everything else — a colour wash pulled off-register
- * from a hand-pulled contour — and seeded per fragment, so no two impressions are identical the
- * way no two pulls of a real block are.
- */
-
-/** A stable numeric seed from the fragment's identity, so a card looks the same each time it opens. */
-function seedOf(text: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < text.length; i += 1) {
-    h ^= text.charCodeAt(i);
-    h = Math.imul(h, 16777619);
+/** Generic settings composed with the map's own blocks; never a prediction of an ending. */
+export function drawStoryBand(scene: Phaser.Scene, band: StoryBand, key: string, width: number, height: number): Phaser.GameObjects.Graphics {
+  const g = scene.add.graphics().setData('storyBand', band);
+  let seed = 2166136261;
+  for (const char of `${band}:${key}`) seed = Math.imul(seed ^ char.charCodeAt(0), 16777619);
+  let stroke = 0;
+  const path = (points: number[][], colour = P.muc, alpha = 0.8, weight = 1) =>
+    inkPath(g, points.map(([x, y]) => ({ x, y })), seed + stroke++, { colour, alpha, width: weight, wobble: 0.22, bleed: 0.1 });
+  const block = (points: number[][], colour: number) =>
+    printedShape(g, points.map(([x, y]) => ({ x, y })), colour, seed + stroke++, { width: 1.1, alpha: 0.85, fillAlpha: 0.95, wobble: 0.25 });
+  g.fillStyle(P.diepHi).fillRect(0, 0, 320, 128);
+  for (let i = 0; i < 65; i++) {
+    const x = 8 + ((i * 71) % 302), y = 8 + ((i * 43) % 112);
+    g.lineStyle(0.45, P.nau, 0.08).lineBetween(x, y, x + 3, y - 0.5);
   }
-  return h >>> 0;
-}
-
-/**
- * Where the ground line sits, as a fraction of the band's height.
- *
- * Pushed low across the board: the first cut put the horizon near the middle and left the
- * silhouette only a few pixels of headroom, so every tag rendered as the same faint line.
- */
-const HORIZON: Record<StoryBand, number> = {
-  court: 0.82, river: 0.66, field: 0.78, coast: 0.62, mountain: 0.88, march: 0.84,
-  fire: 0.86, granary: 0.82, night: 0.6, crowd: 0.86, shrine: 0.82, border: 0.8,
-};
-
-/**
- * Which pigment carries the wash. Deliberately narrow, and deliberately never `son` — the one
- * rule the art direction hangs on is that sỏi son is spent on the player alone.
- */
-const WASH: Record<StoryBand, number> = {
-  court: PIGMENT.hoe, river: PIGMENT.cham, field: PIGMENT.tram, coast: PIGMENT.cham,
-  mountain: PIGMENT.diepDeep, march: PIGMENT.nau, fire: PIGMENT.hoe,
-  granary: PIGMENT.hoe, night: PIGMENT.cham, crowd: PIGMENT.hoePale,
-  shrine: PIGMENT.giDong, border: PIGMENT.diepDeep,
-};
-
-export function drawStoryBand(
-  scene: Phaser.Scene,
-  band: StoryBand,
-  key: string,
-  width: number,
-  height: number,
-): Phaser.GameObjects.Graphics {
-  const g = scene.add.graphics();
-  const seed = seedOf(`${band}:${key}`);
-  const horizon = height * HORIZON[band];
-
-  // The colour block, pulled first and registered by hand — the offset is the whole trick.
-  washFill(g, [
-    { x: 0, y: horizon },
-    { x: width, y: horizon },
-    { x: width, y: height },
-    { x: 0, y: height },
-  ], WASH[band], seed, 0.2, 2.2);
-
-  const contour: Pt[] = [];
-  const steps = 22;
-
-  switch (band) {
-    case 'mountain':
-    case 'border': {
-      // Karst: one summit and one lower shoulder, deliberately unequal — equal lobes read as
-      // a comb of spikes, which is the mistake the map's own karst went through twice.
-      for (let i = 0; i <= steps; i += 1) {
-        const t = i / steps;
-        const peak = Math.exp(-((t - 0.3) ** 2) / 0.008) * height * 0.78
-          + Math.exp(-((t - 0.66) ** 2) / 0.016) * height * 0.5;
-        contour.push({ x: t * width, y: horizon - peak });
-      }
-      break;
+  g.fillStyle(band === 'night' ? P.chamPale : P.hoePale, 0.65).fillCircle(256, 29, 15);
+  for (const [x, y] of [[55, 28], [197, 36]]) {
+    path([[x, y], [x - 12, y], [x - 15, y - 4], [x - 12, y - 8], [x - 5, y - 8], [x - 2, y - 13], [x + 6, y - 14], [x + 13, y - 9], [x + 22, y - 9], [x + 27, y - 4], [x + 24, y], [x + 6, y]], P.mucSoft, 0.45);
+    path([[x, y - 4], [x + 16, y - 4]], P.mucSoft, 0.35, 0.7);
+  }
+  block([[8, 92], [58, 78], [119, 87], [185, 77], [247, 90], [312, 81], [312, 120], [8, 120]], P.diepLo);
+  // Frontal woodcut figures remain legible on a phone.
+  const person = (x: number, y: number, cloth: number, soldier = false) => {
+    block([[x - 6, y - 28], [x + 5, y - 28], [x + 9, y - 9], [x - 9, y - 9]], cloth);
+    g.fillStyle(P.horn).fillCircle(x, y - 34, 4.5);
+    g.lineStyle(1, P.muc, 0.9).strokeCircle(x, y - 34, 4.5);
+    block([[x - 9, y - 37], [x, y - 43], [x + 9, y - 37]], soldier ? P.mucSoft : P.hoePale);
+    path([[x - 4, y - 9], [x - 5, y], [x - 9, y]], P.muc, 0.95, 1.8);
+    path([[x + 4, y - 9], [x + 5, y], [x + 9, y]], P.muc, 0.95, 1.8);
+    path([[x - 5, y - 24], [x - 11, y - 15], [x - 2, y - 13]]);
+    if (soldier) path([[x + 12, y], [x + 12, y - 51]], P.muc, 0.9, 1.3);
+  };
+  if (band === 'river' || band === 'coast') {
+    block([[8, 84], [75, 77], [160, 87], [232, 76], [312, 84], [312, 120], [8, 120]], P.chamWash);
+    for (let row = 0; row < 4; row++) for (let col = 0; col < 4; col++) {
+      const x = 15 + col * 76 + row % 2 * 6, y = 91 + row * 8;
+      path([[x, y], [x + 10, y - 2], [x + 24, y], [x + 42, y]], P.cham, 0.7, 0.8);
     }
-    case 'river':
-    case 'coast': {
-      for (let i = 0; i <= steps; i += 1) {
-        const t = i / steps;
-        contour.push({ x: t * width, y: horizon + Math.sin(t * 7) * 4 });
-      }
-      // Three receding water lines rather than one — a river reads by repetition.
-      for (let k = 1; k <= 3; k += 1) {
-        inkPath(g, contour.map((p) => ({ x: p.x, y: p.y + k * 6 })), seed + k, {
-          width: 0.9, alpha: 0.45 - k * 0.08,
-        });
-      }
-      // A far bank above the water.
-      inkPath(g, [
-        { x: 0, y: horizon - height * 0.28 },
-        { x: width * 0.35, y: horizon - height * 0.42 },
-        { x: width * 0.7, y: horizon - height * 0.26 },
-        { x: width, y: horizon - height * 0.34 },
-      ], seed + 9, { width: 1.1, alpha: 0.5 });
-      break;
+    karst(g, 73, 81, 91, 43, seed, true);
+    if (band === 'coast') {
+      path([[206, 85], [206, 26]], P.muc, 0.9, 1.6);
+      block([[210, 29], [234, 44], [239, 72], [210, 70]], P.hoePale);
+      path([[213, 42], [230, 49]]); path([[213, 53], [234, 58]]);
+    } else person(211, 88, P.nau);
+    block([[168, 88], [185, 101], [231, 101], [249, 85], [226, 91], [185, 92]], P.nau);
+  } else if (band === 'mountain' || band === 'border') {
+    karst(g, 96, 100, 117, 76, seed);
+    karst(g, 212, 101, 89, 52, seed + 4, true);
+    path([[141, 117], [172, 98], [160, 84]], P.nau, 0.65, 3);
+    if (band === 'border') {
+      house(g, 235, 96, 1.2, seed, true);
+      for (let x = 227; x < 296; x += 7) path([[x, 105], [x, 86]], P.nau, 0.9, 1.6);
     }
-    case 'court':
-    case 'shrine':
-    case 'granary': {
-      // A hall: two swept eaves over a pair of pillars. The eaves curl *upward* at the ends,
-      // which is the one line that says Đại Việt rather than "generic building".
-      // The eaves of a đình curve *up* at the tips, and the roof sags between them. Written as
-      // a sag term minus a tip term, because the first attempt added them and produced a hump.
-      const ridgeY = horizon - height * 0.72;
-      const left = width * 0.06;
-      const right = width * 0.94;
-      for (let i = 0; i <= steps; i += 1) {
-        const t = i / steps;
-        const x = left + t * (right - left);
-        const sag = Math.cos((t - 0.5) * Math.PI) * height * 0.1;
-        const tip = Math.abs(t - 0.5) ** 6 * height * 1.6;
-        contour.push({ x, y: ridgeY + sag - tip });
-      }
-      // Pillars and a floor, so the roof is standing on something.
-      for (const px of [left + (right - left) * 0.18, left + (right - left) * 0.5, right - (right - left) * 0.18]) {
-        inkPath(g, [{ x: px, y: horizon }, { x: px, y: horizon - height * 0.3 }], seed + Math.round(px), {
-          width: 1.0, alpha: 0.55, wobble: 0.4,
-        });
-      }
-      break;
+    bamboo(g, 37, 110, 1.8, seed);
+  } else if (band === 'field') {
+    for (let i = 0; i < 4; i++) {
+      const y = 82 + i * 10;
+      path([[15, y], [127, y - 8], [292, y + 1]], P.tramDeep, 0.8, 1.5);
+      for (let x = 24; x < 294; x += 18) path([[x - 3, y - 5], [x, y], [x + 3, y - 6]], P.tramDeep, 0.8);
     }
-    case 'march':
-    case 'crowd': {
-      // A column of figures: short verticals at irregular spacing, so it reads as people
-      // rather than as a fence.
-      let x = width * 0.05;
-      let n = 0;
-      while (x < width * 0.95) {
-        const h = height * (0.34 + ((n * 37) % 11) / 40);
-        // Body, then a head — two strokes is the difference between a crowd and a fence.
-        inkPath(g, [{ x, y: horizon }, { x, y: horizon - h }], seed + n, { width: 1.3, alpha: 0.7, wobble: 0.5 });
-        g.fillStyle(PIGMENT.muc, 0.62);
-        g.fillCircle(x, horizon - h - height * 0.06, Math.max(1.2, height * 0.045));
-        x += width * (0.05 + ((n * 17) % 7) / 220);
-        n += 1;
-      }
-      for (let i = 0; i <= steps; i += 1) contour.push({ x: (i / steps) * width, y: horizon });
-      break;
+    house(g, 55, 70, 1.35, seed);
+    person(177, 107, P.cham); person(242, 99, P.nau);
+  } else if (band === 'march' || band === 'crowd') {
+    if (band === 'crowd') dinh(g, 110, 72, 1.5, seed);
+    else {
+      path([[72, 89], [72, 24]], P.muc, 0.95, 1.7);
+      block([[73, 25], [109, 33], [99, 43], [73, 39]], P.hoe);
     }
-    case 'fire': {
-      for (let i = 0; i <= steps * 2; i += 1) {
-        const t = i / (steps * 2);
-        contour.push({ x: t * width, y: horizon - Math.abs(Math.sin(t * 13)) ** 0.6 * height * 0.62 });
-      }
-      break;
+    [64, 110, 156, 202, 248].forEach((x, i) => person(x, 108 + i % 2 * 4, i % 2 ? P.nau : P.cham, band === 'march'));
+  } else if (band === 'fire') {
+    house(g, 120, 100, 2, seed);
+    for (let i = 0; i < 4; i++) {
+      const x = 143 + i * 17;
+      block([[x - 8, 79], [x - 11, 64], [x - 3, 49], [x, 34 + i % 2 * 10], [x + 7, 53], [x + 12, 66], [x + 8, 79]], P.hoe);
     }
-    case 'night': {
-      for (let i = 0; i < 20; i += 1) {
-        g.fillStyle(PIGMENT.mucFaint, 0.5);
-        g.fillCircle(((i * 53) % 100) / 100 * width, ((i * 29) % 70) / 100 * horizon, 1.1);
+    bamboo(g, 58, 107, 1.7, seed);
+  } else {
+    bamboo(g, 43, 108, 2.3, seed);
+    if (band === 'granary') {
+      house(g, 114, 96, 2.5, seed);
+      [116, 155, 194].forEach((x, i) => boThoc(g, x, 112, 2.8, seed + i));
+    } else {
+      dinh(g, 115, 96, 2.4, seed);
+      if (band === 'court') { person(91, 111, P.cham); person(250, 111, P.nau); }
+      if (band === 'shrine') {
+        block([[170, 116], [198, 116], [196, 104], [172, 104]], P.hoePale);
+        path([[180, 104], [180, 94]]); path([[188, 104], [188, 92]]);
       }
-      // A moon, off-centre, because a sky needs one thing that is not a dot.
-      g.lineStyle(1.2, PIGMENT.muc, 0.45);
-      g.strokeCircle(width * 0.78, horizon * 0.42, height * 0.13);
-      for (let i = 0; i <= steps; i += 1) contour.push({ x: (i / steps) * width, y: horizon });
-      break;
-    }
-    default: {
-      // field — paddy, with furrows running to the horizon.
-      for (let i = 0; i <= steps; i += 1) {
-        const t = i / steps;
-        // A treeline, so the horizon is not a ruler.
-        contour.push({ x: t * width, y: horizon - height * 0.18 - Math.abs(Math.sin(t * 9)) * height * 0.14 });
-      }
-      for (let i = 1; i < 5; i += 1) {
-        const y = horizon + (height - horizon) * (i / 5);
-        inkPath(g, [{ x: 0, y }, { x: width, y }], seed + i, { width: 0.8, alpha: 0.3 });
+      if (band === 'night') {
+        g.fillStyle(P.hoe, 0.9).fillRect(166, 80, 9, 13);
+        for (let i = 0; i < 9; i++) g.fillStyle(P.cham, 0.6).fillCircle(91 + i * 19, 13 + i % 3 * 7, 0.8);
       }
     }
   }
-
-  inkPath(g, contour, seed, { width: 1.3, alpha: 0.7 });
+  inkPath(g, [{x: 3, y: 3}, {x: 317, y: 3}, {x: 317, y: 125}, {x: 3, y: 125}], seed,
+    { width: 1.1, alpha: 0.8, closed: true, wobble: 0.25 });
+  // Keep the drawing's proportions at every sheet width.
+  const fit = Math.min(width / 320, height / 128);
+  g.setScale(fit).setPosition((width - 320 * fit) / 2, (height - 128 * fit) / 2);
   return g;
 }

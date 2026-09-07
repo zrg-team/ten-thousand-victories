@@ -1,0 +1,488 @@
+[
+  {
+    "key": "royal-dinh-hat-1",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-dinh-hat-2",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-dinh-hat-3",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-dinh-robe-1",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-dinh-robe-2",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-dinh-robe-3",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-dinh-ornament-1",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-dinh-ornament-2",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-dinh-ornament-3",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-ly-hat-1",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-ly-hat-2",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-ly-hat-3",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-ly-robe-1",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-ly-robe-2",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-ly-robe-3",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-ly-ornament-1",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-ly-ornament-2",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-ly-ornament-3",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tran-hat-1",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-tran-hat-2",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-tran-hat-3",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-tran-robe-1",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tran-robe-2",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tran-robe-3",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tran-ornament-1",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tran-ornament-2",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tran-ornament-3",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-le-hat-1",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-le-hat-2",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-le-hat-3",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-le-robe-1",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-le-robe-2",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-le-robe-3",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-le-ornament-1",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-le-ornament-2",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-le-ornament-3",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tayson-hat-1",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-tayson-hat-2",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-tayson-hat-3",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-tayson-robe-1",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tayson-robe-2",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tayson-robe-3",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tayson-ornament-1",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tayson-ornament-2",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-tayson-ornament-3",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-nguyen-hat-1",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-nguyen-hat-2",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-nguyen-hat-3",
+    "layer": 52,
+    "tint": "none",
+    "cx": 0,
+    "cy": -42,
+    "w": 128,
+    "h": 84
+  },
+  {
+    "key": "royal-nguyen-robe-1",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-nguyen-robe-2",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-nguyen-robe-3",
+    "layer": 35,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-nguyen-ornament-1",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-nguyen-ornament-2",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  },
+  {
+    "key": "royal-nguyen-ornament-3",
+    "layer": 39,
+    "tint": "none",
+    "cx": 0,
+    "cy": 61,
+    "w": 112,
+    "h": 70
+  }
+]

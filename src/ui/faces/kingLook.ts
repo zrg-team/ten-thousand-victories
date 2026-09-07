@@ -14,6 +14,9 @@ import { GIVEN_MAN, GIVEN_WOMAN, MIDDLE_MAN, MIDDLE_WOMAN } from '../../data/her
 import type { HeroEra } from '../../state/types';
 import type { DynastyFounder } from '../../state/dynasty';
 import { heroFaceHeadwearSupported } from './artPack';
+import { applyRoyalWardrobe } from './royalWardrobe';
+import { DYNASTY_SIGNS, type DynastySign } from '../../data/dynastySigns';
+import { ownsDynastySign } from '../../state/legacy';
 
 /**
  * The Coronation's model: a dozen numbers in, a finished king out.
@@ -27,7 +30,7 @@ import { heroFaceHeadwearSupported } from './artPack';
  * with a beard — and would break the era law the wardrobe documents line by line: a Tran hat
  * never meets a Nguyen collar here because the pool function refuses to offer it.
  *
- * **Nothing in this file touches a stat, an odd or a price.** Looks are free; numbers are not.
+ * Base identity stays free. Optional royal parts are permanent cosmetic Legacy purchases.
  */
 
 export type KingRegister = 'court' | 'war';
@@ -42,6 +45,9 @@ export type KingAge = 'young' | 'prime' | 'elder';
  * pool at read time, so a stale index is a different-but-legal choice, never a crash.
  */
 export interface KingChoice {
+  royalHat?: string;
+  royalRobe?: string;
+  royalOrnament?: string;
   sex: 'man' | 'woman';
   era: HeroEra;
   /** Court dress (minister pools) or a field harness (general pools) — the wardrobe's `type`. */
@@ -95,17 +101,17 @@ export const ROYAL_HOUSES: readonly RoyalHouse[] = [
   { surname: 'Nguyễn', armyEra: 'nguyen', field: ROBES.vermilion },
 ];
 
-/** Banner trims. Two colours and a mark is the whole system — a banner is chrome, not a flag. */
+/** Sign pigments, also used for the border when mounted on a ceremonial flag. */
 export const BANNER_TRIMS: readonly number[] = [0xd8b45a, 0xf3e6c4, 0x2a2118, 0xaa3a2c, 0x6f8f64];
 
 /**
  * Stable saved emblem ids, now drawn by bannerEmblems rather than the tactical card glyphs.
  * The legacy `crown` slot presents a bronze drum. Other card uses of crown are unchanged.
  * These are freely chosen game motifs, not attributed historical coats of arms.
- * The last two are earned — see `emblemLocked`.
+ * Extra signs are earned or purchased permanently — see `emblemLocked`.
  */
-export const BANNER_EMBLEMS = ['crown', 'banner', 'blade', 'grain', 'branch', 'tortoise'] as const;
-export type BannerEmblem = (typeof BANNER_EMBLEMS)[number];
+export const BANNER_EMBLEMS = DYNASTY_SIGNS;
+export type BannerEmblem = DynastySign;
 
 // -- locks -------------------------------------------------------------------
 /**
@@ -114,7 +120,7 @@ export type BannerEmblem = (typeof BANNER_EMBLEMS)[number];
  * The rule, and it is the whole reason locks are allowed inside a creator at all: **ornament,
  * never identity.** Sex, court, face, hair, a full court dress and a banner are free from the
  * first second — a player who cannot make the king they meant to make has been sold a menu, not
- * a creator. What is earned is flourish: a war harness, jade, two extra marks. Nothing locked
+ * a creator. What is earned is flourish: a war harness, jade, extra signs. Nothing locked
  * has power, so a lock here is a promise rather than a paywall, and each one names a system the
  * player has not met yet — which is the creator's second job, indexing the game.
  */
@@ -127,9 +133,7 @@ export function jadeLocked(): boolean {
 }
 
 export function emblemLocked(emblem: string): boolean {
-  if (emblem === 'branch') return !deedDone('era-empires');
-  if (emblem === 'tortoise') return !deedDone('era-mandate');
-  return false;
+  return !ownsDynastySign(emblem);
 }
 
 /** Parts held back until the house has forged a jade seal. Ornament only, by construction. */
@@ -258,7 +262,7 @@ const RANK_SEAL = [undefined, 'rank-rare', 'rank-epic', 'rank-legendary'];
  * identity — because the two must produce the same *kind* of portrait or a made king would
  * stand out beside a generated champion as obviously assembled.
  */
-export function buildKingLook(choice: KingChoice, rank: number): HeroLook {
+export function buildKingLook(choice: KingChoice, rank: number, preview?: string): HeroLook {
   const woman = choice.sex === 'woman';
   const age = choice.age;
   const face = seeded(choice.face * 2246822519 + 101);
@@ -322,7 +326,7 @@ export function buildKingLook(choice: KingChoice, rank: number): HeroLook {
   const seal = RANK_SEAL[rank];
   if (seal) parts.push({ key: seal, tint: 'none' });
 
-  return {
+  return applyRoyalWardrobe({
     parts,
     palette: {
       skin,
@@ -338,7 +342,7 @@ export function buildKingLook(choice: KingChoice, rank: number): HeroLook {
     era: choice.era,
     age,
     rank,
-  };
+  }, choice, preview);
 }
 
 /**
@@ -387,6 +391,9 @@ export function choiceFromStored(stored: DynastyLook | undefined): KingChoice | 
     skin: number('skin', 0),
     hairColour: number('hairColour', 0),
     robe: number('robe', 0),
+    ...(typeof raw.royalHat === 'string' ? { royalHat: raw.royalHat } : {}),
+    ...(typeof raw.royalRobe === 'string' ? { royalRobe: raw.royalRobe } : {}),
+    ...(typeof raw.royalOrnament === 'string' ? { royalOrnament: raw.royalOrnament } : {}),
   };
 }
 
@@ -466,7 +473,7 @@ export function rollFounder(level: number, next: () => number = Math.random): Dy
       // what it writes is what the Temple reopens on, and it should open on something good.
       trim: at(BANNER_TRIMS.filter((colour) => colour !== house.field),
         Math.floor(next() * BANNER_TRIMS.length)),
-      emblem: at(emblems.length > 0 ? emblems : BANNER_EMBLEMS, Math.floor(next() * 6)),
+      emblem: at(emblems, Math.floor(next() * emblems.length)),
     },
     level,
   });
