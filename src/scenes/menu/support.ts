@@ -246,7 +246,7 @@ export function renderVersionLine(self: MenuScene): void {
         GAME_WIDTH / 2,
         line.y - line.displayHeight / 2,
         Math.max(line.displayWidth + 44, 200),
-        line.displayHeight + 18,
+        line.displayHeight + 12,
         0xffffff,
         0.001,
       )

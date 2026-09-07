@@ -203,7 +203,41 @@ export class Copilot {
    * pointing at on some perfectly ordinary phone.
    */
   private renderCard(step: CopilotStep, target: UIBounds | undefined, last: boolean): void {
-    const bodyWidth = CARD_WIDTH - PAD * 2;
+    const GAP = 14;
+    const sheet = sheetSpan(this.scene);
+    /**
+     * Which side of its subject the card takes, and how wide it may be there.
+     *
+     * Decided before a word is set, because the paragraph's wrap — and therefore the card's
+     * height, and therefore everything below — is measured against this width. The margin beside
+     * a 640-wide stage on a 1277-wide sheet is 318 units, eight short of the phone's card and its
+     * air, so a card that refused to shrink was pushed back over the fight every time.
+     */
+    const room = target && sheet.width > GAME_WIDTH
+      ? { left: target.x - sheet.left, right: sheet.left + sheet.width - (target.x + target.width) }
+      : undefined;
+    /**
+     * The *nearer* margin that fits, not the roomier one.
+     *
+     * The subjects on the battle screen sit inside a 640-wide stage in the middle of the sheet, so
+     * the wider margin is usually the one measured across the stage — and a card placed in it
+     * covers the fight on its way out to the paper. Taking the tighter side first puts the card in
+     * the strip of dimmed map immediately beside the stage, which is the only part of a desktop
+     * sheet that is free by construction.
+     *
+     * 280 rather than the phone's 350: narrower than this and the counter table's two columns
+     * stop fitting on one row. When neither margin holds that, the card goes under its subject.
+     */
+    const sides: ReadonlyArray<readonly [-1 | 1, number]> = room
+      ? (room.right <= room.left
+        ? [[1, room.right], [-1, room.left]]
+        : [[-1, room.left], [1, room.right]])
+      : [];
+    const picked = sides.find(([, space]) => space - GAP * 2 >= 280);
+    const beside: -1 | 0 | 1 = picked ? picked[0] : 0;
+    const margin = picked ? picked[1] : 0;
+    const cardWidth = picked ? Math.min(CARD_WIDTH, Math.floor(margin - GAP * 2)) : CARD_WIDTH;
+    const bodyWidth = cardWidth - PAD * 2;
     const heading = this.scene.add.text(0, 0, t(step.heading), {
       color: '#2a2118',
       fontFamily: TITLE_FONT,
@@ -234,8 +268,6 @@ export class Copilot {
     const ART_ROW = art ? art.height + 12 : 0;
     const height = PAD + heading.height + 6 + body.height + ART_ROW + LANGUAGE_ROW + 14
       + BUTTON_H + PAD;
-    const x = (GAME_WIDTH - CARD_WIDTH) / 2;
-
     /**
      * The card lives at the foot of the sheet, and that is a reachability rule rather than a
      * layout preference.
@@ -249,17 +281,55 @@ export class Copilot {
      * describing is made by the arrow below rather than by proximity. The one exception is a
      * subject that is itself at the foot — the action bar — where the card steps above it, which
      * still leaves the buttons within about seventy units of the bottom edge.
+     *
+     * **None of that reasoning survives a desktop window, and the card was obeying it anyway.**
+     * There is no thumb, the sheet is three times the column's width, and the foot of the column
+     * is the bottom-left corner of a monitor — so the walkthrough was reading as a paragraph
+     * parked in one corner while a red rectangle lit something four hundred units away. Worse,
+     * the fight it describes is a 640-wide stage in the middle of that sheet, and a card at the
+     * foot sits *on* the dock, the strip and the two exits it is pointing at.
+     *
+     * A wide sheet has margins, which is the one thing the phone never had: the card goes in the
+     * one beside its subject, vertically level with it, and covers nothing. When neither margin
+     * can hold it — a subject spanning the whole sheet, like the top bar — it steps below the
+     * subject, or above it if there is no room below.
      */
-    const GAP = 14;
     const foot = GAME_HEIGHT - height - 20;
-    const targetIsLow = target ? target.y > GAME_HEIGHT - height - 40 : false;
-    const y = Phaser.Math.Clamp(
-      targetIsLow && target ? target.y - GAP - height : foot,
+    const clampY = (value: number) => Phaser.Math.Clamp(
+      value,
       16,
       Math.max(16, GAME_HEIGHT - height - 16),
     );
+    let x = (GAME_WIDTH - cardWidth) / 2;
+    let y = clampY(foot);
+    if (beside && target) {
+      // Beside its subject and level with it, clamped inside the sheet — near enough that the
+      // arrow is a hand's width rather than a gesture across a monitor.
+      x = Phaser.Math.Clamp(
+        beside === 1 ? target.x + target.width + GAP : target.x - GAP - cardWidth,
+        sheet.left + GAP,
+        sheet.left + sheet.width - cardWidth - GAP,
+      );
+      y = clampY(target.y + target.height / 2 - height / 2);
+    } else if (target && sheet.width > GAME_WIDTH) {
+      // A subject too wide for either margin — the top bar, the bottom bar. Under it, or over it
+      // when there is no room under, and centred on it either way.
+      x = Phaser.Math.Clamp(
+        target.x + target.width / 2 - cardWidth / 2,
+        sheet.left + 16,
+        sheet.left + sheet.width - cardWidth - 16,
+      );
+      const below = target.y + target.height + GAP;
+      y = below + height <= GAME_HEIGHT - 16 ? below : clampY(target.y - GAP - height);
+    } else if (target) {
+      const targetIsLow = target.y > GAME_HEIGHT - height - 40;
+      y = clampY(targetIsLow ? target.y - GAP - height : foot);
+    } else if (sheet.width > GAME_WIDTH) {
+      // No subject: the page as a whole, so the card takes the middle of the sheet it is about.
+      x = sheet.left + (sheet.width - cardWidth) / 2;
+    }
 
-    const panel = this.ui.panel({ x, y, width: CARD_WIDTH, height }, {
+    const panel = this.ui.panel({ x, y, width: cardWidth, height }, {
       fill: INK_UI.parchment,
       fillShade: INK_UI.parchmentDark,
       border: INK_UI.brush,
@@ -278,18 +348,25 @@ export class Copilot {
      * line being dragged across the whole page.
      */
     if (target) {
-      const pointsUp = target.y + target.height <= y;
-      const tipX = Phaser.Math.Clamp(
-        target.x + target.width / 2,
-        x + 24,
-        x + CARD_WIDTH - 24,
-      );
       const arrow = this.scene.add.graphics().setDepth(DEPTH + 2);
       arrow.fillStyle(INK_UI.brush, 1);
-      if (pointsUp) {
-        arrow.fillTriangle(tipX - 9, y + 1, tipX + 9, y + 1, tipX, y - 11);
-      } else if (target.y >= y + height) {
-        arrow.fillTriangle(tipX - 9, y + height - 1, tipX + 9, y + height - 1, tipX, y + height + 11);
+      if (beside) {
+        // Off the card's inner edge, level with the subject: the two are side by side, and an
+        // arrow that pointed up or down would send the eye past it.
+        const tipY = Phaser.Math.Clamp(target.y + target.height / 2, y + 24, y + height - 24);
+        const edge = beside === 1 ? x + 1 : x + cardWidth - 1;
+        arrow.fillTriangle(edge, tipY - 9, edge, tipY + 9, edge - beside * 11, tipY);
+      } else {
+        const tipX = Phaser.Math.Clamp(
+          target.x + target.width / 2,
+          x + 24,
+          x + cardWidth - 24,
+        );
+        if (target.y + target.height <= y) {
+          arrow.fillTriangle(tipX - 9, y + 1, tipX + 9, y + 1, tipX, y - 11);
+        } else if (target.y >= y + height) {
+          arrow.fillTriangle(tipX - 9, y + height - 1, tipX + 9, y + height - 1, tipX, y + height + 11);
+        }
       }
       this.objects.push(arrow);
     }
@@ -306,7 +383,7 @@ export class Copilot {
     }
 
     if (step.languagePicker) {
-      this.renderLanguagePicker(x, cursor + 12);
+      this.renderLanguagePicker(x, cursor + 12, cardWidth);
     }
 
     const row = y + height - PAD - BUTTON_H;
@@ -353,7 +430,7 @@ export class Copilot {
     // offer and the quiet one is the exit. Everywhere else the loud button simply advances.
     const handing = last && Boolean(this.opts.onGuide);
     const nextWidth = handing ? 116 : 104;
-    const nextX = x + CARD_WIDTH - PAD - nextWidth;
+    const nextX = x + cardWidth - PAD - nextWidth;
     const next = this.ui.button(
       { x: nextX, y: row, width: nextWidth, height: BUTTON_H },
       handing ? t('copilot.playNow')
@@ -397,7 +474,7 @@ export class Copilot {
    * scene underneath, which redraws its own labels; the tour survives that because it is not part
    * of the scene's content.
    */
-  private renderLanguagePicker(cardX: number, y: number): void {
+  private renderLanguagePicker(cardX: number, y: number, cardWidth: number): void {
     const current = getLanguage();
     const options: Array<{ id: LanguageCode; label: string }> = [
       { id: 'vi', label: 'Tiếng Việt' },
@@ -415,7 +492,7 @@ export class Copilot {
     const OPTION_GAP = 18;
     const widths = labels.map((label) => FLAG_WIDTH + FLAG_GAP + label.width);
     const total = widths[0] + OPTION_GAP + widths[1];
-    let cursor = cardX + CARD_WIDTH / 2 - total / 2;
+    let cursor = cardX + cardWidth / 2 - total / 2;
 
     labels.forEach((label, index) => {
       const option = options[index];

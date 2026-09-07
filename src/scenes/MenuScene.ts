@@ -244,7 +244,7 @@ export class MenuScene extends Phaser.Scene {
    * already had whenever the legacy-shop button was showing.
    */
   get vScale(): number {
-    const BOTTOM_ROWS = 148;   // the footer: utility buttons, flagged language row, and support
+    const BOTTOM_ROWS = 140;   // the footer: utility buttons, flagged language row, and support
     const DESIGN_BOTTOM = 790; // lowest content y in the 844 design
     return Math.max(0.62, Math.min(1, (GAME_HEIGHT - BOTTOM_ROWS) / DESIGN_BOTTOM));
   }

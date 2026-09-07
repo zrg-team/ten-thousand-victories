@@ -2,7 +2,13 @@
 
 The “Tân vương đăng cơ” opening-choice page now uses an authored Đông Hồ palace illustration matching the existing power-card prints. Bold warm-black contours, vermilion roofs and columns, ochre throne and leaf-green ornament replace the procedural hall whenever the image is available. The empty seat, paired bronze urns, court steps and two live player standards retain the page's meaning.
 
-- Runtime: `public/art/ascent/throne-hall-dongho-v1.webp` — 1032 × 557, 173,946 bytes.
+- Runtime: `public/art/ascent/throne-hall-dongho-v2.webp` — 1032 × 557, 179,132 bytes, **cut out**.
+  v2 is v1 with its paper flooded away (`scripts/build-throne-hall.mjs`): the generated sheet is
+  opaque rgb(240,220,182) and the card under it is rgb(233,223,194), so the print read as a warm
+  rectangle with a hall inside it rather than as a hall. The flood is keyed within 6 of the
+  border's median and stops at the drawing, so the shaded interior, the wall behind the throne
+  and the courtyard paving — all inside closed contours — stay. 37% of the frame is now clear.
+- Source: `public/art/ascent/throne-hall-dongho-v1.webp` — 1032 × 557, 173,946 bytes.
 - Master: `output/throne-hall/masters/throne-hall-dongho-v1.png`.
 - Built-in ImageGen; [exact generation and correction prompts](dong-ho-throne-hall-prompts.json). The first result painted a checkerboard; the approved correction uses opaque shell paper. Only mechanical resizing and WebP encoding followed generation.
 - References: `public/art/story-prints/petition-v1.webp` and `harvest-v1.webp`.

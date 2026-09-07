@@ -63,18 +63,17 @@ hand-drawn grand-strategy roguelite set in medieval Đại Việt: hex-map campa
 battles, generals from real Vietnamese history, every hex and face drawn like a Đông Hồ folk
 woodblock print. English and Tiếng Việt, fully offline, no ads or tracking.
 
-🔗 Google Group:
-https://groups.google.com/g/vanthang-test
+📧 Comment or email me the Google account address on your phone — **zerglingno2@outlook.com** — and
+I'll add you to the tester list. This step matters: without it Play will try to charge you.
 
-🔗 Join Closed Test:
-https://play.google.com/apps/testing/zrg.team.vanthang
+Then, in this order:
 
-📲 Install:
-https://play.google.com/store/apps/details?id=zrg.team.vanthang
+🔗 Join the group: https://groups.google.com/g/vanthang-test
+🔗 Join the test: https://play.google.com/apps/testing/zrg.team.vanthang
+📲 Install: https://play.google.com/store/apps/details?id=zrg.team.vanthang
 
 🤝 Test for test!
-Join and install my app, then drop your app links in the comments. I'll test yours back and stay
-opted in the full 14 days.
+Drop your app links in the comments — I'll test yours back and stay opted in the full 14 days.
 
 ---
 

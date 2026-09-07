@@ -1,5 +1,12 @@
 import { hostileMarchRisk, isHostileMarchLand, applyHostileMarchLoss } from './ascent/hostileMarch';
 import { recalledHostPenalty } from './decree/rules';
+import {
+  KIND_BASE_SEASONS,
+  KIND_GOODS_PER_GOLD,
+  KIND_MAX_SETTLEMENTS,
+  KIND_MIN_LEVEL,
+  KIND_STABILITY_STEPS,
+} from '../game/ascentConfig';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
 import { getLegTicks } from '../game/movementConfig';
 import {
@@ -35,7 +42,9 @@ import { checkVictory, findLand, getAcquisitionTicksRequired, getSiegeOrder, isA
 import {
   applyResourceDelta,
   canSpend,
+  ascentArmyUpkeep,
   getArmyGoldUpkeep,
+  getPlayerTroops,
   getBarracksLevel,
   getFocusDefenseMult,
   getFocusGarrisonMult,
@@ -1290,6 +1299,51 @@ export function progressRecruitmentOrders(state: GameState): boolean {
 }
 
 /** Consumes rations/provisions for every player-owned army each tick, applying morale penalties, starvation attrition, and disbandment. */
+/**
+ * Wages paid out of the granaries when the treasury cannot pay them in coin.
+ *
+ * Returns whether this host's season is settled. Three gates, in the order a player would ask
+ * them: is this host worth carrying, has the realm any settlements left for it, and can the stores
+ * actually bear the cost. A settlement runs for several seasons — one, plus one for each step of
+ * `KIND_STABILITY_STEPS` the court has cleared — because what is really being bought is the
+ * court's word that the pay is coming, and a court in disorder is not believed.
+ *
+ * Deliberately automatic rather than a card. The alternative on offer is losing a host the player
+ * spent a war building, the cost is stated on the row and in the toast, and it is bounded twice
+ * over — by the two settlements and by the store actually having the goods. A prompt every season
+ * a realm ran short would be the noisiest card in the run for a decision nobody would ever answer
+ * the other way.
+ */
+function settleWagesInKind(state: GameState, army: Army): boolean {
+  if (state.gameMode !== 'ascent') return false;
+  // Grace already bought and still running.
+  if ((army.inKindSeasons ?? 0) > 0) {
+    army.inKindSeasons = (army.inKindSeasons ?? 0) - 1;
+    return true;
+  }
+  if ((army.level ?? 1) < KIND_MIN_LEVEL && (army.elite ?? 0) < 1) return false;
+  if ((army.inKindSettlements ?? 0) >= KIND_MAX_SETTLEMENTS) return false;
+
+  // This host's share of the season's wage bill, the same figure the army sheet prints for it.
+  const bill = ascentArmyUpkeep(state);
+  const troops = Math.max(1, getPlayerTroops(state));
+  const owed = Math.max(1, Math.round(bill.gold * (totalUnits(army) / troops)));
+  const goods = Math.ceil(owed * KIND_GOODS_PER_GOLD);
+  if (state.resources.supplies < goods) return false;
+
+  const stability = state.court?.stability ?? 50;
+  const seasons = KIND_BASE_SEASONS
+    + KIND_STABILITY_STEPS.filter((step) => stability >= step).length;
+  applyResourceDelta(state, { supplies: -goods });
+  army.inKindSettlements = (army.inKindSettlements ?? 0) + 1;
+  // This season is the first of them.
+  army.inKindSeasons = seasons - 1;
+  pushToast(state, t('ascent.army.inKind', {
+    army: army.name, goods, n: seasons,
+  }), 'reward');
+  return true;
+}
+
 export function progressArmyLogistics(state: GameState): boolean {
   const disbanded: Army[] = [];
   const arrearsRipe: Army[] = [];
@@ -1370,7 +1424,11 @@ export function progressArmyLogistics(state: GameState): boolean {
       army.morale -= ARMY_MORALE_LOSS_NO_PROVISIONS;
     }
 
-    if (treasuryCannotPay && getArmyGoldUpkeep(army) > 0) {
+    if (treasuryCannotPay && getArmyGoldUpkeep(army) > 0 && settleWagesInKind(state, army)) {
+      // Paid — in rice rather than in silver. The clock does not move and the men are not told
+      // they are owed, which is the whole point of the settlement.
+      army.unpaidTicks = 0;
+    } else if (treasuryCannotPay && getArmyGoldUpkeep(army) > 0) {
       army.unpaidTicks = (army.unpaidTicks ?? 0) + 1;
       army.morale -= 8;
       // Said out loud (Dragon Ascent): a host that dissolves for arrears used to be a host that

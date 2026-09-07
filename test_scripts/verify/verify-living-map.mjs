@@ -234,7 +234,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 390, height: 664 }
   check(`${label}: four registered artwork plates are loaded`, menu.art?.layers?.length === 4
     && ['ground', 'mountains', 'bamboo', 'lotus'].every((name) => menu.art.layers.some((layer) => layer.name === name))
     && new Set(menu.art.layers.map((layer) => layer.texture)).size === 4
-    && menu.art.layers.find((layer) => layer.name === 'ground')?.texture === 'menu-layer-ground-v5'
+    && menu.art.layers.find((layer) => layer.name === 'ground')?.texture === 'menu-layer-ground-v6'
     && menu.art.layers.find((layer) => layer.name === 'ground')?.fieldContinuity === 'fully-planted-rice'
     && menu.art.layers.find((layer) => layer.name === 'bamboo')?.texture === 'menu-layer-bamboo-v2'
     && menu.art.sourceSize?.width >= 1500 && menu.art.sourceSize?.height >= 1000,

@@ -1242,6 +1242,92 @@ export const SIEGE_RENEW_SHARE = 0.5;
 /** Loyalty a province gains when a relief column reaches it before the walls are tried. */
 export const RELIEF_LOYALTY_REWARD = 8;
 /** Gold the treasury pays out for a siege broken by a march rather than by masonry. */
+/**
+ * What a hostile column pays for marching *past* the provinces it did not stop to take.
+ *
+ * The gap this closes: `findInvasionStep` is a plain hop-count BFS that ignores who owns the
+ * ground, and a host only ever fights a province it actually steps onto — so a column routed
+ * through the neutral country beside a held frontier walked the length of the realm and arrived
+ * at the capital at full strength, with three garrisons watching it go by. Holding ground bought
+ * nothing except at the one province the enemy happened to want.
+ *
+ * The rule: every leg a column completes on neutral ground overlooked by provinces of ours costs
+ * it men. `PASSING_BASE` is the toll for using the road at all; the rest scales with what the
+ * watching provinces could actually put in the field against it, so a ring of drilled, walled
+ * districts bleeds a host and a ring of empty villages barely stings.
+ *
+ * `PASSING_CAMPAIGN_MAX` is the part that keeps this from becoming the whole game: no host may
+ * lose more than this share of its muster to harassment over its entire campaign, so a long
+ * approach is a real cost and never a way to farm a wave to nothing without fighting it. And
+ * `PASSING_EXHAUSTION_SHARE` is what it costs *us*: the men who lay the ambush are the men on the
+ * wall the following season (see `garrisonExhaustion`), so a frontier that bleeds every column
+ * that passes is a frontier that meets the next assault tired.
+ */
+/**
+ * Wages settled in goods when the treasury is empty — "trả bằng hiện vật".
+ *
+ * A realm that runs out of coin loses its armies in a fixed five seasons, and the one it can least
+ * afford to lose is the one it spent the longest making: a level-4 host is worth 1.32x its own men
+ * before its general is counted, and it took a war and two drills to get there. Nothing in the run
+ * let a player answer "I have no gold but I have granaries" — the only lever was to disband
+ * something, and the thing the bookkeeping takes first is the *smallest* host, which is rarely the
+ * one you would have chosen.
+ *
+ * So: a veteran host whose wages cannot be paid is carried on the realm's stores instead. It costs
+ * `KIND_GOODS_PER_GOLD` in quân nhu for every gold of the season's bill — dearer than coin,
+ * because paying a soldier in rice is dearer than paying him in silver — and it buys the number of
+ * seasons the court can hold the line for, which is where `stability` comes in: an orderly court
+ * can promise men their pay is coming and be believed, a collapsing one cannot.
+ *
+ * Twice, and no more (`KIND_MAX_SETTLEMENTS`). The point is to give a treasury crisis a *second
+ * answer*, not to remove the crisis: a realm that has spent its granaries twice on wages and still
+ * cannot pay is a realm that has to let something go.
+ */
+export const KIND_GOODS_PER_GOLD = 1.5;
+export const KIND_MAX_SETTLEMENTS = 2;
+export const KIND_BASE_SEASONS = 1;
+export const KIND_STABILITY_STEPS = [50, 80];
+/** A host worth carrying: veterans and equipped men, not a fresh levy of spearmen. */
+export const KIND_MIN_LEVEL = 2;
+
+export const PASSING_BASE = 0.02;
+export const PASSING_WATCH_SCALE = 0.06;
+export const PASSING_LEG_MAX = 0.08;
+export const PASSING_CAMPAIGN_MAX = 0.3;
+export const PASSING_EXHAUSTION_SHARE = 0.35;
+/**
+ * How much of the toll a column actually pays, by who is marching and what they came to do.
+ *
+ * **The toll is a price, never a prohibition.** Nothing here can stop a host driving straight at a
+ * province deep inside the realm — `findInvasionStep` still routes by hop count and knows nothing
+ * about any of this, so a commander who wants the capital marches at the capital and arrives
+ * lighter. That is the point: ignoring a frontier is a decision an enemy is allowed to make and is
+ * then seen to have paid for, rather than a move the rules forbid.
+ *
+ * Who pays what follows from how they march. An `aggressive` court sends its columns hard and
+ * unscreened and loses more to the country they cross; a `defensive` one moves in its own time and
+ * loses less; the trading courts split the difference. On top of that, what the host came to do:
+ * a raider is light and quick and hard to catch, a spearhead driving for the prize is committed
+ * and cannot turn aside for a picket, and a beaten host on its way home is watched out of the
+ * realm rather than hunted.
+ */
+export const PASSING_TEMPER: Readonly<Record<string, number>> = {
+  aggressive: 1.35,
+  expansionist: 1.15,
+  economic: 0.85,
+  diplomatic: 0.85,
+  defensive: 0.75,
+};
+export const PASSING_PLAN: Readonly<Record<string, number>> = {
+  spearhead: 1.15,
+  hunter: 1,
+  flanker: 0.9,
+  raider: 0.6,
+  withdrawing: 0.7,
+};
+/** Below this many men lost, the column is not worth telling the player about. */
+export const PASSING_REPORT_MEN = 12;
+
 export const RELIEF_GOLD_REWARD = 40;
 /**
  * Attacker's edge when retaking ground the realm lost, and the waves it decays over.

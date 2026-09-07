@@ -43,7 +43,7 @@ export const SUPPORT_ROW_HEIGHT = 46;
  * The whole footer stack moves up by what this band takes and the art lane above it loses the
  * same, which is slack it had.
  */
-export const VERSION_ROW_HEIGHT = 30;
+export const VERSION_ROW_HEIGHT = 22;
 export const VERSION_EDGE = 6;
 /**
  * The install mark's size, and the gap between it and the build stamp it rides.
