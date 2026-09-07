@@ -277,14 +277,13 @@ export function isDesktopLayout(): boolean {
 }
 
 /**
- * Whether the settings page should offer the layout row at all.
- *
- * Only where a desktop is possible — a page already on the desktop layout, one that has pinned a
- * choice, or a landscape window with a fine pointer. On a phone the row would be a control with
- * one honest answer, and the settings sheet is ten rows deep on a 620 clamp already.
+ * Whether a pinned Desktop is being overruled by the box: the choice is Desktop, the page is on the
+ * column. That happens in exactly one case — a portrait box, since the rules above let a pin win
+ * everything but the aspect. The settings row says so, because a tile that reads "Desktop" over a
+ * page that is plainly the phone column is otherwise a control that looks broken.
  */
-export function layoutRowOffered(): boolean {
-  return isDesktopPlatform() || layoutPreference() !== 'auto';
+export function desktopPinOverruled(): boolean {
+  return layoutPreference() === 'desktop' && layoutKind() === 'phone';
 }
 
 /**

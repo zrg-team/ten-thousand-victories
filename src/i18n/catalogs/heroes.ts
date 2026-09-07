@@ -1,6 +1,9 @@
 // Generated from the localization split; edit values here, not in index.ts.
 
 export const enHeroes = {
+  "heroes.card.martial": "Martial",
+  "heroes.card.logistics": "Logistics",
+  "heroes.card.administration": "Governance",
   "heroes.ba-lang-nuoc.description": "A respected village elder who keeps canals, wells, and granaries in order.",
   "heroes.ba-lang-nuoc.effect": "+10 loyalty and +10 defense in assigned river or farm land.",
   "heroes.ba-lang-nuoc.name": "Lương Xuân Khanh",
@@ -403,6 +406,9 @@ export const enHeroes = {
 } as const;
 
 export const viHeroes = {
+  "heroes.card.martial": "Võ nghệ",
+  "heroes.card.logistics": "Hậu cần",
+  "heroes.card.administration": "Trị quốc",
   "heroes.ba-lang-nuoc.description": "Một bậc trưởng lão được kính trọng, giữ gìn kênh mương, giếng nước và kho thóc.",
   "heroes.ba-lang-nuoc.effect": "+10 trung thành và +10 phòng thủ ở vùng sông hoặc ruộng được bổ nhiệm.",
   "heroes.ba-lang-nuoc.name": "Lương Xuân Khanh",

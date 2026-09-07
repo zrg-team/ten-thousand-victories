@@ -8,7 +8,7 @@
 import { GAME_HEIGHT } from '../../game/constants';
 import { CARD_ICON_SIZE } from '../../ui/CardIcons';
 
-export type MenuMode = 'main' | 'classic' | 'confirm-new' | 'legacy' | 'dynasty' | 'temple' | 'settings';
+export type MenuMode = 'main' | 'classic' | 'confirm-new' | 'legacy' | 'dynasty' | 'temple';
 
 /**
  * The front page's footer, measured up from the bottom edge.
@@ -53,12 +53,13 @@ export const VERSION_EDGE = 6;
  * own stamp. The scale is the one the three footer utility icons use — see `renderInstallMark`.
  */
 /**
- * The two pages that play an arrival, and the shape of it.
+ * The pages that play an arrival, and the shape of it.
  *
- * `PAGE_ARRIVAL_BAND` is what counts as the same line: settings rows are 30 units tall on a
- * 12 gap, so eight units of slack groups a row's parts without ever swallowing the row under it.
+ * `PAGE_ARRIVAL_BAND` is what counts as the same line: a row's parts sit within eight units of
+ * each other, so that much slack groups a row without ever swallowing the row under it.
+ * Settings used to be the second page here; it is its own scene now (`SettingsScene`).
  */
-export const ARRIVING_PAGES = new Set<MenuMode>(['settings', 'classic']);
+export const ARRIVING_PAGES = new Set<MenuMode>(['classic']);
 export const PAGE_ARRIVAL_RISE = 6;
 export const PAGE_ARRIVAL_BAND = 8;
 /**

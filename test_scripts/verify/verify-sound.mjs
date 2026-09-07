@@ -205,10 +205,12 @@ await page.waitForTimeout(500);
 
 // ── the settings row is there to turn it off with ──────────────────────────
 {
-  const found = await page.evaluate(() => {
-    const menu = window.__phaserGame.scene.getScene('MenuScene');
-    menu.mode = 'settings';
-    menu.render();
+  const found = await page.evaluate(async () => {
+    // Its own page now, reached the way the footer reaches it.
+    const game = window.__phaserGame;
+    game.scene.getScene('MenuScene').scene.start('SettingsScene');
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const settings = game.scene.getScene('SettingsScene');
     let seen = false;
     let music = false;
     const walk = (objects) => {
@@ -219,9 +221,9 @@ await page.waitForTimeout(500);
         if (o.list) walk(o.list);
       }
     };
-    walk(menu.children.list);
-    menu.mode = 'menu';
-    menu.render();
+    walk(settings.children.list);
+    settings.scene.start('MenuScene');
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     return { seen, music };
   });
   check('the settings page carries the sound row', found.seen);

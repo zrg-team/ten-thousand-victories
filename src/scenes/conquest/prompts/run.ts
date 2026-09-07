@@ -1,7 +1,7 @@
 /**
  * The three screens at a run's edges: the founding that picks the dynasty's champion, the mandate
  * the new reign chooses on its first morning, and the Reckoning that sums the reign up and sells
- * the next one. `heroDeckPrompt`/`heroDeckCard` live here because the founding is their first
+ * the next one. `heroDeckPrompt` lives here because the founding is its first
  * caller; `prompts/court.ts` draws the same deck for the summon and the Favor draft.
  *
  * The deck is the one prompt family that skips `promptScrollBody` — an `InkScrollArea` would eat
@@ -12,7 +12,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../../../game/constants';
 import { codexProgress } from '../../../state/codex';
 import { powerCardView } from '../../../systems/ascent/PowerDraftSystem';
-import { tierForHero } from '../../../systems/ascent/SummonSystem';
+import { heroChoiceCard } from '../../../ui/ascent/HeroChoiceCard';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import { chronicleTally } from '../../../systems/story/StorySystem';
 import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap } from '../../../ui/InkUI';
@@ -25,7 +25,7 @@ import { addStoryPrint, powerStoryPrint } from '../../../ui/storyPrint';
 import { staggerIn } from '../../../ui/animations';
 import { captureScreen } from '../../../ui/captureScreen';
 import { TITLE_FONT, UI_FONT } from '../../../ui/fonts';
-import { heroBio, heroName, heroTypeLabel, rarityLabel, t } from '../../../i18n';
+import { heroName, t } from '../../../i18n';
 import { DYNASTY_TRAITS_LIVE, DYNASTY_TRAITS_PENDING } from '../../../data/dynastyTraits';
 import { dynastyHistory, dynastyProgress, dynastyProgressForXp, dynastyXpStep, getDynasty } from '../../../state/dynasty';
 import { motionMs, reducedMotion } from '../../../game/lifeSettings';
@@ -34,7 +34,7 @@ import { findPowerCard } from '../../../data/ascentCards';
 import { CardFan } from '../../../ui/ascent/CardFan';
 import { dynastyFounderHero, reignFounderHero } from '../../../ui/dynastyPortrait';
 import type { AscentPrompt, Hero } from '../../../state/types';
-import { PROMPT_FOOTER_HEIGHT, PROMPT_HINT_ROOM, RARITY_COLOR, RARITY_WASH, cssHex, heroStatLine } from '../constants';
+import { PROMPT_FOOTER_HEIGHT, PROMPT_HINT_ROOM, RARITY_COLOR, cssHex } from '../constants';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 import { soundDirector } from '../../../ui/sound/SoundDirector';
 
@@ -205,135 +205,6 @@ export function showMandate(self: ConquestUIScene, prompt: Extract<AscentPrompt,
 }
 
 /**
- * One champion, drawn as a card you would hold: portrait first, then who they are, then the
- * one line that says what taking them changes on the board.
- *
- * Fixed height on purpose — every card in a stack has to be the same size, or the ones peeking
- * out behind the front one stick out at different distances and the deck reads as a mess. The
- * height comes from the room the screen actually has, so the only thing that gives is the bio:
- * `maxLines` is computed from what is left after the note is placed, rather than letting a long
- * life story push the gift line off the bottom edge.
- */
-function heroDeckCard(self: ConquestUIScene,
-  hero: Hero,
-  width: number,
-  height: number,
-  opts: { badge?: string; note?: string },
-): Phaser.GameObjects.Container {
-  const container = self.add.container(0, 0);
-  const tier = tierForHero(hero);
-  const PAD = 12;
-  const textWidth = width - PAD * 2;
-
-  // Paper, wash and the rarity rail first: everything else is read off them.
-  container.add(self.ui.panel({ x: 0, y: 0, width, height }, {
-    border: INK_UI.brush, borderWidth: 1.2, borderAlpha: 0.52,
-  }));
-  const wash = self.add.graphics();
-  wash.fillStyle(RARITY_COLOR[tier], RARITY_WASH[tier]);
-  wash.fillRoundedRect(2, 2, width - 4, height - 4, 8);
-  container.add(wash);
-  // A ruler's card is the only one in the mode that gets a ground of its own, and a chop.
-  if (hero.arrival) {
-    const ground = self.add.graphics();
-    ground.fillStyle(INK_UI.gold, 0.1);
-    ground.fillRoundedRect(2, 2, width - 4, height - 4, 8);
-    container.add(ground);
-  }
-  const rail = self.add.graphics();
-  rail.fillStyle(RARITY_COLOR[tier], 1);
-  rail.fillRect(1, 6, 4.5, height - 12);
-  container.add(rail);
-
-  // Rarity on the left, whatever the screen wants to shout on the right.
-  container.add(self.add.text(PAD, 10, rarityLabel(hero.rarity), {
-    color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '10px', fontStyle: '700',
-  }));
-  if (opts.badge) {
-    container.add(self.add.text(width - PAD, 10, opts.badge, {
-      color: '#8a5f1c', fontFamily: UI_FONT, fontSize: '10px', fontStyle: '700',
-    }).setOrigin(1, 0));
-  }
-
-  const faceHeight = Phaser.Math.Clamp(Math.round(height * 0.42), 88, 142);
-  const faceWidth = Math.round(faceHeight * 0.78);
-  container.add(renderHeroFaceInBox(self, hero, {
-    x: (width - faceWidth) / 2, y: 26, width: faceWidth, height: faceHeight,
-  }));
-
-  let cursor = 26 + faceHeight + 6;
-  const name = self.add.text(width / 2, cursor, heroName(hero), {
-    color: INK_UI_HEX.inkText, fontFamily: TITLE_FONT, fontSize: '17px', fontStyle: '700',
-    align: 'center', wordWrap: { width: textWidth },
-  }).setOrigin(0.5, 0);
-  container.add(name);
-  cursor += name.height + 2;
-
-  const line = self.add.text(width / 2, cursor,
-    `${heroTypeLabel(hero.type)}   ·   ${heroStatLine(hero)}`, {
-      color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '10.5px', align: 'center',
-    }).setOrigin(0.5, 0);
-  container.add(line);
-  cursor += line.height + 6;
-
-  const rule = self.add.graphics();
-  sawtoothBand(rule, PAD + 12, cursor, textWidth - 24, 5, 0.4);
-  container.add(rule);
-  cursor += 12;
-
-  // The note is pinned to the foot, so the bio is given exactly the gap that is left.
-  let noteTop = height - PAD;
-  if (opts.note) {
-    const note = self.add.text(width / 2, 0, opts.note, {
-      color: '#8a5f1c', fontFamily: UI_FONT, fontSize: '10.5px', fontStyle: '700',
-      align: 'center', wordWrap: { width: textWidth },
-    }).setOrigin(0.5, 0);
-    noteTop = height - PAD - note.height;
-    note.setY(noteTop);
-    container.add(note);
-  }
-
-  const BIO_LINE = 15;
-  const bioRoom = noteTop - 6 - cursor;
-  const bioLines = Math.max(1, Math.floor(bioRoom / BIO_LINE));
-  const bio = self.add.text(width / 2, cursor, heroBio(hero), {
-    color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '10.5px', align: 'center',
-    lineSpacing: 2, wordWrap: { width: textWidth }, maxLines: bioLines,
-  }).setOrigin(0.5, 0);
-  // `maxLines` alone cuts the last line dead, mid-word, with nothing to say it was cut — the
-  // life stories in this game run long enough that a card regularly ended on "Trước khi".
-  // Re-set it to the lines that fit, ending on a whole word and an ellipsis.
-  const wrapped = bio.getWrappedText();
-  if (wrapped.length > bioLines) {
-    bio.setText(`${wrapped.slice(0, bioLines).join(' ').replace(/[\s,;:.—–-]+$/u, '')}…`);
-  }
-  // A two-line life against a card sized for six leaves a hole in the middle of the paper, so
-  // the bio floats in the gap it was given rather than clinging to the rule above it.
-  bio.setY(cursor + Math.max(0, Math.round((bioRoom - bio.height) / 2)));
-  container.add(bio);
-
-  if (hero.arrival) {
-    const chop = self.add.graphics();
-    seal(chop, width - 28, height - 26, 22, 'lotus');
-    container.add(chop);
-  }
-
-  // Gold and Jade pulls glow — the one moment the mode leans into the gacha reveal.
-  if (tier === 'gold' || tier === 'jade') {
-    const glow = self.add.graphics();
-    glow.lineStyle(3, RARITY_COLOR[tier], 0.8);
-    glow.strokeRoundedRect(-2, -2, width + 4, height + 4, 10);
-    container.add(glow);
-    self.tweens.add({
-      targets: glow, alpha: { from: 0.25, to: 1 }, duration: 900, yoyo: true, repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
-  }
-
-  return container;
-}
-
-/**
  * Every "choose a champion out of a draw" screen in the mode: the founding, the summon, and
  * the court's presentation.
  *
@@ -359,14 +230,14 @@ export function heroDeckPrompt(self: ConquestUIScene, opts: {
   // Room for the footer buttons, the dots-and-hint strip, and the two cards fanned below.
   const HINT_STRIP = 38;
   const available = content.height - PROMPT_FOOTER_HEIGHT - HINT_STRIP - CARD_STACK_PEEK;
-  const cardHeight = Phaser.Math.Clamp(available, 200, 340);
+  const cardHeight = Phaser.Math.Clamp(available, 200, 390);
   // The fanned cards rotate a little, so the deck is inset from the content edges or their
   // corners clip through the screen's margin.
   const cardWidth = content.width - 12;
   const cardX = content.x + 6;
   const cardY = content.y + Math.max(0, Math.round((available - cardHeight) / 2));
 
-  const cards = opts.heroes.map((hero) => heroDeckCard(self, hero, cardWidth, cardHeight, {
+  const cards = opts.heroes.map((hero) => heroChoiceCard(self, hero, cardWidth, cardHeight, {
     badge: opts.badgeFor?.(hero),
     note: opts.noteFor?.(hero),
   }));

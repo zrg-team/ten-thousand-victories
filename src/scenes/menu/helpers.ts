@@ -6,10 +6,12 @@
  * module imports them, and this file imports no sibling.
  */
 import Phaser from 'phaser';
-import { GAME_HEIGHT } from '../../game/constants';
+import { GAME_HEIGHT, GAME_WIDTH } from '../../game/constants';
 import { t } from '../../i18n';
 import { BACK_BAR_BAND } from '../../ui/InkUI';
+import { TITLE_FONT, UI_FONT } from '../../ui/fonts';
 import { thickPath, type Pt } from '../../ui/ink/stroke';
+import type { MenuScene } from '../MenuScene';
 
 /**
  * The menu river, as a shape that can be asked questions.
@@ -90,7 +92,40 @@ export function drawHatch(g: Phaser.GameObjects.Graphics, x: number, y: number, 
   }
 }
 
-/** The band a menu sub-page may draw in: under the wordmark, above the way back. */
+/** The band a menu sub-page may draw in: under its head, above the way back. */
 export function pageFloor(): number {
   return GAME_HEIGHT - BACK_BAR_BAND - 12;
+}
+
+/**
+ * The head every page off the front page shares with How to Play, History and Settings: the
+ * page's name in capitals at 14, one quiet line under it at 44, and the body from 70.
+ *
+ * The pages here used to print the game's wordmark first — two lines of 46-unit type and a
+ * rule, 236 units of a 620 sheet — and their own title under it, over the front page's
+ * landscape. The three page scenes never did, and a player stepping from one kind of page to
+ * the other read the difference as two apps. The wordmark is the front page's; a page you
+ * have gone into from it has a heading, not a masthead. Returns the y the body starts at.
+ */
+export function renderPageHead(self: MenuScene, title: string, subtitle?: string): number {
+  self.content.push(self.add.text(GAME_WIDTH / 2, 14, title.toUpperCase(), {
+    color: '#2a2118',
+    fontFamily: TITLE_FONT,
+    fontSize: '19px',
+    fontStyle: '700',
+    align: 'center',
+    wordWrap: { width: GAME_WIDTH - 44 },
+  }).setOrigin(0.5, 0));
+  if (!subtitle) return 58;
+  const line = self.add.text(GAME_WIDTH / 2, 44, subtitle, {
+    color: '#6b5230',
+    fontFamily: UI_FONT,
+    fontSize: '11px',
+    align: 'center',
+    wordWrap: { width: GAME_WIDTH - 44 },
+  }).setOrigin(0.5, 0);
+  self.content.push(line);
+  // 70 for the one line the sibling pages carry; a subtitle that wraps pushes the body down by
+  // what it took, rather than the body printing over its second line.
+  return Math.max(70, 44 + line.height + 12);
 }

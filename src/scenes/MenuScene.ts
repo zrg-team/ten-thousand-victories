@@ -345,11 +345,9 @@ export class MenuScene extends Phaser.Scene {
 
   renderDynastyTablet(x: number, y: number, width: number, height: number): void { dynastyTablet.renderDynastyTablet(this, x, y, width, height); }
 
-  /* ----------------------------------- the settings page and the language line */
+  /* ------------------------------------------------------- the language line */
 
   renderLanguageSwitch(top = LANGUAGE_TOP): void { settings.renderLanguageSwitch(this, top); }
-
-  renderSettings(): void { settings.renderSettings(this); }
 
   /* ----------------------- the support row, the version line, the coffee sheet */
 

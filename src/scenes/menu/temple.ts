@@ -8,9 +8,7 @@ import { GAME_WIDTH } from '../../game/constants';
 import { getDynasty, setDynastyFounder } from '../../state/dynasty';
 import { CoronationSheet } from '../../ui/coronation/CoronationSheet';
 import { INK_UI } from '../../ui/InkUI';
-import { PIGMENT } from '../../ui/ink/palette';
-import { TITLE_FONT } from '../../ui/fonts';
-import { pageFloor } from './helpers';
+import { pageFloor, renderPageHead } from './helpers';
 import type { MenuScene } from '../MenuScene';
 
 /**
@@ -56,27 +54,8 @@ export function renderTemple(self: MenuScene): void {
 
   const PAD = 20;
   const W = GAME_WIDTH - PAD * 2;
-  // Give the banner and its choices the page, with a compact title instead of the home masthead.
-  const titleY = sheet.bannerState() ? self.vy(28) : self.vy(236);
-  if (sheet.bannerState()) {
-    self.content.push(self.add.rectangle(0, 0, GAME_WIDTH, titleY + 60, PIGMENT.diep).setOrigin(0));
-  }
-  self.content.push(self.add.text(GAME_WIDTH / 2, titleY, sheet.title(), {
-    color: '#2a2118', fontFamily: TITLE_FONT, fontSize: '20px', fontStyle: '700', align: 'center',
-  }).setOrigin(0.5, 0));
-
-  let y = titleY + 26;
-  const note = self.ui.label(GAME_WIDTH / 2, y, sheet.subtitle(), 'caption', {
-    fontSize: '10px', align: 'center', wordWrap: { width: W },
-    // On parchment like every band on the dynasty sheet: the front page's landscape is still
-    // painted behind this mode, and 10px type laid straight onto mountains is unreadable.
-    backgroundColor: 'rgba(243,230,196,0.86)', padding: { x: 4, y: 1 },
-  }).setOrigin(0.5, 0);
-  self.content.push(note);
-  // 12, not 8: the note carries its own parchment background, and at 8 that band's lower edge
-  // sat on the sheet's top border below it — two pieces of paper touching, which reads as one
-  // torn one.
-  y += note.height + 12;
+  // The same head as every other page off the front page; the step's own name and line.
+  let y = renderPageHead(self, sheet.title(), sheet.subtitle());
 
   // The foot is measured before the body so the scroll viewport stops short of it — the rule
   // `promptScrollBody` follows, and the reason a stepper never lands under a button. 58 rather
