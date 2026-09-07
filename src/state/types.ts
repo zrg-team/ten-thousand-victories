@@ -315,6 +315,15 @@ export interface InvasionRecord {
    */
   mustered?: number;
   /**
+   * Share of this host's strength already taken by provinces it marched *past* rather than took.
+   *
+   * Kept on the record rather than derived, because "how much has this column bled on the road"
+   * cannot be read back off `army.units` — a host also loses men to battles, and the campaign
+   * ceiling (`PASSING_CAMPAIGN_MAX`) is about the road alone. Optional so it round-trips through
+   * a save written before the frontier could touch a passing column at all.
+   */
+  passingLoss?: number;
+  /**
    * Turn from which this host may attack again after being thrown back.
    *
    * A repulsed host does not re-form and charge the same gate the following morning. Two seasons
@@ -550,6 +559,16 @@ export interface Army {
   experience: number;
   experienceToNextLevel: number;
   unpaidTicks?: number;
+  /**
+   * Seasons of wages this host has already been paid in goods, and how many are still running.
+   *
+   * The realm's second answer to an empty treasury: a veteran is carried on the granaries rather
+   * than lost to the arrears clock (see `KIND_GOODS_PER_GOLD`). `inKindSeasons` is the grace still
+   * standing from the current settlement, `inKindSettlements` is how many settlements this host
+   * has had of the two it is allowed. Both optional so a host round-trips through an older save.
+   */
+  inKindSeasons?: number;
+  inKindSettlements?: number;
   /** Consecutive seasons this host has been out of rations — what the starvation warning counts. */
   starvingTicks?: number;
   /** Elite tier (0 = levy, 1 = trained, 2 = royal guard); each tier adds battle power. */

@@ -9,6 +9,7 @@ import {
   GARRISON_LEVY_FLOOR,
   LEVY_POWER_PER_MAN,
   MAX_HOSTS_PER_KINGDOM,
+  PASSING_REPORT_MEN,
   RELIEF_GOLD_REWARD,
   RELIEF_LOYALTY_REWARD,
   SIEGE_DEFENSE_PER_TICK,
@@ -41,6 +42,7 @@ import { enemyColumnsAt } from '../ascent/BattleSystem';
 import { defenceCommanderOf } from '../ascent/landCommand';
 import { recordEngagement } from '../ascent/battleReport';
 import { chargeProvinceForDefence, hiddenDefenceLossShare } from '../ascent/RestoreSystem';
+import { applyHostileMarchLoss, passingColumnLoss } from '../ascent/hostileMarch';
 import { hasRoomForAnotherFront, liveBattles } from '../ascent/fronts';
 import {
   openingVolleyShare,
@@ -724,7 +726,7 @@ export function tickInvasions(state: GameState): void {
       }
       const step = findInvasionStep(state, army.landId, exitId);
       if (step) {
-        advanceInvader(state, army, step);
+        advanceInvader(state, army, record, step);
       } else {
         despawnInvasion(state, record);
       }
@@ -788,7 +790,7 @@ export function tickInvasions(state: GameState): void {
       if (maybeRequestBattleDecision(state, army, record, stepLand)) continue;
       resolveInvaderBattle(state, army, record, stepLand);
     } else {
-      advanceInvader(state, army, step);
+      advanceInvader(state, army, record, step);
     }
   }
 }
@@ -983,7 +985,7 @@ export function tickSieges(state: GameState): void {
  * moment, so handing the movement system a long path would let a host keep walking a route its
  * command has already abandoned.
  */
-function advanceInvader(state: GameState, army: Army, step: string): void {
+function advanceInvader(state: GameState, army: Army, record: InvasionRecord, step: string): void {
   if (state.gameMode !== 'ascent') {
     army.landId = step;
     return;
@@ -996,6 +998,7 @@ function advanceInvader(state: GameState, army: Army, step: string): void {
     // The leg is done: the host arrives, and the order is spent.
     army.landId = step;
     state.movementOrders = state.movementOrders.filter((order) => order !== existing);
+    bleedPassingColumn(state, army, record);
     return;
   }
 
@@ -1005,9 +1008,57 @@ function advanceInvader(state: GameState, army: Army, step: string): void {
   // A one-tick leg would mean the marker never renders mid-march, so the tween never plays.
   if (legRequired <= 1) {
     army.landId = step;
+    bleedPassingColumn(state, army, record);
     return;
   }
   state.movementOrders.push({ armyId: army.id, path: [step], progress: 1, legRequired });
+}
+
+/**
+ * The toll a column pays for the ground it walked past.
+ *
+ * Called on a *completed* leg, from both arrival branches above — the two-tick march and the
+ * one-tick snap — because a host that crosses a watched gap in a single season has still crossed
+ * it, and a rule that only bit on slow terrain would read as "mountains are safe".
+ *
+ * Nothing here touches a province the column steps *onto*: `tickInvasions` never walks a host onto
+ * ours without fighting for it, so the only ground this can be is neutral, and the only provinces
+ * that can act are the ones next to it. That is the whole idea — a host that ignores the frontier
+ * and drives for the prize is shot at from both sides of the road the entire way in.
+ *
+ * The men are taken off the host, the turnout is charged to every province that watched, and the
+ * player is told once the loss is worth a line. `record.passingLoss` carries the campaign ceiling.
+ */
+function bleedPassingColumn(state: GameState, army: Army, record: InvasionRecord): void {
+  if (state.gameMode !== 'ascent') return;
+  const land = findLand(state, army.landId);
+  if (!land || land.ownerId === PLAYER_KINGDOM_ID) return;
+  const before = totalUnits(army);
+  if (before <= 0) return;
+  const { share, watchers, spent } = passingColumnLoss(
+    state, land, armyPower(state, army), record.passingLoss ?? 0,
+    {
+      personality: state.kingdoms.find((k) => k.id === record.kingdomId)?.personality,
+      plan: record.plan,
+    },
+  );
+  if (share <= 0 || watchers.length === 0) return;
+
+  const lost = applyHostileMarchLoss(army, share, 0, 1);
+  if (lost <= 0) return;
+  record.passingLoss = (record.passingLoss ?? 0) + share;
+  for (const watcher of watchers) {
+    watcher.garrisonExhaustion = Math.min(1, (watcher.garrisonExhaustion ?? 0) + spent);
+  }
+  if (lost >= PASSING_REPORT_MEN) {
+    pushToast(state, t('ascent.march.harried', {
+      land: watchers[0].name,
+      kingdom: kingdomName(state, record.kingdomId),
+      n: lost,
+    }), 'reward');
+  }
+  // A column bled to nothing on the road never reaches anybody's walls.
+  if (totalUnits(army) <= 0) despawnInvasion(state, record);
 }
 
 /** Drops a host's march order — it has arrived, or is about to fight instead of walking. */

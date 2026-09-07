@@ -118,7 +118,7 @@ function drawColumnVeil(self: MenuScene): void {
 
   // And the wash the button column stands on. Squared rather than linear: a straight ramp greys
   // the mountains as much as it settles the foreground, and the mountains were already quiet.
-  band(self.vy(196), GAME_HEIGHT, (t) => 0.9 * t ** 1.6);
+  band(self.vy(240), GAME_HEIGHT, (t) => 0.9 * t ** 1.6);
 
   // On the desktop the illustration is the whole window at full strength, and a ramp tuned
   // against a plate left the ghost buttons and the footer links standing on paddies. A level
@@ -162,7 +162,7 @@ function fitLandscapeLayer(self: MenuScene, draw: () => void): Phaser.GameObject
 
 /** The approved river scene, registered as four real image layers instead of one static plate. */
 function drawDongHoIllustration(self: MenuScene): void {
-  const texture = self.textures.get('menu-layer-ground-v5').getSourceImage() as { width: number; height: number };
+  const texture = self.textures.get('menu-layer-ground-v6').getSourceImage() as { width: number; height: number };
   // The art lane loses height much faster than width on short browser-chrome viewports. Shrink
   // uniformly instead of squashing the landscape: full bleed on the 844 sheet, a quiet paper
   // margin on the compact sheet, and the lotus/roofs keep their authored proportions on both.
@@ -170,7 +170,7 @@ function drawDongHoIllustration(self: MenuScene): void {
   // A tall sheet can carry a small, safe overscan; the source keeps clear outer margins around
   // the lotus and roofs. That closes the dead parchment band above the first plate without
   // cropping a focal object. Compact sheets remain at their existing contained width.
-  const width = GAME_WIDTH * Math.min(1.08, Phaser.Math.Linear(0.8, 1.2, fitted));
+  const width = GAME_WIDTH * Math.min(1.22, Phaser.Math.Linear(0.8, 1.34, fitted));
   const height = width * (texture.height / texture.width);
   const top = self.vy(100) + Math.round(16 * fitted);
   const left = (GAME_WIDTH - width) / 2;
@@ -179,7 +179,7 @@ function drawDongHoIllustration(self: MenuScene): void {
     .setDepth(-8)
     .setData('menuLandscapeRole', 'illustration')
     .setData('menuArtwork', {
-      version: 12,
+      version: 13,
       layers: ['ground', 'mountains', 'mountain-mist', 'river-fx', 'bamboo', 'lotus'],
       composition: ['karst-mountains', 's-curve-river', 'foreground-lotus', 'right-bank-paddies', 'right-bank-bamboo-grove'],
       motion: ['mountain-drift', 'mountain-mist', 'bamboo-breeze', 'lotus-sway', 'pointer-lotus-spring', 'river-surface-flow', 'lotus-water-wakes', 'lotus-idle-swell', 'tap-and-drag-wakes'],
@@ -198,7 +198,7 @@ function drawDongHoIllustration(self: MenuScene): void {
     return image;
   };
 
-  const ground = layer('menu-layer-ground-v5', 'ground', 0.95)
+  const ground = layer('menu-layer-ground-v6', 'ground', 0.95)
     .setData('menuFieldContinuity', 'fully-planted-rice');
   // The range is dropped a thirtieth of the plate. Drawn on its own registration the karst feet
   // end at 0.49 of the frame and the ground's far bank begins at 0.455, so between the peaks the

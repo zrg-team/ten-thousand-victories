@@ -133,6 +133,23 @@ export class AscentHud {
     this.width = width;
   }
 
+  /**
+   * Where the readout stands on the sheet, for anything that has to point at it.
+   *
+   * Off the container, not off the constants: on the phone the band is the column's width under
+   * the header and the two agree, but on the desktop `conquest/shell.ts` moves the whole root
+   * beside the resource strip in the top bar, and the walkthrough's card — which had the phone's
+   * rectangle written into it — lit a bare patch of map where the band would have been.
+   */
+  bounds(): { x: number; y: number; width: number; height: number } {
+    return {
+      x: this.root.x,
+      y: this.root.y + TOP,
+      width: this.compact ? this.width : GAME_WIDTH,
+      height: ASCENT_HUD_HEIGHT,
+    };
+  }
+
   setPanelVisible(visible: boolean): void {
     this.panelShown = visible;
     this.parts?.panel.setVisible(visible);

@@ -20,7 +20,7 @@ import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import { openingFor, takeOpening } from '../../../systems/story/StorySystem';
 import { contestedFronts } from '../../../systems/ascent/battleReport';
 import { storyText } from '../../../i18n/story';
-import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type UIBounds } from '../../../ui/InkUI';
+import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type InkCardOptions, type InkCardRow, type UIBounds } from '../../../ui/InkUI';
 import { UI_FONT } from '../../../ui/fonts';
 import { t } from '../../../i18n';
 import type { AscentLane, Hero } from '../../../state/types';
@@ -227,7 +227,7 @@ export function laneList(self: ConquestUIScene,
 ): {
   content: UIBounds;
   addRow: (
-    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; status?: string },
+    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; status?: string; statusColor?: number; rows?: InkCardRow[]; badge?: InkCardOptions['badge'] },
     onTap?: () => void,
   ) => void;
   addHeading: (title: string, hint?: string) => void;
@@ -365,7 +365,7 @@ export function laneList(self: ConquestUIScene,
   let y = 0;
 
   const addRow = (
-    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; status?: string },
+    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; status?: string; statusColor?: number; rows?: InkCardRow[]; badge?: InkCardOptions['badge'] },
     onTap?: () => void,
   ) => {
     // A portrait sits in its own column beside the card, so a hero row is recognisable at a
@@ -386,9 +386,8 @@ export function laneList(self: ConquestUIScene,
     }
     if (onTap) {
       const hit = self.add
-        .rectangle(rowWidth / 2 - (opts.portrait ? 0 : 0), height / 2, rowWidth, height, 0xffffff, 0.001)
+        .rectangle(rowWidth / 2, height / 2, rowWidth, height, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
-      if (opts.portrait) hit.setPosition(rowWidth / 2, height / 2);
       // A drag that ends over this row scrolled the list; it did not pick it.
       hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
         if (scrollGestureConsumedTap(pointer)) {

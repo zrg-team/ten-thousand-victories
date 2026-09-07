@@ -45,7 +45,7 @@ export function renderMain(self: MenuScene): void {
   const innerGaps = saved ? 3 : 2;
   // Preserve a full touch row for Continue even on the shortest sheet. On tall phones,
   // the column starts beside the illustration instead of sinking toward the footer.
-  const artFloor = Math.min(self.vy(420),
+  const artFloor = Math.min(self.vy(470),
     SETTINGS_TOP - playHeight - continueHeight - 44 - classicHeight - 24);
   const room = SETTINGS_TOP - artFloor;
   const ledgerHeight = Phaser.Math.Clamp(

@@ -23,11 +23,19 @@ type G = Phaser.GameObjects.Graphics;
 
 /** Height the diorama draws at, for the width it is given. Fixed: the composition is not fluid. */
 export const THRONE_HALL_HEIGHT = 186;
-export const THRONE_HALL_TEXTURE = 'throne-hall-dongho-v1';
+/**
+ * v2 is v1 with its paper cut off (`scripts/build-throne-hall.mjs`).
+ *
+ * The print was generated on an opaque sheet of shell paper, and on the card that sheet was a
+ * warm rectangle — rgb(240,220,182) against the page's rgb(233,223,194) — with a hall inside it.
+ * Every other authored piece in play is cut out; this one now is too, so the hall stands on the
+ * card's own paper the way the procedural fallback below always did.
+ */
+export const THRONE_HALL_TEXTURE = 'throne-hall-dongho-v2';
 
 export function preloadThroneHall(scene: Phaser.Scene, base: string): void {
   if (!scene.textures.exists(THRONE_HALL_TEXTURE)) {
-    scene.load.image(THRONE_HALL_TEXTURE, `${base}art/ascent/throne-hall-dongho-v1.webp`);
+    scene.load.image(THRONE_HALL_TEXTURE, `${base}art/ascent/throne-hall-dongho-v2.webp`);
   }
 }
 

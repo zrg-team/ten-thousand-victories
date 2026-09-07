@@ -9,7 +9,7 @@ The [UNESCO craft description](https://ich.unesco.org/en/USL/craft-of-making-ong
 - Runtime asset: `public/art/menu-wordmark-dongho-v2.png`.
 - Selected built-in ImageGen output: `exec-cb24eefa-093e-47aa-8715-f3bce17ada03.png`.
 - Original selected master retained under `output/dongho-wordmark-v2/master.png`.
-- Landscape reference: `public/art/menu-layer-ground-v5.png`.
+- Landscape reference: `public/art/menu-layer-ground-v6.png`.
 - Built-in ImageGen was used, not CLI/API generation. First draft remained too typeset and was rejected.
 - The second output contained a baked checkerboard despite the transparency request. A built-in edit replaced it with pure white. The runtime uses multiply blending to print the dark strokes onto the existing paper. No checkerboard or white panel appears in the game.
 - Asset preparation only trims the white margin, adds 12px safety padding, and resamples for a small runtime image. No letterforms were redrawn by this step.

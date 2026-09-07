@@ -19,7 +19,7 @@ import { buildAllConquestTargets, methodActorLine, methodHasActor }
 import { buildHeroPickerRows, buildHostPickerRows } from '../../../ui/heroPickerRows';
 import { CardFan } from '../../../ui/ascent/CardFan';
 import { focusTitle } from '../../../ui/focusPanel';
-import { UI_FONT } from '../../../ui/fonts';
+import { TITLE_FONT, UI_FONT } from '../../../ui/fonts';
 import { addStoryPrint, powerStoryPrint } from '../../../ui/storyPrint';
 import { INK_UI, type UIBounds } from '../../../ui/InkUI';
 import { iconForOption } from '../../../ui/CardIcons';
@@ -113,8 +113,17 @@ export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentProm
       self.tweens.add({ targets: stackText, alpha: 1, duration: motionMs(180), ease: 'Sine.easeOut' });
     }
     cursor += 18;
+    /**
+     * `TITLE_FONT`, not the `'Georgia, serif'` this used to name outright.
+     *
+     * Georgia has no glyph for the marks that stack — ố, ấ, ề — so Chrome decomposed them and
+     * gave the acute its own advance: measured 41.6 units against ê's 19.3, which on the page
+     * reads as *tô ́n ít hơn* and *Câ ́p 2*. Every string in this game is Vietnamese first, which
+     * is the whole reason `ui/fonts.ts` exists and the reason nothing else names a face inline.
+     * Source Serif 4 carries the language's subset and draws all three in one advance.
+     */
     const body = self.add.text(14, cursor, view.description, {
-      color: '#4a3a28', fontFamily: 'Georgia, serif', fontSize: '11.5px',
+      color: '#4a3a28', fontFamily: TITLE_FONT, fontSize: '11.5px',
       wordWrap: { width: content.width - 28 }, lineSpacing: 2,
     });
     info.add(body);
@@ -129,7 +138,7 @@ export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentProm
         level: lv + 1,
         text: t(`ascent.card.${view.id}.d` as Parameters<typeof t>[0], def.levels[lv].display),
       }), {
-        color: '#8b7a5e', fontFamily: 'Georgia, serif', fontSize: '10px',
+        color: '#8b7a5e', fontFamily: TITLE_FONT, fontSize: '10px',
         wordWrap: { width: content.width - 28 }, lineSpacing: 1,
       }).setAlpha(0);
       info.add(ghost);

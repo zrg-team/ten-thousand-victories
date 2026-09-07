@@ -10,10 +10,9 @@
  * because a `Copilot` runs its steps to the end without re-reading the screen; and every rectangle
  * comes off a live widget (`slotBounds`, `actionBarSlots`, `coachBounds`), never recomputed here.
  */
-import { GAME_WIDTH, HEADER_HEIGHT } from '../../game/constants';
 import { battleTelegraph } from '../../systems/ascent/BattleSystem';
-import { ASCENT_HUD_HEIGHT } from '../../ui/ascent/AscentHud';
 import { Copilot, type CopilotStep } from '../../ui/Copilot';
+import type { UIBounds } from '../../ui/InkUI';
 import { drawFormationCounters } from '../../ui/ascent/formationCounters';
 import { markRunTourSeen } from '../../state/tour';
 import { ACTION_BUTTON_HEIGHT, ACTION_BUTTON_Y, actionBarSlots } from '../../ui/ActionBar';
@@ -107,6 +106,22 @@ export function tourStages(self: ConquestUIScene): Array<{
   const card = (id: string, heading: string, body: string): CopilotStep[] =>
     [{ id, heading: heading as CopilotStep['heading'], body: body as CopilotStep['body'] }];
   const showing = (kind: string) => self.openPromptKey.startsWith(kind);
+  /**
+   * A box off the battle screen, moved onto the sheet the tour draws on.
+   *
+   * Every part of the fight is built into `modalLayer` in the column's own 390-wide units, and on
+   * the desktop that layer is *moved* to centre the 640-wide stage on the sheet
+   * (`placeModalLayer`) rather than laid out again. The tour draws in the scene's coordinates, so
+   * a rectangle taken straight off the dock lit the patch of dimmed map where the stage would
+   * stand on a phone — measured at 319 units left of the fight it was describing on a 1512-wide
+   * window. The layer's own position is the exact distance, and it is 0 on the phone.
+   */
+  const onSheet = (box: UIBounds | undefined): UIBounds | undefined => (box ? {
+    x: box.x + self.modalLayer.x,
+    y: box.y + self.modalLayer.y,
+    width: box.width,
+    height: box.height,
+  } : undefined);
 
   return [
     // ── The opening cards, explained while they are on the screen ────────
@@ -170,7 +185,9 @@ export function tourStages(self: ConquestUIScene): Array<{
           id: 'band',
           heading: 'copilot.run.band.h',
           body: 'copilot.run.band.b',
-          target: () => ({ x: 0, y: HEADER_HEIGHT, width: GAME_WIDTH, height: ASCENT_HUD_HEIGHT }),
+          // Off the band itself: on the desktop it is lifted out of the column and set beside the
+          // stores in the top bar (`AscentHud.bounds`).
+          target: () => self.hud.bounds(),
         },
         {
           id: 'coach',
@@ -247,7 +264,7 @@ export function tourStages(self: ConquestUIScene): Array<{
       when: () => self.openPromptKey === 'lane:battle' && Boolean(self.battleUi?.coachBounds.stance),
       steps: () => {
         const box = (key: 'pips' | 'field' | 'rails' | 'readout' | 'stance' | 'formation') =>
-          () => self.battleUi?.coachBounds[key];
+          () => onSheet(self.battleUi?.coachBounds[key]);
         return [
           {
             id: 'fight-rails',
@@ -310,7 +327,7 @@ export function tourStages(self: ConquestUIScene): Array<{
             id: 'fight-exits',
             heading: 'copilot.fight.exits.h',
             body: 'copilot.fight.exits.b',
-            target: () => self.battleUi?.exitBounds,
+            target: () => onSheet(self.battleUi?.exitBounds),
           },
         ];
       },

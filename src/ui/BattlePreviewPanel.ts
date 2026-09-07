@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { BattlePreview, BattleStance, GameState } from '../state/types';
 import { SHEET_BOTTOM, SHEET_TOP } from './BottomSheet';
 import { InkUI, INK_UI } from './InkUI';
+import { UI_FONT } from './fonts';
 import { t } from '../i18n';
 
 export class BattlePreviewPanel {
@@ -43,7 +44,7 @@ export class BattlePreviewPanel {
           spears: Math.round((u.spearmen / tot) * 100),
           archers: Math.round((u.archers / tot) * 100),
           heavy: Math.round((u.heavyInfantry / tot) * 100),
-        }), { color: '#6f6250', fontFamily: 'sans-serif', fontSize: '11px' }),
+        }), { color: '#6f6250', fontFamily: UI_FONT, fontSize: '11px' }),
       );
     }
 

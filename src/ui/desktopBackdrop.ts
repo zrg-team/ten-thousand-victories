@@ -27,7 +27,7 @@ export function pageSheetBounds(): { x: number; y: number; width: number; height
 export const BACKDROP_DEPTH = -20;
 
 const BACKDROP_PLATES: ReadonlyArray<[key: string, alpha: number]> = [
-  ['menu-layer-ground-v5', 1],
+  ['menu-layer-ground-v6', 1],
   ['menu-layer-mountains-v3', 0.9],
 ];
 

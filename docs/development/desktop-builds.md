@@ -73,7 +73,7 @@ runtime.
 
 The installer is large — a little over 200 MB on Windows — and almost all of that is `web/`, which
 is around 114 MB before compression. Most of it is `art/`, and some of that is superseded plate
-versions still being shipped (`menu-layer-ground-v1..v4` where only v5 is drawn, and the same for
+versions still being shipped (`menu-layer-ground-v1..v5` where only v6 is drawn, and the same for
 farm and bamboo). Trimming those is a service-worker precache change as much as a packaging one, so
 it is its own job, not a packaging flag.
 

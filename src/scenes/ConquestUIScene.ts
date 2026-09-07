@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { RectClip } from '../ui/ink/clipRect';
 import { type MusterPlan } from '../systems/ascent/MusterSystem';
 import { type HeroPickerRow, type HostPickerRow } from '../ui/heroPickerRows';
-import { InkUI, type InkScrollArea, type UIBounds } from '../ui/InkUI';
+import { InkUI, type InkCardOptions, type InkCardRow, type InkScrollArea, type UIBounds } from '../ui/InkUI';
 import { type MapItemRenderer } from '../ui/MapItemRenderer';
 import { type CardIconId } from '../ui/CardIcons';
 import { AscentHud } from '../ui/ascent/AscentHud';
@@ -799,7 +799,7 @@ export class ConquestUIScene extends Phaser.Scene {
   ): {
     content: UIBounds;
     addRow: (
-      opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero },
+      opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; status?: string; statusColor?: number; rows?: InkCardRow[]; badge?: InkCardOptions['badge'] },
       onTap?: () => void,
     ) => void;
     addHeading: (title: string, hint?: string) => void;

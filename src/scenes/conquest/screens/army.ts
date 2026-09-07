@@ -41,10 +41,12 @@ import {
   RECRUIT_HUMAN_RESERVE,
   REMNANT_SHARE,
   recruitSoldiers,
+  KIND_MIN_LEVEL,
 } from '../../../game/ascentConfig';
 import { INK_UI, INK_UI_HEX } from '../../../ui/InkUI';
 import { UI_FONT } from '../../../ui/fonts';
 import { formatResourceList, heroName, t } from '../../../i18n';
+import { formatNumber } from '../../../utils/format';
 import type { ArmyOrders, InvasionRecord } from '../../../state/types';
 import { ARMY_RATION_USE_PER_100 } from '../../../game/gameplayConfig';
 import { cssHex, hostSize, visibleHostileHosts } from '../constants';
@@ -353,13 +355,38 @@ export function showArmyScreen(self: ConquestUIScene): void {
     const general = state.heroes.find((candidate) => candidate.id === army.generalHeroId);
     const size = hostSize(army);
     const remnant = !isAutoHost(army) && size < MIN_ARMY_SOLDIERS * REMNANT_SHARE;
+    /**
+     * The rank, said on the row rather than only on the sheet behind it.
+     *
+     * A host's level is worth +8% of everything it does per step and its equipment another +18%
+     * per tier, and none of that appeared anywhere on this page: four hosts read as four names
+     * and four headcounts, so the one the player had spent a war and two drills building looked
+     * exactly like the levy raised last season. When the treasury runs dry the bookkeeping takes
+     * the *smallest* host, which is the wrong one often enough to matter — and the realm now
+     * carries these on the granaries instead (`settleWagesInKind`), which is a choice the player
+     * can only weigh if they can see which hosts it applies to.
+     */
+    /**
+     * Lực chiến: what this host is actually worth in a fight, and the one thing the row could not
+     * say. A host's level is +8% of everything it does per step and its equipment another +18% a
+     * tier, so 690 raw men and 690 drilled and equipped ones carry the same headcount in the
+     * title and a different army behind it. `armyPower` is the number the war rows above already
+     * speak in ("their 1,214 / ours 904"), so the two can be read against each other.
+     */
+    const power = Math.round(armyPower(state, army));
+    const veteran = (army.level ?? 1) >= KIND_MIN_LEVEL || (army.elite ?? 0) >= 1;
+    const carried = (army.inKindSeasons ?? 0) > 0;
+    const trouble = remnant || army.morale < 40 || army.supply < 30;
     // A refit outranks the order line: the host is not doing what it was told, it is standing
-    // down until the work finishes, and this row is where that has to be readable.
+    // down until the work finishes, and this row is where that has to be readable. Wages settled
+    // out of the granaries come next — it is the realm spending a store to keep this host, and
+    // the seasons it has left are the notice the player gets before the arrears clock restarts.
     const statusLine = army.refit
       ? t('ascent.army.refitStatus', {
           action: t(`ascent.army.${army.refit.kind}` as Parameters<typeof t>[0]),
           n: army.refit.ticksLeft,
         })
+      : carried ? t('ascent.army.carried', { n: (army.inKindSeasons ?? 0) + 1 })
       : remnant ? t('ascent.orders.remnantRow', { n: size }) : hostOrderLabel(state, army);
     addRow(
       {
@@ -370,8 +397,33 @@ export function showArmyScreen(self: ConquestUIScene): void {
           morale: Math.round(army.morale),
           supply: Math.round(army.supply),
         })}\n${statusLine}`,
+
+        // Gold is the page's "worth your attention" ink and it now says two things on this row:
+        // work under way, and a host worth the work. Trouble still outranks both — a starving
+        // veteran is a problem before it is an asset.
         border: army.refit ? INK_UI.gold
-          : remnant || army.morale < 40 || army.supply < 30 ? INK_UI.cinnabar : INK_UI.jade,
+          : trouble ? INK_UI.cinnabar
+          : veteran ? INK_UI.gold : INK_UI.jade,
+        /**
+         * The two things this page exists to compare, in one badge at the row's corner.
+         *
+         * Lực chiến is what the host is worth in a fight and the rank is why — 690 raw men and
+         * 690 drilled and equipped ones carry the same headcount in the title and a different
+         * army behind it. Both were readable before and neither was *findable*: a number set in
+         * a line of type has to be located and parsed on every row before two rows can be
+         * compared, which is the one thing a list is for.
+         *
+         * The badge is on every row, not only the good ones — a mark that appears only on the
+         * answer is not a comparison — and it is gold when there is something worth protecting
+         * and quiet brush when there is not.
+         */
+        badge: {
+          caption: t('ascent.army.statPower'),
+          value: formatNumber(power),
+          note: t('ascent.army.veteran', { level: army.level ?? 1 }),
+          tone: veteran ? INK_UI.gold : INK_UI.softBrush,
+        },
+
       },
       () => showArmyDetail(self, army.id),
     );

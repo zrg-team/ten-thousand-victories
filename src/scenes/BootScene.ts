@@ -40,6 +40,12 @@ export class BootScene extends Phaser.Scene {
         fonts.load(`600 16px ${UI_FONT.split(',')[0]}`),
         fonts.load(`700 16px ${UI_FONT.split(',')[0]}`),
         fonts.load(`700 22px ${TITLE_FONT.split(',')[0]}`),
+        // The serif at its reading weight too, for the card sheets that set a paragraph in it.
+        // Source Serif 4 is vendored at 600 and 700 only (identical files, as it happens), so a
+        // 400 request matches the 600 face — but only once something has actually fetched it.
+        // Left lazy, the first card drawn rasterised its description in Georgia, which has no
+        // ố, ấ or ề and prints the acute as a separate letter.
+        fonts.load(`600 12px ${TITLE_FONT.split(',')[0]}`),
         fonts.ready,
       ]);
     } catch {

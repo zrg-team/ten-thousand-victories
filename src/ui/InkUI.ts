@@ -216,6 +216,30 @@ export interface InkCardOptions extends InkSurfaceOptions {
   title?: string;
   subtitle?: string;
   status?: string;
+  /**
+   * A stat badge in the card's top-right corner: a small printed plate carrying one figure and
+   * the two words that qualify it.
+   *
+   * The `status` mark above is deliberately a label and not a pill, and that still holds for what
+   * it is for — a one-word state like BUSY belongs in the page's own ink. A *number* is a
+   * different thing: it has to be found at a glance across a list of rows and compared with the
+   * one two rows down, and a run of type in a paragraph is the one shape that cannot be. So the
+   * badge is built like a cell of `statPanel` — caption over figure, the composition this page
+   * already uses for its four headline numbers at the top — and hung in the corner where a
+   * reader's eye goes for the row's verdict.
+   *
+   * `caption` heads the figure, `value` is the figure, and `note` is the small line under it.
+   * `tone` inks the plate's border and the note: gold for something worth protecting, quiet
+   * brush for something ordinary.
+   */
+  badge?: { caption: string; value: string; note?: string; tone?: number };
+  /**
+   * The status mark's ink. Cinnabar by default, because a mark on a row is usually a warning —
+   * but not always: a veteran host's rank is the opposite of a warning and must not be printed in
+   * the colour the page uses for "this is going wrong". Colour only; the layout is unaffected, so
+   * `measureCard` neither knows nor needs to know about this.
+   */
+  statusColor?: number;
   rows?: InkCardRow[];
   body?: string;
   action?: {
@@ -597,8 +621,19 @@ export class InkUI {
     return this.scene.add.text(x, y, text, { ...textStyle(variant), ...overrides });
   }
 
+  /** The badge's box, and the room the text must leave for it. Read by `measureCard` and `card`. */
+  private static badgeBox(opts: InkCardOptions): { width: number; height: number } | undefined {
+    if (!opts.badge) return undefined;
+    return { width: 78, height: opts.badge.note ? 46 : 36 };
+  }
+
   measureCard(width: number, minimum: number, opts: InkCardOptions): number {
-    const textWidth = width - 20 - (opts.action && opts.actionPlacement !== 'bottom' ? 82 : 0);
+    const badge = InkUI.badgeBox(opts);
+    // The badge stands in the corner, so every line beside it wraps short of it — not only the
+    // title, the way the `status` label's 58 does. A subtitle that kept the full width ran its
+    // second line straight under the plate and its third out from behind it.
+    const textWidth = width - 20 - (opts.action && opts.actionPlacement !== 'bottom' ? 82 : 0)
+      - (badge ? badge.width + 8 : 0);
     const measure = (value: string, variant: 'label' | 'caption' | 'body', extra: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
       measureInkText(this.scene, value, { ...textStyle(variant), wordWrap: { width: textWidth }, ...extra });
     let height = 18;
@@ -612,7 +647,7 @@ export class InkUI {
     }
     if (opts.body) height += measure(opts.body, 'body', { fontSize: '12px', lineSpacing: 5 });
     if (opts.action && opts.actionPlacement === 'bottom') height += 34;
-    return Math.max(minimum, Math.round(height));
+    return Math.max(minimum, badge ? badge.height + 18 : 0, Math.round(height));
   }
 
   /**
@@ -687,7 +722,8 @@ export class InkUI {
     const container = this.scene.add.container(bounds.x, bounds.y);
     const padding = 10;
     const actionRightWidth = opts.action && opts.actionPlacement !== 'bottom' ? 82 : 0;
-    const textWidth = bounds.width - padding * 2 - actionRightWidth;
+    const badge = InkUI.badgeBox(opts);
+    const textWidth = bounds.width - padding * 2 - actionRightWidth - (badge ? badge.width + 8 : 0);
 
     // Build the text first and grow the box to its ACTUAL rendered height. Phaser computes
     // each Text's wrapped height on creation, so reading `.height` — instead of estimating
@@ -764,12 +800,55 @@ export class InkUI {
       container.addAt(placeStamp(this.scene, stamp, 0, 0), 0);
     }
 
+    if (opts.badge && badge) {
+      /**
+       * Drawn, not stamped: a stamp is keyed by its rectangle and these plates differ by their
+       * ink, so two rows with the same box and different tones would share one cached design.
+       */
+      const tone = opts.badge.tone ?? INK_UI.softBrush;
+      const left = bounds.width - padding - badge.width;
+      const top = 8;
+      const plate = this.scene.add.graphics().setPosition(left, top);
+      printedSurface(plate, badge.width, badge.height, {
+        fill: INK_UI.parchmentDark,
+        fillAlpha: 0.5,
+        border: tone,
+        borderAlpha: 0.9,
+        borderWidth: 1.2,
+        seed: Math.round(badge.width * 13 + badge.height),
+      });
+      container.add(plate);
+      const middle = left + badge.width / 2;
+      const caption = this.scene.add.text(middle, top + 6, opts.badge.caption.toLocaleUpperCase(), {
+        ...textStyle('caption'), color: INK_UI_HEX.mutedText, fontSize: '8px', fontStyle: '700',
+      }).setOrigin(0.5, 0);
+      caption.setLetterSpacing?.(1.1);
+      // English runs longer than Vietnamese here — "FIELD POWER" against "LỰC CHIẾN" — and the
+      // plate is a fixed box in a column of fixed boxes, so the words shrink rather than the box.
+      if (caption.width > badge.width - 8) caption.setScale((badge.width - 8) / caption.width);
+      const value = this.scene.add.text(middle, top + 15, opts.badge.value, {
+        ...textStyle('label'), color: colorToCss(tone), fontSize: '17px', fontStyle: '700',
+      }).setOrigin(0.5, 0);
+      // Long numbers shrink rather than leave the plate: a realm's best host can run to five
+      // figures and the badge is a fixed box in a list of fixed boxes.
+      if (value.width > badge.width - 10) value.setScale((badge.width - 10) / value.width);
+      container.add([caption, value]);
+      if (opts.badge.note) {
+        const note = this.scene.add.text(middle, top + badge.height - 12, opts.badge.note.toLocaleUpperCase(), {
+          ...textStyle('caption'), color: colorToCss(tone), fontSize: '8px', fontStyle: '700',
+        }).setOrigin(0.5, 0);
+        note.setLetterSpacing?.(1);
+        if (note.width > badge.width - 8) note.setScale((badge.width - 8) / note.width);
+        container.add(note);
+      }
+    }
+
     if (opts.status) {
       // A label, not a pill. On paper a filled chip reads as a sticker; letter-spaced small caps
       // in muted ink says the same thing and stays part of the page.
       const status = this.scene.add.text(bounds.width - padding, 9, opts.status.toLocaleUpperCase(), {
         ...textStyle('caption'),
-        color: opts.muted ? INK_UI_HEX.mutedText : colorToCss(INK_UI.cinnabar),
+        color: opts.muted ? INK_UI_HEX.mutedText : colorToCss(opts.statusColor ?? INK_UI.cinnabar),
         fontSize: '9px',
         fontStyle: '700',
       }).setOrigin(1, 0);
