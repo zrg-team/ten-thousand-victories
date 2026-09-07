@@ -694,3 +694,44 @@ Original prompt: Please implement the proposed Vạn Thắng documentation and P
 - Tall cards can use 390 design pixels; compact cards allocate space from measured name and note heights, with a side-by-side portrait/name at the 200-pixel minimum. Biography truncation uses measured whole-word ellipses and a binary search rather than rebuilding text once per removed word.
 - Verification passed 33 checks: VI 390×844, EN 390×620 and VI 1440×900; scholar, ruler, common and court variants; arrow/side swipe browsing, cancelled drag, upward selection, Recruit and Pass controls. All 127 heroes fit at 200 and 390 pixels in both languages (508 layouts). No browser errors in the completed run. Screenshots and text state inspected, including the required web-game client. TypeScript, production build and scoped whitespace checks passed with existing font/chunk warnings.
 - Reproduction script, screenshots and results are in output/hero-card-ui. One initial concurrent verification run lost its modal during navigation; the isolated complete rerun passed all checks. No outstanding implementation work. Other existing menu/settings and throne-hall changes were preserved.
+
+## 2026-09-07 — army history wording
+- User requested Vietnamese historical terms in both languages and descriptions of armies rather than how their art/code is built.
+- Rewrote all seven army entries, captions, troop classes, arms, formations and intro in src/i18n/history/army.ts. Vietnamese terms lead English labels; English detail headings explain their meaning. Removed army inGame paragraphs and gave the Army tab its own factual subtitle.
+- Removed unsupported equipment absolutes and explained that formation options describe tactical roles, not dynasty-specific documented formations. Reference checks included National Museum of History: https://baotanglichsu.vn/vi/Articles/4050/trieu-tay-son-1778-1802 and https://baotanglichsu.vn/vi/Articles/2001/65627/bien-djong-trong-chien-luoc-xay-dung-va-bao-ve-djat-nuoc-cua-vuong-trieu-tay-son.html .
+- Validation: TypeScript passed; verify-history passed in English/Vietnamese and short viewport; verify-army-plate passed 9/9 including 105 soldier variants and 35 formations, no console errors. Skill client ran and menu screenshot/state inspected; dedicated English/Vietnamese army screenshots inspected at output/history-wording-en.png and output/history-wording-vi.png.
+- No required work remains.
+
+## 2026-09-07 — Đông Hồ battle mountains
+- Request: improve mountain graphics to match the game's Đông Hồ art. Replaced the battle horizon's procedural blue/green cones with existing authored map karst variants, fitted without distortion, staggered and mirrored, with ink-foot alignment. Preserves clipping, ground baking and procedural fallback.
+- Validation: TypeScript passed; skill Playwright smoke and mobile/wide battle screenshots inspected, no browser errors. Procedural fallback inspected and live combat continued. Existing bake comparison remains over its 10% tolerance: baseline 12.456%, updated 10.866%, both worst 144/255; deterministic rebuild and fallen-layer checks pass. No new art assets or gameplay changes. Preview: output/web-game/mountains-wide.png.
+
+## 2026-09-07 — readable battle speech bubbles
+- User flagged tiny bubble screenshot. Found 9.5px type and a shout tween starting at 26% scale. Increased type to 12px, icon to 14, constrained wrapping plus padding to each half-field, and changed shout entry to 92% scale over 220ms.
+- TypeScript passes; mobile and wide battle captures plus skill smoke inspected. Wide capture confirms readable text during shout animation; no browser errors.
+
+## 2026-09-07 — moving battle clouds
+- User requested animated clouds matching the main menu. Extracted the menu mist drawing into shared mountainMist.ts; battle adds five live banks with identical pigment, drift, opacity and breathing timing above the bake and below camps/hosts. RectClip confines motion to the field; nested tween and clip cleanup runs on rebuild.
+- TypeScript passed. New verify-battle-clouds.mjs passed at 390 and 1280 viewport widths: all five clouds moved over 3.5 seconds, excluded from bake, behind armies, three rebuilds left one layer and no old tweens. Inspected before/after battle images and menu smoke; no browser errors.
+
+## 2026-09-07 — battlefield meadow life
+- Interpreted user 'more glasses' as grass. Added 34 seeded low grass patch candidates with 2–4 smaller seasonal tufts and a clear central fighting corridor, baked with the ground.
+- Added four tiny butterflies and three gnats, using soldier depth scaling (butterfly spans measured 1.35–2.05 design pixels; gnats 0.39–0.60). Wings flutter and independent flight periods create small wandering paths. Insects remain outside both static bakes and below foreground foliage.
+- TypeScript passes. verify-battle-meadow passes mobile and wide: movement, wing animation, size cap, bake exclusion, foreground layering, three rebuilds and no leftover flight/wing tweens. Inspected battle screenshots and skill smoke. No console errors.
+
+## 2026-09-07 — fallen soldier art and placement
+- Replaced oval/dash casualties with code-drawn fallen figures: tunic, head/helmet, bent arms/legs and dropped spear in restrained pigments, sized with battle depth. No new image assets.
+- Bodies sample individual rendered soldier anchors within the losing side, resolving nested rank/mirror/tween transforms into field coordinates. Procedural fallback stays at the host. Prefer unoccupied anchors; store side and host ID; bodies remain at their ground positions through movement and rebuilds. Retains 40-body cap and live fallen layer.
+- TypeScript passed. verify-battle-fallen passed at mobile and wide: correct losing side, actual soldier anchors on both sides, no bodies without losses, fixed positions, rebuild preservation and bake exclusion. Inspected normal and isolated-body screenshots plus skill smoke; no browser errors.
+
+## 2026-09-07 — capital emphasis and risky reinforcements
+- Capital sorted first in Build, marked Kinh đô / Capital with cinnabar border, and labelled on its detail page.
+- Reinforcement routing prefers owned roads but allows explicit hostile transit when needed. Amber selectable rows show hostile-province count, loss range and whole-route no-loss chance; army detail also shows the warning. Engaged/refitting/pinned/besieging/auxiliary hosts remain unavailable; physically disconnected routes still have no path.
+- Each completed hostile intermediate leg rolls once: base 8% survivor loss, +2 percentage points per previous hostile crossing, capped 30% before escort. Safe chance starts 35%, declines 3 points per hostile crossing (floor 15% before guides). Walls +2, towers +3, barracks +1 point per level increase losses and reduce safe chance; combined building effect capped 12 points. Transit never captures land or launches intermediate assaults. Destroyed hosts cleanly removed; optional order fields survive save round trip.
+- New draft cards: Hidden Paths / Đường mòn bí mật (+15 safe-chance points per stack, cabinet scaling, 85% cap), March Escort / Hộ tống hành quân (25% reduced losses per stack, cabinet scaling, 75% cap). Both have two stacks, three levels, bilingual copy and card motifs.
+- Validation: 22 hostile-route/UI checks passed including exact losses, lucky transit, increasing exposure, buildings, drafted card effects, save round trip, wiped-out cleanup, friendly detour, offensive staging, enrolment, actual warning-row click and capital tile click. Existing reinforcement suite 12/12. TypeScript and production build pass with existing font-path/large-bundle warnings. Inspected both UI screenshots and skill smoke; no browser errors. Balance is an initial playable tuning, not a long-run balance study.
+
+## 2026-09-07 — make meadow insects visible and natural
+- User again requested bugs/butterflies; previous 1–2px pale wings and subpixel gnats were hard to notice. Added dark wing outlines and ochre/indigo interiors; butterflies remain below 3 design pixels across, gnats below one, with depth scaling and a small visibility floor.
+- Replaced tiny repeated loops with staggered seeded curved flights, small height changes, banking and flutter, alternating with brief resting pauses. Distributed insects across seven meadow spots rather than random overlapping foreground positions. Field teardown owns delayed flights and wing tweens.
+- TypeScript passes. Mobile/wide meadow checks verify >2px travel, flight and rest states, wing motion, small size, bake exclusion, foreground layering, and three rebuilds with no orphaned flight or flap tweens. Inspected battle and skill smoke images, no console errors. Ambient check now pauses combat so random battle-moment overlays cannot conceal the visual fixture.

@@ -14,7 +14,7 @@ import Phaser from 'phaser';
 import { RectClip } from '../../../ui/ink/clipRect';
 import { hudSheetWidth } from '../../../game/cameraLayout';
 import { areca, bamboo, grassTuft, hayStack, softRidge, tree } from '../../../ui/ink/props';
-import { groundTone, inkPath, mulberry32 } from '../../../ui/ink/stroke';
+import { groundTone, inkPath, mulberry32, printedShape } from '../../../ui/ink/stroke';
 import { PIGMENT } from '../../../ui/ink/palette';
 import { findLand } from '../../../systems/LandSystem';
 import type { AscentBattle, BattleBeat } from '../../../state/types';
@@ -24,7 +24,7 @@ import type { ConquestUIScene } from '../../ConquestUIScene';
 import { maxTextureSize } from '../../../ui/ink/textureLimits';
 import { renderScale } from '../../../game/graphicsQuality';
 import { registerGpuBake } from '../../../game/gpuBakes';
-import { conquestArtStamp, conquestTreeArtId, type ConquestArtSeason } from '../../../ui/conquestMapArt';
+import { conquestArtStamp, conquestKarstArtId, stampFootY, conquestTreeArtId, type ConquestArtSeason } from '../../../ui/conquestMapArt';
 import { placeStamp } from '../../../ui/ink/stamp';
 import { getFoliageSeason } from '../../../ui/ink/season';
 
@@ -147,6 +147,9 @@ export function buildBattleGround(self: ConquestUIScene, battle: AscentBattle): 
 
   // Three layers, in the order a print is built: distance, then the ground over its feet, then
   // everything standing on the ground.
+  const mountains = self.add.container(0, 0).setAlpha(0.64);
+  field.add(mountains);
+  clip.apply(mountains);
   const far = self.add.graphics();
   far.setAlpha(0.72);
   field.add(far);
@@ -173,44 +176,36 @@ export function buildBattleGround(self: ConquestUIScene, battle: AscentBattle): 
   clip.end(field);
 
   // ── 0. distance ────────────────────────────────────────────────────────
-  // Two soft ridges at different depths, and no karst.
-  //
-  // `karstRange` is drawn for a map, where a limestone tower is a few pixels and the range reads
-  // as a country's spine. Squeezed into a hundred-pixel band it repeats its arcs at even
-  // intervals and the horizon becomes a scalloped border — a caterpillar laid across the top of
-  // the field. Ridges have no repeating unit, so they thin out into distance instead.
-  //
-  // Both stand on nearly the same line, and both lines sit *above* where the near ground starts.
-  // A ridge's own base is a hard edge; the only thing that hides one is the ground in front of
-  // it, so anything the ground does not reach up to stays visible as a rule across the field.
-  // The first pass missed this one by eleven pixels and it was still perfectly obvious.
-  //
-  // Both on the same base. Two ridges at two heights meant two flat wash bottoms and two ruled
-  // lines across the field; standing them on one line leaves one seam, and one seam can be given
-  // a contour and a treeline and become the horizon. See the ground band below.
-  // Run past the frame on purpose: the mask ends them, so the range reads as continuing behind
-  // the border rather than as a row of hills that happens to stop at it.
-  softRidge(far, x0 - 20, x1 + 20, horizon + 8, ui.fieldHeight * 0.13, seed + 5, PIGMENT.chamPale);
-  softRidge(far, x0 - 20, x1 + 20, horizon + 8, ui.fieldHeight * 0.07, seed + 41, PIGMENT.tramPale);
+  // Reuse the map's carved limestone plates: ochre faces, leaf-green shoulders and
+  // nested ink contours. Fit by height without stretching; uneven overlapping groups
+  // keep the horizon from becoming a repeated row of triangular procedural hills.
+  const mountainRand = mulberry32(seed + 905);
+  let mountainX = x0 - ui.fieldHeight * 0.1;
+  let mountainIndex = 0;
+  while (mountainX < x1 + 20) {
+    const height = ui.fieldHeight * (0.14 + mountainRand() * 0.065);
+    const id = conquestKarstArtId(seed + mountainIndex * 7);
+    const stamp = conquestArtStamp(self, id, {
+      left: -height, right: height, top: -height, bottom: 0,
+    }, { sizing: 'fit-bounds' });
+    if (!stamp) {
+      softRidge(far, mountainX, mountainX + height * 1.5, horizon + 8,
+        height * 0.7, seed + mountainIndex * 37, PIGMENT.diepDeep);
+      mountainX += height * 1.3;
+    } else {
+      const image = placeStamp(self, stamp, mountainX, horizon + 8)
+        .setFlipX(mountainIndex % 2 === 1)
+        .setData('battleMountainArt', id);
+      image.y += horizon + 8 - stampFootY(image);
+      mountains.add(image);
+      mountainX += image.displayWidth * (0.68 + mountainRand() * 0.12);
+    }
+    mountainIndex += 1;
+  }
 
   // ── 1. the ground ──────────────────────────────────────────────────────
-  //
-  // `softRidge` fills its slopes down to a flat `baseY`, and on this screen that showed: measured
-  // off a frame, 97–100% of sampled columns stepped at exactly the two base rows, a seven-per-
-  // channel difference holding dead straight for 670 px. On the map the same fill is invisible
-  // because terrain is already toned underneath it; here there was bare paper below.
-  //
-  // Two attempts at hiding it both failed and both are worth recording. A translucent wash over
-  // the top adds the same amount on either side of a step, so the step survives exactly as it
-  // was. An opaque block of `parchment` laid over the lower half does remove it — and reads as a
-  // sheet of white paper pasted across the picture, because flat parchment is brighter than the
-  // panel's own printed, textured, washed surface. There is nothing to paint the ground *with*
-  // that matches the paper, because the paper is not one colour.
-  //
-  // So the seam is not hidden. Both ridges are put on the same base line, which turns two seams
-  // into one, and that one is *drawn* — an inked ground line with a treeline standing on it.
-  // A landscape print has a horizon in it. An artefact that is given a contour stops being an
-  // artefact and becomes the thing it was accidentally imitating.
+  // A lightly inked contour and broken treeline tie the printed mountain feet
+  // into the open field; paper-coloured mist softens their lower edges.
   const baseY = horizon + 8;
 
   /**
@@ -278,7 +273,7 @@ export function buildBattleGround(self: ConquestUIScene, battle: AscentBattle): 
   // The dead, re-laid onto the rebuilt field: on the ground, under everything that stands on it.
   ui.fallen = self.add.graphics();
   field.add(ui.fallen);
-  for (const pt of ui.fallenPts) inkFallen(self, pt.x, pt.y);
+  for (const pt of ui.fallenPts) inkFallen(self, pt.x, pt.y, pt.side);
 
   // ── 2. the middle distance ─────────────────────────────────────────────
   //
@@ -317,6 +312,25 @@ export function buildBattleGround(self: ConquestUIScene, battle: AscentBattle): 
   // low, and at the far distance's own weight. A second row of full `tree()` props at ten
   // metres apiece put evenly spaced canopies across the skyline, which read as boulders rather
   // than as woodland and reached back over the hills.
+
+  // Low irregular meadow patches. Shorter than the existing tall tufts, with
+  // more cover near the field edges and bare gaps where the hosts meet.
+  const meadowRand = mulberry32(seed + 619);
+  for (let patch = 0; patch < 34; patch += 1) {
+    const py = baseY + 12 + meadowRand() * Math.max(1, top + ui.fieldHeight - baseY - 22);
+    const px = x0 + 12 + meadowRand() * (x1 - x0 - 24);
+    if (Math.abs(px - (x0 + x1) / 2) < content.width * 0.14
+      && Math.abs(py - groundY) < ui.fieldHeight * 0.15) continue;
+    const blades = 2 + Math.floor(meadowRand() * 3);
+    for (let tuft = 0; tuft < blades; tuft += 1) {
+      const tx = px + (meadowRand() - 0.5) * 12;
+      const ty = py + (meadowRand() - 0.5) * 4;
+      const size = scale(ty) * (0.55 + meadowRand() * 0.25);
+      if (!artProp(self, props, `flora.grass.${season}`, tx, ty, size)) {
+        grassTuft(g, tx, ty, size, seed + 619 + patch * 7 + tuft);
+      }
+    }
+  }
 
   // ── 3. the ground we are fighting from ─────────────────────────────────
   //
@@ -551,36 +565,86 @@ export function keepForegroundOnTop(self: ConquestUIScene): void {
 export function layFallen(self: ConquestUIScene, beat: BattleBeat): void {
   const ui = self.battleUi;
   if (!ui || ui.fallenCount >= BATTLE_FALLEN_CAP) return;
-  const { groundY } = ui.geometry;
-  const { seam } = battleLines(self, beat.ourAdvance, beat.theirAdvance);
-
-  // One mark per twenty men, so an ordinary exchange — measured, eight to thirty a side — lays
-  // one or two down. At one per forty-five a whole fight passed without a single body, which is
-  // a threshold set from a guess about how hard fights hit rather than from watching one.
-  const lost = beat.ourLoss + beat.theirLoss;
-  const wanted = Math.min(3, Math.round(lost / 20));
-  if (wanted <= 0) return;
-
-  for (let i = 0; i < wanted && ui.fallenCount < BATTLE_FALLEN_CAP; i += 1) {
-    const rand = mulberry32(ui.fallenCount * 2654435761);
-    // Scattered along the seam rather than dropped on it: a line of bodies in a row reads as a
-    // fence. Spread wider across the line than through it, the way a front is shaped.
-    const fx = seam + (rand() - 0.5) * 58;
-    const fy = groundY + (rand() - 0.5) * 64;
-    ui.fallenPts.push({ x: fx, y: fy });
-    inkFallen(self, fx, fy);
-    ui.fallenCount += 1;
+  // Sample the actual rendered soldiers, including rank offsets, mirroring and the
+  // current movement tween. The midpoint between armies is empty during arrow fire.
+  const sides = [
+    { side: 'ours' as const, loss: beat.ourLoss, markers: ui.ourMarkers },
+    { side: 'theirs' as const, loss: beat.theirLoss, markers: ui.theirMarkers },
+  ];
+  for (const { side, loss, markers } of sides) {
+    if (loss <= 0) continue;
+    const candidates: Array<{ x: number; y: number; hostId: string }> = [];
+    const fieldMatrix = ui.field.getWorldTransformMatrix();
+    for (const entry of markers) {
+      if (!entry.marker.active || entry.routed) continue;
+      const collect = (object: Phaser.GameObjects.GameObject): void => {
+        if (object.getData('conquestFigureAssetId')) {
+          const figure = object as Phaser.GameObjects.Container;
+          const matrix = figure.getWorldTransformMatrix();
+          const point = fieldMatrix.applyInverse(matrix.tx, matrix.ty);
+          candidates.push({ x: point.x, y: point.y, hostId: entry.hostId });
+          return;
+        }
+        const children = (object as Phaser.GameObjects.Container).list;
+        if (Array.isArray(children)) children.forEach(collect);
+      };
+      collect(entry.marker);
+      // Procedural formations have no individual image anchors. Keep their fallback
+      // inside this host's footprint, never at the shared seam.
+      if (!candidates.some(point => point.hostId === entry.hostId)) {
+        candidates.push({ x: entry.marker.x, y: entry.marker.y, hostId: entry.hostId });
+      }
+    }
+    if (!candidates.length) continue;
+    const wanted = Math.min(2, Math.max(1, Math.round(loss / 20)));
+    for (let i = 0; i < wanted && ui.fallenCount < BATTLE_FALLEN_CAP; i += 1) {
+      const rand = mulberry32((ui.fallenCount + 1) * 2654435761 + beat.round);
+      const unoccupied = candidates.filter(candidate => !ui.fallenPts.some(fallen =>
+        Math.hypot(candidate.x - fallen.x, candidate.y - fallen.y) < 1.5));
+      const pool = unoccupied.length ? unoccupied : candidates;
+      const point = pool[Math.floor(rand() * pool.length)];
+      // Keep these field coordinates when the host moves or the field rebuilds.
+      ui.fallenPts.push({ ...point, side });
+      inkFallen(self, point.x, point.y, side);
+      ui.fallenCount += 1;
+    }
   }
 }
 
-/** One body on the ground. Two marks: the man, and what he dropped. */
-function inkFallen(self: ConquestUIScene, x: number, y: number): void {
+/** A small fallen figure: bent limbs, tunic, head, helmet and a dropped spear. */
+function inkFallen(self: ConquestUIScene, x: number, y: number, side?: 'ours' | 'theirs'): void {
   const g = self.battleUi?.fallen;
   if (!g?.active) return;
-  g.fillStyle(PIGMENT.muc, 0.55);
-  g.fillEllipse(x, y, 8.5, 3);
-  g.lineStyle(1.1, PIGMENT.mucSoft, 0.5);
-  g.lineBetween(x - 5, y + 2, x + 4, y - 1.6);
+  const seed = Math.round(x * 173 + y * 311);
+  const rand = mulberry32(seed);
+  const s = battleScaleAt(self, y) * 0.55;
+  const facing = rand() > 0.5 ? 1 : -1;
+  const angle = (rand() - 0.5) * 0.8;
+  const pt = (dx: number, dy: number) => ({
+    x: x + (dx * facing * Math.cos(angle) - dy * Math.sin(angle)) * s,
+    y: y + (dx * facing * Math.sin(angle) + dy * Math.cos(angle)) * s,
+  });
+  const path = (points: number[][], colour: number, width: number) => {
+    inkPath(g, points.map(([dx, dy]) => pt(dx, dy)), seed, {
+      colour, width: width * s, alpha: 0.8, wobble: 0.06 * s, step: 4,
+    });
+  };
+  // Low, warm paper shadow anchors the body without becoming the old dark dash.
+  g.fillStyle(PIGMENT.mucFaint, 0.14);
+  g.fillEllipse(x, y + 0.4 * s, 7 * s, 1.5 * s);
+  path([[0.8, -0.3], [2, -0.7], [3, -0.3]], PIGMENT.mucSoft, 0.7);
+  path([[0.7, 0.4], [1.7, 1], [2.8, 0.8]], PIGMENT.mucSoft, 0.7);
+  printedShape(g, [[-1.8,-0.65],[0.9,-0.55],[1.1,0.65],[-1.5,0.65]].map(([dx,dy]) => pt(dx,dy)),
+    side === 'theirs' ? PIGMENT.cham : PIGMENT.tramDeep, seed + 1,
+    { width: 0.35 * s, alpha: 0.8, fillAlpha: 0.8, wobble: 0.05 * s, step: 4 });
+  path([[-1,-0.6],[-0.4,-1.2],[0.4,-1]], PIGMENT.diepDeep, 0.48);
+  path([[-1,0.4],[-1.3,1.1],[-0.3,1.3]], PIGMENT.diepDeep, 0.48);
+  const head = pt(-2.35, 0);
+  g.fillStyle(PIGMENT.diepDeep, 0.95);
+  g.fillCircle(head.x, head.y, 0.63 * s);
+  path([[-2.9,-0.1],[-2.65,-0.6],[-2.1,-0.65]], PIGMENT.mucSoft, 0.4);
+  path([[-3,1.7],[2.8,1.3]], PIGMENT.nau, 0.22);
+  path([[2.8,1.3],[3.4,1.24]], PIGMENT.cham, 0.45);
 }
 
 /**

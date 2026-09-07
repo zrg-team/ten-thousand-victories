@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { RIVER_ICON } from '../../scripts/icons/river-icon-pack.mjs';
+import { FILL, ICO_SIZES } from '../../scripts/icons/desktop-icon.mjs';
 
 const root = process.cwd();
 const require = createRequire(join(root, 'apps/mobile/package.json'));
@@ -94,6 +95,50 @@ for (let n = 0; n < 3; n++) {
   assert(ico.subarray(offset, offset + length).equals(readFileSync(`public/favicon-${size}.png`)));
 }
 
+// The desktop cabinet's own icon: cut from the transparent master by scripts/icons/desktop-icon.mjs
+// into apps/desktop/build/, which — unlike apps/desktop/web/ — is committed. A Windows icon is a
+// free-form shape on the shell's background, so every size has to be transparent at the corners and
+// has to fill its tile; a re-point at the PWA icon would put the cream sheet back and fail here.
+const desktopIco = readFileSync('apps/desktop/build/icon.ico');
+assert.equal(desktopIco.readUInt16LE(2), 1, 'desktop icon.ico is not an ICO');
+assert.equal(desktopIco.readUInt16LE(4), ICO_SIZES.length, 'desktop icon.ico size count changed');
+report.desktop = { ico: [] };
+for (let n = 0; n < ICO_SIZES.length; n++) {
+  const at = 6 + n * 16;
+  const size = desktopIco[at] || 256;
+  assert.equal(size, ICO_SIZES[n], `desktop icon.ico entry ${n}`);
+  assert.equal(desktopIco[at + 1], desktopIco[at], `desktop icon ${size} is not square`);
+  const bytes = desktopIco.subarray(desktopIco.readUInt32LE(at + 12), desktopIco.readUInt32LE(at + 12) + desktopIco.readUInt32LE(at + 8));
+  assert.equal(bytes.subarray(1, 4).toString(), 'PNG', `desktop icon ${size}`);
+  assert.equal(bytes.readUInt32BE(16), size, `desktop icon ${size} header`);
+  assert.equal(bytes[25], 6, `desktop icon ${size} needs an alpha channel`);
+  const img = await Jimp.read(bytes);
+  for (const pixel of [0, size - 1, size * (size - 1), size * size - 1]) {
+    assert.equal(img.bitmap.data[pixel * 4 + 3], 0, `desktop icon ${size} corner must be transparent`);
+  }
+  let left = size, top = size, right = -1, bottom = -1, clear = 0;
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    if (img.bitmap.data[(y * size + x) * 4 + 3] > 16) {
+      if (x < left) left = x;
+      if (x > right) right = x;
+      if (y < top) top = y;
+      if (y > bottom) bottom = y;
+    } else if (img.bitmap.data[(y * size + x) * 4 + 3] === 0) clear++;
+  }
+  const fill = Math.max(right - left + 1, bottom - top + 1) / size;
+  assert(clear > size * size * 0.1, `desktop icon ${size}: an opaque tile is not a Windows icon`);
+  // One pixel of slack each way: rounding at 16 px moves the box more than the ratio suggests.
+  assert(fill >= FILL - 2 / size && fill <= 1, `desktop icon ${size}: mark fills ${fill.toFixed(3)} of the tile`);
+  report.desktop.ico.push({ size, fill, bytes: bytes.length });
+}
+await png('apps/desktop/build/icon.png', 512, 6);
+const cabinet = JSON.parse(readFileSync('apps/desktop/package.json', 'utf8')).build;
+assert.equal(cabinet.win.icon, 'build/icon.ico', 'desktop win icon must be the committed .ico');
+for (const platform of ['mac', 'linux']) {
+  // apps/desktop/web/ is gitignored and rewritten by `npm run sync`; an icon cannot live there.
+  assert.equal(cabinet[platform].icon, 'build/icon.png', `desktop ${platform} icon must be the committed .png`);
+}
+
 const { exp } = getConfig(resolve('apps/mobile'));
 for (const path of [exp.icon, exp.ios.icon.light, exp.ios.icon.tinted, exp.android.adaptiveIcon.foregroundImage, exp.android.adaptiveIcon.monochromeImage]) assert(existsSync(join('apps/mobile', path)), path);
 const pack = 'docs/design/game-icon-v7/icon-pack';
@@ -122,4 +167,4 @@ report.approvedSourceSha256 = createHash('sha256').update(readFileSync('apps/mob
 // replacement without keeping a second copy of the same 3 MB image under docs/.
 assert.equal(report.approvedSourceSha256, '015c10b59b37bc1a29aac8c759a392e5fd0719079b001c2473ee3df7f1d96dc2', 'approved river master changed');
 writeFileSync('docs/design/game-icon-v7/verification.json', JSON.stringify(report, null, 2) + '\n');
-console.log(`PASS: ${report.checked.length} PNGs, native resources, alpha safe areas, sRGB, ICO and web/config links`);
+console.log(`PASS: ${report.checked.length} PNGs, native resources, alpha safe areas, sRGB, ICO (web + desktop ${ICO_SIZES.length} sizes) and web/config links`);

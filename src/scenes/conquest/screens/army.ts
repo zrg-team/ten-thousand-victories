@@ -546,6 +546,7 @@ export function showArmyDetail(self: ConquestUIScene, armyId: string): void {
     // empty host, or one the candidate list refused for a reason it does not name.
     if (!relief) return t('ascent.reinforce.noRoad');
     if (relief.blockedReason) return relief.blockedReason;
+    if (relief.routeWarning) return relief.routeWarning;
     if (relief.enRoute) return t('ascent.reinforce.onRoad');
     if (relief.etaTicks === 0) return t('ascent.reinforce.etaNow');
     return t(relief.inTime ? 'ascent.reinforce.etaInTime' : 'ascent.reinforce.etaLate', { n: relief.etaTicks ?? 0 });
@@ -554,7 +555,7 @@ export function showArmyDetail(self: ConquestUIScene, armyId: string): void {
   const reliefTile = [{
     title: live ? t('ascent.reinforce.tile', { land: live.landName }) : t('ascent.reinforce.tileIdle'),
     note: reliefNote(),
-    border: !canRelieve ? INK_UI.softBrush : relief?.inTime ? INK_UI.jade : INK_UI.cinnabar,
+    border: !canRelieve ? INK_UI.softBrush : relief?.routeWarning ? INK_UI.gold : relief?.inTime ? INK_UI.jade : INK_UI.cinnabar,
     muted: !canRelieve,
     onTap: canRelieve && live ? () => {
       sendReinforcement(state, live, armyId);

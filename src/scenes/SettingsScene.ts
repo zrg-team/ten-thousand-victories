@@ -37,6 +37,7 @@ import { createMapRenderer, type MapRenderer } from '../ui/MapRenderer';
 import { applyPaperFX } from '../ui/ink/PaperFX';
 import { attachPagePaper } from '../ui/ink/paperSheet';
 import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
+import { shellDisplayMode, shellDisplayModes, setShellDisplayMode, type DisplayMode } from '../platform/shell';
 
 const SIDE = 12;
 const LIST_WIDTH = GAME_WIDTH - SIDE * 2;
@@ -197,6 +198,23 @@ export class SettingsScene extends Phaser.Scene {
         current: fullRefreshEnabled() ? 'display' : '60',
         pick: (id) => { setFullRefresh(id === 'display'); this.scene.restart({ returnTo: this.returnTo }); },
       },
+      // How the cabinet's window covers the screen. Only inside a cabinet that says it has modes:
+      // a browser tab does not own a window, and the document fullscreen API the web build uses is
+      // a different thing that the F key already reaches. The tiles are whatever the shell lists —
+      // two on Windows and Linux, where Chromium's fullscreen already *is* a borderless window and
+      // a third tile would do nothing, and three on macOS, which also has the fullscreen Space.
+      ...(shellDisplayModes().length > 1 ? [{
+        name: t('menu.display'),
+        options: shellDisplayModes().map((id) => ({ id, label: t(`menu.display.${id}` as 'menu.display.windowed') })),
+        current: shellDisplayMode(),
+        note: t('menu.display.note'),
+        pick: (id: string) => {
+          setShellDisplayMode(id as DisplayMode);
+          // Restarted, not reloaded: the mode is the shell's to hold and the page has nothing to
+          // re-read, but the row has to redraw against the mode that is now on screen.
+          this.scene.restart({ returnTo: this.returnTo });
+        },
+      }] : []),
       // The shape of the sheet: the phone column, or the desktop's wide map with the column
       // beside it. On every device — it used to be offered only where a desktop was already
       // likely, which left a phone with no way to ask for the sheet when it is turned on its

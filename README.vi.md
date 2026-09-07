@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/readme/banner.webp" alt="Vạn Thắng — trang chủ, giang sơn giữa một ván chơi, thiên mệnh của vị khai quốc, và một trận đánh" width="100%">
+<img src="public/share/og-card.jpg" alt="Vạn Thắng — Ten Thousand Victories: giang sơn giữa một ván chơi và một trận đánh, in như tranh Đông Hồ" width="100%">
 
 # Vạn Thắng
 

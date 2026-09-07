@@ -1,3 +1,4 @@
+import { hostileMarchRisk, isHostileMarchLand, applyHostileMarchLoss } from './ascent/hostileMarch';
 import { recalledHostPenalty } from './decree/rules';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
 import { getLegTicks } from '../game/movementConfig';
@@ -530,7 +531,7 @@ function marchStartProgress(state: GameState): number {
  * advances one land per leg via `progressMovementOrders`, with the per-leg
  * duration determined by the army's speed and the target land's terrain.
  */
-export function issueMoveOrder(state: GameState, armyId: string, targetLandId: string): boolean {
+export function issueMoveOrder(state: GameState, armyId: string, targetLandId: string, hostileTransit = false): boolean {
   const army = state.armies.find((candidate) => candidate.id === armyId);
   if (!army) {
     return false;
@@ -549,7 +550,8 @@ export function issueMoveOrder(state: GameState, armyId: string, targetLandId: s
     return false;
   }
 
-  const path = findLandPath(state, army.landId, targetLandId);
+  const path = findLandPath(state, army.landId, targetLandId)
+    ?? (hostileTransit ? findLandPath(state, army.landId, targetLandId, () => true) : undefined);
   if (!path) {
     state.message = t('msg.noRoute');
     return false;
@@ -567,6 +569,8 @@ export function issueMoveOrder(state: GameState, armyId: string, targetLandId: s
     path,
     progress: marchStartProgress(state),
     legRequired: getLegTicks(army, firstLand),
+    hostileTransit,
+    hostileCrossed: 0,
   });
 
   const targetLand = findLand(state, targetLandId);
@@ -931,6 +935,25 @@ export function progressMovementOrders(state: GameState): boolean {
     const nextLand = findLand(state, nextLandId);
     if (!nextLand) {
       state.movementOrders = state.movementOrders.filter((candidate) => candidate !== order);
+      continue;
+    }
+
+    if (order.hostileTransit && order.path.length > 0 && nextLand.ownerId !== PLAYER_KINGDOM_ID) {
+      // Transit never captures a province or starts an assault. A completed hostile
+      // leg rolls once; ordinary marches retain their existing arrival rules.
+      if (isHostileMarchLand(nextLand)) {
+        const risk = hostileMarchRisk(state, nextLand, order.hostileCrossed ?? 0);
+        const lost = applyHostileMarchLoss(army, risk.loss, risk.safe, Math.random());
+        order.hostileCrossed = (order.hostileCrossed ?? 0) + 1;
+        if (totalUnits(army) <= 0) disbandArmy(state, army.id);
+        pushToast(state, t(lost ? 'ascent.march.loss' : 'ascent.march.safe', {
+          army: army.name, land: nextLand.name, n: lost,
+        }), lost ? 'threat' : 'info');
+        if (!state.armies.includes(army)) continue;
+      }
+      army.landId = nextLandId;
+      const onward = findLand(state, order.path[0]);
+      order.legRequired = onward ? getLegTicks(army, onward) : 1;
       continue;
     }
 

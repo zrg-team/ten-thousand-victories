@@ -49,11 +49,30 @@ repository root by the sync — there is one place a version is typed.
 ```bash
 yarn desktop:build       # sync, then electron-builder --dir → dist/<platform>-unpacked/
 yarn desktop:steam       # desktop:build, then stage the depot content under steam/content/
-npm run dist:installers  # NSIS / DMG / AppImage, for a download outside Steam
+yarn desktop:installers  # sync, then NSIS / DMG / AppImage, for a download outside Steam
 ```
+
+All three are root scripts and all three sync first. The bare `npm run dist:installers` in this
+folder does the packaging *without* the sync, so it ships whatever `web/` already held — reach for
+it only when you have just synced by hand and know what is in there.
 
 The runbook — accounts, the App ID, depots, signing, what to check on the first launch — is
 [`docs/development/desktop-builds.md`](../../docs/development/desktop-builds.md).
+
+The packaging scripts use the Electron runtime installed in `node_modules/electron/dist`.
+This avoids a second download and the archive extraction rename that can fail with `EPERM`
+on Windows. Run them on the target OS and architecture with Electron installed for that target.
+For cross-compilation, invoke `npx electron-builder` directly from `apps/desktop` with the
+desired target flags so it downloads the matching runtime instead.
+
+## The window
+
+`Windowed` and `Borderless`, and on macOS also `Fullscreen` — chosen in Settings, switched with
+<kbd>F</kbd>/<kbd>F11</kbd>, and remembered in `window-state.json` under `userData`. The count
+differs by platform on purpose: Chromium's fullscreen already *is* a borderless window everywhere
+except macOS, which additionally has the native fullscreen Space. The reasoning, the persistence
+rules and the gate are in
+[`docs/development/desktop-builds.md`](../../docs/development/desktop-builds.md#display-modes).
 
 ## What it does not do
 

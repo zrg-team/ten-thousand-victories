@@ -275,7 +275,7 @@ export class HistoryScene extends Phaser.Scene {
       fontStyle: '700',
     }).setOrigin(0.5, 0));
 
-    this.chrome(this.add.text(GAME_WIDTH / 2, 44, t('history.subtitle'), {
+    this.chrome(this.add.text(GAME_WIDTH / 2, 44, this.tab === 'army' ? historyText('army.subtitle') : t('history.subtitle'), {
       color: '#6b5230',
       fontFamily: UI_FONT,
       fontSize: '11px',
@@ -1263,7 +1263,7 @@ export class HistoryScene extends Phaser.Scene {
       { title: '', body: historyText('army.intro') },
       {
         title: historyText(`army.${this.armyTheme}.title`),
-        body: `${historyText(`army.${this.armyTheme}.body`)}\n\n${historyText(`army.${this.armyTheme}.inGame`)}`,
+        body: historyText(`army.${this.armyTheme}.body`),
       },
       {
         title: historyText(`army.tier.${this.armyTier}.title`),

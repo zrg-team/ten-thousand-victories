@@ -157,11 +157,15 @@ function battleBubble(self: ConquestUIScene,
   const { groundY } = ui.geometry;
   const fieldTop = content.y;
 
+  const GLYPH = 14;
+  const glyphSpace = shape ? GLYPH + 5 : 0;
+  // Each bubble must fit its half of the field, including icon and padding.
+  const maxWidth = content.width / 2 - 10;
   const label = self.ui.label(0, 0, text, 'caption', {
-    fontSize: '9.5px',
+    fontSize: '12px',
     align: 'center',
     color: side === 'ours' ? INK_UI_HEX.inkText : '#8a2a1b',
-    wordWrap: { width: Math.round(content.width * 0.40) },
+    wordWrap: { width: Math.floor(maxWidth - glyphSpace - 18) },
   }).setOrigin(0, 0);
 
   /**
@@ -175,13 +179,12 @@ function battleBubble(self: ConquestUIScene,
    * Tinted with the type it stands next to, which is the screen's existing rule: ink for us,
    * sỏi son for them.
    */
-  const GLYPH = 13;
   const ink = side === 'ours' ? INK_UI.brush : INK_UI.cinnabar;
   const glyph = shape ? drawCardIcon(self, FORMATION_ICON[shape], ink) : undefined;
   glyph?.setScale(GLYPH / CARD_ICON_SIZE);
   const inner = (glyph ? GLYPH + 5 : 0) + label.width;
 
-  const width = Math.min(content.width * 0.54, inner + 18);
+  const width = Math.min(maxWidth, inner + 18);
   const height = label.height + 11;
   /**
    * Centred over the host that is speaking, and kept on its own half of the field.
@@ -266,7 +269,7 @@ function battleBubble(self: ConquestUIScene,
  * So it is given the shape of the act: it snaps out of the man's mouth, overshoots, and settles.
  * Three things, none of them decorative —
  *
- *   the pop    — `Back.easeOut` from a quarter size, about the tail. An order is sudden.
+ *   the pop    — `Back.easeOut` from near full size, about the tail. An order is sudden.
  *   the recoil — a lean the wrong way that rights itself, the way a shouted word has a body
  *                behind it. Ours leans forward into the enemy, theirs the other way.
  *   the strokes— manga speed lines off the tail, in the side's own colour. They live 320 ms and
@@ -278,12 +281,12 @@ function battleBubble(self: ConquestUIScene,
 function shoutBubble(self: ConquestUIScene, container: Phaser.GameObjects.Container, side: 'ours' | 'theirs'): void {
   if (self.battleUi) self.battleUi.bubbleShoutAt = self.time.now;
   const lean = side === 'ours' ? 7 : -7;
-  container.setScale(0.26).setAngle(lean);
+  container.setScale(0.92).setAngle(lean);
   self.tweens.add({
     targets: container,
     scale: 1,
     angle: 0,
-    duration: 380,
+    duration: 220,
     ease: 'Back.easeOut',
   });
 

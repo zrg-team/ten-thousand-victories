@@ -3,17 +3,16 @@
  *
  * Every image under docs/readme/ comes out of this script: portrait shots of the screens that
  * explain the game, a four-season strip, a three-theme strip, a row of champion portraits, two
- * crops (the battle field band, the shape-counter ring), and the wide banner. Screenshots are taken as PNG and re-encoded to WebP *inside Chromium* — this
+ * crops (the battle field band, the shape-counter ring). Screenshots are taken as PNG and re-encoded to WebP *inside Chromium* — this
  * machine has no image tools, and a 2× PNG of the sheet weighs 1.1 MB where the WebP weighs a
  * tenth of that. Strips are composed the same way, on a canvas, with transparent gutters so they
  * sit on GitHub's light and dark pages alike.
  *
  *   DEV_URL=http://127.0.0.1:5199 node test_scripts/shot/shot-readme.mjs [section...]
  *
- * Sections: menu ascent battle chronicle empire seasons themes skirmish history portraits graphics
- * banner.
- * With no arguments every section runs. `banner` composes frames taken by `menu`, `ascent` and
- * `battle`, so it only runs when those three ran in the same invocation.
+ * Sections: menu ascent battle chronicle empire seasons skirmish history portraits graphics.
+ * With no arguments every section runs. The README's banner is composed from these files
+ * afterwards by `scripts/build-banner.mjs` (`yarn banner`), which needs no game.
  */
 import { mkdirSync, writeFileSync, statSync } from 'node:fs';
 import { chromium } from 'playwright';
@@ -270,6 +269,16 @@ async function advanceAscent(page, ticks, { stopOnBattle = false, battleAfter = 
       st.ascent.promptQueue = st.ascent.promptQueue.filter((p) => p.kind === 'run-over');
       st.isPaused = false;
       st.isStrategyPause = true;
+      // The invasion banner, for the same reason the map branch above clears it: a fight this
+      // late in a run always opens inside a wave, so the cue for that wave is still queued and
+      // the UI raises it on the next refresh. The map shot learned this; this branch never did,
+      // and photographed "INVASION 5" across the middle of the field.
+      if (st.ascent.waveCues) st.ascent.waveCues = [];
+      ui.waveCueQueue = [];
+      if (ui.waveBanner) {
+        try { ui.waveBanner.destroy(); } catch { /* already gone */ }
+        ui.waveBanner = undefined;
+      }
     }
     // Answering a story beat *publishes* its ledger — the "what changed · Noted" card — into
     // `lastStoryOutcome`, a slot of its own that clearing the prompt queue does not touch. Three
@@ -283,6 +292,13 @@ async function advanceAscent(page, ticks, { stopOnBattle = false, battleAfter = 
     if (st.ascent) st.ascent.pendingAftermath = undefined;
     world.refresh();
     ui.events.emit('state-changed');
+    // A live fight does not raise its own screen. `shell.ts` opens the battle lane unasked for
+    // exactly one case — `ascent.frontsOpened`, a war spreading to a second province — because a
+    // player already watching one field asked not to be moved to another. Every other fight is
+    // entered by tapping Battle, which is what the bar's lit red button is for. So this taps it:
+    // without the call the picture is the map with an invasion banner over it, which is how the
+    // battle shot came back as a photograph of the country.
+    if (stopOnBattle && st.ascent.activeBattle) ui.openLane('battle');
     const capital = st.lands.find((l) => l.type === 'castle' && l.ownerId === 'dai-viet');
     return { turn: st.turn, wave: st.ascent.wave, lands: st.lands.filter((l) => l.ownerId === 'dai-viet').length, capitalHeld: Boolean(capital), battle: Boolean(st.ascent.activeBattle) };
   }, { ticks, stopOnBattle, battleAfter, seed });
@@ -337,8 +353,61 @@ async function frameCapital(page, sceneKey, { zoom = 1.2, season, revealAll = fa
     cam.scrollY = clamp(wy - designH / (2 * zoom), 0, Math.max(0, scene.worldHeight - designH / zoom));
     return { sx: (wx - cam.scrollX) * zoom, sy: (wy - cam.scrollY) * zoom, designH, name: capital.name };
   }, { sceneKey, zoom, season, revealAll, hideUi, yNudge, landId, own });
-  await page.waitForTimeout(1600); // past the season cross-fade and the culling catch-up
+  await settle(page, sceneKey);
   return at;
+}
+
+/**
+ * Waits for the map to finish drawing itself, rather than guessing how long that takes.
+ *
+ * Setting `state.season` does not repaint the country — it starts `prepareSeason`, a generator the
+ * scene pumps a bounded slice of per frame: scatter, then accents, then every land's ink and
+ * labels, then the ground bake, then the culling sweep. `performanceStats()` reports it as
+ * `sceneryPending`, and `refreshPending` covers the refresh job beside it.
+ *
+ * This used to be `waitForTimeout(1600)`, and 1600 ms is not enough on a machine with anything
+ * else running. The seasons strip is where that showed, because it changes the season four times
+ * on one page: the panels came back progressively fuller — Spring bare paper, Summer one clump of
+ * bamboo, Autumn and Winter most of an orchard — which is not four seasons of a country, it is one
+ * repaint photographed four times while it was still going. A timeout cannot be tuned out of this;
+ * the job is bounded by frames, so a busy machine simply gets fewer of them.
+ *
+ * Waiting for the flags to be clear is not enough either, and this is the subtler half: a job that
+ * has not *started* reports exactly what a finished one reports. Framing sets the season and calls
+ * `refresh()`, the job registers a frame or two later, and a wait that polls in between sees a
+ * quiet scene and returns immediately — which is how the first full pass after this function was
+ * written still photographed a bare Spring beside three painted seasons. So this waits for
+ * quiet that *stays* quiet: four consecutive samples with nothing pending and the chunk counters
+ * unmoved. Stability, not a flag, and not a number of milliseconds.
+ */
+async function settle(page, sceneKey) {
+  const sample = () => page.evaluate((k) => {
+    const scene = window.__phaserGame?.scene.getScene(k);
+    const stats = scene?.performanceStats?.();
+    if (!stats) return null;
+    return {
+      busy: Boolean(stats.sceneryPending || stats.refreshPending || stats.ground?.pending),
+      // The counters, so a job that finishes one chunk and starts the next is not mistaken for a
+      // finished map between two samples.
+      mark: [stats.ground?.builds, stats.ground?.invalidations, stats.fog?.builds].join('/'),
+    };
+  }, sceneKey);
+
+  const deadline = Date.now() + 30000;
+  let previous = null;
+  let quiet = 0;
+  while (Date.now() < deadline) {
+    const now = await sample();
+    if (!now) return;                       // a scene with no stats has nothing to wait for
+    quiet = !now.busy && previous?.mark === now.mark ? quiet + 1 : 0;
+    previous = now;
+    if (quiet >= 4) break;                  // four consecutive quiet samples, ~600 ms of nothing
+    await page.waitForTimeout(150);
+  }
+  // The counters going quiet is not the same as the frame being drawn: the last slice bakes the
+  // ground and re-registers culling, and what is on the GPU is a frame behind that. Also covers the
+  // season cross-fade, which is a tween rather than part of the job.
+  await page.waitForTimeout(700);
 }
 
 /** A square of `size` design units around the framed subject, kept on the sheet. */
@@ -353,15 +422,18 @@ function squareAround(at, size = 390) {
 // the capital of this map sits in a mountain pass, which photographs the same in June and January.
 const SEASONS_LAND = 'district-02';
 
-let menuPng, ascentMapPng, founderPng, battlePng;
+let ascentMapPng, founderPng, battlePng;
 
-// ── 1 · the front page ──────────────────────────────────────────────────────────────────────────
+// ── 1 · the Wise code ───────────────────────────────────────────────────────────────────────────
+//
+// Named `menu` because it used to photograph the front page as well — that frame existed only to
+// be the first panel of the old filmstrip banner, and nothing has wanted it since the banner became
+// a composed sheet. The section stays for the code below, which does need a booted game.
 if (want('menu')) {
   console.log('menu');
   const page = await newPage();
   await toMenu(page);
   await page.waitForTimeout(600);
-  menuPng = await shot(page);   // only used in the banner — the front page needs no page of its own
 
   // The Support section shows the Wise code on its own — the same code the game draws, rendered by
   // the game's own encoder so the README can never disagree with the modal. PNG, not WebP: a code
@@ -480,11 +552,21 @@ if (want('battle')) {
   const page = await newPage();
   await boot(page, 20260901, 'ascent');
   // The same run the map is photographed on, carried past its peak to the first fight that opens
-  // after tick 130 — chosen from a contact sheet of every opening this run offers, because most of
+  // after tick 90 — chosen from a contact sheet of every opening this run offers, because most of
   // them are a province levy defending itself and a levy has no commander to put in the corner of
-  // the screen. Past 130 the hosts are big enough to fill the field, which is what this picture is
-  // for; whether one of them is led depends on the run, and the caption must not promise it.
-  const battle = await advanceAscent(page, 400, { stopOnBattle: true, battleAfter: 130, seed: 20260901 });
+  // the screen. At 90 the wave that arrives is the one that reaches the capital: two ranked hosts
+  // of ~2.5k on a summer field, and Đinh Hoài Hiển in the commander's box.
+  //
+  // Re-auditioned 2026-09-07, and the reason is worth keeping. This read 130 while the realm
+  // could still afford it. Every tick before the threshold is fought by the autopilot rather than
+  // watched, and the seasons since — the wealth-scaled purse, the Four Courts difficulty dial —
+  // made 130 ticks of autopilot more than this seed survives: the run was over at turn 119, so
+  // the loop ran out with no fight to stop on and the shot came back as the run-over sheet, a
+  // dynasty-lost screen captioned "Formations answer formations" on both stores. A threshold this
+  // script cannot reach fails silently, in the one direction nothing checks. If a balance pass
+  // moves the numbers again, re-audition rather than nudging the number: the run must still hold
+  // its capital at the tick it stops on, which is what the log line below prints.
+  const battle = await advanceAscent(page, 400, { stopOnBattle: true, battleAfter: 90, seed: 20260901 });
   console.log('   run:', JSON.stringify(battle));
   await page.waitForTimeout(1200);
   battlePng = await shot(page);
@@ -563,7 +645,19 @@ if (want('empire')) {
     st.isPaused = false;
     const ui = window.__phaserGame.scene.getScene('UIScene');
     try { ui.closeModal?.(); } catch { /* nothing open */ }
-    window.__phaserGame.scene.getScene('MapScene').refresh();
+    const world = window.__phaserGame.scene.getScene('MapScene');
+    // Clearing the slots is not enough on its own, because `isPaused = false` hands the clock back
+    // and the framing that follows takes real seconds. `MapScene.update` counts them into
+    // `realtimeAccumulator` and calls `advanceRealtimeMonth` every REALTIME_TICK_MS, which raises
+    // a fresh card into a slot this code has already swept — and the picture is that card. Sinking
+    // the accumulator buys silence without printing a PAUSED plate over the country, which is
+    // exactly the trade `advanceAscent` makes with `ascentAccumulator` for the Dragon Ascent map.
+    //
+    // The old fixed 1600 ms wait mostly landed inside one month and mostly got away with it. It
+    // stopped getting away with it the moment the wait became honest: the first full pass after
+    // `settle()` replaced the timeout photographed a Court Request covering the whole map.
+    world.realtimeAccumulator = -1e9;
+    world.refresh();
     ui.refresh?.();
   });
   const empireFrame = await frameCapital(page, 'MapScene', { zoom: 1.15, season: 'Summer', yNudge: 40, revealAll: true });
@@ -590,21 +684,19 @@ if (want('seasons')) {
   await page.close();
 }
 
-// ── 7 · the three themes, same square ───────────────────────────────────────────────────────────
-if (want('themes')) {
-  console.log('themes');
-  const themePngs = [];
-  for (const theme of ['dong-ho', 'ink-wash', 'illustrated-atlas']) {
-    const page = await newPage();
-    await page.addInitScript((t) => localStorage.setItem('mandate:map-theme:v1', t), theme);
-    await boot(page, 1337, 'rival');
-    await page.evaluate(() => { window.__mandateState.isPaused = true; });
-    const at = await frameCapital(page, 'MapScene', { zoom: 1.35, season: 'Autumn', revealAll: true, hideUi: true, yNudge: 30, landId: SEASONS_LAND, own: true });
-    themePngs.push(await shot(page, squareAround(at)));
-    await page.close();
-  }
-  await save('themes', themePngs, { gap: 24, scale: 0.5 });
-}
+// ── 7 · the three themes ────────────────────────────────────────────────────────────────────────
+//
+// Removed 2026-09-07, and not because the shot was hard to take.
+//
+// `OFFERED_MAP_THEMES` in ui/mapTheme.ts is `['dong-ho']`, and `getMapTheme()` clamps to it: the
+// ink-wash and illustrated-atlas themes were withdrawn on purpose, because the battle screen's
+// proportion contract and every prop in ui/ink are tuned against Đông Hồ and the other two had not
+// kept pace. So this section set the theme in localStorage three times, got `DongHoMapRenderer`
+// three times, and composed a strip of the same square repeated — a picture of a choice the game
+// does not offer. Nothing referenced the file.
+//
+// If the array ever grows back, this is a dozen lines: frame `SEASONS_LAND` once per offered
+// theme, exactly as the seasons strip frames it once per season.
 
 // ── 8 · Skirmish: the muster form ───────────────────────────────────────────────────────────────
 if (want('skirmish')) {
@@ -831,15 +923,15 @@ if (want('graphics')) {
   await page.close();
 }
 
-// ── 12 · the banner: four screens in a row ──────────────────────────────────────────────────────
-if (want('banner')) {
-  if (menuPng && ascentMapPng && founderPng && battlePng) {
-    console.log('banner');
-    await save('banner', [menuPng, ascentMapPng, founderPng, battlePng], { gap: 28, scale: 0.5 });
-  } else {
-    console.log('banner skipped — needs menu, ascent and battle in the same run');
-  }
-}
+// ── 12 · the banner ─────────────────────────────────────────────────────────────────────────────
+//
+// Moved to scripts/build-banner.mjs on 2026-09-07. It used to be composed here, by laying the menu,
+// map, founder and battle frames side by side on transparent gutters — a filmstrip with nothing on
+// it saying what the game was called. The banner is now a sheet: the wordmark over five of these
+// screens fanned like a held hand, cut the same way build-share.mjs cuts the og:image.
+//
+// It belongs there rather than here because it needs no game and no dev server — only the committed
+// webp files this script produces. Run `yarn banner` after a shot pass.
 
 await codec.close();
 await browser.close();

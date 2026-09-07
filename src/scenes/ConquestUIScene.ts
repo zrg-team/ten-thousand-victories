@@ -400,7 +400,7 @@ export class ConquestUIScene extends Phaser.Scene {
      * were being drawn onto an object that no longer existed. The positions survive now and the
      * layer is redrawn from them.
      */
-    fallenPts: Array<{ x: number; y: number }>;
+    fallenPts: Array<{ x: number; y: number; side?: 'ours' | 'theirs'; hostId?: string }>;
     fallenCount: number;
     /** The open Moment, over the field. Rebuilt only when the question changes. */
     moment: Phaser.GameObjects.Container;

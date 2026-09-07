@@ -667,8 +667,8 @@ export interface Army {
  */
 export type ArmyOrders =
   | { kind: 'auto' }
-  | { kind: 'defend'; landId: string; holding?: boolean }
-  | { kind: 'attack'; landId: string; struck?: boolean; holding?: boolean; force?: boolean }
+  | { kind: 'defend'; landId: string; holding?: boolean; hostileTransit?: boolean }
+  | { kind: 'attack'; landId: string; hostileTransit?: boolean; struck?: boolean; holding?: boolean; force?: boolean }
   | { kind: 'follow'; armyId: string; holding?: boolean }
   | { kind: 'hunt'; armyId: string };
 
@@ -689,6 +689,9 @@ export interface MovementOrder {
    * when the quarry is gone. Optional, so it round-trips through the save with no migration.
    */
   pursueArmyId?: string;
+  /** Explicitly authorized reinforcement passage through hostile intermediate provinces. */
+  hostileTransit?: boolean;
+  hostileCrossed?: number;
 }
 
 /** Core hero stats (0-100). Drive court position bonuses and land assignment bonuses. */
