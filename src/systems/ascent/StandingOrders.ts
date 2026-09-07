@@ -1,3 +1,4 @@
+import { marchRouteCost } from './hostileMarch';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { ARMY_RESUPPLY_TICKS, MARCH_MIN_WIN_CHANCE, SUPPLY_TICKS_HELD } from '../../game/ascentConfig';
 import { applyResourceDelta } from '../ResourceSystem';
@@ -65,7 +66,7 @@ export function nearestOwnedLand(state: GameState, fromLandId: string): string |
 }
 
 /** The owned neighbour of `landId` this host can reach soonest — where an assault is staged from. */
-function stagingFor(state: GameState, army: Army, landId: string): string | undefined {
+function stagingFor(state: GameState, army: Army, landId: string, hostileTransit = false): string | undefined {
   const target = findLand(state, landId);
   if (!target) return undefined;
   let best: { id: string; legs: number } | undefined;
@@ -73,9 +74,10 @@ function stagingFor(state: GameState, army: Army, landId: string): string | unde
     const neighbour = findLand(state, neighbourId);
     if (!neighbour || neighbour.ownerId !== PLAYER_KINGDOM_ID) continue;
     if (neighbour.id === army.landId) return neighbour.id;
-    const path = findLandPath(state, army.landId, neighbour.id);
+    const path = findLandPath(state, army.landId, neighbour.id)
+      ?? (hostileTransit ? findLandPath(state, army.landId, neighbour.id, () => true) : undefined);
     if (!path) continue;
-    if (!best || path.length < best.legs) best = { id: neighbour.id, legs: path.length };
+    if (!best || marchRouteCost(state, path) < best.legs) best = { id: neighbour.id, legs: marchRouteCost(state, path) };
   }
   return best?.id;
 }
@@ -238,9 +240,10 @@ function applyOrdersNow(state: GameState, army: Army): void {
       if (army.landId === orders.landId) { orders.holding = false; return; }
       if (busy(state, army)) return;
       const post = findLand(state, orders.landId);
-      if (post?.ownerId === PLAYER_KINGDOM_ID && findLandPath(state, army.landId, post.id)) {
+      if (post?.ownerId === PLAYER_KINGDOM_ID && (findLandPath(state, army.landId, post.id)
+        ?? (orders.hostileTransit ? findLandPath(state, army.landId, post.id, () => true) : undefined))) {
         orders.holding = false;
-        issueMoveOrder(state, army.id, post.id);
+        issueMoveOrder(state, army.id, post.id, orders.hostileTransit);
         return;
       }
       if (!orders.holding) {
@@ -269,9 +272,9 @@ function applyOrdersNow(state: GameState, army: Army): void {
         }
         return;
       }
-      const staging = stagingFor(state, army, target.id);
+      const staging = stagingFor(state, army, target.id, orders.hostileTransit);
       if (!staging) { settle(state, army, 'ascent.orders.noRoad', target.id); return; }
-      if (staging !== army.landId) issueMoveOrder(state, army.id, staging);
+      if (staging !== army.landId) issueMoveOrder(state, army.id, staging, orders.hostileTransit);
       return;
     }
     case 'follow': {

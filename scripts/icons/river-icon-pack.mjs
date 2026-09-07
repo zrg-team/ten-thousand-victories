@@ -48,7 +48,8 @@ export function tagSrgb(png) {
   return Buffer.concat(chunks);
 }
 
-function ico(entries) {
+/** ICO container over PNG-encoded entries — what electron-builder and every shell since Vista read. */
+export function ico(entries) {
   const header = Buffer.alloc(6 + entries.length * 16);
   header.writeUInt16LE(1, 2);
   header.writeUInt16LE(entries.length, 4);

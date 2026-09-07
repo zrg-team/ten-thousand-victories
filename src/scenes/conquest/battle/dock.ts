@@ -208,10 +208,10 @@ export function showReinforcePicker(self: ConquestUIScene, onBack: () => void): 
       addRow(
         {
           title: `${row.army.name}  ·  ${row.men}${row.enRoute ? `  ·  ${t('ascent.reinforce.onRoad')}` : ''}`,
-          subtitle: [blocked ? row.blockedReason : eta, t('ascent.reinforce.row', {
+          subtitle: [blocked ? row.blockedReason : eta, row.routeWarning, t('ascent.reinforce.row', {
             land: at?.name ?? '—', order: hostOrderLabel(state, row.army),
           })].filter(Boolean).join('\n'),
-          border: blocked || row.enRoute ? INK_UI.softBrush : row.inTime ? INK_UI.jade : INK_UI.cinnabar,
+          border: blocked || row.enRoute ? INK_UI.softBrush : row.routeWarning ? INK_UI.gold : row.inTime ? INK_UI.jade : INK_UI.cinnabar,
           muted: blocked || row.enRoute,
           portrait: general,
         },

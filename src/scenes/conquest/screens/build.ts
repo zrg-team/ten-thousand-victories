@@ -60,7 +60,8 @@ const CLAIM_ACTION_HEIGHT = 44;
 /** Build / upgrade a district by hand, ahead of whatever the autopilot would have picked. */
 export function showBuildScreen(self: ConquestUIScene): void {
   const state = self.state;
-  const lands = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID);
+  const lands = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID)
+    .sort((a, b) => Number(b.id === state.ascent?.capitalLandId) - Number(a.id === state.ascent?.capitalLandId));
   // Read once, ahead of the frame: the sheet's action and the page's own claim row both say
   // the same thing about the same provinces, and two readings could disagree by a tick.
   const targets = buildAllConquestTargets(state);
@@ -173,7 +174,7 @@ export function showBuildScreen(self: ConquestUIScene): void {
   addWidget(0, (parent, width) => self.actionTiles(parent, width, lands.map((land) => {
     const order = state.buildOrders.find((candidate) => candidate.landId === land.id);
     return {
-      title: land.name,
+      title: land.id === state.ascent?.capitalLandId ? t('ascent.build.capital', { land: land.name }) : land.name,
       note: order
         ? t('ascent.screen.building', { n: Math.max(0, order.required - order.progress) })
         : t('ascent.screen.slots', {
@@ -181,7 +182,7 @@ export function showBuildScreen(self: ConquestUIScene): void {
             cap: land.buildingCapacity,
             defense: land.defense,
           }),
-      border: order ? INK_UI.gold : INK_UI.jade,
+      border: land.id === state.ascent?.capitalLandId ? INK_UI.cinnabar : order ? INK_UI.gold : INK_UI.jade,
       onTap: () => showBuildOptions(self, land.id),
     };
   })));
@@ -305,7 +306,8 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
   const { addRow, addHeading, finish } = self.laneList(
     // The mark. One glyph, and the only signal a story ever gives about a subject: something
     // has taken an interest here. It says nothing at all about what that something wants.
-    isMarked(state, 'land', land.id) ? `${land.name} ◈` : land.name,
+    land.id === state.ascent?.capitalLandId ? t('ascent.build.capital', { land: land.name })
+      : isMarked(state, 'land', land.id) ? `${land.name} ◈` : land.name,
     t('ascent.screen.slots', { used: land.buildings.length, cap: land.buildingCapacity, defense: land.defense }),
     { back: () => self.replaceLanePage(() => showBuildScreen(self)) },
   );

@@ -1,3 +1,4 @@
+import { hostileMarchRisk, isHostileMarchLand, marchRouteCost } from './hostileMarch';
 /**
  * Sending a host to a fight that is already on.
  *
@@ -36,6 +37,8 @@ export interface ReinforcementCandidate {
   enRoute: boolean;
   /** Why it cannot be sent, when it cannot. */
   blockedReason?: string;
+  routeWarning?: string;
+  hostileLands?: number;
 }
 
 /** Seasons the fight has left on its clock, at the player's tempo. */
@@ -52,7 +55,8 @@ function rallyPointFor(state: GameState, army: Army, battle: AscentBattle): { la
   if (!land) return undefined;
   if (battle.role !== 'offence') {
     if (army.landId === land.id) return { landId: land.id, path: [] };
-    const path = findLandPath(state, army.landId, land.id);
+    const path = findLandPath(state, army.landId, land.id)
+      ?? findLandPath(state, army.landId, land.id, () => true);
     return path ? { landId: land.id, path } : undefined;
   }
   let best: { landId: string; path: string[] } | undefined;
@@ -60,8 +64,9 @@ function rallyPointFor(state: GameState, army: Army, battle: AscentBattle): { la
     const neighbour = findLand(state, neighbourId);
     if (!neighbour || neighbour.ownerId !== PLAYER_KINGDOM_ID) continue;
     if (neighbour.id === army.landId) return { landId: neighbour.id, path: [] };
-    const path = findLandPath(state, army.landId, neighbour.id);
-    if (path && (!best || path.length < best.path.length)) best = { landId: neighbour.id, path };
+    const path = findLandPath(state, army.landId, neighbour.id)
+      ?? findLandPath(state, army.landId, neighbour.id, () => true);
+    if (path && (!best || marchRouteCost(state, path) < marchRouteCost(state, best.path))) best = { landId: neighbour.id, path };
   }
   return best;
 }
@@ -100,10 +105,20 @@ export function reinforcementCandidates(state: GameState, battle: AscentBattle):
     const rally = rallyPointFor(state, army, battle);
     const etaTicks = rally ? getTotalPathTicks(state, army, rally.path) : undefined;
     const enRoute = isMarchingToBattle(army, battle);
+    const movement = state.movementOrders.find(order => order.armyId === army.id);
+    const route = enRoute && movement ? movement.path : rally?.path ?? [];
+    const hostile = route.slice(0, -1).map(id => findLand(state, id)).filter(land => land && isHostileMarchLand(land));
+    const risks = hostile.map((land, index) => hostileMarchRisk(state, land!, (enRoute ? movement?.hostileCrossed ?? 0 : 0) + index));
+    const routeWarning = risks.length ? t('ascent.march.warning', {
+      n: risks.length, min: Math.round(Math.min(...risks.map(r => r.loss)) * 100),
+      max: Math.round(Math.max(...risks.map(r => r.loss)) * 100),
+      safe: Math.round(risks.reduce((chance, r) => chance * r.safe, 1) * 100),
+    }) : undefined;
     let blockedReason: string | undefined;
     if (holding || isEngagedHost(state, army.id)) {
       blockedReason = t('ascent.reinforce.already', { land: holding?.landName ?? battle.landName });
-    } else if (army.refit) blockedReason = t('ascent.army.refitBusy');
+    } else if (army.patron) blockedReason = t('ascent.pick.blocked.auxiliary');
+    else if (army.refit) blockedReason = t('ascent.army.refitBusy');
     else if (!rally) blockedReason = t('ascent.reinforce.noRoad');
     else if (isPinnedByClaim(state, army)) blockedReason = t('ascent.reinforce.pinned');
     else if (state.siegeOrders.some((order) => order.armyId === army.id)) blockedReason = t('ascent.reinforce.besieging');
@@ -114,6 +129,8 @@ export function reinforcementCandidates(state: GameState, battle: AscentBattle):
       inTime: etaTicks !== undefined && etaTicks < ticksLeft,
       enRoute,
       blockedReason,
+      routeWarning,
+      hostileLands: hostile.length,
     });
   }
   return rows.sort((a, b) => {
@@ -144,8 +161,8 @@ export function sendReinforcement(state: GameState, battle: AscentBattle, armyId
   const row = reinforcementCandidates(state, battle).find((candidate) => candidate.army.id === armyId);
   if (!row || row.blockedReason) return false;
   const ok = battle.role === 'offence'
-    ? setArmyOrders(state, armyId, { kind: 'attack', landId: battle.landId, force: true })
-    : setArmyOrders(state, armyId, { kind: 'defend', landId: battle.landId });
+    ? setArmyOrders(state, armyId, { kind: 'attack', landId: battle.landId, force: true, hostileTransit: true })
+    : setArmyOrders(state, armyId, { kind: 'defend', landId: battle.landId, hostileTransit: true });
   if (!ok) return false;
   battle.log.push(t('ascent.reinforce.sent', { army: army.name, men: row.men, n: row.etaTicks ?? 0 }));
   return true;

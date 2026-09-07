@@ -33,6 +33,14 @@ import type { PowerCardDef } from '../state/types';
  *   rice-tribute   + granary-edict  → celestial-granary
  */
 export const POWER_CARDS: PowerCardDef[] = [
+  {
+    id: 'hidden-paths', rarity: 'bronze', maxStacks: 2,
+    levels: [15, 19, 23].map(pct => ({ effect: { permanent: true }, display: { pct } })),
+  },
+  {
+    id: 'march-escort', rarity: 'silver', maxStacks: 2,
+    levels: [25, 31, 38].map(pct => ({ effect: { permanent: true }, display: { pct } })),
+  },
   // ── Bronze ────────────────────────────────────────────────────────────────
   {
     id: 'iron-levy',

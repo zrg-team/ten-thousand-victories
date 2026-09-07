@@ -44,6 +44,19 @@ const CHECK = process.argv.includes('--check');
 const WIDTH = 1200;
 const HEIGHT = 630;
 
+/**
+ * Google Play's feature graphic: the banner that hangs above the icon on the store listing.
+ *
+ * Cut from this same card rather than drawn separately. `build-store-kit.mjs` used to compose its
+ * own — the mark on the left, the name beside it, and a line of type — which said what the game was
+ * called and nothing about what it looked like, on the one banner the store gives you. The card
+ * already solves that problem for every link anyone pastes; Play's slot is 8px of aspect away from
+ * it, so it gets the same picture.
+ *
+ * Exactly 1024x500 and opaque, which is what the console rejects an upload for.
+ */
+const PLAY = { w: 1024, h: 500, at: join('apps', 'mobile', 'store', 'android', 'graphics', 'feature-graphic-1024x500.png') };
+
 // ── pigments ────────────────────────────────────────────────────────────────
 // The same values as src/ui/ink/palette.ts, by way of scripts/build-icon.mjs. Derive, do not invent.
 const DIEP = '#e9dfc2';
@@ -167,10 +180,35 @@ const html = `
 
   .tagline { margin-top: 24px; font-size: 24px; font-weight: 400; max-width: 430px; opacity: 0.9; }
 
-  /* The four facts a stranger wants before tapping a link, and none of them is a feature. Set as a
-     seal row rather than a sentence: at thumbnail size a reader gets the shapes even when the words
-     are below the size at which they resolve. */
-  .stamps { display: flex; gap: 9px; margin-top: 26px; }
+  /* Four things no other game on the shelf can say, not four things this one costs.
+     "Free · no ads · offline" is a price list, and every stranger who reads it has already assumed
+     all three of a link someone sent them. But "42 provinces" and "endless waves" were barely
+     better: a province count is a number any strategy game can print, and a wave counter is the
+     shape of every survival game written. Neither says why *this* one.
+
+     What is actually unique is the pair nothing else has together — a country's real history, and
+     a woodblock tradition drawn from the village that still prints it — and then the fact that the
+     realm runs whether you are watching or not. Set as a seal row rather than a sentence, because
+     at thumbnail size a reader gets the shapes even when the words are below the size at which
+     they resolve.
+
+     Two rows of two, and a grid rather than a wrapping flex row. A feature is a longer word than
+     a price and four of them do not fit across the column, so they have to break somewhere — but
+     *where* a flex row breaks is decided by the measured width of whatever the labels happen to
+     say. At a max-width of 430px these four broke 3 + 1, leaving an orphan; tightened to 285px they
+     broke 1 + 2 + 1, because the first two together measure 287px and missed by two. A number
+     tuned that finely is not a layout, it is a coincidence that survives until someone edits a
+     word. Two explicit columns cannot break anywhere else.
+
+     The max-content columns, and justify-items: start, keep each stamp the width of its own
+     text: a stamp stretched to fill its column is a button, and these are seals. */
+  .stamps {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    justify-items: start;
+    gap: 9px;
+    margin-top: 26px;
+  }
   .stamps span {
     font-size: 13.5px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase;
     padding: 6px 11px; border: 1.5px solid ${MUC}44; border-radius: 3px; color: ${MUC}; opacity: 0.86;
@@ -211,10 +249,10 @@ const html = `
     <div class="gloss">TEN THOUSAND VICTORIES</div>
     <div class="tagline">Vietnamese history, played one-handed on a phone.</div>
     <div class="stamps">
-      <span class="son">Free</span>
-      <span>No ads</span>
-      <span>Offline</span>
-      <span>English · Tiếng Việt</span>
+      <span class="son">Đông Hồ ink</span>
+      <span>Vietnamese history</span>
+      <span>Real-time realm</span>
+      <span>Roguelite waves</span>
     </div>
   </div>
 </div>
@@ -249,32 +287,107 @@ const cut = async () => {
   try {
     const page = await browser.newPage({
       viewport: { width: WIDTH, height: HEIGHT },
-      deviceScaleFactor: 1,
+      deviceScaleFactor: 2,
     });
     await page.goto(pathToFileURL(scratch).href, { waitUntil: 'load' });
     // `load` fires on the document, not on a webfont — and a Vietnamese line set in the fallback
     // and never re-set is a card that ships in Georgia about one run in three.
     await page.evaluate(() => document.fonts.ready);
-    return await page.screenshot({ type: 'jpeg', quality: 92 });
+
+    /**
+     * Both cuts come off one render, at 2x, and are resampled down in the page.
+     *
+     * The card and Play's feature graphic are the same picture at two sizes, so drawing it twice
+     * would be two chances for them to disagree. Rendering once at double scale and resampling
+     * also beats rendering each at its own size: the wordmark is a serif with a hand-cut doubled
+     * pull behind it, and Chromium's own downsample of a 2x raster keeps that edge where a 1x
+     * layout pass thins it.
+     */
+    /**
+     * Both cuts come off one render, at 2x, and are resampled by loading that raster back into a
+     * page at the target size.
+     *
+     * One render, because the card and Play's feature graphic are the same picture at two sizes and
+     * drawing it twice is two chances for them to disagree. At 2x, because the wordmark is a serif
+     * with a hand-cut doubled pull behind it and a downsampled 2x raster holds that edge where a 1x
+     * layout pass thins it.
+     *
+     * Resampled through an `<img>` and screenshotted rather than through a canvas, and that is the
+     * non-obvious half: `canvas.toDataURL('image/png')` always writes RGBA, and Play rejects a
+     * feature graphic that carries an alpha channel. A page screenshot of an opaque page is a
+     * 24-bit PNG, which is what the console wants and what `assertPlay` below insists on.
+     */
+    const master = await page.screenshot({ type: 'png' });
+
+    const resample = async (w, h, options) => {
+      const sheet = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
+      try {
+        await sheet.setContent(
+          `<style>html,body{margin:0;padding:0;background:${DIEP}}`
+          + `img{display:block;width:${w}px;height:${h}px;object-fit:cover;object-position:center}</style>`
+          + `<img src="data:image/png;base64,${master.toString('base64')}">`,
+        );
+        await sheet.evaluate(() => new Promise((done) => {
+          const image = document.querySelector('img');
+          if (image.complete) done(undefined);
+          else image.onload = () => done(undefined);
+        }));
+        return await sheet.screenshot(options);
+      } finally {
+        await sheet.close();
+      }
+    };
+
+    return {
+      card: await resample(WIDTH, HEIGHT, { type: 'jpeg', quality: 92 }),
+      /**
+       * Play's slot is 1024x500 — 2.048:1, where the card is 1.91:1. `object-fit: cover` takes the
+       * difference off the top and the bottom evenly: the sheet has margin there and nothing that
+       * carries meaning, the wordmark starts a third of the way down, and the seal row ends well
+       * above the lower crop, so both survive whole. Cropping the sides instead would cost either
+       * the wordmark or a phone.
+       */
+      play: await resample(PLAY.w, PLAY.h, { type: 'png' }),
+    };
   } finally {
     rmSync(scratch, { force: true });
     await browser.close();
   }
 };
 
-const card = await cut();
+const { card, play } = await cut();
 
 mkdirSync(OUT, { recursive: true });
 const at = join(OUT, 'og-card.jpg');
+const playAt = join(ROOT, PLAY.at);
+
+/** Refuses to ship the feature graphic at the wrong size — Play rejects that only after upload. */
+const assertPlay = (buffer) => {
+  const w = buffer.readUInt32BE(16);
+  const h = buffer.readUInt32BE(20);
+  const hasAlpha = buffer[25] === 6 || buffer[25] === 4;
+  if (w !== PLAY.w || h !== PLAY.h) throw new Error(`feature graphic is ${w}x${h}, expected ${PLAY.w}x${PLAY.h}`);
+  if (hasAlpha) throw new Error('feature graphic has an alpha channel; Play wants it opaque');
+};
+assertPlay(play);
+
+const outputs = [
+  [at, card, `${WIDTH}x${HEIGHT}`],
+  [playAt, play, `${PLAY.w}x${PLAY.h}`],
+];
 
 if (CHECK) {
-  const same = existsSync(at) && Buffer.compare(readFileSync(at), card) === 0;
-  if (!same) {
-    console.error('build-share: public/share/og-card.jpg is stale — run `yarn share`.');
+  const stale = outputs.filter(([file, want]) => !existsSync(file) || Buffer.compare(readFileSync(file), want) !== 0);
+  if (stale.length) {
+    for (const [file] of stale) console.error(`build-share: ${file.replace(ROOT, '.')} is stale.`);
+    console.error('build-share: run `yarn share`.');
     process.exit(1);
   }
-  console.log('build-share: card matches.');
+  console.log('build-share: card and feature graphic match.');
 } else {
-  writeFileSync(at, card);
-  console.log(`build-share: ${at} — ${WIDTH}x${HEIGHT}, ${(card.length / 1024).toFixed(0)} kB`);
+  for (const [file, buffer, size] of outputs) {
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, buffer);
+    console.log(`build-share: ${file} — ${size}, ${(buffer.length / 1024).toFixed(0)} kB`);
+  }
 }

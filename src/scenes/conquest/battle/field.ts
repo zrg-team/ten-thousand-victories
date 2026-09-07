@@ -20,6 +20,8 @@ import { armyShape, compositionFor, hostKitFor, hostShapeAt } from '../../../ui/
 import { type BattleFormation } from '../../../data/ascent/formations';
 import { inkPath } from '../../../ui/ink/stroke';
 import { keepForegroundOnTop } from './ground';
+import { buildBattleClouds } from './clouds';
+import { buildBattleInsects } from './meadow';
 import { createPlayerLandFlag } from '../../../ui/playerFlag';
 import { GROUND_SCALE } from '../../../ui/ink/proportion';
 import type { Army, AscentBattle } from '../../../state/types';
@@ -125,6 +127,7 @@ export function buildBattleField(self: ConquestUIScene, battle: AscentBattle): v
   const groundFrom = field.list.length;
   self.buildBattleGround(battle);
   self.bakeBattleGround(groundFrom);
+  buildBattleClouds(self);
 
   // Camps: the ground each side is fighting from, and what "hold" means.
   // Behind their line and a little past the field's edge, at the same scale the hosts are
@@ -281,6 +284,7 @@ export function buildBattleField(self: ConquestUIScene, battle: AscentBattle): v
   // at `groundFrom` — under the camp, the fallen and both hosts — so a tree standing at the very
   // bottom edge of the field was composited behind two thousand men. Built here it takes the index
   // it is baked at, which is now above everything on the field.
+  buildBattleInsects(self, self.state.mapConfig.seed + battle.landId.length * 977);
   const foregroundFrom = field.list.length;
   self.buildBattleForeground(battle);
   self.bakeBattleGround(foregroundFrom, true);

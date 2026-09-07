@@ -48,6 +48,8 @@ const CARD_MOTIF: Record<string, CardIconId> = {
   'iron-levy': 'blade',
   'rice-tribute': 'grain',
   'salt-roads': 'cart',
+  'hidden-paths': 'retreat',
+  'march-escort': 'banner',
   'feigned-retreat': 'retreat',
   'village-muster': 'banner',
   'bronze-drums': 'banner',

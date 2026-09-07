@@ -159,10 +159,13 @@ Android launcher composites a transparent icon straight onto the wallpaper.
 | public/icon-maskable-512.png | pulled in to 78% so an adaptive launcher cannot slice the rim off |
 | public/manifest.webmanifest | names the app *Đại Việt* on a home screen |
 | index.html | five link tags, all relative — an absolute path breaks under the GitHub Pages sub-path |
+| apps/desktop/build/icon.ico · icon.png | the Steam cabinet's own cut — the mark with no sheet behind it, ten sizes for the Windows shell ([desktop-builds](development/desktop-builds.md#the-icon-is-source-not-build-output)) |
 
 ```
 yarn icon                                 # rebuild the committed set
 yarn icon:check                           # fails if it has drifted
+yarn icon:desktop                         # the .ico/.png the Electron cabinet ships
+yarn icon:desktop:check                   # fails if that has drifted
 node scripts/build-icon.mjs --mark drum-full  # or drum-plain, drum-red, drum-ink
 ```
 

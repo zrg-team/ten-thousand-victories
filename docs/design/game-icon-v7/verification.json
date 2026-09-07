@@ -109,6 +109,12 @@
       "bytes": 1779009
     },
     {
+      "path": "apps/desktop/build/icon.png",
+      "size": 512,
+      "colorType": 6,
+      "bytes": 463208
+    },
+    {
       "path": "docs/design/game-icon-v7/icon-pack/ios/AppIcon.appiconset/App-Icon-1024x1024@1x.png",
       "size": 1024,
       "colorType": 2,
@@ -153,5 +159,59 @@
   "limitations": [
     "No physical-device install or store upload was performed."
   ],
+  "desktop": {
+    "ico": [
+      {
+        "size": 16,
+        "fill": 0.9375,
+        "bytes": 895
+      },
+      {
+        "size": 20,
+        "fill": 0.95,
+        "bytes": 1268
+      },
+      {
+        "size": 24,
+        "fill": 0.9583333333333334,
+        "bytes": 1767
+      },
+      {
+        "size": 32,
+        "fill": 0.96875,
+        "bytes": 2933
+      },
+      {
+        "size": 40,
+        "fill": 0.95,
+        "bytes": 4283
+      },
+      {
+        "size": 48,
+        "fill": 0.9583333333333334,
+        "bytes": 5977
+      },
+      {
+        "size": 64,
+        "fill": 0.953125,
+        "bytes": 10062
+      },
+      {
+        "size": 96,
+        "fill": 0.9583333333333334,
+        "bytes": 21417
+      },
+      {
+        "size": 128,
+        "fill": 0.9609375,
+        "bytes": 36014
+      },
+      {
+        "size": 256,
+        "fill": 0.9609375,
+        "bytes": 127629
+      }
+    ]
+  },
   "approvedSourceSha256": "015c10b59b37bc1a29aac8c759a392e5fd0719079b001c2473ee3df7f1d96dc2"
 }

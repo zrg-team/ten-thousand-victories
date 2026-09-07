@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/readme/banner.webp" alt="Vạn Thắng — the front page, the realm mid-run, a founder's mandate, and a battle" width="100%">
+<img src="public/share/og-card.jpg" alt="Vạn Thắng — Ten Thousand Victories: the realm mid-run and a battle, printed like a Đông Hồ woodblock" width="100%">
 
 # Vạn Thắng
 
