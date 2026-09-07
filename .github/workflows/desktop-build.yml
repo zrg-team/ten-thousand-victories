@@ -1,0 +1,43 @@
+# The desktop cabinet, built on request.
+#
+# Not on push: the Pages deploy is the only job that runs on `main`, and the cabinet rule in
+# `apps/README.md` keeps native toolchains out of it. Trigger this by hand for a Windows and a
+# macOS build; the unpacked folders are what `apps/desktop/steam/stage.mjs` turns into depots.
+name: desktop-build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The build number is the commit count — see vite.config.ts.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: yarn install --immutable
+      # The one build every cabinet serves: relative URLs, no service worker.
+      - run: yarn build:shell
+      - run: npm install
+        working-directory: apps/desktop
+      - run: npm run sync
+        working-directory: apps/desktop
+      - run: npx electron-builder --dir
+        working-directory: apps/desktop
+      - uses: actions/upload-artifact@v4
+        with:
+          name: van-thang-desktop-${{ matrix.os }}
+          path: |
+            apps/desktop/dist/win-unpacked
+            apps/desktop/dist/mac
+            apps/desktop/dist/mac-arm64
+          if-no-files-found: error

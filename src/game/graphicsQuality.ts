@@ -1,22 +1,22 @@
 import type Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from './constants';
+import { GAME_HEIGHT, surfaceWidth } from './constants';
+import { applyCameraLayout } from './cameraLayout';
 
-/**
- * How much resolution and detail the game spends on a frame.
- *
- * The reason this exists is a measurement, not a preference. Phaser lays the game out in 390-wide
- * design units and, left alone, sizes the drawing buffer to match — so on a phone reporting a
- * device pixel ratio of 3 the canvas is 390x844 and the browser blows it up to 1170x2532 on the
- * way to the glass. Every contour in the game arrives at the eye through a 3x upscale. That is the
- * whole of "the graphics look bad on mobile": the art is fine, it is being shown at a third of the
- * resolution the screen can display.
- *
- * The fix is to render into a buffer the size of the actual screen, which costs fill rate
- * quadratically — 2x the scale is 4x the pixels. So it is a setting, with an honest default picked
- * from what the device says about itself, and the player can move it either way.
- */
+/** Resolution and detail profiles; Auto chooses once after a bounded launch calibration.
+ * Manual choices persist, and the passive monitor only recommends a future launch profile. */
 
 export type GraphicsQuality = 'low' | 'medium' | 'high';
+export type GraphicsMode = 'auto' | GraphicsQuality;
+export const GRAPHICS_MODES: GraphicsMode[] = ['auto', 'low', 'medium', 'high'];
+export function getGraphicsMode(): GraphicsMode {
+  try { const value = localStorage.getItem(STORAGE_KEY); return GRAPHICS_QUALITIES.includes(value as GraphicsQuality) ? value as GraphicsQuality : 'auto'; } catch { return 'auto'; }
+}
+export function setGraphicsMode(mode: GraphicsMode): void {
+  if (mode !== 'auto') { setGraphicsQuality(mode); return; }
+  try { localStorage.removeItem(STORAGE_KEY); } catch { /* private mode */ }
+  cachedQuality = undefined;
+}
+export function setSessionQuality(quality: GraphicsQuality): void { cachedQuality = quality; }
 
 const STORAGE_KEY = 'mandate:graphics:v1';
 
@@ -29,15 +29,7 @@ interface QualityProfile {
   readonly paperFX: boolean;
   /** Multiplier on how many trees, tufts and figures the landscape scatters. */
   readonly scatter: number;
-  /**
-   * Resolution of the cached map textures, in texels per design unit.
-   *
-   * The map holds two of these — the static terrain composite and the fog tint — and at scale 1
-   * over a 2244x3030 world they are about 27 MB each; the cost is quadratic in this number. It can
-   * exceed 1: the camera magnifies the bake by `renderScale x mapZoom`, so a scale-1 bake under a
-   * scale-3 buffer arrives 3x upscaled — the whole of "high is still blurry" — and `fitBakeScale`
-   * caps whatever is asked here to the device's MAX_TEXTURE_SIZE.
-   */
+  /** Texels per world unit in the 512-unit ground chunks; memory is budgeted separately. */
   readonly bakeScale: number;
   /**
    * Whether settlement ink — the harvested town clusters, capital ring, name plates, and the
@@ -58,14 +50,7 @@ interface QualityProfile {
 const PROFILES: Record<GraphicsQuality, QualityProfile> = {
   // 1:1 with the design surface — what the game did before this existed.
   low: { renderScale: 1, paperFX: false, scatter: 0.6, bakeScale: 0.5, liveSettlementInk: false, lodZoomBelow: 0.85, lodDropsLabels: true },
-  // 1.25 is not arbitrary: the world is 2244x3030 design units, so 1.25 texels per unit is the
-  // densest bake that still fits inside a 4096 MAX_TEXTURE_SIZE (3788 on the long side) — the
-  // floor limit on the phones this game targets, and the point past which `fitBakeScale` starts
-  // quietly stepping the number back down again. At 0.75 the ground arrived 2.7x upscaled under
-  // the 2x buffer, which is 'medium looks bad' in one number; at 1.25 it is 1.6x.
-  // The price: the ground RT goes 15 MB -> 42 MB, and the fog RT reaches its own `min(_, 1)` cap
-  // at 27 MB instead of 15 — 70 MB of cached world against high's 136, on a tier every device
-  // starts on. Under frame pressure the ladder's 'medium-lite' rung hands the density back.
+  // Balanced's original buffer and ground clarity are the automatic floor.
   medium: { renderScale: 2, paperFX: true, scatter: 1, bakeScale: 1.25, liveSettlementInk: false, lodZoomBelow: 0.85, lodDropsLabels: false },
   // 3 is not a typo: it is the ratio of every current flagship phone, and anything above it is
   // spending fill rate on detail the panel cannot resolve. High is the explicit "spend for
@@ -97,27 +82,14 @@ function displayNeed(): number {
   if (typeof window === 'undefined' || !window.innerWidth || !window.innerHeight) {
     return ratio;
   }
-  const stretch = Math.min(window.innerWidth / GAME_WIDTH, window.innerHeight / GAME_HEIGHT);
+  // Against the sheet, not the column: on the desktop the sheet is the window's own aspect, and
+  // measuring the stretch against 390 would report a 1920-wide window as five times over.
+  const stretch = Math.min(window.innerWidth / surfaceWidth(), window.innerHeight / GAME_HEIGHT);
   return Math.max(1, stretch) * ratio;
 }
 
-/**
- * What to start a device on before the player has said anything.
- *
- * Deliberately conservative about the top tier. A phone that reports a high pixel ratio has told
- * us its screen is dense; it has not told us its GPU can fill that many pixels sixty times a
- * second, and `deviceMemory`/`hardwareConcurrency` are the only hints available for that. A player
- * on a fast device who wants more can raise it in one tap; a player whose game stutters on first
- * launch generally does not go looking for a menu.
- */
-export function defaultGraphicsQuality(): GraphicsQuality {
-  // Always medium. High is a deliberate spend — extra VRAM for the dense bake, live settlement
-  // ink — and no device sniff (cores, memory, pixel ratio) actually promises the GPU can carry
-  // it; the sniff that used to sit here put strong-looking laptops on a tier they never chose.
-  // Medium is the honest default, the ladder catches the weak devices below it, and a player who
-  // wants the crisp world raises it in one tap.
-  return 'medium';
-}
+/** Temporary loading profile before the launch selector finishes. */
+export function defaultGraphicsQuality(): GraphicsQuality { return 'medium'; }
 
 /**
  * Cached: `profile()` sits under `scatterDensity()`/`lodZoomThreshold()`, which run per paint and
@@ -130,21 +102,14 @@ export function getGraphicsQuality(): GraphicsQuality {
   if (cachedQuality !== undefined) {
     return cachedQuality;
   }
-  if (typeof localStorage === 'undefined') {
-    return defaultGraphicsQuality();
-  }
-  const stored = localStorage.getItem(STORAGE_KEY);
-  cachedQuality = GRAPHICS_QUALITIES.includes(stored as GraphicsQuality)
-    ? (stored as GraphicsQuality)
-    : defaultGraphicsQuality();
+  const mode = getGraphicsMode();
+  cachedQuality = mode === 'auto' ? defaultGraphicsQuality() : mode;
   return cachedQuality;
 }
 
 export function setGraphicsQuality(quality: GraphicsQuality): void {
   cachedQuality = quality;
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem(STORAGE_KEY, quality);
-  }
+  try { localStorage.setItem(STORAGE_KEY, quality); } catch { /* unavailable storage */ }
 }
 
 /**
@@ -176,19 +141,8 @@ function profile(): QualityProfile {
   return activeRungProfile ?? PROFILES[getGraphicsQuality()];
 }
 
-/**
- * The bake-affecting half of the profile, snapshotted in step with the BUFFER scale — never with
- * the rung's wish.
- *
- * The rung override lands the moment the ladder moves, but the buffer only resizes at a scene
- * boundary (`applyPendingRenderScale`), and mid-run on a phone that boundary can be minutes away.
- * In between, the first season turn or fog reveal rebaked the world at the NEW rung's density
- * under the OLD buffer: a 0.75-texel bake magnified by a 3x buffer — the whole map turned soft
- * while every label stayed crisp, one minute into every run on an iPhone at high, 100% of the
- * time. So the two bake answers below follow this snapshot, which moves only where the buffer
- * moves: immediately when a request changes nothing (same scale, no boundary coming), otherwise
- * at the boundary that lands the resize.
- */
+/** Keep buffer and ground resolution together when applying a launch or manual selection.
+ * A requested buffer change becomes effective at the next scene boundary. */
 let appliedBakeProfile = bakeTarget();
 
 function bakeTarget(): { bakeScale: number; liveSettlementInk: boolean } {
@@ -234,27 +188,7 @@ export function bakeScale(): number {
   if (BAKESCALE_OVERRIDE !== undefined) {
     return BAKESCALE_OVERRIDE;
   }
-  // The snapshot, not the live profile — see `appliedBakeProfile`.
-  const chosen = appliedBakeProfile.bakeScale;
-
-  // An explicit choice is honoured as given: a player who picked Low asked for the cheap map and
-  // should get the memory back.
-  const explicit = typeof localStorage !== 'undefined' && localStorage.getItem(STORAGE_KEY) !== null;
-  if (explicit) {
-    return chosen;
-  }
-
-  // Auto-tiering is a different question, and reading the tier straight would answer it wrongly.
-  // `defaultGraphicsQuality` returns 'low' whenever the pixel ratio is <= 1.25 — which is every
-  // ordinary desktop monitor — and that is a statement about resolution, not about memory. Half
-  // scale is visibly soft, so nothing is blurred on a guess unless the device says it is short of
-  // memory, which is the signal this scale actually trades against.
-  const nav = typeof navigator === 'undefined' ? undefined : (navigator as Navigator & { deviceMemory?: number });
-  const memoryGb = nav?.deviceMemory; // Chromium only; undefined on Safari/Firefox
-  if (memoryGb !== undefined && memoryGb <= 2) {
-    return 0.5;
-  }
-  return Math.max(chosen, 0.75);
+  return appliedBakeProfile.bakeScale;
 }
 
 /** Whether this tier keeps the settlement band's ink live (vector-crisp) instead of baked. */
@@ -366,6 +300,9 @@ export function applyRenderScale(scene: Phaser.Scene): void {
   // scroll clamp in MapScene was already written against.
   camera.setOrigin(0, 0);
   camera.setZoom(renderScaleNow());
+  // Then its place on the sheet. A no-op on the phone; on the desktop this is what puts a scene's
+  // 390-wide column at the right edge or the middle of a wider surface.
+  applyCameraLayout(scene, renderScaleNow());
   makeTextCrisp(scene);
 }
 
@@ -407,6 +344,27 @@ function makeTextCrisp(scene: Phaser.Scene): void {
  */
 export function designPointer(pointer: { x: number; y: number }): { x: number; y: number } {
   return { x: pointer.x / renderScaleNow(), y: pointer.y / renderScaleNow() };
+}
+
+/**
+ * A pointer's position in a scene's own column, in design units.
+ *
+ * `designPointer` answers in sheet space, which on the phone is the only space there is. On the
+ * desktop a chrome or page scene's camera sits at an offset on the sheet, and a handler that
+ * compares the pointer against the column's own layout — a list's bounds, a card's edges — has to
+ * subtract that offset first or it reads a press on the map as a press on the column beside it.
+ * The offset is read off the camera itself, so a scene that was never moved answers exactly what
+ * `designPointer` does.
+ */
+export function localPointer(scene: Phaser.Scene, pointer: { x: number; y: number }): { x: number; y: number } {
+  const scale = renderScaleNow();
+  const camera = scene.cameras?.main;
+  // Viewport offset out, scroll in: a HUD camera is placed by its viewport, a page camera by its
+  // scroll (`cameraLayout.ts`), and both leave the column's own numbers where they were.
+  return {
+    x: (pointer.x - (camera?.x ?? 0)) / scale + (camera?.scrollX ?? 0),
+    y: (pointer.y - (camera?.y ?? 0)) / scale + (camera?.scrollY ?? 0),
+  };
 }
 
 /** A pointer distance in design units. */

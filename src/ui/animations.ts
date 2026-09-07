@@ -13,6 +13,7 @@ export function addPressFeedback(
   bounds?: { width: number; height: number },
 ): void {
   const press = { ratio: 1 };
+  let held = false;
   let base = {
     x: container.x,
     y: container.y,
@@ -30,6 +31,7 @@ export function addPressFeedback(
   };
 
   hitArea.on('pointerdown', () => {
+    held = true;
     scene.tweens.killTweensOf(press);
     base = {
       x: container.x,
@@ -48,6 +50,9 @@ export function addPressFeedback(
   });
 
   const release = () => {
+    // A hover exit has no press to settle. Its original coordinates may predate a layout move.
+    if (!held) return;
+    held = false;
     scene.tweens.killTweensOf(press);
     scene.tweens.add({
       targets: press,

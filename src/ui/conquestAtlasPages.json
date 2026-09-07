@@ -1,0 +1,2936 @@
+{
+  "conquest-art:building.improvement-tower": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-tower",
+    "width": 203,
+    "height": 372,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.improvement-workshop": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-workshop",
+    "width": 318,
+    "height": 344,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.pagoda-tower": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.pagoda-tower",
+    "width": 127,
+    "height": 316,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.improvement-guild": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-guild",
+    "width": 372,
+    "height": 313,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.improvement-mine": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-mine",
+    "width": 282,
+    "height": 312,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.improvement-communal-hall": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-communal-hall",
+    "width": 376,
+    "height": 311,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.grain-bin": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.grain-bin",
+    "width": 251,
+    "height": 310,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.improvement-university": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-university",
+    "width": 373,
+    "height": 309,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.buffalo-byre": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.buffalo-byre",
+    "width": 318,
+    "height": 304,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.kitchen": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.kitchen",
+    "width": 293,
+    "height": 302,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.improvement-harbor": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-harbor",
+    "width": 276,
+    "height": 302,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.mine-bank": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.mine-bank",
+    "width": 308,
+    "height": 300,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.mine-adit": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.mine-adit",
+    "width": 271,
+    "height": 295,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.haystack": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.haystack",
+    "width": 284,
+    "height": 294,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.well": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.well",
+    "width": 244,
+    "height": 294,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.mine-timbers": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.mine-timbers",
+    "width": 290,
+    "height": 291,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.thatched-house": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.thatched-house",
+    "width": 344,
+    "height": 281,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.improvement-market": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-market",
+    "width": 335,
+    "height": 280,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.improvement-barracks": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-barracks",
+    "width": 370,
+    "height": 277,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.tiled-house": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.tiled-house",
+    "width": 343,
+    "height": 267,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.communal-hall": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.communal-hall",
+    "width": 348,
+    "height": 255,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.improvement-wall": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-wall",
+    "width": 397,
+    "height": 248,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.spoil-heap": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.spoil-heap",
+    "width": 334,
+    "height": 232,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.village-pond": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.village-pond",
+    "width": 339,
+    "height": 211,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.improvement-farm": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.improvement-farm",
+    "width": 337,
+    "height": 209,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.baskets": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.baskets",
+    "width": 338,
+    "height": 197,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.bamboo-hedge": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.bamboo-hedge",
+    "width": 347,
+    "height": 175,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:building.swept-yard": {
+    "page": "conquest-atlas:buildings-0",
+    "frame": "conquest-art:building.swept-yard",
+    "width": 345,
+    "height": 164,
+    "family": "buildings",
+    "image": "art/atlases/buildings-0.png",
+    "atlas": "art/atlases/buildings-0.json"
+  },
+  "conquest-art:figure.champa.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.champa.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.champa.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.dinh.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.dinh.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.le.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.le.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ly.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ly.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.ming.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.ming.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyen.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyen.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.nguyenLord.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.nguyenLord.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.qing.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.qing.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.song.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.song.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tayson.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tayson.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.tran.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.tran.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.trinh.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.trinh.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.levy.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.levy.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.levy.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.levy.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.levy.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.levy.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.levy.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.levy.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.levy.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.levy.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.royal.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.royal.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.royal.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.royal.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.royal.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.royal.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.royal.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.royal.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.royal.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.royal.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.trained.bow": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.trained.bow",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.trained.mounted": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.trained.mounted",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.trained.skirmish": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.trained.skirmish",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.trained.spear": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.trained.spear",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:figure.yuan.trained.sword": {
+    "page": "conquest-atlas:figures-0",
+    "frame": "conquest-art:figure.yuan.trained.sword",
+    "width": 144,
+    "height": 128,
+    "family": "figures",
+    "image": "art/atlases/figures-0.png",
+    "atlas": "art/atlases/figures-0.json"
+  },
+  "conquest-art:flora.tree-jackfruit.autumn": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-jackfruit.autumn",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-jackfruit.spring": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-jackfruit.spring",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-jackfruit.summer": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-jackfruit.summer",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-jackfruit.winter": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-jackfruit.winter",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-lychee.autumn": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-lychee.autumn",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-lychee.spring": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-lychee.spring",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-lychee.summer": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-lychee.summer",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-lychee.winter": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-lychee.winter",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-pomelo.autumn": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-pomelo.autumn",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-pomelo.spring": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-pomelo.spring",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-pomelo.summer": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-pomelo.summer",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-pomelo.winter": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-pomelo.winter",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-silk-cotton.autumn": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-silk-cotton.autumn",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-silk-cotton.spring": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-silk-cotton.spring",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-silk-cotton.summer": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-silk-cotton.summer",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree-silk-cotton.winter": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree-silk-cotton.winter",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree.autumn": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree.autumn",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree.spring": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree.spring",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree.summer": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree.summer",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.tree.winter": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.tree.winter",
+    "width": 144,
+    "height": 144,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.banyan.autumn": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.banyan.autumn",
+    "width": 144,
+    "height": 129,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.banyan.summer": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.banyan.summer",
+    "width": 144,
+    "height": 125,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.banyan.winter": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.banyan.winter",
+    "width": 144,
+    "height": 121,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.banana.autumn": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.banana.autumn",
+    "width": 104,
+    "height": 112,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.banana.summer": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.banana.summer",
+    "width": 104,
+    "height": 112,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.areca.spring": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.areca.spring",
+    "width": 100,
+    "height": 112,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.areca.autumn": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.areca.autumn",
+    "width": 98,
+    "height": 112,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.bamboo.spring": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.bamboo.spring",
+    "width": 94,
+    "height": 112,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.bamboo.summer": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.bamboo.summer",
+    "width": 94,
+    "height": 112,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.areca.winter": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.areca.winter",
+    "width": 92,
+    "height": 112,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.areca.summer": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.areca.summer",
+    "width": 91,
+    "height": 112,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.bamboo.autumn": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.bamboo.autumn",
+    "width": 90,
+    "height": 112,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.bamboo.winter": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.bamboo.winter",
+    "width": 89,
+    "height": 112,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.banana.winter": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.banana.winter",
+    "width": 112,
+    "height": 111,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.grass.autumn": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.grass.autumn",
+    "width": 112,
+    "height": 101,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.grass.winter": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.grass.winter",
+    "width": 112,
+    "height": 100,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.banana.spring": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.banana.spring",
+    "width": 112,
+    "height": 99,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.banyan.spring": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.banyan.spring",
+    "width": 144,
+    "height": 96,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.grass.summer": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.grass.summer",
+    "width": 112,
+    "height": 92,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:flora.grass.spring": {
+    "page": "conquest-atlas:flora-0",
+    "frame": "conquest-art:flora.grass.spring",
+    "width": 112,
+    "height": 84,
+    "family": "flora",
+    "image": "art/atlases/flora-0.png",
+    "atlas": "art/atlases/flora-0.json"
+  },
+  "conquest-art:life.traveler-basket": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.traveler-basket",
+    "width": 627,
+    "height": 627,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.traveler-fisher": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.traveler-fisher",
+    "width": 627,
+    "height": 627,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.traveler-merchant": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.traveler-merchant",
+    "width": 627,
+    "height": 627,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.traveler-pilgrim": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.traveler-pilgrim",
+    "width": 627,
+    "height": 627,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.traveler-woodcutter": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.traveler-woodcutter",
+    "width": 627,
+    "height": 627,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.egret-down": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.egret-down",
+    "width": 256,
+    "height": 160,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.egret-up": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.egret-up",
+    "width": 256,
+    "height": 160,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.buffalo-rider": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.buffalo-rider",
+    "width": 126,
+    "height": 144,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.traveler": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.traveler",
+    "width": 115,
+    "height": 144,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.farmer": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.farmer",
+    "width": 93,
+    "height": 144,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.ox-cart": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.ox-cart",
+    "width": 144,
+    "height": 117,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.calf": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.calf",
+    "width": 144,
+    "height": 114,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.buffalo": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.buffalo",
+    "width": 144,
+    "height": 101,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.winter-snow": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.winter-snow",
+    "width": 70,
+    "height": 72,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.spring-petal": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.spring-petal",
+    "width": 72,
+    "height": 61,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:life.autumn-leaf": {
+    "page": "conquest-atlas:life-0",
+    "frame": "conquest-art:life.autumn-leaf",
+    "width": 72,
+    "height": 56,
+    "family": "life",
+    "image": "art/atlases/life-0.png",
+    "atlas": "art/atlases/life-0.json"
+  },
+  "conquest-art:marker.battle": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.battle",
+    "width": 109,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.build": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.build",
+    "width": 109,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.acquisition": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.acquisition",
+    "width": 108,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.route-brush": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.route-brush",
+    "width": 108,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.selection-seal": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.selection-seal",
+    "width": 108,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.siege": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.siege",
+    "width": 108,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.recruit": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.recruit",
+    "width": 107,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.flag-ngu-sac": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.flag-ngu-sac",
+    "width": 73,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.destination-standard": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.destination-standard",
+    "width": 71,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.rival-flag-ngu-sac": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.rival-flag-ngu-sac",
+    "width": 71,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.capital-standard": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.capital-standard",
+    "width": 67,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.rival-flag-layered-square": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.rival-flag-layered-square",
+    "width": 67,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.flag-layered-square": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.flag-layered-square",
+    "width": 66,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.flag-red-fringe-yellow": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.flag-red-fringe-yellow",
+    "width": 66,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.rival-flag-red-fringe-yellow": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.rival-flag-red-fringe-yellow",
+    "width": 65,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.flag-red-moon": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.flag-red-moon",
+    "width": 64,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.rival-flag-red-moon": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.rival-flag-red-moon",
+    "width": 64,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.flag-yellow-medallion": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.flag-yellow-medallion",
+    "width": 63,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.rival-flag-yellow-medallion": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.rival-flag-yellow-medallion",
+    "width": 63,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.rival-flag-yellow-seal": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.rival-flag-yellow-seal",
+    "width": 63,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.flag-yellow-seal": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.flag-yellow-seal",
+    "width": 62,
+    "height": 112,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.capital-highlight": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.capital-highlight",
+    "width": 112,
+    "height": 106,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:marker.march-dust": {
+    "page": "conquest-atlas:markers-0",
+    "frame": "conquest-art:marker.march-dust",
+    "width": 112,
+    "height": 102,
+    "family": "markers",
+    "image": "art/atlases/markers-0.png",
+    "atlas": "art/atlases/markers-0.json"
+  },
+  "conquest-art:settlement.citadel-dinh": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.citadel-dinh",
+    "width": 512,
+    "height": 430,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:settlement.citadel-tran": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.citadel-tran",
+    "width": 512,
+    "height": 409,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:settlement.market-town": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.market-town",
+    "width": 469,
+    "height": 398,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:settlement.mine-camp": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.mine-camp",
+    "width": 468,
+    "height": 390,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:settlement.shrine-village": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.shrine-village",
+    "width": 475,
+    "height": 386,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:settlement.citadel-nguyen": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.citadel-nguyen",
+    "width": 512,
+    "height": 370,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:settlement.hamlet": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.hamlet",
+    "width": 450,
+    "height": 356,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:settlement.citadel-ly": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.citadel-ly",
+    "width": 512,
+    "height": 330,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:settlement.village": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.village",
+    "width": 468,
+    "height": 330,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:settlement.citadel-le": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.citadel-le",
+    "width": 512,
+    "height": 328,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:settlement.farmstead": {
+    "page": "conquest-atlas:settlements-0",
+    "frame": "conquest-art:settlement.farmstead",
+    "width": 478,
+    "height": 304,
+    "family": "settlements",
+    "image": "art/atlases/settlements-0.png",
+    "atlas": "art/atlases/settlements-0.json"
+  },
+  "conquest-art:terrain.paddy-system-fallow": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.paddy-system-fallow",
+    "width": 768,
+    "height": 384,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.paddy-system-flooded": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.paddy-system-flooded",
+    "width": 768,
+    "height": 384,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.paddy-system-nursery": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.paddy-system-nursery",
+    "width": 768,
+    "height": 384,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.paddy-system-ripe": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.paddy-system-ripe",
+    "width": 768,
+    "height": 384,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.paddy-system-transplanted": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.paddy-system-transplanted",
+    "width": 768,
+    "height": 384,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.timber-bridge": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.timber-bridge",
+    "width": 232,
+    "height": 384,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.karst-classic": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.karst-classic",
+    "width": 240,
+    "height": 160,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.karst-seven-spire": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.karst-seven-spire",
+    "width": 240,
+    "height": 160,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.karst-stepped": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.karst-stepped",
+    "width": 240,
+    "height": 160,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.karst-three-spire": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.karst-three-spire",
+    "width": 240,
+    "height": 160,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.karst-tower": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.karst-tower",
+    "width": 240,
+    "height": 160,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.karst-range": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.karst-range",
+    "width": 160,
+    "height": 144,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  },
+  "conquest-art:terrain.soft-ridge": {
+    "page": "conquest-atlas:terrain-0",
+    "frame": "conquest-art:terrain.soft-ridge",
+    "width": 160,
+    "height": 129,
+    "family": "terrain",
+    "image": "art/atlases/terrain-0.png",
+    "atlas": "art/atlases/terrain-0.json"
+  }
+}

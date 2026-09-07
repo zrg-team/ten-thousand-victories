@@ -14,6 +14,7 @@ import Phaser from 'phaser';
 import { swallowRestOfPress } from '../../ui/inputGeneration';
 import type { ConquestUIScene } from '../ConquestUIScene';
 import { stopBattleMusic } from './battle/music';
+import { setHudSheet } from './hudSheet';
 
 /**
  * Empties a layer, and takes its tweens with it.
@@ -92,6 +93,8 @@ export function clearLanePage(self: ConquestUIScene): void {
   // *"stop if users leave"* — every battle teardown funnels through here.
   if (self.battleUi) stopBattleMusic();
   self.battleUi = undefined;
+  // And the stage it took goes back to the column — see `hudSheet.ts`.
+  setHudSheet(self, false);
   // Only the war board sets this again, on its way in — so every other page of the lane is
   // automatically one that `refresh` will not redraw under the player.
   self.warBoardKey = '';

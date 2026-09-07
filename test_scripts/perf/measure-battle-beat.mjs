@@ -31,18 +31,16 @@
  * Usage: node test_scripts/perf/measure-battle-beat.mjs      (DEV_URL to point elsewhere)
  */
 import { chromium } from 'playwright';
+import { startWorld } from './_boot.mjs';
 const URL = process.env.DEV_URL ?? 'http://127.0.0.1:5179';
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 const cdp = await page.context().newCDPSession(page);
 page.on('pageerror', (e) => console.log('PAGEERROR', String(e)));
-await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
+await page.goto(`${URL}/?capture=1&bench=1`, { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
   && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-await page.evaluate(() => window.__startBenchGame(20260812, 'ascent'));
-await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene') && !!window.__mandateState,
-  null, { timeout: 30000 });
-await page.waitForTimeout(900);
+await startWorld(page,{mode:'ascent',seed:20260812});
 const FIRST = `(p) => { const o = p.options ?? [];
   switch (p.kind) {
     case 'founder': return p.options[0];
@@ -57,8 +55,8 @@ const FIRST = `(p) => { const o = p.options ?? [];
   } }`;
 console.log(await page.evaluate(async (src) => {
   const st = window.__mandateState;
-  const { advanceAscentTick } = await import('/src/systems/ascent/AscentTick.ts');
-  const { resolveAscentPrompt } = await import('/src/systems/ascent/AscentResolver.ts');
+  const advanceAscentTick = () => window.__performanceBench.tick();
+  const resolveAscentPrompt = (_state,choice) => window.__performanceBench.resolve(choice);
   const ui = window.__phaserGame.scene.getScene('ConquestUIScene');
   const world = window.__phaserGame.scene.getScene('ConquestScene');
   const first = eval(src);
@@ -69,12 +67,14 @@ console.log(await page.evaluate(async (src) => {
     ui.events.emit('state-changed');
   }
   ui.battleAwaitingOrder = false;
+  ui.openLane('battle');
   return st.ascent.activeBattle ? `${st.ascent.activeBattle.landName}` : 'no fight';
 }, FIRST));
 await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+await page.waitForTimeout(800);
 const out = await page.evaluate(async () => {
   const st = window.__mandateState;
-  const { fightRound } = await import('/src/systems/ascent/BattleSystem.ts');
+  const fightRound = () => window.__performanceBench.fightRound();
   const ui = window.__phaserGame.scene.getScene('ConquestUIScene');
   const scene = ui;
   const costs = [];

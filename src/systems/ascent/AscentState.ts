@@ -263,15 +263,25 @@ const MAX_QUEUED_PER_KIND = 3;
 /**
  * The cards a fully manual run does without: every one of them asks the player to do something a
  * lane already lets them do on their own terms. Events are not on this list.
+ *
+ * The silence is for the court's *own* proposals — the decision director raising a card on its
+ * clock. The same card reached from a lane is the player doing the thing on their own terms, and
+ * it must come up: with the silence applied to both, "Ban chiếu chỉ" on the Court page closed the
+ * lane and showed nothing on every hands-on run — which is every desktop run.
  */
 const HARDCORE_SILENCED: ReadonlySet<AscentPrompt['kind']> = new Set([
   'conquer-target', 'court-appointment', 'law-choice', 'decree-offer', 'province-order', 'muster-proposal', 'envoy',
 ]);
 
-export function enqueueAscentPrompt(state: GameState, prompt: AscentPrompt): void {
+export function enqueueAscentPrompt(
+  state: GameState,
+  prompt: AscentPrompt,
+  /** `requested`: the player asked for this card from a lane, so the hands-on silence does not apply. */
+  opts: { requested?: boolean } = {},
+): void {
   const ascent = state.ascent;
   if (!ascent) return;
-  if (ascent.hardcore && HARDCORE_SILENCED.has(prompt.kind)) return;
+  if (ascent.hardcore && !opts.requested && HARDCORE_SILENCED.has(prompt.kind)) return;
 
   if (prompt.kind === 'run-over') {
     // The one card that is allowed to take the screen from everything else, because there is

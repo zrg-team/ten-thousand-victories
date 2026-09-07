@@ -12,7 +12,7 @@ const printFiles: Record<StoryPrint, string> = {
 export const STORY_PRINTS = Object.keys(printFiles) as readonly StoryPrint[];
 
 export function preloadStoryPrints(scene: Phaser.Scene, base: string): void {
-  for (const kind of STORY_PRINTS) scene.load.image(`story-print:${kind}`, `${base}art/story-prints/${printFiles[kind]}`);
+  for (const kind of STORY_PRINTS) if (!scene.textures.exists(`story-print:${kind}`)) scene.load.image(`story-print:${kind}`, `${base}art/story-prints/${printFiles[kind]}`);
 }
 
 export function powerStoryPrint(id: string): StoryPrint {

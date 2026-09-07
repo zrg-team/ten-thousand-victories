@@ -78,7 +78,7 @@ export async function startWorld(page, { mode = 'rival', seed = 1337, settle = 8
   const worldScene = mode === 'ascent' ? 'ConquestScene' : 'MapScene';
   await page.evaluate(([s, m]) => window.__startBenchGame(s, m), [seed, mode]);
   await page.waitForFunction(
-    (scene) => window.__phaserGame?.scene?.isActive(scene) === true && !!window.__mandateState,
+    (scene) => { const game = window.__phaserGame; const ui = game?.scene.getScene(scene === 'ConquestScene' ? 'ConquestUIScene' : 'UIScene'); return game?.scene.isActive(scene) === true && game.scene.getScene(scene).landNodes?.size > 0 && ui?.sys.isActive() && !!ui.ui; },
     worldScene, { timeout: 40000 },
   );
   if (settle > 0) await page.waitForTimeout(settle);
@@ -92,14 +92,19 @@ export async function revealAll(page) {
     for (const land of scene.state.lands) { land.isVisible = true; land.isExplored = true; }
     scene.refresh();
   });
-  await page.waitForTimeout(800);
+  // Preparation is now scheduled across frames. A fixed delay can accidentally
+  // benchmark old imagery or include unfinished cache work in ordinary draw costs.
+  await page.waitForFunction(() => {
+    const stats = window.__phaserGame.scene.getScene('MapScene').performanceStats();
+    return !stats.refreshPending && !stats.sceneryPending && !stats.ground?.pending && !stats.fog?.pending;
+  }, null, { timeout: 180000 });
 }
 
 /** Drains the Ascent opening prompt chain (founder pick etc.) so the map is in play. */
 export async function resolveOpening(page, { max = 12 } = {}) {
   await page.evaluate(async ([src, cap]) => {
     const st = window.__mandateState;
-    const { resolveAscentPrompt } = await import('/src/systems/ascent/AscentResolver.ts');
+    const resolveAscentPrompt = window.__performanceBench ? (_state, choice) => window.__performanceBench.resolve(choice) : (await import('/src/systems/ascent/AscentResolver.ts')).resolveAscentPrompt;
     const ui = window.__phaserGame.scene.getScene('ConquestUIScene');
     const world = window.__phaserGame.scene.getScene('ConquestScene');
     const first = eval(src);
@@ -115,8 +120,8 @@ export async function resolveOpening(page, { max = 12 } = {}) {
 export async function driveToBattle(page, { maxTicks = 200 } = {}) {
   const name = await page.evaluate(async ([src, cap]) => {
     const st = window.__mandateState;
-    const { advanceAscentTick } = await import('/src/systems/ascent/AscentTick.ts');
-    const { resolveAscentPrompt } = await import('/src/systems/ascent/AscentResolver.ts');
+    const advanceAscentTick = window.__performanceBench ? () => window.__performanceBench.tick() : (await import('/src/systems/ascent/AscentTick.ts')).advanceAscentTick;
+    const resolveAscentPrompt = window.__performanceBench ? (_state, choice) => window.__performanceBench.resolve(choice) : (await import('/src/systems/ascent/AscentResolver.ts')).resolveAscentPrompt;
     const ui = window.__phaserGame.scene.getScene('ConquestUIScene');
     const world = window.__phaserGame.scene.getScene('ConquestScene');
     const first = eval(src);

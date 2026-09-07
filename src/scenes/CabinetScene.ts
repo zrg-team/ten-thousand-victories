@@ -1,6 +1,8 @@
+import { preloadStoryPrints } from '../ui/storyPrint';
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
-import { applyRenderScale, designPointer } from '../game/graphicsQuality';
+import { sheetSpan } from '../game/cameraLayout';
+import { applyRenderScale, localPointer } from '../game/graphicsQuality';
 import { t } from '../i18n';
 import { POWER_CARDS, findPowerCard } from '../data/ascentCards';
 import {
@@ -31,7 +33,8 @@ import { BACK_BAR_HEIGHT, InkUI, INK_UI, scrollGestureConsumedTap, type InkScrol
 import { CARD_FACE_H, CARD_FACE_W, cardFaceOverlay, stampCardFace } from '../ui/cardFace';
 import { createMapRenderer, type MapRenderer } from '../ui/MapRenderer';
 import { applyPaperFX } from '../ui/ink/PaperFX';
-import { attachPaperSheet } from '../ui/ink/paperSheet';
+import { attachPagePaper } from '../ui/ink/paperSheet';
+import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
 import { sawtoothBand, seal } from '../ui/ink/devices';
 import { TITLE_FONT, UI_FONT } from '../ui/fonts';
 import type { AscentRarity } from '../state/types';
@@ -98,6 +101,7 @@ export class CabinetScene extends Phaser.Scene {
   /** Where the list should stand after the next re-render, so a tap does not throw the reader
    *  back to the top of a seventeen-row grid. */
   private pendingScroll = 0;
+  private pendingAnchor?: ReturnType<InkScrollArea['snapshotAnchor']>;
   /** Which seals the binder shows. Kept across re-renders; reset on leaving the scene. */
   private filter: BinderFilter = 'all';
   /** The open card view, above the page. */
@@ -111,10 +115,17 @@ export class CabinetScene extends Phaser.Scene {
     super('CabinetScene');
   }
 
+  preload(): void {
+    preloadStoryPrints(this, import.meta.env.BASE_URL);
+  }
+
   create(): void {
     applyRenderScale(this);
     applyPaperFX(this);
-    attachPaperSheet(this);
+    attachPagePaper(this);
+    // The desktop's sheet beyond the column: the front page's landscape, faint, so this reads as a
+    // page lying on the same desk. Nothing on the phone.
+    attachDesktopBackdrop(this);
     this.ui = new InkUI(this);
     this.mapRenderer = createMapRenderer(this);
     this.mapRenderer.drawBackground(GAME_WIDTH, GAME_HEIGHT).setDepth(-10);
@@ -227,7 +238,7 @@ export class CabinetScene extends Phaser.Scene {
           this.reveal = revealRubbing();
           if (!this.reveal) return;
           this.mode = 'rubbing';
-          this.pendingScroll = 0;
+          this.pendingScroll = 0; this.pendingAnchor = undefined;
           this.render();
         },
         { variant: 'primary', fontSize: '14px' },
@@ -276,6 +287,7 @@ export class CabinetScene extends Phaser.Scene {
     this.gridTap(scroll, PAD, y - 30, W, 28, () => {
       this.faucetsOpen = !earnOpen;
       this.pendingScroll = this.scroll ? -this.scroll.content.y : 0;
+      this.pendingAnchor = this.scroll?.snapshotAnchor();
       this.render();
     });
     if (earnOpen) {
@@ -306,7 +318,7 @@ export class CabinetScene extends Phaser.Scene {
           () => {
             if (!spendLegacyPoints(rubbingPackPrice())) return;
             recordRubbingPack();
-            this.pendingScroll = 0;
+            this.pendingScroll = 0; this.pendingAnchor = undefined;
             this.render();
           },
           { variant: 'secondary', fontSize: '10.5px' },
@@ -385,6 +397,7 @@ export class CabinetScene extends Phaser.Scene {
       this.gridTap(scroll, x, y, tileW, 28, () => {
         this.filter = id;
         this.pendingScroll = this.scroll ? -this.scroll.content.y : 0;
+      this.pendingAnchor = this.scroll?.snapshotAnchor();
         this.render();
       });
     });
@@ -412,11 +425,16 @@ export class CabinetScene extends Phaser.Scene {
       scroll.content.add(this.ui.label(PAD, y, t('cabinet.filter.empty'), 'caption', { fontSize: '10px' }));
       y += 24;
     }
-    shown.forEach((card, index) => {
+    for (let first = 0; first < shown.length; first += GRID_COLS) {
+      const rowCards = shown.slice(first, first + GRID_COLS);
+      const rowIndex = first / GRID_COLS;
+      const top = y + rowIndex * (cellH + 10);
+      scroll.lazyRow(`binder:${rowCards.map(card => card.id).join(',')}`, top, cellH + 10, () => {
+      rowCards.forEach((card, index) => {
       const col = index % GRID_COLS;
       const row = Math.floor(index / GRID_COLS);
       const x = PAD + col * (cellW + 8);
-      const cy = y + row * (cellH + 10);
+      const cy = top;
       const held = store.cards[card.id];
       if (held) {
         const face = stampCardFace(this, card.id, { x, y: cy, width: cellW, height: cellH });
@@ -453,7 +471,9 @@ export class CabinetScene extends Phaser.Scene {
 ${t('cabinet.grid.unfound')}`,
           'caption', { fontSize: '8px', align: 'center' }).setFixedSize(cellW - 12, 0));
       }
-    });
+      });
+      });
+    }
     y += Math.ceil(shown.length / GRID_COLS) * (cellH + 10) + 8;
 
 
@@ -472,6 +492,9 @@ ${t('cabinet.grid.unfound')}`,
         result: name(recipe.result, learned),
       });
       const rowH = 44;
+      const top = y;
+      scroll.lazyRow(`recipe:${recipe.result}`, top, rowH + 8, () => {
+        const y = top;
       scroll.content.add(this.ui.panel({ x: PAD, y, width: W, height: rowH },
         { border: learned ? INK_UI.jade : INK_UI.softBrush, fillAlpha: learned ? 0.55 : 0.32 }));
       scroll.content.add(this.ui.label(PAD + 12, y + 7, line, 'label',
@@ -479,12 +502,13 @@ ${t('cabinet.grid.unfound')}`,
       scroll.content.add(this.ui.label(PAD + 12, y + 26,
         learned ? t('cabinet.forge.learned') : t('cabinet.forge.hint'), 'caption',
         { fontSize: '8.5px', wordWrap: { width: W - 24 } }));
+      });
       y += rowH + 8;
     }
     y += 14;
 
     scroll.setContentHeight(y);
-    scroll.setScroll(this.pendingScroll);
+    if (this.pendingAnchor) scroll.restoreAnchor(this.pendingAnchor); else scroll.setScroll(this.pendingScroll);
   }
 
   /**
@@ -543,6 +567,7 @@ ${t('cabinet.grid.unfound')}`,
     }
     const viewOpen = this.viewObjects.length > 0;
     this.pendingScroll = this.scroll ? -this.scroll.content.y : 0;
+      this.pendingAnchor = this.scroll?.snapshotAnchor();
     this.render();
     // The view stays open on the same card, so what the drag did is seen where it was done.
     if (viewOpen) this.openCardView(cardId, { x: PAD, y: 84, width: 128, height: Math.round(128 * (CARD_FACE_H / CARD_FACE_W)) });
@@ -565,7 +590,8 @@ ${t('cabinet.grid.unfound')}`,
       this.viewObjects.push(object.setDepth(DEPTH));
       return object;
     };
-    const dim = keep(this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, INK_UI.overlay, 0.6).setOrigin(0, 0).setInteractive());
+    const span = sheetSpan(this);
+    const dim = keep(this.add.rectangle(span.left, 0, span.width, GAME_HEIGHT, INK_UI.overlay, 0.6).setOrigin(0, 0).setInteractive());
     dim.setDepth(DEPTH - 2);
     // The list under the sheet is deaf while the sheet is up: it scrolled off the scene's pointer
     // stream, which no guard over the sheet can intercept. *When a modal shows I can still scroll
@@ -1090,7 +1116,8 @@ ${t('cabinet.grid.unfound')}`,
     let pulsing = false;
     const onMove = (pointer: Phaser.Input.Pointer): void => {
       if (this.revealDone || !pointer.isDown) return;
-      const at = designPointer(pointer);
+      // Column-local: on the desktop this page's camera is centred on a wider sheet.
+      const at = localPointer(this, pointer);
       if (at.x < cardX - 12 || at.x > cardX + cardW + 12 || at.y < cardY - 12 || at.y > cardY + cardH + 12) {
         last = undefined;
         return;

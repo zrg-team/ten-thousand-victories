@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+const textureLimits = new WeakMap<WebGLRenderingContext, number>();
 
 /**
  * What the device's GPU will actually hold.
@@ -15,8 +16,10 @@ export function maxTextureSize(scene: Phaser.Scene): number {
   if (!gl) {
     return 4096; // Canvas fallback: no hard GL limit; 4096 keeps memory sane anyway.
   }
+  const cached = textureLimits.get(gl); if (cached) return cached;
   const reported = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number | null;
-  return typeof reported === 'number' && reported > 0 ? reported : 4096;
+  const limit = typeof reported === 'number' && reported > 0 ? reported : 4096;
+  textureLimits.set(gl, limit); return limit;
 }
 
 /**

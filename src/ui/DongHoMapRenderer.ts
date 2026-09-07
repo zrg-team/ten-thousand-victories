@@ -18,7 +18,7 @@ import { scatterDensity } from '../game/graphicsQuality';
 import {
   conquestArtStamp, conquestKarstArtId, conquestTreeArtId, hasConquestMapArt, stampFootY,
 } from './conquestMapArt';
-import { placeStamp } from './ink/stamp';
+import { applyStamp, placeStamp } from './ink/stamp';
 
 /**
  * Đông Hồ landscape rendering — the whole map drawn in one pass instead of tile by tile.
@@ -276,6 +276,7 @@ export class DongHoMapRenderer implements MapRenderer {
   private scatterTileSize = 0;
   /** Authored scatter is scene-level so it can retain alpha and be flattened by the existing bake. */
   private generatedDecoration: Phaser.GameObjects.Image[] = [];
+  private previousDecoration = new Map<string, Phaser.GameObjects.Image>();
   /** Low-alpha authored texture plates under the procedural coast and bund geometry. */
   private generatedTerrain: Phaser.GameObjects.Image[] = [];
 
@@ -291,6 +292,10 @@ export class DongHoMapRenderer implements MapRenderer {
   // ── the wide hook: this renderer owns terrain entirely ──────────────────────
 
   drawLandscape(ctx: LandscapeContext): void {
+    for (const _ of this.drawLandscapeJobs(ctx)) { /* initial construction */ }
+  }
+
+  *drawLandscapeJobs(ctx: LandscapeContext): Generator<void> {
     const { graphics, decoration, tiles, tileSize, isVisible } = ctx;
     const visible = tiles.filter((tile) => isVisible(tile));
     if (visible.length === 0) {
@@ -305,15 +310,15 @@ export class DongHoMapRenderer implements MapRenderer {
     // and every field on the map, so it can only ever be painted over — which is precisely how a
     // wood ends up growing out of a cliff face and a rice terrace ends up halfway up one. It is
     // planned here and drawn with the props, in one back-to-front order.
-    this.paintGround(graphics, visible, ctx);
-    this.paintWater(graphics, visible, ctx);
-    this.paintFields(graphics, visible, ctx);
+    yield* this.paintGround(graphics, visible, ctx);
+    yield* this.paintWater(graphics, visible, ctx);
+    yield* this.paintFields(graphics, visible, ctx);
 
-    this.reliefPlan = this.planRanges(visible, ctx);
-    this.scatterPlan = this.planScatter(visible, ctx, tileSize);
+    this.reliefPlan = yield* this.planRanges(visible, ctx);
+    this.scatterPlan = yield* this.planScatter(visible, ctx, tileSize);
     this.groundPlan = visible.map((tile) => ({ ...ctx.centreOf(tile), terrain: tile.terrain }));
     this.scatterTileSize = tileSize;
-    this.paintDecoration(decoration);
+    yield* this.repaintScatterJobs(decoration);
   }
 
   /**
@@ -347,7 +352,11 @@ export class DongHoMapRenderer implements MapRenderer {
    * sit without washing over the roofs and the water like the full-screen filter this replaced.
    */
   private paintDecoration(decoration: Phaser.GameObjects.Graphics): void {
-    for (const image of this.generatedDecoration) image.destroy();
+    for (const _ of this.repaintScatterJobs(decoration)) { /* synchronous initial construction */ }
+  }
+
+  *repaintScatterJobs(decoration: Phaser.GameObjects.Graphics): Generator<void> {
+    this.previousDecoration = new Map([...this.previousDecoration.values(), ...this.generatedDecoration].filter(image => !!image.scene).map(image => [image.getData('decorationKey') as string, image]));
     this.generatedDecoration = [];
     decoration.clear();
     const size = this.scatterTileSize;
@@ -363,8 +372,11 @@ export class DongHoMapRenderer implements MapRenderer {
       // the neighbours is a smooth gradient; it costs ~2400 fills over a visible map, paid once per
       // season inside the bake and never per frame.
       groundTone(decoration, cell.x, cell.y, size * 1.75, cast.colour, cast.alpha, 10);
+      yield;
     }
-    this.drawStanding(decoration, size);
+    yield* this.drawStanding(decoration, size);
+    for (const image of this.previousDecoration.values()) image.destroy();
+    this.previousDecoration.clear();
   }
 
   /**
@@ -382,7 +394,7 @@ export class DongHoMapRenderer implements MapRenderer {
    * and no amount of moving trees around fixes it, because the trees were never in the wrong place;
    * the order was.
    */
-  private drawStanding(decoration: Phaser.GameObjects.Graphics, size: number): void {
+  private *drawStanding(decoration: Phaser.GameObjects.Graphics, size: number): Generator<void> {
     const unit = worldScale(size);
     const relief = this.reliefPlan ?? [];
     const props = this.scatterPlan ?? [];
@@ -391,13 +403,21 @@ export class DongHoMapRenderer implements MapRenderer {
     for (const plan of relief) {
       while (next < props.length && props[next].y <= plan.footY) {
         if (!this.drawAuthoredProp(props[next], unit)) this.drawProp(decoration, props[next], unit);
-        next += 1;
+        next += 1; yield;
       }
       if (!this.drawAuthoredRelief(plan)) plan.draw(decoration);
+      yield;
     }
     for (; next < props.length; next += 1) {
       if (!this.drawAuthoredProp(props[next], unit)) this.drawProp(decoration, props[next], unit);
+      yield;
     }
+  }
+
+  private reuseDecoration(key: string, stamp: import('./ink/stamp').Stamp, x: number, y: number, scale = 1): Phaser.GameObjects.Image {
+    const old = this.previousDecoration.get(key); this.previousDecoration.delete(key);
+    if (old) { applyStamp(old, stamp, scale); return old.setPosition(x, y); }
+    return placeStamp(this.scene, stamp, x, y, scale).setData('decorationKey', key);
   }
 
   private drawAuthoredRelief(plan: PlannedRelief): boolean {
@@ -407,12 +427,9 @@ export class DongHoMapRenderer implements MapRenderer {
       left: -width / 2, right: width / 2, top: -height, bottom: 0,
     });
     if (!stamp) return false;
-    const image = placeStamp(
-      this.scene,
-      stamp,
-      (plan.bounds.x0 + plan.bounds.x1) / 2,
-      plan.footY,
-    ).setData('conquestReliefArt', plan.artId)
+    const key = `relief:${plan.artId}:${plan.bounds.x0}:${plan.footY}`;
+    const image = this.reuseDecoration(key, stamp, (plan.bounds.x0 + plan.bounds.x1) / 2, plan.footY)
+      .setData('conquestReliefArt', plan.artId)
       // A massif sorts against the towns as well as against the trees — see `groundDepth`. The
       // flag is what keeps it live alongside them on a tier that does not bake settlement ink.
       .setData('conquestGroundOrder', 'relief');
@@ -453,7 +470,7 @@ export class DongHoMapRenderer implements MapRenderer {
     if (!stamp) return false;
     const scaleKind = item.kind === 'tuft' ? 'grassTuft' : item.kind;
     void unitScale(scaleKind, item.scale * unit);
-    const image = placeStamp(this.scene, stamp, item.x, item.y, item.scale * unit)
+    const image = this.reuseDecoration(`prop:${item.kind}:${item.seed}:${item.x}:${item.y}`, stamp, item.x, item.y, item.scale * unit)
       .setAlpha(0.96)
       .setFlipX((item.seed & 1) === 1)
       .setData('conquestScatterArt', id)
@@ -471,9 +488,10 @@ export class DongHoMapRenderer implements MapRenderer {
    * neighbour is dry, and inked along those — so the coast is a drawn edge, not the boundary of a
    * fill. Flow lines run inside, never across it.
    */
-  private paintWater(graphics: Phaser.GameObjects.Graphics, tiles: LandscapeContext['tiles'], ctx: LandscapeContext): void {
+  private *paintWater(graphics: Phaser.GameObjects.Graphics, tiles: LandscapeContext['tiles'], ctx: LandscapeContext): Generator<void> {
     const wet = new Set<string>();
     for (const tile of tiles) {
+      yield;
       if (tile.terrain === 'water') {
         wet.add(`${tile.coord.q},${tile.coord.r}`);
       }
@@ -483,6 +501,7 @@ export class DongHoMapRenderer implements MapRenderer {
     }
 
     for (const tile of tiles) {
+      yield;
       if (tile.terrain !== 'water') {
         continue;
       }
@@ -492,6 +511,7 @@ export class DongHoMapRenderer implements MapRenderer {
 
     const rand = mulberry32(4400);
     for (const tile of tiles) {
+      yield;
       if (tile.terrain !== 'water') {
         continue;
       }
@@ -500,6 +520,7 @@ export class DongHoMapRenderer implements MapRenderer {
       // Only a cell with a dry neighbour is on the shore, so the ink follows the water's real edge.
       const neighbours = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, -1], [-1, 1]];
       for (const [dq, dr] of neighbours) {
+      yield;
         if (wet.has(`${q + dq},${r + dr}`)) {
           continue;
         }
@@ -522,6 +543,7 @@ export class DongHoMapRenderer implements MapRenderer {
       }
       // Two curved carved marks per cell, kept inside the continuous water body.
       for (let line = 0; line < 2; line += 1) {
+      yield;
         const oy = centre.y + (rand() - 0.5) * ctx.tileSize * 0.7;
         const half = ctx.tileSize * (0.2 + rand() * 0.28);
         inkPath(
@@ -543,8 +565,9 @@ export class DongHoMapRenderer implements MapRenderer {
    * Soft radial tone per cell, so neighbours overlap into one continuous field of colour.
    * A hex-shaped fill here is exactly how the grid leaks back into the picture.
    */
-  private paintGround(graphics: Phaser.GameObjects.Graphics, tiles: LandscapeContext['tiles'], ctx: LandscapeContext): void {
+  private *paintGround(graphics: Phaser.GameObjects.Graphics, tiles: LandscapeContext['tiles'], ctx: LandscapeContext): Generator<void> {
     for (const tile of tiles) {
+      yield;
       const tone = groundFor(tile.terrain);
       if (!tone) {
         continue;
@@ -562,11 +585,12 @@ export class DongHoMapRenderer implements MapRenderer {
    * Resolves geometry only, and hands back the ranges sorted by their foot line, so they can be
    * merged into the same far-to-near order as the props — see `drawStanding`.
    */
-  private planRanges(tiles: LandscapeContext['tiles'], ctx: LandscapeContext): PlannedRelief[] {
+  private *planRanges(tiles: LandscapeContext['tiles'], ctx: LandscapeContext): Generator<void, PlannedRelief[]> {
     const plans: PlannedRelief[] = [];
     const relief = new Map<string, HexTerrainType>();
     const wet = new Set<string>();
     for (const tile of tiles) {
+      yield;
       if (tile.terrain === 'mountains' || tile.terrain === 'hills') {
         relief.set(`${tile.coord.q},${tile.coord.r}`, tile.terrain);
       } else if (tile.terrain === 'water') {
@@ -625,6 +649,7 @@ export class DongHoMapRenderer implements MapRenderer {
 
     const byRow = new Map<number, Array<{ q: number; terrain: HexTerrainType }>>();
     for (const tile of tiles) {
+      yield;
       if (tile.terrain !== 'mountains' && tile.terrain !== 'hills') {
         continue;
       }
@@ -639,6 +664,7 @@ export class DongHoMapRenderer implements MapRenderer {
     }
 
     for (const [r, row] of byRow) {
+      yield;
       row.sort((a, b) => a.q - b.q);
       let index = 0;
       while (index < row.length) {
@@ -661,6 +687,7 @@ export class DongHoMapRenderer implements MapRenderer {
         const bleedRight = wet.has(`${row[end].q + 1},${r}`) ? 0.12 : 1.1;
         let risesOverWater = false;
         for (let q = row[index].q; q <= row[end].q && !risesOverWater; q += 1) {
+      yield;
           // The two cells a pointy-top hex sits under, one row back.
           if (wet.has(`${q},${r - 1}`) || wet.has(`${q + 1},${r - 1}`)) {
             risesOverWater = true;
@@ -695,6 +722,7 @@ export class DongHoMapRenderer implements MapRenderer {
           }
         }
         for (const [segmentStart, segmentEnd] of safeSegments(x0, x1, baseY, height)) {
+      yield;
           if (terrain === 'mountains') {
             plans.push(Object.assign(planKarstRange(
               segmentStart, segmentEnd, baseY, height, seed + Math.round(segmentStart),
@@ -774,7 +802,7 @@ export class DongHoMapRenderer implements MapRenderer {
    * paddy. Neighbouring cells therefore share their bunds and the field system ends raggedly —
    * which is what a delta looks like from above, and the opposite of a field per tile.
    */
-  private paintFields(graphics: Phaser.GameObjects.Graphics, tiles: LandscapeContext['tiles'], ctx: LandscapeContext): void {
+  private *paintFields(graphics: Phaser.GameObjects.Graphics, tiles: LandscapeContext['tiles'], ctx: LandscapeContext): Generator<void> {
     const paddy = tiles.filter((tile) => tile.terrain === 'riceFields' || tile.terrain === 'fields');
     if (paddy.length === 0) {
       return;
@@ -792,6 +820,7 @@ export class DongHoMapRenderer implements MapRenderer {
       const firstImage = this.generatedTerrain.length;
       let complete = true;
       for (const system of systems) {
+        yield;
         const stage = seasonalStage(system.stage);
         const state: PaddySystemState = stage < 0.28 ? 'flooded'
           : stage < 0.4 ? 'fallow'
@@ -825,6 +854,7 @@ export class DongHoMapRenderer implements MapRenderer {
     let maxY = -Infinity;
     const centres: Array<{ x: number; y: number }> = [];
     for (const tile of paddy) {
+      yield;
       const centre = ctx.centreOf(tile);
       centres.push(centre);
       minX = Math.min(minX, centre.x);
@@ -856,6 +886,7 @@ export class DongHoMapRenderer implements MapRenderer {
     // a bunded field on top of a river, so the water vetoes the plot the way the paddy grants it.
     const wetCentres: Array<{ x: number; y: number }> = [];
     for (const tile of tiles) {
+      yield;
       if (tile.terrain === 'water') {
         wetCentres.push(ctx.centreOf(tile));
       }
@@ -880,7 +911,7 @@ export class DongHoMapRenderer implements MapRenderer {
     for (const plot of paddyLattice({
       x0: minX, x1: maxX, y0: minY, y1: maxY, cell: ctx.tileSize * 0.58, seed: 7777, keep: keepPlot,
     })) {
-      drawFieldPlot(graphics, plot);
+      drawFieldPlot(graphics, plot); yield;
     }
   }
 
@@ -914,11 +945,11 @@ export class DongHoMapRenderer implements MapRenderer {
    *
    * Separate from the drawing so a change of season can repaint the props without moving them.
    */
-  private planScatter(
+  private *planScatter(
     tiles: LandscapeContext['tiles'],
     ctx: LandscapeContext,
     tileSize: number,
-  ): ScatterItem[] {
+  ): Generator<void, ScatterItem[]> {
     const rand = mulberry32(2024);
     const density = scatterDensity();
     const items: ScatterItem[] = [];
@@ -935,10 +966,12 @@ export class DongHoMapRenderer implements MapRenderer {
     // depth band above this baked layer, those trees can only ever draw *behind* the houses, even
     // the ones standing in front. Two layers that cannot share a sort must not share ground.
     for (const anchor of ctx.settlementAnchors) {
+      yield;
       keepClear.push({ x: anchor.x, y: anchor.y, r: anchor.r ?? tileSize * 1.2 });
     }
 
     for (const tile of tiles) {
+      yield;
       if (tile.terrain === 'fortress' || tile.terrain === 'shrine') {
         const centre = ctx.centreOf(tile);
         keepClear.push({ x: centre.x, y: centre.y, r: tileSize * 1.5 });
@@ -967,6 +1000,7 @@ export class DongHoMapRenderer implements MapRenderer {
     }
 
     for (const tile of tiles) {
+      yield;
       const spec = SCATTER[tile.terrain];
       if (!spec) {
         continue;
@@ -978,6 +1012,7 @@ export class DongHoMapRenderer implements MapRenderer {
       const spread = spec.count[0] + Math.floor(rand() * (spec.count[1] - spec.count[0] + 1));
       const count = Math.max(spec.count[0] > 0 ? 1 : 0, Math.round(spread * density));
       for (let index = 0; index < count; index += 1) {
+      yield;
         const angle = rand() * Math.PI * 2;
         const distance = Math.sqrt(rand()) * tileSize * 1.12;
         items.push({
@@ -999,13 +1034,32 @@ export class DongHoMapRenderer implements MapRenderer {
     const cell = tileSize;
     const buckets = new Map<string, ScatterItem[]>();
     const keyOf = (x: number, y: number): string => `${Math.floor(x / cell)}:${Math.floor(y / cell)}`;
+    // Keep the exact exclusion test, but only visit circles whose bounds reach the
+    // candidate's crown. Distant settlements/water cannot affect this point.
+    const clearCells = new Map<string, typeof keepClear>();
+    for (const zone of keepClear) {
+      for (let y = Math.floor((zone.y - zone.r) / cell); y <= Math.floor((zone.y + zone.r) / cell); y++) {
+        for (let x = Math.floor((zone.x - zone.r) / cell); x <= Math.floor((zone.x + zone.r) / cell); x++) {
+          const key = `${x}:${y}`, list = clearCells.get(key) ?? [];
+          list.push(zone); clearCells.set(key, list);
+        }
+      }
+      yield;
+    }
     const bySize = [...items].sort(
       (a, b) => FOOTPRINT[b.kind] * b.scale - FOOTPRINT[a.kind] * a.scale,
     );
     for (const item of bySize) {
+      yield;
       const reach = FOOTPRINT[item.kind] * item.scale * unit * 0.5;
       const isTallVegetation = TALL_VEGETATION.has(item.kind);
-      if (keepClear.some((zone) => (!zone.tallOnly || isTallVegetation)
+      const nearbyClear = new Set<(typeof keepClear)[number]>();
+      for (let y = Math.floor((item.y - reach) / cell); y <= Math.floor((item.y + reach) / cell); y++) {
+        for (let x = Math.floor((item.x - reach) / cell); x <= Math.floor((item.x + reach) / cell); x++) {
+          for (const zone of clearCells.get(`${x}:${y}`) ?? []) nearbyClear.add(zone);
+        }
+      }
+      if ([...nearbyClear].some((zone) => (!zone.tallOnly || isTallVegetation)
         && Math.hypot(item.x - zone.x, item.y - zone.y) < zone.r + (zone.padByItem ? reach : 0))) {
         continue;
       }

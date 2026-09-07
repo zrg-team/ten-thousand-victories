@@ -222,13 +222,13 @@ The print itself: shell-coated điệp paper, a colour block pulled first and a 
 
 **[▶ zrg-team.github.io/ten-thousand-victories](https://zrg-team.github.io/ten-thousand-victories/)** — no install, no account, nothing leaves your device.
 
-- Built for a **portrait phone in one hand**; works with a mouse too.
+- Built for a **portrait phone in one hand**. On a **computer** — anything with a mouse, or the Steam build — the game plays by desktop rules: keys for the bar (`1`–`7`), `Space` to pause, `Esc` to close, the wheel to zoom, `WASD` to pan, and new runs start on the hands-on rule (the mandate card and the run menu turn it off). In a landscape window the map takes the whole window with the controls in a column at its right edge; a portrait window keeps the phone column. **Settings → Layout** shows which is on and can pin either.
 - **Installs** from the browser menu and **plays offline** — a hand-rolled service worker, no store between you and the game.
 - **Drag** to pan, **+ / −** to zoom, **tap** a province, **tap** a card to answer it.
 - **English / Tiếng Việt** in Settings, along with graphics quality and the map theme.
 - One save slot, kept in your browser.
 
-**Or get it from a store.** The same game, packaged as a real app — [**Google Play**](https://play.google.com/store/apps/details?id=zrg.team.vanthang) and the [**App Store**](https://apps.apple.com/app/id6805950974), about 50,000₫ (≈ US$2), paid once. Still no ads, no in-app purchases, no account, and it plays with the network off. Nothing there is missing from the browser version — buying it is how you back the work.
+**Or get it from a store.** The same game, packaged as a real app — [**Google Play**](https://play.google.com/store/apps/details?id=zrg.team.vanthang) and the [**App Store**](https://apps.apple.com/app/id6805950974), about 50,000₫ (≈ US$2), paid once. Still no ads, no in-app purchases, no account, and it plays with the network off. Nothing there is missing from the browser version — buying it is how you back the work. A **Steam** build (Windows, macOS, Linux, Steam Deck) is packaged from the same code in [`apps/desktop`](apps/desktop/) and is on its way to the store.
 
 ## 🛠️ Develop
 
@@ -264,7 +264,7 @@ src/
 └── i18n/        catalogs — en and vi, side by side
 apps/            platform shells; the game is built once and served by each
 ├── mobile/      Expo — iOS and Android
-└── desktop/     Tauri — stub
+└── desktop/     Electron — Windows, macOS, Linux, for Steam
 docs/            design documents and generated reference pages
 test_scripts/    the Playwright harnesses
 ├── verify/      pass/fail gates

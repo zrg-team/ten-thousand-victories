@@ -1984,6 +1984,8 @@ export const enAscent = {
   "ascent.mandate.hardcoreNote": "No reminder cards, nothing done for you — the big events still come.",
   "ascent.sys.hardcoreOn": "Hands-on rule: on — tap to turn off",
   "ascent.sys.hardcoreOff": "Hands-on rule: off — tap for a fully manual reign",
+  // The desktop cabinet's own door out; a browser tab never shows it.
+  "ascent.sys.quit": "Save and quit the game",
   "ascent.inherit.ping.almost": "One wave from Level {level}",
 
   // ── Dynasty Deck — the Dynasty Deck (Phase 3) ─────────────────────────
@@ -4078,6 +4080,7 @@ export const viAscent = {
   "ascent.mandate.hardcoreNote": "Không thẻ nhắc việc, không làm thay bạn — biến cố lớn vẫn đến.",
   "ascent.sys.hardcoreOn": "Tự tay cai trị: đang bật — chạm để tắt",
   "ascent.sys.hardcoreOff": "Tự tay cai trị: đang tắt — chạm để bật",
+  "ascent.sys.quit": "Lưu và thoát trò chơi",
   "ascent.inherit.ping.almost": "Còn một đợt nữa lên Cấp {level}",
   "dynasty.openCabinet": "Bộ bài triều đại ›",
 

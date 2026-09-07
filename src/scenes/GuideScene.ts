@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { measureInkText } from '../ui/InkVirtualList';
 import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import { applyRenderScale } from '../game/graphicsQuality';
 import { t } from '../i18n';
@@ -11,7 +12,9 @@ import { createMapRenderer, type MapRenderer } from '../ui/MapRenderer';
 import { applyPaperFX } from '../ui/ink/PaperFX';
 import { PIGMENT } from '../ui/ink/palette';
 import { TITLE_FONT, UI_FONT } from '../ui/fonts';
-import { attachPaperSheet } from '../ui/ink/paperSheet';
+import { attachPagePaper } from '../ui/ink/paperSheet';
+import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
+import { isDesktopPlatform } from '../platform/layout';
 
 const SIDE = 12;
 const LIST_WIDTH = GAME_WIDTH - SIDE * 2;
@@ -72,7 +75,10 @@ export class GuideScene extends Phaser.Scene {
   create(): void {
     applyRenderScale(this);
     applyPaperFX(this);
-    attachPaperSheet(this);
+    attachPagePaper(this);
+    // The desktop's sheet beyond the column: the front page's landscape, faint, so this reads as a
+    // page lying on the same desk. Nothing on the phone.
+    attachDesktopBackdrop(this);
     this.ui = new InkUI(this);
     this.mapRenderer = createMapRenderer(this);
     // The sheet and nothing else. The menu's diorama is a fine thing to arrive at and a poor thing
@@ -181,16 +187,26 @@ export class GuideScene extends Phaser.Scene {
         t('guide.play.label'),
         () => {
           requestGuidedRun();
-          this.scene.start('ConquestScene', {
-            state: createAscentGameState({ seaSides: 1, difficulty: 'normal' }),
-          });
+          const state = createAscentGameState({ seaSides: 1, difficulty: 'normal' });
+          // The desktop's hands-on default, as on the front page's own button.
+          if (isDesktopPlatform() && state.ascent) state.ascent.hardcore = true;
+          this.scene.start('ConquestScene', { state });
         },
         { variant: 'primary', fontSize: '15px', subLabel: t('guide.play.note') },
       ));
       cursor += 52 + CARD_GAP;
     }
     for (const entry of GUIDE_ENTRIES.filter((candidate) => candidate.tab === this.tab)) {
-      cursor += this.entryCard(scroll, cursor, entry) + CARD_GAP;
+      const top = cursor;
+      const width = LIST_WIDTH - 54;
+      let height = 22 + measureInkText(this, t(entry.heading), {
+        fontFamily: TITLE_FONT, fontSize: '14px', fontStyle: '700', wordWrap: { width },
+      });
+      const bodyStyle = { fontFamily: UI_FONT, fontSize: '11.5px', lineSpacing: 4, wordWrap: { width } };
+      if (entry.body) height += 5 + measureInkText(this, t(entry.body), bodyStyle);
+      for (const point of entry.points ?? []) height += 7 + measureInkText(this, t(point), { ...bodyStyle, wordWrap: { width: width - 12 } });
+      scroll.lazyRow(entry.heading, top, height + CARD_GAP, () => this.entryCard(scroll, top, entry));
+      cursor += height + CARD_GAP;
     }
     // The tour, offered back.
     //

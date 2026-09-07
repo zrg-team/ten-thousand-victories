@@ -74,9 +74,12 @@ for (const mode of ['empire', 'ascent']) {
         const { ASCENT_HUD_HEIGHT } = await import('/src/ui/ascent/AscentHud.ts');
         const { HEADER_HEIGHT } = await import('/src/game/constants.ts');
         const scene = window.__phaserGame.scene.getScene('ConquestUIScene');
-        // Everything the HUD drew sits at depth 90/91.
-        const parts = scene.children.list.filter((c) => c.depth === 91 && c.getBounds);
-        const bottom = Math.max(...parts.map((c) => c.getBounds().bottom));
+        // Everything the readout draws lives in its root container (depth 90) — the figures, the
+        // labels, the meters; the plate is the one Graphics child and has no bounds to read.
+        const root = scene.children.list.find((c) => c.type === 'Container' && c.depth === 90);
+        const parts = (root?.list ?? []).filter((c) => c.type !== 'Graphics' && typeof c.getBounds === 'function' && c.visible);
+        // Bounds are world-space; the root is at the origin on the phone, which is where this runs.
+        const bottom = parts.length ? Math.max(...parts.map((c) => c.getBounds().bottom)) : Number.NaN;
         return { bottom, hudBottom: HEADER_HEIGHT + ASCENT_HUD_HEIGHT, total: HEADER_HEIGHT + ASCENT_HUD_HEIGHT };
       });
       check(`${label}: the readout ends inside its own band`,

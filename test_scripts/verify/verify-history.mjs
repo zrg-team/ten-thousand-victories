@@ -125,7 +125,7 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     // is written and silently presses the wrong thing ever after.
     const sections = await page.evaluate(() => {
       const scene = window.__phaserGame.scene.getScene('HistoryScene');
-      return (scene.scroll?.content.list ?? [])
+      return (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o]))
         .filter((o) => o.getData?.('sectionKey') != null)
         .map((o) => {
           const m = o.getWorldTransformMatrix();
@@ -140,11 +140,11 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     const listState = () => page.evaluate(() => {
       const scene = window.__phaserGame.scene.getScene('HistoryScene');
       return {
-        rows: (scene.scroll?.content.list ?? []).filter((o) => o.getData?.('rowKey') != null).length,
+        rows: (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o])).filter((o) => o.getData?.('rowKey') != null).length,
         open: scene.openSection[scene.tab],
         // Set by the stagger's setup rather than read off a live tween, so this asserts the
         // animation ran without racing a 170ms tween on a fast machine.
-        staggered: (scene.scroll?.content.list ?? []).some((o) => o.getData?.('sectionRevealed') === true),
+        staggered: (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o])).some((o) => o.getData?.('sectionRevealed') === true),
       };
     });
     // The first heading is the one each tab opens on and the list starts at the top, so it is the
@@ -159,7 +159,7 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     await page.waitForTimeout(70);
     const folding = await page.evaluate(() => {
       const scene = window.__phaserGame.scene.getScene('HistoryScene');
-      return { closing: scene.closing, rows: (scene.scroll?.content.list ?? []).filter((o) => o.getData?.('rowKey') != null).length };
+      return { closing: scene.closing, rows: (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o])).filter((o) => o.getData?.('rowKey') != null).length };
     });
     if (!folding.closing || folding.rows === 0) {
       fail(`${tag}  ${tab}: shutting a section did not animate (closing=${folding.closing}, rows=${folding.rows})`);
@@ -181,17 +181,20 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     // the tap is proved directly above.
     const sweep = await page.evaluate(() => {
       const scene = window.__phaserGame.scene.getScene('HistoryScene');
-      const keys = (scene.scroll?.content.list ?? [])
+      const keys = (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o]))
         .filter((o) => o.getData?.('sectionKey') != null)
         .map((o) => o.getData('sectionKey'));
       const seen = new Set();
       for (const key of keys) {
         scene.openSection[scene.tab] = key;
         scene.render();
-        for (const o of (scene.scroll?.content.list ?? [])) {
+        for (const o of (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o]))) {
           const row = o.getData?.('rowKey');
           if (row != null) seen.add(row);
         }
+        // Only the rows near the window are built now; the rest of the section exists as lazy
+        // rows the scroll area has measured but not drawn. Those count as reachable too.
+        for (const lazy of scene.scroll?.lazyRows ?? []) seen.add(lazy.key);
       }
       scene.openSection[scene.tab] = keys[0];
       scene.render();
@@ -208,7 +211,7 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     // per-tab, so both can be forgotten per-tab.
     const row = await page.evaluate(() => {
       const scene = window.__phaserGame.scene.getScene('HistoryScene');
-      const card = (scene.scroll?.content.list ?? []).find((o) => o.getData?.('rowKey') != null);
+      const card = (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o])).find((o) => o.getData?.('rowKey') != null);
       if (!card) return null;
       const m = card.getWorldTransformMatrix();
       return { key: card.getData('rowKey'), x: m.tx, y: m.ty };
@@ -223,7 +226,7 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
       const scene = window.__phaserGame.scene.getScene('HistoryScene');
       return {
         expanded: scene.expanded ?? null,
-        revealed: (scene.scroll?.content.list ?? []).some((o) => o.getData?.('revealed') === true),
+        revealed: (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o])).some((o) => o.getData?.('revealed') === true),
       };
     });
     if (opened.expanded !== row.key) fail(`${tag}  ${tab}: tapping "${row.key}" opened ${opened.expanded}`);
@@ -255,7 +258,7 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     const scene = window.__phaserGame.scene.getScene('HistoryScene');
     const top = 108;
     const bottom = top + scene.listHeight();
-    for (const o of (scene.scroll?.content.list ?? [])) {
+    for (const o of (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o]))) {
       if (o.getData?.('rowKey') == null) continue;
       const m = o.getWorldTransformMatrix();
       if (m.ty > top + 8 && m.ty < bottom - 30) return { x: m.tx, y: m.ty };
@@ -269,7 +272,7 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     const scene = window.__phaserGame.scene.getScene('HistoryScene');
     // The opened card carries a tag set by the reveal tween's setup, so this asserts the animation
     // ran without racing a 170ms tween.
-    const revealed = (scene.scroll?.content.list ?? []).some((o) => o.getData?.('revealed') === true);
+    const revealed = (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o])).some((o) => o.getData?.('revealed') === true);
     return { offset: -(scene.scroll?.content.y ?? 0), expanded: scene.expanded ?? null, revealed };
   });
   if (!afterTap.expanded) fail(`${tag}  tapping a row did not open it`);

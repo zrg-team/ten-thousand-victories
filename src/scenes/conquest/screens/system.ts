@@ -14,6 +14,8 @@ import { INK_UI } from '../../../ui/InkUI';
 import { heroTemplates } from '../../../data/heroes';
 import { heroName, heroTypeLabel, rarityLabel, t } from '../../../i18n';
 import { LANE_FOOTER_HEIGHT, RARITY_COLOR } from '../constants';
+import { canQuitShell, quitShell } from '../../../platform/shell';
+import { saveSnapshot } from '../../../state/save';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 
 
@@ -124,6 +126,14 @@ export function showSystemMenu(self: ConquestUIScene): void {
 
   item(t('action.saveAndExit'), 'secondary', () => self.events.emit('ui:exit-to-menu', true));
   item(t('action.exitWithoutSaving'), 'danger', () => self.events.emit('ui:exit-to-menu', false));
+  // Only inside a cabinet that can close itself. A tab cannot, and a row that does nothing is
+  // worse than no row. The reign is written down first, exactly as "save and exit" writes it.
+  if (canQuitShell()) {
+    item(t('ascent.sys.quit'), 'secondary', () => {
+      saveSnapshot(self.state);
+      quitShell();
+    });
+  }
 }
 
 /** The permanent collection — the reason summoning a new champion is worth something. */
@@ -155,14 +165,19 @@ export function showCodex(self: ConquestUIScene): void {
   for (const hero of heroTemplates) {
     const known = unlocked.has(hero.id);
     const tier = tierForHero(hero);
-    const row = self.ui.card({ x: 0, y, width: content.width - 6, height: 54 }, {
+    const opts = {
+      cacheText: true,
       title: known ? heroName(hero) : '???',
       subtitle: known ? `${heroTypeLabel(hero.type)} · ${rarityLabel(hero.rarity)}` : t('ascent.codex.locked'),
       border: known ? RARITY_COLOR[tier] : INK_UI.softBrush,
       muted: !known,
+    };
+    const top = y;
+    const height = self.ui.measureCard(content.width - 6, 54, opts);
+    scroll.lazyRow(hero.id, top, height + 8, () => {
+      scroll.content.add(self.ui.card({ x: 0, y: top, width: content.width - 6, height }, opts));
     });
-    scroll.content.add(row);
-    y += (row.getData('cardHeight') as number ?? 54) + 8;
+    y += height + 8;
   }
   scroll.setContentHeight(Math.max(content.height - LANE_FOOTER_HEIGHT, y));
 

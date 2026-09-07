@@ -502,12 +502,12 @@
         /**
          * Put this page in exactly the box the canvas will occupy.
          *
-         * Phaser is configured `Scale.FIT` + `CENTER_BOTH` against a design surface 390 wide and a
-         * height derived from the device's own aspect ratio — `GAME_WIDTH` and `designHeight()` in
-         * `src/game/constants.ts`, whose clamp is reproduced here and nowhere else. So the canvas
-         * is not the viewport: on anything wider than 390/H it is a letterboxed column with dark
-         * bars down the sides, and a splash drawn edge to edge hands over to it by visibly
-         * changing shape.
+         * Phaser is configured `Scale.FIT` + `CENTER_BOTH` against a design surface — on a phone
+         * 390 wide with a height derived from the device's own aspect ratio, on a desktop 760 tall
+         * and as wide as the window (`resolveSurface` below, mirroring `src/platform/layout.ts` and
+         * `src/game/constants.ts`). So the canvas is not always the viewport: a phone-shaped sheet
+         * in a wide window is a letterboxed column, and a splash drawn edge to edge would hand over
+         * to it by visibly changing shape.
          *
          * The arithmetic is only needed for the first frames. The moment `new Phaser.Game()` has
          * put a canvas in `#game-root` — which happens long before any scene draws — this stops
@@ -517,6 +517,60 @@
         var sheet = document.getElementById('sp-sheet');
         var page = document.getElementById('sp-page');
         var root = document.getElementById('game-root');
+
+        /**
+         * Which sheet the game is about to draw on — the phone column, or the desktop's wide
+         * sheet with the column at its right edge.
+         *
+         * This is `resolveLayoutKind` from `src/platform/layout.ts`, rule for rule, run here
+         * first because the bundle that holds the real one is what this screen is covering. The
+         * answer is published as `window.__designSurface` and the game takes it as given, so the
+         * two sheets cannot disagree; `verify-desktop-layout` holds the two copies to each other.
+         * Off the root's own box, exactly as `designHeight()` in `src/game/constants.ts` does —
+         * the root is shorter than the window by the safe-area insets, and a splash sized to the
+         * window would hand over to a canvas of a different shape.
+         */
+        function resolveSurface() {
+          var rr = root ? root.getBoundingClientRect() : null;
+          var w = (rr && rr.width) || window.innerWidth;
+          var h = (rr && rr.height) || window.innerHeight;
+          var aspect = w && h ? w / h : 0;
+          // `mobile` is an alias of `phone`; `auto` sets a stored choice aside for this page.
+          var asked = /[?&]layout=(phone|mobile|desktop|auto)\b/.exec(window.location.search);
+          var ask = asked ? (asked[1] === 'mobile' ? 'phone' : asked[1]) : null;
+          var stored = null;
+          try { stored = localStorage.getItem('mandate:layout:v1'); } catch (e) { /* no storage */ }
+          var shell = window.__shell && window.__shell.kind;
+          var wanted;
+          if (ask && ask !== 'auto') wanted = ask;
+          else if (!ask && (stored === 'phone' || stored === 'desktop')) wanted = stored;
+          else if (shell) wanted = shell === 'desktop' ? 'desktop' : 'phone';
+          else {
+            // A computer: not a phone or tablet by its own account, and any one sign of one —
+            // `looksLikeComputer` in `src/platform/layout.ts`, rule for rule.
+            var ua = navigator.userAgent || '';
+            var uaData = navigator.userAgentData;
+            var touch = navigator.maxTouchPoints || 0;
+            var media = function (q) { return !!window.matchMedia && window.matchMedia(q).matches; };
+            var mobileUA = (uaData && uaData.mobile === true) || /Android.*Mobile|iPhone|iPod|Windows Phone|Mobile Safari/i.test(ua);
+            var tablet = /iPad/i.test(ua) || (/Macintosh/i.test(ua) && touch > 1) || (/Android/i.test(ua) && !/Mobile/i.test(ua));
+            var computer = !mobileUA && !tablet && (media('(pointer: fine)') || media('(hover: hover)') ||
+              touch === 0 || (uaData && uaData.mobile === false) || screen.width >= 1024);
+            wanted = !navigator.webdriver && computer ? 'desktop' : 'phone';
+          }
+          // Any landscape box on a computer takes the sheet (DESKTOP_MIN_ASPECT is 1.0).
+          if (wanted === 'desktop' && aspect >= 1.0) {
+            // As tall as the interface size says (`UI_SCALE_HEIGHTS` in layout.ts: small 900,
+            // normal 760, large 640), and as wide as the box, within [780, 1824].
+            var size = null;
+            try { size = localStorage.getItem('mandate:uiscale:v1'); } catch (e) { /* no storage */ }
+            var tall = size === 'small' ? 900 : size === 'large' ? 640 : 760;
+            return { kind: 'desktop', width: Math.round(Math.max(780, Math.min(1824, tall * aspect))), height: tall };
+          }
+          return { kind: 'phone', width: 390, height: Math.round(Math.max(620, Math.min(1040, 390 * (h / w)))) };
+        }
+        var surface = resolveSurface();
+        window.__designSurface = surface;
 
         function fitSheet() {
           if (!sheet || !page || !root) return true;
@@ -528,16 +582,12 @@
           }
           if (!box) {
             var rr = root.getBoundingClientRect();
-            // Off the root's own box, exactly as `designHeight()` in `src/game/constants.ts` now
-            // does — the root is shorter than the window by the safe-area insets, and a splash
-            // sized to the window would hand over to a canvas of a different shape.
-            var h = Math.round(Math.max(620, Math.min(1040, 390 * ((rr.height || window.innerHeight) / (rr.width || window.innerWidth)))));
-            var s = Math.min(rr.width / 390, rr.height / h);
+            var s = Math.min(rr.width / surface.width, rr.height / surface.height);
             box = {
-              x: rr.left + (rr.width - 390 * s) / 2,
-              y: rr.top + (rr.height - h * s) / 2,
-              w: 390 * s,
-              h: h * s
+              x: rr.left + (rr.width - surface.width * s) / 2,
+              y: rr.top + (rr.height - surface.height * s) / 2,
+              w: surface.width * s,
+              h: surface.height * s
             };
           }
           sheet.style.left = box.x + 'px';
@@ -545,8 +595,11 @@
           sheet.style.width = box.w + 'px';
           sheet.style.height = box.h + 'px';
           // The page is laid out in design units and scaled by the same factor the canvas is, so
-          // every number in the stylesheet above is read off the same ruler the game is.
-          var scale = box.w / 390;
+          // every number in the stylesheet above is read off the same ruler the game is. It stays
+          // a 390-wide column, centred: on the phone that is the whole sheet, on the desktop it is
+          // the middle of it.
+          var scale = box.w / surface.width;
+          page.style.left = (box.w - 390 * scale) / 2 + 'px';
           page.style.height = box.h / scale + 'px';
           page.style.transform = 'scale(' + scale + ')';
           return !!canvas;

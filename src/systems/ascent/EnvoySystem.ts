@@ -188,8 +188,11 @@ export function offerEnvoy(state: GameState): boolean {
   return offerEnvoyTo(state, pickEnvoyTarget(state)?.id);
 }
 
-/** The same card for a named court — how the World lane opens a specific rival. */
-export function offerEnvoyTo(state: GameState, kingdomId: string | undefined): boolean {
+/**
+ * The same card for a named court — how the World lane opens a specific rival. `requested`: asked
+ * for from that lane rather than raised by the director's clock.
+ */
+export function offerEnvoyTo(state: GameState, kingdomId: string | undefined, requested = false): boolean {
   const kingdom = state.kingdoms.find(
     (candidate) => candidate.id === kingdomId && candidate.id !== PLAYER_KINGDOM_ID && !candidate.isDefeated,
   );
@@ -202,7 +205,7 @@ export function offerEnvoyTo(state: GameState, kingdomId: string | undefined): b
     relations: Math.round(kingdom.relations ?? 50),
     power: Math.round(getEmpirePower(state, kingdom)),
     options: buildEnvoyOptions(state, kingdom),
-  });
+  }, { requested });
   return true;
 }
 

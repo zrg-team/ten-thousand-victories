@@ -85,6 +85,7 @@ export interface MapRenderer {
    * a country, and this is the only hook wide enough to let them.
    */
   drawLandscape?(context: LandscapeContext): void;
+  drawLandscapeJobs?(context: LandscapeContext): Generator<void>;
 
   /**
    * Re-inks the seasonal layers — the prop scatter and the tone under it — without replanning where
@@ -96,6 +97,7 @@ export interface MapRenderer {
    * leaves its decoration layer alone.
    */
   repaintScatter?(decoration: Phaser.GameObjects.Graphics): void;
+  repaintScatterJobs?(decoration: Phaser.GameObjects.Graphics): Generator<void>;
 
   /**
    * True when the rock stands between this world point and the viewer.

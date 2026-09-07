@@ -121,7 +121,7 @@ export function livingSprite(
   y: number,
   scale = 1,
 ): Phaser.GameObjects.Image {
-  const sheet = conquestWalkSheetForTexture(baked.texture);
+  const sheet = conquestWalkSheetForTexture(baked.texture, baked.frame);
   if (!sheet || !scene.textures.exists(sheet.textureKey)) {
     return propImage(scene, baked, x, y, scale);
   }
@@ -142,7 +142,7 @@ export function livingSprite(
   // still one. That is the whole of why a walking traveller stood 1.8x a soldier while the standing
   // farmer beside him was exactly right: the still art had already been corrected to its ink and
   // this path had not.
-  const stillInk = inkExtent(scene, baked.texture).y;
+  const stillInk = inkExtent(scene, baked.texture, baked.frame).y;
   const targetVisibleHeight = baked.height * baked.scale * scale * stillInk;
   //
   // Drawn from the reduced sheet, not the authored one. A map walker stands about nine world

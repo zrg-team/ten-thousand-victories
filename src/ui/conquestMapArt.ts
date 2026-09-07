@@ -1,4 +1,7 @@
 import type Phaser from 'phaser';
+import atlasPages from './conquestAtlasPages.json';
+import { maxTextureSize } from './ink/textureLimits';
+const authoredPages: Record<string, { page: string; frame: string; width: number; height: number; family: string; image: string; atlas: string }> = atlasPages;
 import type { ArmyWardrobe } from '../state/types';
 import type { Stamp, StampBox } from './ink/stamp';
 import dongHoV4Assets from './conquestDongHoV4Assets.json';
@@ -504,8 +507,8 @@ const walkSheetBySourceTexture = new Map(
   CONQUEST_WALK_SHEETS.map((sheet) => [sheet.sourceTextureKey, sheet] as const),
 );
 
-export function conquestWalkSheetForTexture(textureKey: string): ConquestWalkSheet | undefined {
-  return walkSheetBySourceTexture.get(textureKey);
+export function conquestWalkSheetForTexture(textureKey: string, frame?: string | number): ConquestWalkSheet | undefined {
+  return walkSheetBySourceTexture.get(typeof frame === 'string' && frame.startsWith('conquest-art:') ? frame : textureKey);
 }
 
 /**
@@ -589,28 +592,53 @@ export function proceduralConquestArtForced(): boolean {
   }
 }
 
-export function preloadConquestMapArt(scene: Phaser.Scene, baseUrl: string): void {
+export function preloadConquestMapArt(scene: Phaser.Scene, baseUrl: string, families?: readonly ConquestArtFamily[], walks = true): void {
   if (proceduralConquestArtForced()) return;
-  for (const asset of CONQUEST_MAP_ART) {
-    if (asset.accepted && asset.path && asset.textureKey) {
-      scene.load.image(asset.textureKey, `${baseUrl}${asset.path}`);
-    }
+  const assets = CONQUEST_MAP_ART.filter(asset => asset.accepted && asset.path && asset.textureKey && (!families || families.includes(asset.family)));
+  const pages = new Set<string>();
+  for (const asset of assets) {
+    const page = authoredPages[asset.textureKey!];
+    if (page && maxTextureSize(scene) >= 2048 && !new URLSearchParams(location.search).has('noartatlas')) {
+      if (pages.has(page.page) || scene.textures.exists(page.page)) continue;
+      pages.add(page.page);
+      scene.load.atlas(page.page, `${baseUrl}${page.image}`, `${baseUrl}${page.atlas}`);
+    } else if (!scene.textures.exists(asset.textureKey!)) scene.load.image(asset.textureKey!, `${baseUrl}${asset.path}`);
   }
-  for (const sheet of CONQUEST_WALK_SHEETS) {
-    scene.load.spritesheet(sheet.textureKey, `${baseUrl}${sheet.path}`, {
-      frameWidth: sheet.frameWidth,
-      frameHeight: sheet.frameHeight,
-      endFrame: 3,
+  // A failed atlas has the same original-image fallback as a device with a small texture limit.
+  const failed = (file: { key: string }) => {
+    if (!pages.delete(file.key)) return;
+    for (const asset of assets) if (authoredPages[asset.textureKey!]?.page === file.key && !scene.textures.exists(asset.textureKey!)) {
+      scene.load.image(asset.textureKey!, `${baseUrl}${asset.path}`);
+    }
+  };
+  scene.load.on('loaderror', failed);
+  // Phaser emits loaderror for transport failures, but an HTTP 200 image that cannot
+  // decode goes directly through File.onProcessError. Queue the same originals
+  // before that path completes the loader, so scene.create still waits for them.
+  for (const file of scene.load.list) if (pages.has(file.key)) {
+    const processError = file.onProcessError;
+    file.onProcessError = function () { failed(this); processError.call(this); };
+  }
+  scene.load.once('complete', () => scene.load.off('loaderror', failed));
+  if (walks) for (const sheet of CONQUEST_WALK_SHEETS) {
+    if (!scene.textures.exists(sheet.textureKey)) scene.load.spritesheet(sheet.textureKey, `${baseUrl}${sheet.path}`, {
+      frameWidth: sheet.frameWidth, frameHeight: sheet.frameHeight, endFrame: 3,
     });
   }
 }
 
+function artTexture(scene: Phaser.Scene, key: string): { key: string; frame?: string; width: number; height: number } | undefined {
+  const page = authoredPages[key];
+  if (page && scene.textures.exists(page.page) && scene.textures.get(page.page).has(page.frame)) {
+    return { key: page.page, frame: page.frame, width: page.width, height: page.height };
+  }
+  if (!scene.textures.exists(key)) return undefined;
+  const source = scene.textures.get(key).getSourceImage() as { width: number; height: number };
+  return { key, width: source.width, height: source.height };
+}
 export function hasConquestMapArt(scene: Phaser.Scene, id: string): boolean {
   const asset = byId.get(id);
-  return !proceduralConquestArtForced()
-    && asset?.accepted === true
-    && asset.textureKey !== undefined
-    && scene.textures.exists(asset.textureKey);
+  return !proceduralConquestArtForced() && asset?.accepted === true && !!asset.textureKey && !!artTexture(scene, asset.textureKey);
 }
 
 export interface ConquestArtDisplayMetrics {
@@ -787,7 +815,8 @@ function displayScale(
 ): number {
   // The ink, not the cell — see `inkExtent`. Both branches below declare how tall the *thing*
   // stands, so both divide the cell back down to the drawing inside it.
-  const ink = asset.textureKey ? inkExtent(scene, asset.textureKey) : { x: 1, y: 1 };
+  const texture = asset.textureKey ? artTexture(scene, asset.textureKey) : undefined;
+  const ink = texture ? inkExtent(scene, texture.key, texture.frame) : { x: 1, y: 1 };
   const inkHeight = source.height * ink.y;
   const inkWidth = source.width * ink.x;
   const contract = options.sizing === 'fit-bounds' ? undefined : asset.scaleContract;
@@ -819,13 +848,14 @@ export function conquestArtStamp(
 ): Stamp | undefined {
   const asset = byId.get(id);
   if (!asset?.textureKey || !hasConquestMapArt(scene, id)) return undefined;
-  const source = scene.textures.get(asset.textureKey).getSourceImage() as { width: number; height: number };
+  const source = artTexture(scene, asset.textureKey);
   if (!source?.width || !source?.height) return undefined;
   const bounds = box ?? asset.designBounds;
   const scale = displayScale(scene, asset, source, bounds, options);
   return {
     key: `generated:${id}`,
-    texture: asset.textureKey,
+    texture: source.key,
+    frame: source.frame,
     originX: asset.anchor.x,
     originY: asset.anchor.y,
     scale,

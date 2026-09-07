@@ -5,7 +5,7 @@
 | Folder | Platform | State |
 |---|---|---|
 | `mobile/` | iOS + Android — Expo SDK 57, React Native 0.86, `react-native-webview` 14 | source complete, not yet installed |
-| `desktop/` | Windows / macOS / Linux — Tauri 2 | stub; see its README |
+| `desktop/` | Windows / macOS / Linux — Electron, for Steam | source complete; see its README |
 | — | Web (PWA, GitHub Pages) | the repository root. Not a cabinet: it *is* the game, served. |
 
 ## The contract
@@ -41,7 +41,8 @@ the only module in `src/` that knows a cabinet can exist. Nothing else imports `
 
 `ready` is supplied **by the cabinet** rather than the game reaching for a channel it knows about,
 because the channels have nothing in common: React Native has `ReactNativeWebView.postMessage`,
-Tauri has its event bus, and the next one will have a third thing. One closure hides all of them.
+an Electron preload has `ipcRenderer`, and the next one will have a third thing. One closure hides
+all of them. The desktop cabinet adds `toggleFullscreen`, `quit` and a `steam` bridge the same way.
 
 `os` is optional but worth supplying — it is what `allowsDonationLinks()` reads, and one mobile
 build serves two stores whose rules differ.

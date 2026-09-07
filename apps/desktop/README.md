@@ -1,90 +1,65 @@
 # Vạn Thắng — desktop
 
-**Stub.** Nothing here runs yet. This file is what makes "later" a short job instead of a research
-project.
+Electron around the shell build, for Steam and for a plain download. Windows, macOS and Linux from
+one folder.
 
-Tauri 2, targeting Windows, macOS and Linux from one source tree.
+This replaced a Tauri stub. Tauri's window is WebView2 on Windows, and the Steam Overlay does not
+hook WebView2 (Tauri's own issue on it is closed "not planned"); WebView2 also does not run under
+Proton, which is every Steam Deck; and a native Linux Tauri build needs a WebKitGTK the Steam Linux
+Runtime does not carry. Electron brings its Chromium with it, so the overlay works, Proton runs the
+Windows build, and Linux needs nothing installed. The price is the download — about 200 MB — and
+that is a price Steam players pay for every game.
 
-## What Tauri has to do
+## What the cabinet does
 
-Exactly two things, both from [`../README.md`](../README.md).
+Exactly what [`../README.md`](../README.md) asks of every cabinet, and nothing the game could do
+for itself.
 
-### 1 — Serve `dist-shell/`, not `file://`
+1. **Serves `dist-shell/` from a real, stable origin.** `main.js` registers a privileged `app://`
+   scheme and serves the synced copy in `web/` as `app://van-thang/`. That origin is a save-schema
+   constant: every save is a `localStorage` key, and `localStorage` is keyed to the origin, so a
+   cabinet that serves from a different origin than its predecessor has shipped a save wipe.
+2. **Declares itself before the bundle's first line.** `preload.js` runs before any page script and
+   puts `window.__shell` on the page through `contextBridge` — `kind: 'desktop'`, the OS, the
+   version, `toggleFullscreen`, `quit`, `ready`, and the Steam bridge when Steam is running. The
+   full type is `ShellDescriptor` in [`src/platform/shell.ts`](../../src/platform/shell.ts).
+3. **Holds the Steamworks client in its own process.** The game calls two functions on the bridge
+   and never sees a session. See [`steam/README.md`](steam/README.md).
 
-Tauri's asset protocol serves the frontend from a real origin
-(`tauri://localhost`, or `http://tauri.localhost` on Windows), which is what the contract asks for
-and what keeps `localStorage` — and therefore every save — working.
+With the descriptor present the game boots into the desktop layout — the world across the window,
+the 390-unit chrome column at the right edge — and starts new runs with the hands-on rule on. Both
+are the game's own decisions (`src/platform/layout.ts`); the cabinet only says what it is.
 
-```jsonc
-// src-tauri/tauri.conf.json
-{
-  "build": {
-    // Built in the repository root by `yarn build:shell`. Relative asset URLs, no service worker.
-    "frontendDist": "../../../dist-shell"
-  },
-  "app": {
-    "windows": [{
-      "title": "Vạn Thắng",
-      // The design surface is 390 wide and clamps its height; anything wider is letterboxed by
-      // Phaser's Scale.FIT. A portrait window is the shape the game was drawn for.
-      "width": 480,
-      "height": 900,
-      "resizable": true
-    }]
-  }
-}
+## Working on it
+
+```bash
+yarn desktop:sync        # at the repository root: yarn build:shell, then copy it into web/
+cd apps/desktop
+npm install              # installs separately — this folder is not a yarn workspace, on purpose
+npm start                # electron .
 ```
 
-The one thing to verify on the first run: the game asks for `./assets/…` and `./faces/…` relative
-to the document. If Tauri serves the index from anywhere but the root of that folder, all 267
-portrait parts 404 at once.
+`npm start` without Steam running is the ordinary case at a desk: the console says
+`steam: not running` and the bridge is simply absent. To try the overlay, put a `steam_appid.txt`
+containing `480` beside `main.js` and start Steam first.
 
-### 2 — Declare itself before the bundle loads
+Every build syncs first. `web/` is gitignored and `package.json`'s version is carried in from the
+repository root by the sync — there is one place a version is typed.
 
-`src/main.ts` reads `usesServiceWorker()` at module scope, so the descriptor has to exist before
-the first line of the bundle. In Tauri that is an init script, not a `DOMContentLoaded` handler:
-
-```rust
-// src-tauri/src/lib.rs
-const DESCRIPTOR: &str = r#"
-  window.__shell = {
-    kind: 'desktop',
-    os: '__OS__',
-    version: '__VERSION__',
-    ready: function () { /* no splash to lift yet — see below */ }
-  };
-"#;
-
-tauri::Builder::default()
-    .setup(|app| {
-        let script = DESCRIPTOR
-            .replace("__OS__", std::env::consts::OS)   // "windows" | "macos" | "linux"
-            .replace("__VERSION__", app.package_info().version.to_string().as_str());
-        WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
-            .initialization_script(&script)
-            .build()?;
-        Ok(())
-    })
+```bash
+yarn desktop:build       # sync, then electron-builder --dir → dist/<platform>-unpacked/
+yarn desktop:steam       # desktop:build, then stage the depot content under steam/content/
+npm run dist:installers  # NSIS / DMG / AppImage, for a download outside Steam
 ```
 
-`std::env::consts::OS` already yields `windows` / `macos` / `linux`, which are three of the five
-values `ShellOS` accepts.
+The runbook — accounts, the App ID, depots, signing, what to check on the first launch — is
+[`docs/development/desktop-builds.md`](../../docs/development/desktop-builds.md).
 
-## What desktop does *not* need
+## What it does not do
 
-- **No unpacking, no embedded server.** Tauri's asset protocol reads the bundled frontend directly.
-  The archive-and-loopback machinery in `../mobile` exists because Android cannot read files inside
-  its own APK — a problem Tauri does not have.
-- **No donation gate.** `allowsDonationLinks()` returns true off an `os` of `windows`/`macos`/
-  `linux`, which is correct: a self-distributed desktop build answers to no store. If it is ever
-  submitted to the Mac App Store, revisit that — the same App Store rules apply there.
-- **No splash handshake, initially.** Tauri can simply show the window once the frontend is ready.
-  If a native splash is added later, `ready` is where it comes down.
-
-## Rough order of work
-
-1. `cargo install create-tauri-app` and scaffold `src-tauri/` in this folder
-2. Point `frontendDist` at `../../../dist-shell`; run `yarn build:shell` first
-3. Add the init script above; confirm the menu hides nothing and the console is clean
-4. Check saves survive a restart — that is the real test that the origin is stable
-5. Icons: reuse `public/icon-512.png`, as `../mobile/scripts/sync-web.mjs` does
+- **No unpacking, no embedded server.** The mobile cabinet archives the build and serves it over
+  loopback because Android cannot read files inside its own APK. Electron reads its own folder.
+- **No service worker.** The shell build never registers one, and every byte is already in the
+  install.
+- **No donation gate.** `allowsDonationLinks()` returns true for a desktop shell; if the Steam
+  listing is paid, that is a one-line rule to revisit in `src/platform/shell.ts`.

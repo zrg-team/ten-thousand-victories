@@ -1,0 +1,8 @@
+# The synced web build (`npm run sync` copies ../../dist-shell here) and the packaged output.
+node_modules/
+web/
+dist/
+# Staged depot content for steamcmd — built output, never source.
+steam/content/
+# The local dev App ID. Steam sets the real one; a stray copy in a depot is a rejected build.
+steam_appid.txt

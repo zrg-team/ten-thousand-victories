@@ -20,7 +20,12 @@ import {
   GAME_WIDTH,
   HEADER_HEIGHT,
   PLAYER_KINGDOM_ID,
+  isDesktopSheet,
+  surfaceWidth,
+  uiColumnX,
 } from '../../game/constants';
+import { ASCENT_HUD_HEIGHT } from '../../ui/ascent/AscentHud';
+import { laneIsDocked, placeModalLayer } from './hudSheet';
 import { refreshAscentLaneState } from '../../systems/ascent/ConquestSystem';
 import { countOpenDoors } from '../../systems/story/StorySystem';
 import { contestedFronts, realmUnderAttack } from '../../systems/ascent/battleReport';
@@ -35,8 +40,11 @@ import { BarHint } from '../../ui/ascent/BarHint';
 import { InheritanceChip } from '../../ui/ascent/InheritanceChip';
 import { WhisperLine } from '../../ui/ascent/WhisperLine';
 import { hasSeenRunTour, takeGuidedRun } from '../../state/tour';
-import { ActionBar } from '../../ui/ActionBar';
-import { ResourceBar } from '../../ui/ResourceBar';
+import { ActionBar, DESKTOP_BAR_LAYOUT, actionBarSlots } from '../../ui/ActionBar';
+import { BAND_HEIGHT, BOTTOM_BAND_Y, ResourceBar, TOP_BAND_Y } from '../../ui/ResourceBar';
+import { sawtoothBand } from '../../ui/ink/devices';
+import { PIGMENT } from '../../ui/ink/palette';
+import { placeStamp, stampDesign } from '../../ui/ink/stamp';
 import { UI_FONT } from '../../ui/fonts';
 import { heroName, t } from '../../i18n';
 import { buildFocusRows } from '../../ui/focusPanel';
@@ -49,31 +57,104 @@ import { showWarBoard, warBoardSignature } from './screens/warBoard';
 import type { ConquestUIScene } from '../ConquestUIScene';
 import { attachPaperSheet } from '../../ui/ink/paperSheet';
 import { stopBattleMusic } from './battle/music';
+import { isDesktopLayout, isDesktopPlatform } from '../../platform/layout';
+import { installDesktopKeys } from '../../input/desktopKeys';
+import { LAYOUT_RESIZED } from '../../game/desktopResize';
+import { setHudSheet } from './hudSheet';
+import { gameplayControl, mapControlLabel } from '../../ui/GameplayControl';
 
+
+/**
+ * The width the readout has beside the strip in the desktop's top bar: the strip's own width when
+ * the bar is 16:9 wide, and less on a narrower sheet, where the pause/menu cluster at the bar's
+ * right end would otherwise stand on it. Reserve the control strip's actual footprint and margin.
+ */
+function readoutWidth(): number {
+  const system = actionBarSlots('ascent', {}, surfaceWidth(), DESKTOP_BAR_LAYOUT).find((slot) => slot.system);
+  return Math.max(270, Math.min(GAME_WIDTH, (system?.x ?? surfaceWidth()) - 18 - GAME_WIDTH));
+}
+
+/**
+ * The desktop's sheet-wide chrome, built once and again after a resize.
+ *
+ * The top bar is one band across the sheet with the resource strip at its left and the run's
+ * readout beside it — the composition every strategy player reads first. The band is opaque and
+ * drawn under both, and the strip's răng cưa frieze runs the whole width on the same rows, so no
+ * seam or change of tone marks where the strip ends and the readout begins. One hairline separates
+ * the stores from the readout; pause and menu each have a quiet paper edge. The strip's plate and frieze come
+ * off (`create`): drawn over this band, the plate hid the teeth over the strip alone.
+ *
+ * The dock plate is the docked lane page's paper: solid, from the bar to the bottom bar, with a
+ * rule and a soft shadow down its left side. A lane page dims the map at 0.93 on the phone so the
+ * sheet reads as *over* the map; docked beside a lit map that translucency read as the map leaking
+ * through the page, and the page's own bottom sheet ended on a strip of it. Under the modal layer,
+ * shown only while a lane is docked (`renderActionBar`).
+ */
+function buildDesktopChrome(self: ConquestUIScene): void {
+  self.desktopChrome?.forEach((object) => object.destroy());
+  const width = surfaceWidth();
+  const band = self.add.rectangle(0, 0, width, HEADER_HEIGHT, INK_UI.backgroundInk, 1)
+    .setOrigin(0, 0)
+    .setDepth(79);
+  const frieze = stampDesign(self, `ui:band:topbar:v2:${width}x${HEADER_HEIGHT}`,
+    { left: 0, right: width, top: 0, bottom: HEADER_HEIGHT + 1 },
+    (g, x, y) => {
+      g.translateCanvas(x, y);
+      sawtoothBand(g, 8, TOP_BAND_Y, width - 16, BAND_HEIGHT, 0.45);
+      sawtoothBand(g, 8, BOTTOM_BAND_Y, width - 16, BAND_HEIGHT, 0.4);
+      g.lineStyle(1, PIGMENT.mucSoft, 0.35);
+      g.lineBetween(0, HEADER_HEIGHT - 0.5, width, HEADER_HEIGHT - 0.5);
+      g.lineBetween(GAME_WIDTH + 0.5, TOP_BAND_Y + BAND_HEIGHT + 5, GAME_WIDTH + 0.5, BOTTOM_BAND_Y - 5);
+      g.translateCanvas(-x, -y);
+    }, { pool: 'ui' });
+  const friezeStamp = placeStamp(self, frieze, 0, 0).setDepth(79.5);
+
+  const plate = self.add.graphics().setDepth(499).setVisible(laneIsDocked(self));
+  const x = uiColumnX();
+  const foot = GAME_HEIGHT - ACTION_BAR_HEIGHT;
+  plate.fillStyle(INK_UI.overlay, 1);
+  plate.fillRect(x, HEADER_HEIGHT, GAME_WIDTH, foot - HEADER_HEIGHT);
+  for (let i = 0; i < 6; i += 1) {
+    plate.fillStyle(INK_UI.brush, 0.05 * (6 - i) / 6);
+    plate.fillRect(x - 2 - i * 2, HEADER_HEIGHT, 2, foot - HEADER_HEIGHT);
+  }
+  plate.lineStyle(1.5, INK_UI.brush, 0.7);
+  plate.lineBetween(x - 0.5, HEADER_HEIGHT, x - 0.5, foot);
+  self.dockEdge = plate;
+  self.desktopChrome = [band, friezeStamp, plate];
+}
 
 /** The three map controls stacked at the right edge, matching the classic modes. */
 type MapControlIcon = 'zoom-in' | 'zoom-out' | 'mode';
 
 /**
  * The floating map controls: half their tap area, and the clearance kept below the lowest one.
- * The buttons draw 36×36 but claim 42×42 of touch, and it is the touch area that has to stay
+ * The buttons draw 36×36 but claim 44×44 of touch, and it is the touch area that has to stay
  * off the action bar.
  */
-const MAP_CONTROL_RADIUS = 21;
+const MAP_CONTROL_RADIUS = 22;
 const MAP_CONTROL_GAP = 12;
 /** Vertical pitch of the stack. */
-const MAP_CONTROL_PITCH = 42;
+const MAP_CONTROL_PITCH = 48;
 
 
 export function create(self: ConquestUIScene): void {
   applyRenderScale(self);
   // The chrome is printed on the same sheet as the world, so it takes the same paper pass.
   applyPaperFX(self);
-  attachPaperSheet(self);
+  // The grain over the whole sheet: this scene's camera covers it, and it renders last.
+  self.paper = attachPaperSheet(self, { width: surfaceWidth() });
   self.ui = new InkUI(self);
   self.resourceBar = new ResourceBar(self, self.state);
   self.add.existing(self.resourceBar);
   self.resourceBar.setDepth(80);
+  // The desktop's top bar: one band across the sheet, with the resource strip at its left and the
+  // run's readout beside it rather than under it — the composition every strategy player reads
+  // first. The band is drawn under both so the sheet's edge does not show between them.
+  if (isDesktopSheet()) {
+    buildDesktopChrome(self);
+    self.resourceBar.setPlateVisible(false);
+  }
 
   // The resource strip is the door to the ledger. A player wondering about a number taps
   // the number — no new bar button, and the books open exactly where the question arose.
@@ -86,12 +167,25 @@ export function create(self: ConquestUIScene): void {
     if (self.state.pendingAscentPrompt || self.openPromptKey !== '') return;
     self.openLane('ledger');
   });
+  self.ledgerHit = ledgerHit;
 
-  self.hud = new AscentHud(self);
+  self.hud = new AscentHud(self, isDesktopSheet() ? { compact: true, width: readoutWidth() } : {});
+  if (isDesktopSheet()) {
+    // The readout beside the strip, laid out on the strip's own two rows (`AscentHud.placeCompact`)
+    // and lifted so its band's top is the bar's top; the bar's band is its plate, so the readout's
+    // own plate would only draw a seam in it.
+    self.hud.root.setPosition(GAME_WIDTH, -HEADER_HEIGHT);
+    self.hud.setPanelVisible(false);
+  }
 
   // Built once and refreshed in place. Rebuilding it every tick would churn a dozen game
   // objects a second for a bar whose labels change only when the run's state does.
-  self.actionBar = new ActionBar(self, self.state, (action) => handleBarAction(self, action));
+  self.actionBar = new ActionBar(self, self.state, (action) => handleBarAction(self, action), {
+    // The bottom bar spans the desktop sheet, its lanes centred and its pause/menu cluster
+    // lifted into the top bar's right end; the column's own row on the phone.
+    width: surfaceWidth(),
+    layout: isDesktopSheet() ? DESKTOP_BAR_LAYOUT : undefined,
+  });
   self.actionBar.statusColor = (action) => barStatusColor(self, action);
   // Not `Boolean(activeBattle)`. See `realmUnderAttack`: a siege raises no watched battle, so the
   // one control that leads to the war used to leave the bar at the exact moment the war became
@@ -107,6 +201,11 @@ export function create(self: ConquestUIScene): void {
   // advice names a lane and the bar already knows how to open every lane there is. A second
   // route into those screens is a second thing to keep correct.
   self.advisor = new AdvisorStrip(self, (lane) => handleBarAction(self, lane));
+  // Under the bar at the left, where a desktop keeps its alerts: the strip can run to two lines
+  // and open a sheet under itself, and neither fits inside a 52-unit band (it was tried, and it
+  // read as a card jammed into the bar). The readout it used to sit under has moved up beside
+  // the strip, so the advice follows the band up with ten units of space below the header.
+  if (isDesktopSheet()) self.advisor.setOffset(0, 10 - ASCENT_HUD_HEIGHT);
   // Under the advisor, and a door rather than a notice: every whisper has a scene written for
   // it that nothing in this mode could reach.
   self.whispers = new WhisperLine(self, (storyId) => self.showStoryPage(storyId));
@@ -123,9 +222,26 @@ export function create(self: ConquestUIScene): void {
   // A first run teaches by default, and the manual's button forces it for any run.
   self.tourActive = self.guidedRun || !hasSeenRunTour();
 
+  // The keyboard, on a computer only — the platform, not the sheet: a portrait window on a PC
+  // still has the keys. Its teardown joins the SHUTDOWN handler below, because a listener left
+  // on the keyboard plugin after the scene has gone answers for a run that is over.
+  const removeKeys = isDesktopPlatform() ? installDesktopKeys(self) : undefined;
+  // The sheet changed width: the published tap guard spans it, so it is composed again.
+  const onLayoutResized = (): void => {
+    if (!self.scene.isActive()) return;
+    // The band, the frieze and the dock plate are sheet-wide; the readout's width follows the bar.
+    buildDesktopChrome(self);
+    self.hud.setWidth(readoutWidth());
+    if (self.state.ascent) self.hud.render(self.state.ascent);
+    renderActionBar(self);
+  };
+  if (isDesktopLayout()) self.game.events.on(LAYOUT_RESIZED, onLayoutResized);
+
   // The battle clock and the published control bounds both outlive a single render; neither
   // may survive the scene that owns them.
   self.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    removeKeys?.();
+    self.game.events.off(LAYOUT_RESIZED, onLayoutResized);
     self.stopBattleClock();
     // A dead scene must not answer the input guard for a live one.
     forgetSheet();
@@ -145,6 +261,8 @@ export function create(self: ConquestUIScene): void {
     // display list, these two do not.
     self.events.off('state-changed', self.onStateChanged);
     clearLanePage(self);
+    self.desktopChrome = undefined;
+    self.dockEdge = undefined;
   });
 
   self.modalLayer = self.add.container(0, 0).setDepth(500);
@@ -158,6 +276,7 @@ export function create(self: ConquestUIScene): void {
   );
 
   self.events.on('state-changed', self.onStateChanged);
+  self.worldDimmed = false;
   refresh(self);
 }
 
@@ -403,7 +522,10 @@ function playPendingWaveCue(self: ConquestUIScene): void {
 function layoutInheritanceChip(self: ConquestUIScene): void {
   if (self.state.pendingAscentPrompt || self.openPromptKey !== '') return;
   const barTop = GAME_HEIGHT - ACTION_BAR_HEIGHT;
-  const floor = Math.min(inspectCardTop(self) ?? barTop, self.barHint.top() ?? barTop);
+  // On the desktop the province card is docked at the right and the chip stands at the left, so
+  // the card is not in the chip's row and does not lift it.
+  const cardTop = isDesktopSheet() ? undefined : inspectCardTop(self);
+  const floor = Math.min(cardTop ?? barTop, self.barHint.top() ?? barTop);
   self.inheritance.render(self.state, floor);
   // The tap guard and the paused badge both read the chip's rectangle.
   window.__hudTapBounds = [...self.mapControlBounds, ...self.advisor.tapBounds(), ...self.whispers.tapBounds(),
@@ -411,25 +533,40 @@ function layoutInheritanceChip(self: ConquestUIScene): void {
 }
 
 export function renderActionBar(self: ConquestUIScene): void {
-  const hidden = Boolean(self.state.pendingAscentPrompt) || self.openPromptKey !== '';
-  self.actionBar.setVisible(!hidden);
-  if (!hidden) self.actionBar.refresh();
-  self.advisor.setVisible(!hidden);
-  self.whispers.setVisible(!hidden);
-  self.inheritance.setVisible(!hidden);
+  // Two questions that used to be one. `covered`: something owns the screen, so the map is deaf
+  // and dimmed. `chromeHidden`: the bar and the strips come down as well. On the phone they are
+  // the same answer. On the desktop a lane is a panel docked at the edge, and the bottom bar stays
+  // up beside it so the next lane is one press away — the tab row every strategy game has — while
+  // a card, a sheet or the battle's stage still takes everything down.
+  const covered = Boolean(self.state.pendingAscentPrompt) || self.openPromptKey !== '';
+  const chromeHidden = covered && !laneIsDocked(self);
+  // The world's own dim, told once per transition from the one place that decides what "covered"
+  // means, so the dim and the tap guard below can never disagree. Lighter under a docked lane,
+  // whose map is meant to be looked at while reading; the card's dim is the event window's.
+  if (covered !== self.worldDimmed) {
+    self.worldDimmed = covered;
+    self.events.emit('ui:world-dim', covered, laneIsDocked(self) ? 0.45 : 0.93);
+  }
+  self.actionBar.setVisible(!chromeHidden);
+  if (!chromeHidden) self.actionBar.refresh();
+  self.dockEdge?.setVisible(laneIsDocked(self));
+  self.advisor.setVisible(!chromeHidden);
+  self.whispers.setVisible(!chromeHidden);
+  self.inheritance.setVisible(!chromeHidden);
   // Not while the run's tour is pointing at things: two cards with arrows is a page arguing.
   self.barHint.render(self.state, self.advisor.shown(), (action) => self.actionBar.slotBounds(action),
-    hidden || Boolean(self.runTour));
-  renderMapControls(self, hidden);
+    covered || Boolean(self.runTour));
+  renderMapControls(self, covered);
   // Composed wholesale on every refresh, from the stack's recorded rectangles plus whatever the
   // advisor and the whisper strip currently occupy. The controls themselves are keyed and only
-  // rebuilt when they move; the published guard list is cheap and must always be current.
-  window.__hudTapBounds = hidden
-    ? [{ x: 0, y: 0, width: GAME_WIDTH, height: GAME_HEIGHT }]
+  // rebuilt when they move; the published guard list is cheap and must always be current. In the
+  // sheet's own units: this scene's camera covers the sheet on every layout.
+  window.__hudTapBounds = covered
+    ? [{ x: 0, y: 0, width: surfaceWidth(), height: GAME_HEIGHT }]
     : [...self.mapControlBounds, ...self.advisor.tapBounds(), ...self.whispers.tapBounds(),
       ...self.inheritance.tapBounds()];
-  renderPausedBadge(self, hidden);
-  self.maybeRunTour(hidden);
+  renderPausedBadge(self, covered);
+  self.maybeRunTour(covered);
 }
 
 /**
@@ -454,7 +591,7 @@ function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
 
   const width = 128;
   const height = 24;
-  const x = (GAME_WIDTH - width) / 2;
+  const x = (surfaceWidth() - width) / 2;
   const y = (chipTop ?? GAME_HEIGHT - ACTION_BAR_HEIGHT) - height - 10;
 
   const badge = self.add.container(0, 0).setDepth(430);
@@ -464,7 +601,7 @@ function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
     border: INK_UI.gold,
     radius: 12,
   }));
-  badge.add(self.add.text(GAME_WIDTH / 2, y + height / 2, t('ascent.hud.paused'), {
+  badge.add(self.add.text(surfaceWidth() / 2, y + height / 2, t('ascent.hud.paused'), {
     color: '#2a2118',
     fontFamily: UI_FONT,
     fontSize: '11px',
@@ -495,7 +632,8 @@ function renderMapControls(self: ConquestUIScene, hidden: boolean): void {
     return;
   }
 
-  const x = GAME_WIDTH - 30;
+  // The sheet's right edge: the column's on the phone, the window's on the desktop.
+  const x = surfaceWidth() - 30;
   // The inspect card spans the full width, so when one is up the stack sits above it
   // rather than on top of it.
   //
@@ -529,64 +667,25 @@ function renderMapControls(self: ConquestUIScene, hidden: boolean): void {
   });
 }
 
-/** The classic modes' round map button, redrawn here rather than reaching into UIScene. */
+/** Map actions use the same printed controls as the clock and menu. */
 function createMapIconButton(self: ConquestUIScene,
   x: number,
   y: number,
   icon: MapControlIcon,
   onClick: () => void,
 ): Phaser.GameObjects.Container {
-  const container = self.add.container(x, y).setDepth(430);
-  const g = self.add.graphics();
-  g.fillStyle(INK_UI.parchment, 0.96);
-  g.fillRoundedRect(-18, -18, 36, 36, 8);
-  g.lineStyle(2, INK_UI.brush, 0.9);
-  g.strokeRoundedRect(-18, -18, 36, 36, 8);
-  g.lineStyle(3, INK_UI.brush, 0.9);
-
-  if (icon === 'zoom-in' || icon === 'zoom-out') {
-    g.lineBetween(-8, 0, 8, 0);
-    if (icon === 'zoom-in') g.lineBetween(0, -8, 0, 8);
-  } else if (self.state.mapRenderMode === 'terrain') {
-    // Showing terrain → the button offers the control view, drawn as two owner blocks.
-    g.fillStyle(INK_UI.jade, 0.95);
-    g.fillRect(-10, -9, 9, 18);
-    g.fillStyle(INK_UI.cinnabar, 0.95);
-    g.fillRect(1, -9, 9, 18);
-    g.lineStyle(2, INK_UI.brush, 0.82);
-    g.strokeRect(-10, -9, 20, 18);
-  } else {
-    // Showing control → the button offers terrain, drawn as a mountain over water.
-    g.fillStyle(INK_UI.softBrush, 0.95);
-    g.fillTriangle(-10, 8, 0, -9, 10, 8);
-    g.fillStyle(0x5bb6d6, 0.9);
-    g.fillRect(-10, 9, 20, 3);
-  }
-
-  const hit = self.add.rectangle(0, 0, 42, 42, 0xffffff, 0.001).setInteractive({ useHandCursor: true });
-  const stop = (
-    _pointer: Phaser.Input.Pointer,
-    _localX: number,
-    _localY: number,
-    event: Phaser.Types.Input.EventData,
-  ) => event.stopPropagation();
-  hit.on('pointerdown', stop);
-  hit.on('pointerup', (
-    _pointer: Phaser.Input.Pointer,
-    _localX: number,
-    _localY: number,
-    event: Phaser.Types.Input.EventData,
-  ) => {
-    event.stopPropagation();
-    onClick();
-  });
-
-  container.add([g, hit]);
-  return container;
+  const terrain = self.state.mapRenderMode === 'terrain';
+  return gameplayControl(self, {
+    x, y, icon: icon === 'mode' ? (terrain ? 'territory' : 'terrain') : icon,
+    label: mapControlLabel(icon, terrain), active: icon === 'mode' && !terrain, onClick,
+  }).setDepth(430);
 }
 
-/** The bottom bar's routing — the same screens the classic modes open, plus the Codex. */
-function handleBarAction(self: ConquestUIScene, action: string): void {
+/**
+ * The bottom bar's routing — the same screens the classic modes open, plus the Codex. Exported
+ * for the desktop keys, which are the bar's own actions reached without the mouse.
+ */
+export function handleBarAction(self: ConquestUIScene, action: string): void {
   if (action === 'pause') {
     togglePause(self);
     return;
@@ -598,6 +697,14 @@ function handleBarAction(self: ConquestUIScene, action: string): void {
   if (action === 'codex') {
     self.showCodex();
     return;
+  }
+  // On the desktop the bar stays up beside a docked lane, so a lane button is a tab: the same
+  // one closes the page, another swaps it. Closed first, never opened over — `openLane` stashes
+  // the pause it found, and a lane found under another lane would stash the lane's own hold.
+  if (laneIsDocked(self)) {
+    const same = self.openPromptKey === `lane:${action}`;
+    self.closeLane();
+    if (same) return;
   }
   self.openLane(action as AscentLane);
 }
@@ -686,7 +793,10 @@ function barStatusColor(self: ConquestUIScene, action: string): number | undefin
 export function setMapVisible(self: ConquestUIScene, visible: boolean): void {
   const parent = self.scene.manager.getScene('ConquestScene') ?? self.scene.manager.getScene('MapScene');
   if (parent && parent !== (self as Phaser.Scene) && parent.scene.isActive()) {
-    parent.scene.setVisible(visible);
+    // Never hidden on the desktop: the battle's stage is centred on the sheet with the map either
+    // side of it, and the world dims under it instead (`ui:world-dim`). The 17 ms above was a
+    // phone measurement.
+    parent.scene.setVisible(visible || isDesktopSheet());
   }
 }
 
@@ -705,6 +815,8 @@ export function beginOverlay(self: ConquestUIScene, key: string): void {
   qualityLadder()?.hold(800);
   releaseOverlay(self);
   self.openPromptKey = key;
+  // Where this overlay belongs on the sheet — docked, centred, or the battle's stage.
+  placeModalLayer(self);
   // **The map is not hidden here any more.** It used to be, for `lane:battle`, on the reasoning
   // that the battle screen is a full sheet of parchment with nothing showing through it — which is
   // true of the *fight* and false of the other page that lane opens. `showBattle` falls back to the
@@ -723,6 +835,8 @@ export function beginOverlay(self: ConquestUIScene, key: string): void {
 
 function releaseOverlay(self: ConquestUIScene): void {
   setMapVisible(self, true);
+  // Back to the column: the battle is the only sheet that widens it, and it is gone with the layer.
+  setHudSheet(self, false);
   self.stopBattleClock();
   // Nulled before `clearLanePage` runs, so the funnel cannot see it — this door pays its own way.
   if (self.battleUi) stopBattleMusic();
@@ -812,10 +926,14 @@ function renderInspect(self: ConquestUIScene): void {
   if (!land) return;
 
   const mine = land.ownerId === PLAYER_KINGDOM_ID;
+  // The dock: the card and its buttons sit in the sheet's bottom-right corner on the desktop —
+  // the selected-thing panel of every strategy game — and at the foot of the column on the phone,
+  // where the dock is zero.
+  const dock = uiColumnX();
 
   // Built at nought, measured, then moved — see the note on `INSPECT_GAP`.
   const card = self.ui.card(
-    { x: 14, y: 0, width: GAME_WIDTH - 28, height: 0 },
+    { x: 14 + dock, y: 0, width: GAME_WIDTH - 28, height: 0 },
     {
       title: land.name,
       subtitle: `${t('ascent.march.garrison', {
@@ -852,7 +970,7 @@ function renderInspect(self: ConquestUIScene): void {
   const cardHeight = Math.round((card.getData('cardHeight') as number) ?? INSPECT_FALLBACK_HEIGHT);
   self.inspectBlockHeight = cardHeight + INSPECT_GAP + INSPECT_BUTTON_HEIGHT + INSPECT_FLOOR_GAP;
   const cardY = GAME_HEIGHT - ACTION_BAR_HEIGHT - self.inspectBlockHeight;
-  card.setPosition(14, cardY);
+  card.setPosition(14 + dock, cardY);
   card.setDepth(120);
   self.inspectObjects.push(card);
 
@@ -879,19 +997,19 @@ function renderInspect(self: ConquestUIScene): void {
   const controls: Phaser.GameObjects.GameObject[] = mine
     ? [
         self.ui.button(
-          { x: 14, y: buttonY, width: third, height: INSPECT_BUTTON_HEIGHT },
+          { x: 14 + dock, y: buttonY, width: third, height: INSPECT_BUTTON_HEIGHT },
           governor ? t('ascent.inspect.changeGovernor') : t('ascent.inspect.postGovernor'),
           open('governor'),
           { variant: 'primary', fontSize: '11px' },
         ),
         self.ui.button(
-          { x: 14 + third + 6, y: buttonY, width: third, height: INSPECT_BUTTON_HEIGHT },
+          { x: 14 + dock + third + 6, y: buttonY, width: third, height: INSPECT_BUTTON_HEIGHT },
           t('ascent.inspect.changeFocus'),
           open('focus'),
           { fontSize: '11px' },
         ),
         self.ui.button(
-          { x: 14 + (third + 6) * 2, y: buttonY, width: third, height: INSPECT_BUTTON_HEIGHT },
+          { x: 14 + dock + (third + 6) * 2, y: buttonY, width: third, height: INSPECT_BUTTON_HEIGHT },
           t('ascent.inspect.build'),
           open('options'),
           { fontSize: '11px' },
@@ -899,7 +1017,7 @@ function renderInspect(self: ConquestUIScene): void {
       ]
     : [
         self.ui.button(
-          { x: 14, y: buttonY, width: GAME_WIDTH - 28, height: INSPECT_BUTTON_HEIGHT },
+          { x: 14 + dock, y: buttonY, width: GAME_WIDTH - 28, height: INSPECT_BUTTON_HEIGHT },
           t('ascent.conquer.claimThis', { land: land.name }),
           () => self.events.emit('ui:ascent-conquer', land.id),
           { variant: 'primary', fontSize: '13px' },

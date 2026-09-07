@@ -10,6 +10,7 @@
  * there is no string, so every optional section is gated on the result differing from its key.
  */
 import { GAME_HEIGHT, GAME_WIDTH } from '../../../game/constants';
+import { hudSheetHeight } from '../../../game/cameraLayout';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import {
   heldBeat,
@@ -358,7 +359,7 @@ export function showStoryPage(self: ConquestUIScene, storyId: string): void {
   self.modalLayer.add(self.ui.button(
     {
       x: 20,
-      y: GAME_HEIGHT - LANE_CLOSE_BUTTON_OFFSET,
+      y: hudSheetHeight() - LANE_CLOSE_BUTTON_OFFSET,
       width: GAME_WIDTH - 40,
       height: LANE_CLOSE_BUTTON_HEIGHT,
     },

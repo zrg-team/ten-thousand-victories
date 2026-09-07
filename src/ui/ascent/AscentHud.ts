@@ -9,6 +9,7 @@ import { t } from '../../i18n';
 import { formatNumber } from '../../utils/format';
 import type { AscentState } from '../../state/types';
 import { PIGMENT } from '../ink/palette';
+import { ROW_Y as STRIP_ROW_Y, TITLE_Y as STRIP_TITLE_Y } from '../ResourceBar';
 
 /**
  * Bottom edge of the HUD band. Kept in sync with ConquestScene's input guard.
@@ -96,11 +97,45 @@ export class AscentHud {
     wave: Phaser.GameObjects.Text;
     meter: Phaser.GameObjects.Graphics;
     xp: Phaser.GameObjects.Graphics;
-    labels: Phaser.GameObjects.GameObject[];
+    /** POWER's caption, then THREAT's. */
+    labels: Phaser.GameObjects.Text[];
   };
 
-  constructor(private readonly scene: Phaser.Scene) {
+  /**
+   * Everything the readout draws, in one container, so the whole band can be placed: on the desktop
+   * it stands beside the resource strip in a top bar rather than under it (`conquest/shell.ts`).
+   * Children keep the coordinates they always had; only the container moves.
+   */
+  readonly root: Phaser.GameObjects.Container;
+  /** Whether the band paints its own plate; the desktop's top bar paints one under it instead. */
+  private panelShown = true;
+  /**
+   * The bar layout: the readout on the resource strip's own two rows, for the desktop's top bar
+   * where it stands beside the strip rather than under it. The phone band's rows are its own —
+   * captions over figures over a meter over an ambition line, forty-eight units of them — and set
+   * next to the strip's title row and store row they read as a second, denser bar glued to the
+   * first, with the ambition line struck through by the frieze. On the strip's rows the two cells
+   * of the bar share one rhythm (`placeCompact`).
+   */
+  private readonly compact: boolean;
+  /** How wide the compact readout is; the phone band is the column's width. */
+  private width: number;
+
+  constructor(private readonly scene: Phaser.Scene, opts: { compact?: boolean; width?: number } = {}) {
+    this.compact = opts.compact ?? false;
+    this.width = opts.width ?? GAME_WIDTH;
+    this.root = scene.add.container(0, 0).setDepth(90);
     this.ui = new InkUI(scene);
+  }
+
+  /** A new width for the compact readout; the next render lays its parts out against it. */
+  setWidth(width: number): void {
+    this.width = width;
+  }
+
+  setPanelVisible(visible: boolean): void {
+    this.panelShown = visible;
+    this.parts?.panel.setVisible(visible);
   }
 
   destroy(): void {
@@ -145,7 +180,7 @@ export class AscentHud {
     if (delta !== 0 && ascent.powerPrev > 0) this.spawnTicker(delta, parts.powerValue.width);
 
     // ── THREAT ───────────────────────────────────────────────────────────
-    const x = GAME_WIDTH - 14;
+    const x = (this.compact ? this.width : GAME_WIDTH) - 14;
     // Compared against what can actually fight, not the headline POWER — a full treasury
     // does not hold a wall, and colouring it against POWER would flatter the player.
     const ratio = ascent.defensePower > 0 ? ascent.threat / ascent.defensePower : 99;
@@ -158,7 +193,7 @@ export class AscentHud {
     write(parts.threatValue, formatNumber(ascent.threat), color);
     // Beside the figure, not beneath it: the verdict and the number are one thought.
     write(parts.threatVerdict, t(key), color);
-    parts.threatVerdict.setX(x - parts.threatValue.width - 6);
+    if (!this.compact) parts.threatVerdict.setX(x - parts.threatValue.width - 6);
     // How far left the THREAT column actually reaches this frame. Everything in the middle stops
     // here, and it is measured rather than assumed because "ahead" and "đang dẫn" are not the same
     // width, and neither is 420 and 12,480.
@@ -214,10 +249,13 @@ export class AscentHud {
         t('ascent.hud.ambition', { mult: heat.toFixed(1) }),
         heat < 1.4 ? '#4c6b46' : heat < 2 ? '#9a6b16' : '#a4402c',
       );
-      parts.ambition.setVisible(true).setX(x);
-      // The meters are bounded by whatever sits furthest left in the right-hand column, not by any
-      // one label — otherwise the gold fill runs straight under this one.
-      midRight = Math.min(midRight, x - parts.ambition.width - 10);
+      parts.ambition.setVisible(true);
+      if (!this.compact) {
+        parts.ambition.setX(x);
+        // The meters are bounded by whatever sits furthest left in the right-hand column, not by
+        // any one label — otherwise the gold fill runs straight under this one.
+        midRight = Math.min(midRight, x - parts.ambition.width - 10);
+      }
     } else {
       parts.ambition.setVisible(false);
     }
@@ -230,17 +268,27 @@ export class AscentHud {
     write(parts.level, t('ascent.hud.level', { level: ascent.level }));
     write(parts.wave, t('ascent.hud.wave', { wave: ascent.wave }));
 
-    const barX = Phaser.Math.Clamp(14 + Math.max(this.powerWidth, parts.powerValue.width) + 16, 92, 214);
-    const barWidth = Math.max(56, midRight - barX);
+    let barX: number;
+    let barWidth: number;
+    let y: number;
+    if (this.compact) {
+      ({ barX, barWidth, y } = this.placeCompact(parts));
+    } else {
+      barX = Phaser.Math.Clamp(14 + Math.max(this.powerWidth, parts.powerValue.width) + 16, 92, 214);
+      barWidth = Math.max(56, midRight - barX);
 
-    // The level and the wave sit on the label row, between POWER and THREAT — the one line of this
-    // band that was empty in the middle from the day it was drawn — and they take that row's own
-    // width, not the frieze's.
-    parts.level.setPosition(this.labelSpan.left, TOP + 2);
-    parts.wave.setPosition(this.labelSpan.left + parts.level.width + 7, TOP + 2);
-    parts.countdown.setX(this.labelSpan.right);
+      // The level and the wave sit on the label row, between POWER and THREAT — the one line of
+      // this band that was empty in the middle from the day it was drawn — and they take that
+      // row's own width, not the frieze's.
+      parts.level.setPosition(this.labelSpan.left, TOP + 2);
+      parts.wave.setPosition(this.labelSpan.left + parts.level.width + 7, TOP + 2);
+      parts.countdown.setX(this.labelSpan.right);
 
-    const y = TOP + 17;
+      y = TOP + 17;
+    }
+    // In the bar the frieze yields the middle when the sheet is too narrow to draw it as birds:
+    // eight herons in forty units is a smear, and the figures either side matter more.
+    const meterShown = barWidth >= 44;
 
     // The wave, as a Đông Sơn frieze: the Lạc birds of the Ngọc Lũ tympanum ink in as it closes.
     // A bar chart from 500 BCE, and it earns the slot because the meter speaks in the narrator's
@@ -248,27 +296,65 @@ export class AscentHud {
     const toWave = 1 - Math.max(0, Math.min(1, ascent.ticksToWave / Math.max(1, WAVE_INTERVAL_TICKS)));
     // Re-inked only when the frieze visibly moves: the meter is ~1,250 recorded path segments,
     // and re-recording them on every refresh was the band's single biggest line item.
-    const meterKey = `${barX}:${barWidth}:${Math.round(toWave * barWidth)}`;
+    const meterKey = meterShown ? `${barX}:${barWidth}:${Math.round(toWave * barWidth)}` : 'off';
     if (this.meterKey !== meterKey) {
       this.meterKey = meterKey;
       parts.meter.clear();
-      heronMeter(parts.meter, barX, y, barWidth, 11, toWave, true);
+      if (meterShown) heronMeter(parts.meter, barX, y, barWidth, 11, toWave, true);
     }
 
     // Level progress keeps its own thin rule beneath the frieze: two different quantities, and
     // stacking them beat merging them into one ambiguous bar.
     const filled = Math.max(0, Math.min(1, ascent.xp / Math.max(1, ascent.xpToNext)));
-    const xpKey = `${barX}:${barWidth}:${Math.round(filled * barWidth)}`;
+    const xpKey = meterShown ? `${barX}:${barWidth}:${Math.round(filled * barWidth)}` : 'off';
     if (this.xpKey !== xpKey) {
       this.xpKey = xpKey;
       parts.xp.clear();
-      parts.xp.fillStyle(INK_UI.brush, 0.2);
-      parts.xp.fillRect(barX, y + 13, barWidth, 3);
-      if (filled > 0) {
-        parts.xp.fillStyle(INK_UI.gold, 0.88);
-        parts.xp.fillRect(barX, y + 13, Math.max(1.5, barWidth * filled), 3);
+      if (meterShown) {
+        // A unit tighter under the frieze in the bar, where the row closes on the bottom teeth.
+        const xpY = y + (this.compact ? 12 : 13);
+        parts.xp.fillStyle(INK_UI.brush, 0.2);
+        parts.xp.fillRect(barX, xpY, barWidth, 3);
+        if (filled > 0) {
+          parts.xp.fillStyle(INK_UI.gold, 0.88);
+          parts.xp.fillRect(barX, xpY, Math.max(1.5, barWidth * filled), 3);
+        }
       }
     }
+  }
+
+  /**
+   * The bar layout, on the strip's two rows.
+   *
+   * Row one is the strip's title row: the level and the wave stand where the strip prints the
+   * season, the ambition heat beside them, and the wave clock at the row's right end. Row two is
+   * the strip's store row: POWER at the left as a caption and a figure, THREAT at the right as a
+   * caption, a figure and its verdict, and the wave frieze and level rule in the middle, where
+   * the phone band keeps them. Everything sits between the band's two frieze rows, which the
+   * phone layout's ambition line did not; and the two cells of the bar share one baseline.
+   */
+  private placeCompact(parts: NonNullable<AscentHud['parts']>): { barX: number; barWidth: number; y: number } {
+    const right = this.width - 14;
+    const title = TOP + STRIP_TITLE_Y;
+    parts.level.setPosition(14, title);
+    parts.wave.setPosition(14 + parts.level.width + 7, title);
+    parts.ambition.setPosition(parts.wave.x + parts.wave.width + 10, title + 3);
+    parts.countdown.setPosition(right, title + 3);
+
+    const row = TOP + STRIP_ROW_Y;
+    const [powerLabel, threatLabel] = parts.labels;
+    powerLabel.setPosition(14, row);
+    parts.powerValue.setPosition(14 + powerLabel.width + 6, row);
+    parts.threatVerdict.setPosition(right, row);
+    parts.threatValue.setPosition(right - parts.threatVerdict.width - 5, row);
+    threatLabel.setPosition(parts.threatValue.x - parts.threatValue.width - 6, row);
+
+    // The frieze starts where POWER's target figure ends and stops short of THREAT's caption; it
+    // is drawn eight units above the row's centre so its eleven units and the level rule beneath
+    // close on the bottom teeth without touching them.
+    const barX = parts.powerValue.x + Math.max(this.powerWidth, parts.powerValue.width) + 14;
+    const midRight = threatLabel.x - threatLabel.width - 12;
+    return { barX, barWidth: midRight - barX, y: row - 8 };
   }
 
   /** The furniture, made once: everything whose position and content the band keeps re-writing. */
@@ -277,7 +363,8 @@ export class AscentHud {
   private xpKey = '';
 
   private build(): NonNullable<AscentHud['parts']> {
-    const labels: Phaser.GameObjects.GameObject[] = [];
+    const labels: Phaser.GameObjects.Text[] = [];
+    const compact = this.compact;
 
     // One plate with the resource bar above, not a card floating under it.
     //
@@ -294,44 +381,50 @@ export class AscentHud {
     panel.lineBetween(0, TOP + ASCENT_HUD_HEIGHT - 0.5, GAME_WIDTH, TOP + ASCENT_HUD_HEIGHT - 0.5);
     panel.setDepth(90);
 
-    const x = GAME_WIDTH - 14;
+    const x = (compact ? this.width : GAME_WIDTH) - 14;
+    // In the bar the captions stand on the store row beside their figures, centred on it like the
+    // strip's own labels; on the phone band they head their columns.
     const powerLabel = this.ui.label(14, TOP + 2, t('ascent.hud.power'), 'caption', {
       color: INK_UI_HEX.mutedText, fontSize: '9px',
-    }).setAlpha(0.7).setDepth(91);
+    }).setOrigin(0, compact ? 0.5 : 0).setAlpha(0.7).setDepth(91);
     const threatLabel = this.ui.label(x, TOP + 2, t('ascent.hud.threat'), 'caption', {
       color: INK_UI_HEX.mutedText, fontSize: '9px', align: 'right',
-    }).setOrigin(1, 0).setAlpha(0.7).setDepth(91);
+    }).setOrigin(1, compact ? 0.5 : 0).setAlpha(0.7).setDepth(91);
     labels.push(powerLabel, threatLabel);
     this.labelSpan = { left: 14 + powerLabel.width + 14, right: x - threatLabel.width - 14 };
 
+    // The figures are the strip's size in the bar — a 22px number beside 12px store counts was
+    // the loudest thing on the row — and the phone band's on the phone.
     const powerValue = this.scene.add.text(14, TOP + 11, formatNumber(this.shownPower), {
-      color: '#2a2118', fontFamily: TITLE_FONT, fontSize: '22px', fontStyle: '700',
-    }).setDepth(91);
+      color: '#2a2118', fontFamily: TITLE_FONT, fontSize: compact ? '16px' : '22px', fontStyle: '700',
+    }).setOrigin(0, compact ? 0.5 : 0).setDepth(91);
 
     const threatValue = this.scene.add.text(x, TOP + 11, '', {
-      color: '#4c6b46', fontFamily: TITLE_FONT, fontSize: '20px', fontStyle: '700', align: 'right',
-    }).setOrigin(1, 0).setDepth(91);
+      color: '#4c6b46', fontFamily: TITLE_FONT, fontSize: compact ? '16px' : '20px', fontStyle: '700', align: 'right',
+    }).setOrigin(1, compact ? 0.5 : 0).setDepth(91);
 
     const threatVerdict = this.scene.add.text(x, TOP + 17, '', {
       color: '#4c6b46', fontFamily: UI_FONT, fontSize: '10px', align: 'right',
-    }).setOrigin(1, 0).setAlpha(0.9).setDepth(91);
+    }).setOrigin(1, compact ? 0.5 : 0).setAlpha(0.9).setDepth(91);
 
     // On the label row with the level and the wave, right-aligned over the meters. `render`
     // places it; the x here is only somewhere legal to stand before the first frame.
     const countdown = this.scene.add.text(x, TOP + 2, '', {
-      color: '#5a4c39', fontFamily: UI_FONT, fontSize: '10px', align: 'right',
+      color: '#5a4c39', fontFamily: UI_FONT, fontSize: compact ? '11px' : '10px', align: 'right',
     }).setOrigin(1, 0).setDepth(91);
 
-    // Ambition keeps the right-hand column, under the verdict it explains.
+    // Ambition keeps the right-hand column, under the verdict it explains; in the bar it follows
+    // the wave along the title row.
     const ambition = this.scene.add.text(x, TOP + 32, '', {
-      color: '#4c6b46', fontFamily: UI_FONT, fontSize: '10px', fontStyle: '700', align: 'right',
-    }).setOrigin(1, 0).setVisible(false).setDepth(91);
+      color: '#4c6b46', fontFamily: UI_FONT, fontSize: compact ? '11px' : '10px', fontStyle: '700', align: compact ? 'left' : 'right',
+    }).setOrigin(compact ? 0 : 1, 0).setVisible(false).setDepth(91);
 
+    // The level and the wave are the bar's title, set like the strip's season beside them.
     const level = this.scene.add.text(0, TOP + 2, '', {
-      color: '#2a2118', fontFamily: UI_FONT, fontSize: '10px', fontStyle: '700',
+      color: '#2a2118', fontFamily: UI_FONT, fontSize: compact ? '15px' : '10px', fontStyle: '700',
     }).setDepth(91);
     const wave = this.scene.add.text(0, TOP + 2, '', {
-      color: '#5a4c39', fontFamily: UI_FONT, fontSize: '10px',
+      color: '#5a4c39', fontFamily: UI_FONT, fontSize: compact ? '15px' : '10px',
     }).setDepth(91);
 
     const meter = this.scene.add.graphics().setDepth(91);
@@ -340,6 +433,10 @@ export class AscentHud {
     this.parts = {
       panel, powerValue, threatValue, threatVerdict, countdown, ambition, level, wave, meter, xp, labels,
     };
+    // Into the root, in the order the depths above asked for: the panel under everything, the
+    // figures over it. A container ignores its children's `setDepth`, so the order is the depth.
+    this.root.add([panel, ...labels, powerValue, threatValue, threatVerdict, countdown, ambition, level, wave, meter, xp]);
+    panel.setVisible(this.panelShown);
     return this.parts;
   }
 
@@ -354,15 +451,18 @@ export class AscentHud {
    */
   private spawnTicker(delta: number, powerWidth: number): void {
     const rising = delta > 0;
+    // In the bar the figure stands on the store row, so the ticker rises from beside it there.
+    const figureX = this.compact && this.parts ? this.parts.powerValue.x : undefined;
     const ticker = this.scene.add.text(
-      14 + Math.max(this.powerWidth, powerWidth) + 8,
-      TOP + 24,
+      (figureX ?? 14) + Math.max(this.powerWidth, powerWidth) + 8,
+      figureX !== undefined ? TOP + STRIP_ROW_Y + 1 : TOP + 24,
       `${rising ? '▲' : '▼'}${formatNumber(Math.abs(delta))}`,
       { color: rising ? '#4c6b46' : '#a4402c', fontFamily: UI_FONT, fontSize: '11px', fontStyle: '700' },
     ).setDepth(91);
+    this.root.add(ticker);
     this.scene.tweens.add({
       targets: ticker,
-      y: TOP + 12,
+      y: figureX !== undefined ? TOP + STRIP_ROW_Y - 11 : TOP + 12,
       alpha: 0,
       duration: 1400,
       ease: 'Cubic.easeOut',

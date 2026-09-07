@@ -1,0 +1,15 @@
+"DepotBuild"
+{
+	"DepotID" "REPLACE_WITH_MACOS_DEPOT_ID"
+	// Relative to ContentRoot in app_build.vdf: what `stage.mjs` copied for this platform.
+	"ContentRoot" "macos"
+	"FileMapping"
+	{
+		"LocalPath" "*"
+		"DepotPath" "."
+		"recursive" "1"
+	}
+	// Never a dev app id, never debug symbols.
+	"FileExclusion" "*.pdb"
+	"FileExclusion" "steam_appid.txt"
+}

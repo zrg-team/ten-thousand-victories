@@ -27,6 +27,7 @@ import type {
   Hero,
 } from '../state/types';
 import type { BattleMarker } from './conquest/constants';
+import type { PaperSheet } from '../ui/ink/paperSheet';
 import * as battleBubbles from './conquest/battle/bubbles';
 import * as battleCamp from './conquest/battle/camp';
 import * as battleClock from './conquest/battle/clock';
@@ -174,6 +175,18 @@ export class ConquestUIScene extends Phaser.Scene {
   skipGroundBake = false;
 
   lanePauseBeforeOpen = false;
+  /** The resource strip's tap door and the paper grain — moved and re-sized with the HUD's sheet. */
+  ledgerHit?: Phaser.GameObjects.Rectangle;
+  paper?: PaperSheet;
+  /** The docked panel's left edge on the desktop — see `conquest/shell.ts`. */
+  dockEdge?: Phaser.GameObjects.Graphics;
+  /** The desktop's sheet-wide band, frieze and dock plate, rebuilt on resize (`buildDesktopChrome`). */
+  desktopChrome?: Phaser.GameObjects.GameObject[];
+  /**
+   * Whether the world scene has been told to dim beside the column — see `renderActionBar`. Reset
+   * on `create`: the world builds a fresh dim every run, and the first frame has to be told.
+   */
+  worldDimmed = false;
 
   /** The "world is stopped" badge, rebuilt with the bar. */
   pausedBadge?: Phaser.GameObjects.Container;

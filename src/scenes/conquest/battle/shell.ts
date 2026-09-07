@@ -13,7 +13,10 @@
  * on a lane that is gone.
  */
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, HEADER_HEIGHT } from '../../../game/constants';
+import { GAME_HEIGHT, HEADER_HEIGHT } from '../../../game/constants';
+import { hudSheetWidth } from '../../../game/cameraLayout';
+import { battleStageSpan, setHudSheet } from '../hudSheet';
+import { royalScroll } from '../../../ui/ink/royalScroll';
 import { ourHosts, battleTelegraph } from '../../../systems/ascent/BattleSystem';
 import { defenceCommanderOf } from '../../../systems/ascent/landCommand';
 import { findLand } from '../../../systems/LandSystem';
@@ -288,7 +291,14 @@ function battleHeaderFrame(self: ConquestUIScene, battle: AscentBattle): {
    * buttons.* The band below is opaque, so the readout is simply covered while the fight is up
    * and is back the moment it closes.
    */
-  const top = HEADER_HEIGHT;
+  // On the desktop the stage is a framed modal rather than the screen (`battleStageSpan`): the
+  // front page's royal scroll at the stage's width, and everything below lays out inside it.
+  const { top, bottom: stageBottom, frame } = battleStageSpan();
+  if (frame > 0) {
+    self.modalLayer.add(royalScroll(
+      self, -frame, top - frame, hudSheetWidth() + frame * 2, stageBottom - top + frame * 2,
+    ));
+  }
   // Opaque, and only this screen is. `beginOverlay` hides the map for the battle lane and for
   // nothing else, so the seven percent showing through at 0.93 was not the world - it was the
   // six scenes this game keeps resident behind everything (MenuScene, GuideScene, HistoryScene,
@@ -296,14 +306,15 @@ function battleHeaderFrame(self: ConquestUIScene, battle: AscentBattle): {
   // actually saw was two strips of main menu down the left and right margins: "Classic Modes"
   // and "Buy me a coffee" reading faintly beside a battlefield. The prompt frame below keeps
   // 0.93 on purpose - a card is meant to sit *over* the map, and there the map is still there.
+  // Inside the scroll the plate is the scroll's own paper, so the cover is only a blocker there.
   const dim = self.add
-    .rectangle(0, top, GAME_WIDTH, GAME_HEIGHT - top, INK_UI.overlay, 1)
+    .rectangle(0, top, hudSheetWidth(), stageBottom - top, INK_UI.overlay, frame > 0 ? 0.001 : 1)
     .setOrigin(0, 0)
     .setInteractive();
   self.modalLayer.add(dim);
 
   const left = 20;
-  const right = GAME_WIDTH - 20;
+  const right = hudSheetWidth() - 20;
   const face = 46;
   const bandY = top + 8;
 
@@ -441,13 +452,13 @@ function battleHeaderFrame(self: ConquestUIScene, battle: AscentBattle): {
   const bandHeight = Math.max(faceColumn, noticeY - bandY + NOTICE_ROOM + LOG_ROOM);
   const cursor = bandY + bandHeight + 6;
   return {
-    content: { x: left, y: cursor, width: GAME_WIDTH - 40, height: GAME_HEIGHT - cursor - 20 },
+    content: { x: left, y: cursor, width: hudSheetWidth() - 40, height: stageBottom - cursor - 20 },
     // The whole row, not one chip: `buildBattleExits` divides it, and the coach lights it. A
     // rectangle that covered only the left button pointed at half of what the card described.
     exits: {
       x: left,
-      y: GAME_HEIGHT - BATTLE_EXITS_OFFSET,
-      width: GAME_WIDTH - 40,
+      y: stageBottom - BATTLE_EXITS_OFFSET,
+      width: hudSheetWidth() - 40,
       // Four taller than a lane's Close button. These two carry a heading and a line under it,
       // in a language whose `tướng đánh nốt thay bạn` is half again the English.
       height: LANE_CLOSE_BUTTON_HEIGHT + 4,
@@ -505,6 +516,9 @@ export function showBattle(self: ConquestUIScene): void {
     showWarBoard(self);
     return;
   }
+  // On the desktop the fight takes a wider stage than the column; everything below lays itself
+  // out against `hudSheetWidth()`, so this comes before any of it is measured.
+  setHudSheet(self, true);
   // ...and the field *is* a sheet instead of it: full-bleed parchment with nothing behind it.
   setMapVisible(self, false);
   // The bed under the fight, and the only music in the game. Sized to the field: the epic pair
@@ -566,7 +580,7 @@ export function showBattle(self: ConquestUIScene): void {
   // that is the reason the screen exists. The rails, the dock and the exits keep the margin,
   // because they are cards and read as cards. The field is a *view*, and a view wants the glass.
   const leftX = BATTLE_FIELD_INSET;
-  const rightX = GAME_WIDTH - BATTLE_FIELD_INSET;
+  const rightX = hudSheetWidth() - BATTLE_FIELD_INSET;
   // Full span, not half: the two meet when `ourAdvance + theirAdvance` reaches 1, so the
   // drawing has to use the same scale or the picture and the fight would disagree about where
   // everyone is standing.
@@ -728,7 +742,7 @@ export function updateBattleLogLine(self: ConquestUIScene, battle: AscentBattle)
   if (ui.logLine.text === newest) return;
   ui.logLine.setFontSize(10);
   ui.logLine.setText(newest);
-  const room = GAME_WIDTH - 20 - ui.logLine.x;
+  const room = hudSheetWidth() - 20 - ui.logLine.x;
   for (let size = 9.5; size >= 8 && ui.logLine.width > room; size -= 0.5) {
     ui.logLine.setFontSize(size);
   }
@@ -780,7 +794,7 @@ export function updateBattleNotice(self: ConquestUIScene, battle: AscentBattle):
   // telegraph the longest sentence this band ever prints.
   ui.notice.setFontSize(10);
   ui.notice.setText(line);
-  const room = GAME_WIDTH - 20 - ui.notice.x;
+  const room = hudSheetWidth() - 20 - ui.notice.x;
   for (let size = 9.5; size >= 8 && ui.notice.width > room; size -= 0.5) {
     ui.notice.setFontSize(size);
   }

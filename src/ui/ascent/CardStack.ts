@@ -16,7 +16,7 @@
  * *design* space is exact, survives any render scale, and never fights a card's tap handler.
  */
 import Phaser from 'phaser';
-import { designPointer } from '../../game/graphicsQuality';
+import { localPointer } from '../../game/graphicsQuality';
 import { soundDirector } from '../sound/SoundDirector';
 import { PIGMENT } from '../ink/palette';
 
@@ -84,13 +84,18 @@ export class CardStack {
 
     const onDown = (pointer: Phaser.Input.Pointer): void => {
       if (this.busy || this.drag) return;
-      const at = designPointer(pointer);
-      if (at.x < x - 8 || at.x > x + width + 8 || at.y < y - 8 || at.y > y + height + CARD_STACK_PEEK) return;
+      const at = localPointer(scene, pointer);
+      // Against where the stack actually is: on the desktop the modal layer it sits in is centred
+      // on a wider sheet, and `x`/`y` are the layer's own numbers.
+      const world = this.view.getWorldTransformMatrix();
+      const left = world.tx - width / 2;
+      const top = world.ty - height / 2;
+      if (at.x < left - 8 || at.x > left + width + 8 || at.y < top - 8 || at.y > top + height + CARD_STACK_PEEK) return;
       this.drag = { x: at.x, y: at.y, id: pointer.id };
     };
     const onMove = (pointer: Phaser.Input.Pointer): void => {
       if (!this.drag || this.drag.id !== pointer.id || !pointer.isDown) return;
-      const at = designPointer(pointer);
+      const at = localPointer(scene, pointer);
       const dx = at.x - this.drag.x;
       const dy = at.y - this.drag.y;
       const front = this.holders[this.index];
@@ -100,7 +105,7 @@ export class CardStack {
     };
     const onUp = (pointer: Phaser.Input.Pointer): void => {
       if (!this.drag || this.drag.id !== pointer.id) return;
-      const at = designPointer(pointer);
+      const at = localPointer(scene, pointer);
       const dx = at.x - this.drag.x;
       const dy = at.y - this.drag.y;
       this.drag = undefined;

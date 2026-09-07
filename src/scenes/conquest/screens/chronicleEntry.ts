@@ -19,6 +19,7 @@
  * half of that is meaningless once the thing has concluded. This one is a record.
  */
 import { GAME_HEIGHT, GAME_WIDTH } from '../../../game/constants';
+import { hudSheetHeight } from '../../../game/cameraLayout';
 import {
   cssHex, formatOutcomeAmount,
   LANE_CLOSE_BUTTON_HEIGHT, LANE_CLOSE_BUTTON_OFFSET, LANE_FOOTER_HEIGHT,
@@ -197,7 +198,7 @@ export function showChronicleEntry(self: ConquestUIScene, entryId: string): void
   self.modalLayer.add(self.ui.button(
     {
       x: 20,
-      y: GAME_HEIGHT - LANE_CLOSE_BUTTON_OFFSET,
+      y: hudSheetHeight() - LANE_CLOSE_BUTTON_OFFSET,
       width: GAME_WIDTH - 40,
       height: LANE_CLOSE_BUTTON_HEIGHT,
     },

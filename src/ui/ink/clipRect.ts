@@ -55,17 +55,29 @@ export class RectClip {
     // Off the display list: it is drawn by the stencil (or read by the mask), never by the scene.
     this.shape = scene.make.graphics({}, false);
     this.shape.fillStyle(0xffffff, 1);
-    this.shape.fillRect(rect.x, rect.y, rect.width, rect.height);
 
     if (stencilClipUsable(scene)) {
-      // `stencilInvert` blocks everywhere the child geometry does *not* cover, which is the whole
-      // point: the rect is the hole to draw through, not the thing to hide.
-      this.stencil = scene.add.stencil(0, 0, [this.shape], { stencilInvert: true });
+      // The geometry is everything *around* the hole — four bands out to a distance no sheet
+      // reaches — rather than the hole itself under `stencilInvert`. Inversion works by filling
+      // the camera first and subtracting the children, and the fill is placed by the camera's own
+      // viewport arithmetic, which parts company with where the children actually land as soon as
+      // the camera sits at an offset on the sheet: measured on the desktop layout, whose chrome
+      // camera starts a column's width from the left edge, the fill missed the column entirely and
+      // the subtraction left the list's own rectangle as the one place nothing could draw — every
+      // list read as blank, with its cards' edges peeping out around the box. Bands go through the
+      // same transform as everything else in the container, so they land where the content does.
+      const far = 8192;
+      this.shape.fillRect(rect.x - far, rect.y - far, rect.width + far * 2, far);
+      this.shape.fillRect(rect.x - far, rect.y + rect.height, rect.width + far * 2, far);
+      this.shape.fillRect(rect.x - far, rect.y, far, rect.height);
+      this.shape.fillRect(rect.x + rect.width, rect.y, far, rect.height);
+      this.stencil = scene.add.stencil(0, 0, [this.shape]);
       this.release = scene.add.stencilreference(this.stencil, {
-        stencilInvert: true,
         stencilLayerMode: 'subtractLayer',
       });
     } else {
+      // The Canvas mask is the hole itself: a geometry mask keeps what it covers.
+      this.shape.fillRect(rect.x, rect.y, rect.width, rect.height);
       this.geometryMask = this.shape.createGeometryMask();
     }
   }

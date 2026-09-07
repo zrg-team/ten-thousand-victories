@@ -14,7 +14,7 @@ import { MarchRoute, reversedSpline, type RoutePoint } from '../../map/marchRout
 import { findLand } from '../../systems/LandSystem';
 import { marchEntersLand } from '../../systems/WarSystem';
 import { liveBattles } from '../../systems/ascent/fronts';
-import { heroFaceTextureKey } from '../../ui/FaceRenderer';
+import { retainHeroFace, heroFaceTextureKey } from '../../ui/FaceRenderer';
 import type { Army, GameState, Land } from '../../state/types';
 import { hostKitFor, setHostStepping } from '../../ui/ink/devices';
 import { setConquestArmyStepping } from '../../ui/ink/figureStamps';
@@ -484,7 +484,7 @@ export class ArmyRenderer {
       if (general && !this.faceBadges.has(army.id)) {
         const key = heroFaceTextureKey(this.scene, general);
         if (key) {
-          const badge = this.scene.add.image(FACE_BADGE_X, FACE_BADGE_Y, key);
+          const badge = retainHeroFace(this.scene.add.image(FACE_BADGE_X, FACE_BADGE_Y, key));
           const frame = this.scene.textures.getFrame(key);
           const scale = FACE_BADGE_SIZE / Math.max(1, Math.max(frame.width, frame.height));
           badge.setScale(scale);

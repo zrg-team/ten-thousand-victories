@@ -222,13 +222,13 @@ Và chính bức tranh: giấy điệp quét vỏ sò, bản màu in trước, b
 
 **[▶ zrg-team.github.io/ten-thousand-victories](https://zrg-team.github.io/ten-thousand-victories/)** — không cần cài, không tài khoản, không gì rời khỏi máy của bạn.
 
-- Làm cho **điện thoại dọc, cầm một tay**; ngồi máy tính chơi chuột cũng ngon lành.
+- Làm cho **điện thoại dọc, cầm một tay**. Trên **máy tính** — có chuột, hay bản Steam — game chơi theo luật máy tính: phím cho thanh lệnh (`1`–`7`), `Space` để dừng, `Esc` để đóng, lăn chuột để thu phóng, `WASD` để dời bản đồ, và ván mới mặc định theo luật tự tay cai trị (lá bài mệnh và menu ván tắt được). Cửa sổ ngang thì bản đồ chiếm trọn cửa sổ, bảng điều khiển đứng thành một cột ở mép phải; cửa sổ dọc giữ cột điện thoại. **Thiết lập → Bố cục** cho biết đang dùng kiểu nào và ghim được kiểu bạn muốn.
 - **Cài được** từ menu trình duyệt, **chơi ngoại tuyến** vô tư — service worker tự viết, không app store nào đứng giữa bạn và game.
 - **Kéo** để dời bản đồ, **+ / −** để thu phóng, **chạm** vào trấn, **chạm** vào lá bài để trả lời.
 - **Tiếng Việt / English** đổi trong Thiết lập, cùng chỗ với chất lượng đồ họa và kiểu bản đồ.
 - Một ô lưu, nằm ngay trong trình duyệt của bạn.
 
-**Hoặc tải từ store.** Vẫn đúng game ấy, đóng gói thành app thật — [**Google Play**](https://play.google.com/store/apps/details?id=zrg.team.vanthang) và [**App Store**](https://apps.apple.com/app/id6805950974), khoảng 50.000₫, trả một lần. Vẫn không quảng cáo, không bán thêm gì bên trong, không cần tài khoản, tắt mạng vẫn chơi. Bản store không có thêm thứ gì mà bản trình duyệt thiếu — mua là để đỡ cho công làm game thôi.
+**Hoặc tải từ store.** Vẫn đúng game ấy, đóng gói thành app thật — [**Google Play**](https://play.google.com/store/apps/details?id=zrg.team.vanthang) và [**App Store**](https://apps.apple.com/app/id6805950974), khoảng 50.000₫, trả một lần. Vẫn không quảng cáo, không bán thêm gì bên trong, không cần tài khoản, tắt mạng vẫn chơi. Bản store không có thêm thứ gì mà bản trình duyệt thiếu — mua là để đỡ cho công làm game thôi. Bản **Steam** (Windows, macOS, Linux, Steam Deck) đóng gói từ cùng mã nguồn trong [`apps/desktop`](apps/desktop/) và đang trên đường lên store.
 
 ## 🛠️ Phát triển
 
@@ -264,7 +264,7 @@ src/
 └── i18n/        các catalog — vi và en, sát cánh nhau
 apps/            vỏ nền tảng; game build một lần, mỗi vỏ tự phục vụ
 ├── mobile/      Expo — iOS và Android
-└── desktop/     Tauri — khung sườn
+└── desktop/     Electron — Windows, macOS, Linux, cho Steam
 docs/            tài liệu thiết kế và các trang tra cứu sinh tự động
 test_scripts/    các harness Playwright
 ├── verify/      cổng đạt/trượt

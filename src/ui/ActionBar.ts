@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { ACTION_BAR_HEIGHT, GAME_HEIGHT, GAME_WIDTH, isCampaignMode } from '../game/constants';
+import { ACTION_BAR_HEIGHT, GAME_HEIGHT, GAME_WIDTH, HEADER_HEIGHT, isCampaignMode, uiColumnX } from '../game/constants';
 import type { GameState } from '../state/types';
 import {
   markControlBorn, noteControlFired, pressIsEchoOnto, releaseNotOwnedBy, setContainerInputEnabled,
@@ -10,6 +10,8 @@ import { sawtoothBand } from './ink/devices';
 import { t } from '../i18n';
 import { placeStamp, stampDesign } from './ink/stamp';
 import { soundDirector } from './sound/SoundDirector';
+import { gameplayControl } from './GameplayControl';
+import { isDesktopPlatform } from '../platform/layout';
 
 const EMPIRE_KEYS = ['build', 'heroes', 'court', 'army', 'affairs', 'directives', 'pause'] as const;
 const CAMPAIGN_KEYS = ['build', 'heroes', 'court', 'army', 'affairs', 'pause'] as const;
@@ -97,19 +99,7 @@ const NOWRAP_BAR_FONT = 8;
 export const ACTION_BUTTON_Y = GAME_HEIGHT - ACTION_BAR_HEIGHT
   + BAND_TOP + BAND_HEIGHT + BUTTON_CLEAR + ACTION_BUTTON_HEIGHT / 2;
 
-/**
- * Width of an icon-only system control, and the gap separating that cluster from the lanes.
- *
- * 28 is a *touch* number, not a drawn one — the glyphs inside are about eighteen units across and
- * nothing is printed around them. With `extraHitPadding` it comes to the 44 units a fingertip
- * wants, which is the whole reason these keep a width at all. It came down from 34 to buy the
- * lanes their gaps back: two frameless glyphs were reserving twelve units of the strip that the
- * six labelled buttons beside them needed more, and nothing about the marks reads differently.
- *
- * The gap went 6 → 12 when the frames came off. A framed control ends at its own border and the
- * eye finds the seam; a bare mark ends wherever its ink stops, so the only thing left to say
- * "these two are not lanes" is the air in front of them.
- */
+/** Compact phone controls; the desktop cluster gets wider paper and separate 44-unit targets. */
 const SYSTEM_BUTTON_WIDTH = 28;
 const SYSTEM_CLUSTER_GAP = 10;
 
@@ -233,39 +223,75 @@ function isSystemKey(gameMode: string, action: string): boolean {
  * The single source of truth for the bar's geometry: `ActionBar` draws from it and `UIScene`
  * hit-tests against it, so the two cannot drift.
  */
-export function actionBarSlots(gameMode: string, context: ActionBarContext = {}): ActionSlot[] {
+/**
+ * How a bar wider than the column lays itself out — the desktop's bottom bar.
+ *
+ * The lanes are centred as one group with a hand's width each, the way a command row sits under
+ * the map in every strategy game, and the pause/menu cluster leaves the row for the top bar's
+ * right end, where a desktop keeps its clock and its menu (`clusterDy` lifts it there). On the
+ * column the row is the phone's: lanes from the left margin, cluster pinned right, same height.
+ */
+export interface ActionBarLayout {
+  centreLanes?: boolean;
+  laneWidth?: number;
+  laneGap?: number;
+  /** Vertical shift of the system cluster from the bar's row; negative lifts it to the top bar. */
+  clusterDy?: number;
+  /**
+   * The x the lane group must not cross, read at layout time. The desktop docks its lane pages at
+   * the sheet's right edge, and a lane button under a docked page is a button the page covers:
+   * on a sheet narrower than 16:9 the centred group would run under the dock, so it is centred
+   * only as far as the dock allows and the lanes narrow to fit beside it. A function rather than
+   * a number because the dock moves when the window is resized.
+   */
+  laneRight?: () => number;
+}
+
+/** The desktop row: 76-wide lanes, centred beside the dock, with the cluster lifted into the top bar. */
+export const DESKTOP_BAR_LAYOUT: ActionBarLayout = {
+  centreLanes: true, laneWidth: 76, laneGap: 8, clusterDy: HEADER_HEIGHT / 2 - ACTION_BUTTON_Y, laneRight: () => uiColumnX() - 12,
+};
+
+export function actionBarSlots(gameMode: string, context: ActionBarContext = {}, width = GAME_WIDTH, layout: ActionBarLayout = {}): ActionSlot[] {
   const keys = getActionKeys(gameMode, context);
   const margin = getButtonMargin(gameMode);
-  const gap = getButtonGap(gameMode);
+  const gap = layout.laneGap ?? getButtonGap(gameMode);
 
   const laneKeys = keys.filter((key) => !isSystemKey(gameMode, key));
   const systemKeys = keys.filter((key) => isSystemKey(gameMode, key));
+  const systemWidth = layout.clusterDy ? 36 : SYSTEM_BUTTON_WIDTH;
+  const systemGap = layout.clusterDy ? 12 : gap;
 
   const clusterWidth = systemKeys.length > 0
-    ? systemKeys.length * SYSTEM_BUTTON_WIDTH + (systemKeys.length - 1) * gap
+    ? systemKeys.length * systemWidth + (systemKeys.length - 1) * systemGap
     : 0;
   const reserved = systemKeys.length > 0 ? clusterWidth + SYSTEM_CLUSTER_GAP : 0;
 
-  const laneSpace = GAME_WIDTH - margin * 2 - reserved - Math.max(0, laneKeys.length - 1) * gap;
+  const laneRight = Math.min(width - margin - reserved, layout.laneRight?.() ?? Number.POSITIVE_INFINITY);
+  const laneSpace = laneRight - margin - Math.max(0, laneKeys.length - 1) * gap;
   const laneWidth = laneKeys.length > 0
-    ? Math.max(28, Math.min(getButtonWidth(gameMode), Math.floor(laneSpace / laneKeys.length)))
+    ? Math.max(28, Math.min(layout.laneWidth ?? getButtonWidth(gameMode), Math.floor(laneSpace / laneKeys.length)))
     : 0;
+  const groupWidth = laneKeys.length * laneWidth + Math.max(0, laneKeys.length - 1) * gap;
+  const laneLeft = layout.centreLanes
+    ? Math.max(margin, Math.min(Math.round((width - groupWidth) / 2), laneRight - groupWidth))
+    : margin;
 
   const slots: ActionSlot[] = laneKeys.map((action, index) => ({
     action,
-    x: margin + index * (laneWidth + gap),
+    x: laneLeft + index * (laneWidth + gap),
     width: laneWidth,
     system: false,
   }));
 
   // Pinned to the right edge rather than trailing the lanes, so Pause and Menu stay put when
   // the Battle button appears mid-siege and the lanes reflow around it.
-  const clusterLeft = GAME_WIDTH - margin - clusterWidth;
+  const clusterLeft = width - (layout.clusterDy ? 12 : margin) - clusterWidth;
   systemKeys.forEach((action, index) => {
     slots.push({
       action,
-      x: clusterLeft + index * (SYSTEM_BUTTON_WIDTH + gap),
-      width: SYSTEM_BUTTON_WIDTH,
+      x: clusterLeft + index * (systemWidth + systemGap),
+      width: systemWidth,
       system: true,
     });
   });
@@ -317,32 +343,46 @@ export class ActionBar extends Phaser.GameObjects.Container {
 
   /** Where a lane's button stands, so a card can point at it. Undefined for a lane not on the bar. */
   slotBounds(action: string): { x: number; y: number; width: number; height: number } | undefined {
-    const slot = actionBarSlots(this.gameMode, this.context()).find((candidate) => candidate.action === action);
+    const slot = actionBarSlots(this.gameMode, this.context(), this.barWidth, this.layout).find((candidate) => candidate.action === action);
     if (!slot) return undefined;
-    return { x: slot.x, y: ACTION_BUTTON_Y - ACTION_BUTTON_HEIGHT / 2, width: slot.width, height: ACTION_BUTTON_HEIGHT };
+    const dy = slot.system ? (this.layout.clusterDy ?? 0) : 0;
+    return { x: slot.x, y: ACTION_BUTTON_Y - ACTION_BUTTON_HEIGHT / 2 + dy, width: slot.width, height: ACTION_BUTTON_HEIGHT };
   }
+
+  /**
+   * The bar's own width. The column on the phone; the whole sheet on the desktop, where the lanes
+   * start at the left margin and the system cluster is pinned to the right edge — the bottom bar
+   * every strategy game has. Buttons keep their per-mode width; only the space between the two
+   * groups grows.
+   */
+  readonly barWidth: number;
+  readonly layout: ActionBarLayout;
 
   constructor(
     scene: Phaser.Scene,
     private readonly gameState: GameState,
     private readonly onAction: (action: string) => void,
+    opts: { width?: number; layout?: ActionBarLayout } = {},
   ) {
     super(scene, 0, 0);
     this.gameMode = gameState.gameMode;
+    this.barWidth = opts.width ?? GAME_WIDTH;
+    this.layout = opts.layout ?? {};
     this.setDepth(420);
     this.ui = new InkUI(scene);
 
     const top = GAME_HEIGHT - ACTION_BAR_HEIGHT;
-    this.add(scene.add.rectangle(0, top, GAME_WIDTH, ACTION_BAR_HEIGHT, INK_UI.backgroundInk, 0.97).setOrigin(0, 0));
+    const width = this.barWidth;
+    this.add(scene.add.rectangle(0, top, width, ACTION_BAR_HEIGHT, INK_UI.backgroundInk, 0.97).setOrigin(0, 0));
     // The same drum band as the resource strip, so the two ends of the screen are one frame.
     // Baked for the same reason as the header's frieze: static teeth, every frame, all game.
-    const bandStamp = stampDesign(scene, `ui:band:foot:${GAME_WIDTH}x${ACTION_BAR_HEIGHT}`,
-      { left: 0, right: GAME_WIDTH, top: 0, bottom: ACTION_BAR_HEIGHT },
+    const bandStamp = stampDesign(scene, `ui:band:foot:${width}x${ACTION_BAR_HEIGHT}`,
+      { left: 0, right: width, top: 0, bottom: ACTION_BAR_HEIGHT },
       (g, x, y) => {
         g.translateCanvas(x, y - top);
         g.lineStyle(1, INK_UI.softBrush, 0.35);
-        g.lineBetween(0, top + 0.5, GAME_WIDTH, top + 0.5);
-        sawtoothBand(g, 10, top + BAND_TOP, GAME_WIDTH - 20, BAND_HEIGHT, 0.45);
+        g.lineBetween(0, top + 0.5, width, top + 0.5);
+        sawtoothBand(g, 10, top + BAND_TOP, width - 20, BAND_HEIGHT, 0.45);
         g.translateCanvas(-x, -(y - top));
       }, { pool: 'ui' });
     this.add(placeStamp(scene, bandStamp, 0, top));
@@ -363,7 +403,7 @@ export class ActionBar extends Phaser.GameObjects.Container {
     // and listeners — on every state-changed emit, which is every tick and every battle beat.
     // Everything it prints is in this key; a quiet refresh is now a string compare.
     const paused = this.gameState.isStrategyPause;
-    const slots = actionBarSlots(this.gameMode, this.context());
+    const slots = actionBarSlots(this.gameMode, this.context(), this.barWidth, this.layout);
     const key = [
       paused ? 1 : 0,
       ...slots.map((slot) => `${slot.action}:${slot.x}:${slot.width}:${slot.system ? 1 : 0}`
@@ -461,7 +501,7 @@ export class ActionBar extends Phaser.GameObjects.Container {
   private buildButtons(): void {
     const paused = this.gameState.isStrategyPause;
     const top = ACTION_BUTTON_Y - ACTION_BUTTON_HEIGHT / 2;
-    const slots = actionBarSlots(this.gameMode, this.context());
+    const slots = actionBarSlots(this.gameMode, this.context(), this.barWidth, this.layout);
     const laneWidth = slots.find((slot) => !slot.system)?.width ?? 0;
     const labels = slots.filter((slot) => !slot.system).map((slot) => this.slotLabel(slot.action, paused));
     const fontKey = `${labels.join('')}|${laneWidth}`;
@@ -473,7 +513,9 @@ export class ActionBar extends Phaser.GameObjects.Container {
     const { size: fontSize, scale: iconScale } = fit;
 
     for (const slot of slots) {
-      const bounds = { x: slot.x, y: top, width: slot.width, height: ACTION_BUTTON_HEIGHT };
+      // A system button rides the layout's lift: on the desktop the cluster sits in the top bar.
+      const dy = slot.system ? (this.layout.clusterDy ?? 0) : 0;
+      const bounds = { x: slot.x, y: top + dy, width: slot.width, height: ACTION_BUTTON_HEIGHT };
 
       if (slot.system) {
         this.buildSystemButton(slot, bounds, paused);
@@ -484,7 +526,7 @@ export class ActionBar extends Phaser.GameObjects.Container {
       this.addStatusDot(slot, top, iconScale);
     }
 
-    this.buildSeparator(slots, top);
+    if (!this.layout.clusterDy) this.buildSeparator(slots, top);
   }
 
   /**
@@ -609,15 +651,7 @@ export class ActionBar extends Phaser.GameObjects.Container {
     markControlBorn(hit);
   }
 
-  /**
-   * The hairline between the lanes and the clock.
-   *
-   * With the frames on, the twelve units of air in front of Pause were enough to say "these two
-   * are not lanes" — a framed control ends at its own border and the eye finds the seam. With
-   * every frame gone the whole bar is marks on paper and that gap reads as one more gap, so the
-   * division has to be drawn. One hairline, inset from both edges of the bar's height, in the same
-   * soft ink as the drum band above it.
-   */
+  /** A soft ink rule separates the lane labels from the clock and menu controls. */
   private buildSeparator(slots: ActionSlot[], top: number): void {
     const firstSystem = slots.find((slot) => slot.system);
     if (!firstSystem) {
@@ -631,60 +665,21 @@ export class ActionBar extends Phaser.GameObjects.Container {
     this.buttonObjects.push(rule);
   }
 
-  /**
-   * Pause and Menu: the mark alone, with nothing printed round it.
-   *
-   * Drawn with Graphics rather than set as text — the two are one-shape ideas that survive at
-   * this size where a label cannot, and drawing them means never depending on a webfont
-   * happening to carry ❚❚ / ☰.
-   *
-   * They used to sit in the same rounded, bordered, shaded surface as the six lane buttons, which
-   * put a frame around two marks that were already legible and made the busiest end of the bar out
-   * of the part with the least in it. A frame earns its ink by saying *this is pressable* — and it
-   * has nothing to say next to six framed buttons that already established what pressable looks
-   * like, on a bar where everything is. Bare, the cluster reads as what it is: not another lane,
-   * but the controls for the clock and the door.
-   *
-   * State moved with the frame. Paused was the `primary` variant — a printed surface — so with no
-   * surface to print it is carried by the glyph itself: the mark turns to sỏi son and swaps to a
-   * play triangle, which is two signals where the frame gave one.
-   */
+  /** The clock and menu share the map controls' paper, ink weight, and press feedback. */
   private buildSystemButton(slot: ActionSlot, bounds: { x: number; y: number; width: number; height: number }, paused: boolean): void {
     const isPause = slot.action === 'pause';
-    // Centre-anchored like the lanes, and for the same reason: the press tween has to push the
-    // mark rather than drag it towards a corner.
-    const container = this.scene.add.container(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
-
-    const glyph = this.scene.add.graphics();
-    // A hair heavier than the framed pair carried: a mark on open paper has no border helping it
-    // hold the eye, so it holds it alone.
-    const lit = isPause && paused;
-    glyph.fillStyle(lit ? INK_UI.cinnabar : INK_UI.brush, lit ? 1 : 0.9);
-
-    if (lit) {
-      // Paused → the control offers play.
-      glyph.fillTriangle(-6, -8, 8, 0, -6, 8);
-    } else if (isPause) {
-      glyph.fillRect(-7, -8, 5, 16);
-      glyph.fillRect(2, -8, 5, 16);
-    } else {
-      for (const dy of [-6.5, 0, 6.5]) glyph.fillRect(-9, dy - 1.6, 18, 3.2);
-    }
-
-    // The smallest targets on the bar, so they get back in touch area what they gave up in
-    // width. 28 + 16 is the 44 units a fingertip actually needs.
-    const hit = this.scene.add
-      .rectangle(0, 0, bounds.width + 16, bounds.height + 8, 0xffffff, 0.001)
-      .setInteractive({ useHandCursor: true });
-    // The bar draws its own buttons (the glyph sits above the label, which `InkUI.button`
-    // cannot do), so it does not inherit InkUI's press sound and was silent. Each lane has
-    // its own paper — see `SoundDirector.lane`.
-    this.wirePress(hit, container, () => {
-      soundDirector.lane(slot.action);
-      this.onAction(slot.action);
+    const lifted = Boolean(this.layout.clusterDy);
+    const shortcut = isDesktopPlatform() ? (isPause ? ' · Space' : ' · Esc') : '';
+    const container = gameplayControl(this.scene, {
+      x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2,
+      width: bounds.width, height: 30,
+      treatment: lifted ? 'quiet' : 'paper',
+      hitWidth: lifted ? 44 : bounds.width + getButtonGap(this.gameState.gameMode),
+      icon: isPause ? (paused ? 'play' : 'pause') : 'menu',
+      label: this.slotLabel(slot.action, paused) + shortcut,
+      active: isPause && paused, hintSide: lifted ? 'below' : 'above',
+      onClick: () => this.onAction(slot.action),
     });
-
-    container.add([glyph, hit]);
     this.add(container);
     this.buttonObjects.push(container);
     this.addStatusDot(slot, bounds.y);

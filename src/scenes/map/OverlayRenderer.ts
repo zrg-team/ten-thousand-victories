@@ -13,6 +13,7 @@ import type { GameState, Land } from '../../state/types';
 import type { MapRenderer } from '../../ui/MapRenderer';
 import { fitBakeScale } from '../../ui/ink/textureLimits';
 import { placeStamp, stamp } from '../../ui/ink/stamp';
+import { ChunkedMapLayer } from './ChunkedMapLayer';
 
 type WorldTransform = (value: number) => number;
 type OwnerColorLookup = (ownerId: string) => number;
@@ -33,6 +34,9 @@ export class OverlayRenderer {
   /** The lighter veil over ground the realm can see but does not hold. See `repaintForeignHaze`. */
   private foreignHazeGraphics!: Phaser.GameObjects.Graphics;
   private fogBakeRT?: Phaser.GameObjects.RenderTexture;
+  concealPending(): void { this.fogChunks?.conceal(); }
+  chunkStats() { return this.fogChunks?.stats(); }
+  private fogChunks?: ChunkedMapLayer;
   private armyHighlightGraphics?: Phaser.GameObjects.Graphics;
 
   constructor(
@@ -168,6 +172,15 @@ export class OverlayRenderer {
    * single textured quad. Re-run whenever visibility changes (the static signature).
    */
   bakeFog(worldWidth: number, worldHeight: number, extra: Phaser.GameObjects.Graphics[] = [], scale = 1): void {
+    if (!/[?&]wholebake=1\b/.test(window.location.search)) {
+      const initial = !this.fogChunks;
+      this.fogChunks ??= new ChunkedMapLayer(this.scene, 77.5, true);
+      const sources = [this.fogGraphics, ...extra];
+      this.fogChunks.invalidate(sources, worldWidth, worldHeight, scale);
+      for (const source of sources) source.setVisible(false);
+      if (initial) this.fogChunks.flush();
+      return;
+    }
     // A world-sized texture past MAX_TEXTURE_SIZE fails silently and renders black - clamp
     // first, so a huge revealed world on a small GPU gets a softer fog, not a missing one.
     scale = fitBakeScale(this.scene, worldWidth, worldHeight, scale);

@@ -1,5 +1,8 @@
+import { preloadConquestMapArt } from '../ui/conquestMapArt';
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_KINGDOM_ID } from '../game/constants';
+import { sheetSpan } from '../game/cameraLayout';
+import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
 import { createAscentGameState } from '../state/GameState';
 import { beginBattle } from '../systems/ascent/BattleSystem';
 import {
@@ -132,6 +135,10 @@ export class BattleArenaScene extends Phaser.Scene {
     }
   }
 
+  preload(): void {
+    preloadConquestMapArt(this, import.meta.env.BASE_URL);
+  }
+
   create(): void {
     applyRenderScale(this);
     // The arena builds a whole screen in one frame; hold the ladder so that frame is not
@@ -140,6 +147,8 @@ export class BattleArenaScene extends Phaser.Scene {
     this.ui = new InkUI(this);
     this.mapRenderer = createMapRenderer(this);
     this.mapRenderer.drawBackground(GAME_WIDTH, GAME_HEIGHT);
+    // The desktop's sheet beyond the column — see `desktopBackdrop.ts`. Nothing on the phone.
+    attachDesktopBackdrop(this);
     this.layer = this.add.container(0, 0);
     this.render();
     // After `render`, so the report is laid over a finished screen rather than under one.
@@ -228,7 +237,8 @@ export class BattleArenaScene extends Phaser.Scene {
     const ourLost = Math.max(0, record.ourStart - record.ourEnd);
     const theirLost = Math.max(0, record.theirStart - record.theirEnd);
 
-    const dim = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, INK_UI.overlay, 0.93)
+    const span = sheetSpan(this);
+    const dim = this.add.rectangle(span.left, 0, span.width, GAME_HEIGHT, INK_UI.overlay, 0.93)
       .setOrigin(0, 0)
       .setInteractive();
     layer.add(dim);

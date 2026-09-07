@@ -80,7 +80,7 @@ import {
 } from '../../systems/CourtSystem';
 import { ARMY_DEFAULT_PROVISIONS, ARMY_DEFAULT_RATIONS, ARMY_LOGISTICS_STEP } from '../../game/gameplayConfig';
 import { applyPaperFX } from '../../ui/ink/PaperFX';
-import { applyRenderScale, designPointer } from '../../game/graphicsQuality';
+import { applyRenderScale, localPointer } from '../../game/graphicsQuality';
 import type { CourtPositionId, GameState, Hero, Land, PoliticsCard, TaxPolicy } from '../../state/types';
 import { ESTATE_IDS } from '../../state/types';
 import {
@@ -302,8 +302,8 @@ export class UIScene extends Phaser.Scene {
   }
 
   private handlePointerUp(rawPointer: Phaser.Input.Pointer): void {
-    // Every bound below is a design-surface number, so the pointer has to be one too.
-    const pointer = designPointer(rawPointer);
+    // Every bound below is a column number, so the pointer has to be one too.
+    const pointer = localPointer(this, rawPointer);
     if (this.modalScreen !== 'none') {
       this.handleModalTap(pointer.x, pointer.y);
       return;

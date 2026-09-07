@@ -19,12 +19,13 @@ const ICON_DISPLAY_SIZE = 15;
  * rather than share their rows — which is what it was doing in Vietnamese, where the title's
  * diacritics sit higher than any Latin cap.
  */
-const TOP_BAND_Y = 3;
-const BAND_HEIGHT = 4;
-const TITLE_Y = 10;
+/** The frieze's rows, exported so the desktop's top bar can run the same teeth across its width. */
+export const TOP_BAND_Y = 3;
+export const BAND_HEIGHT = 4;
+export const TITLE_Y = 10;
 /** Centre line of the resource row. */
-const ROW_Y = 36;
-const BOTTOM_BAND_Y = HEADER_HEIGHT - 7;
+export const ROW_Y = 36;
+export const BOTTOM_BAND_Y = HEADER_HEIGHT - 7;
 
 /**
  * Where the two friezes sit, exported so a driver can assert the type clears them. A band drawn
@@ -52,12 +53,27 @@ export class ResourceBar extends Phaser.GameObjects.Container {
   /** Filled plate behind a store that is running out, so the crisis reads at a glance. */
   private alertChips: Record<ResourceKey, Phaser.GameObjects.Rectangle>;
 
+  /**
+   * The strip's own plate and frieze. On the desktop the top bar draws both across its whole width
+   * instead (`conquest/shell.ts`), and these come off — a frieze that stopped at the strip's edge
+   * read as cut off, and once the bar's frieze ran the whole width, the strip's plate, drawn over
+   * it, hid the teeth over the strip and nowhere else: a bar with a frieze on one half of it.
+   */
+  private band!: Phaser.GameObjects.GameObject;
+  private back!: Phaser.GameObjects.Rectangle;
+
+  setPlateVisible(visible: boolean): void {
+    (this.band as unknown as Phaser.GameObjects.Components.Visible).setVisible(visible);
+    this.back.setVisible(visible);
+  }
+
   constructor(scene: Phaser.Scene, private readonly gameState: GameState) {
     super(scene, 0, 0);
     this.setDepth(80);
     const ui = new InkUI(scene);
 
     const back = scene.add.rectangle(0, 0, GAME_WIDTH, HEADER_HEIGHT, INK_UI.backgroundInk, 0.97).setOrigin(0, 0);
+    this.back = back;
     this.add(back);
 
     // Đông Sơn bronze — the narrator's register, kept distinct from the world's. The răng cưa
@@ -75,7 +91,8 @@ export class ResourceBar extends Phaser.GameObjects.Container {
         g.lineBetween(0, HEADER_HEIGHT - 0.5, GAME_WIDTH, HEADER_HEIGHT - 0.5);
         g.translateCanvas(-x, -y);
       }, { pool: 'ui' });
-    this.add(placeStamp(scene, bandStamp, 0, 0));
+    this.band = placeStamp(scene, bandStamp, 0, 0);
+    this.add(this.band);
 
     this.seasonText = ui.label(12, TITLE_Y, '', 'title', { color: INK_UI_HEX.inkText, fontSize: '15px' });
     this.add(this.seasonText);

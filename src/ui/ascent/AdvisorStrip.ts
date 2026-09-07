@@ -119,11 +119,20 @@ export class AdvisorStrip {
   tapBounds(): Array<{ x: number; y: number; width: number; height: number }> {
     if (!this.root.visible) return [];
     return [{
-      x: SIDE,
-      y: ADVISOR_TOP,
+      x: SIDE + this.root.x,
+      y: ADVISOR_TOP + this.root.y,
       width: WIDTH,
       height: this.stripHeight + this.sheetHeight,
     }];
+  }
+
+  /**
+   * Moves the whole strip. On the desktop the readout stands beside the resource strip instead of
+   * under it, and this strip follows the band up by the readout's height (`conquest/shell.ts`);
+   * `tapBounds` and `bottom` carry the offset so the world scene and the whisper line agree.
+   */
+  setOffset(x: number, y: number): void {
+    this.root.setPosition(x, y);
   }
 
   /**
@@ -134,7 +143,7 @@ export class AdvisorStrip {
    * through the middle of this one.
    */
   bottom(): number {
-    return ADVISOR_TOP + this.stripHeight + this.sheetHeight;
+    return ADVISOR_TOP + this.root.y + this.stripHeight + this.sheetHeight;
   }
 
   /** The advice on the strip right now, dwell and all — what the bar's hint card repeats. */
