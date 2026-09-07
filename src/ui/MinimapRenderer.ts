@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, PLAYER_KINGDOM_ID } from '../game/constants';
+import { GAME_HEIGHT, PLAYER_KINGDOM_ID, mapViewWidth } from '../game/constants';
 import { MAP_SCALE } from '../map/hex';
 import type { GameState } from '../state/types';
 import { getActiveMapTheme } from './mapTheme';
@@ -88,7 +88,8 @@ export function renderMinimap(
   }
 
   // Viewport rectangle
-  const vpW = (GAME_WIDTH / zoom) * scaleX;
+  // The uncovered view — the whole column on the phone, the map beside the column on the desktop.
+  const vpW = (mapViewWidth() / zoom) * scaleX;
   const vpH = (GAME_HEIGHT / zoom) * scaleY;
   const vpX = anchorX + Phaser.Math.Clamp(scrollX * scaleX, 0, MINIMAP_W - 2);
   const vpY = anchorY + Phaser.Math.Clamp(scrollY * scaleY, 0, MINIMAP_H - 2);

@@ -11,7 +11,8 @@
  * real tap targets at 620, the shortest screen `GAME_HEIGHT` clamps to.
  */
 import Phaser from 'phaser';
-import { GAME_WIDTH, PLAYER_KINGDOM_ID } from '../../game/constants';
+import { PLAYER_KINGDOM_ID } from '../../game/constants';
+import { hudSheetWidth } from '../../game/cameraLayout';
 import { INK_UI, type UIBounds } from '../../ui/InkUI';
 import { type BattleFormation } from '../../data/ascent/formations';
 import { CARD_ICON_SIZE, type CardIconId } from '../../ui/CardIcons';
@@ -112,7 +113,8 @@ export const FORMATION_ICON: Record<BattleFormation, CardIconId> = {
  * four copies of `content.x` arithmetic, widening the field meant finding all four.
  */
 export function battleFieldBox(content: UIBounds, fieldHeight: number): UIBounds {
-  return { x: 0, y: content.y, width: GAME_WIDTH, height: fieldHeight };
+  // The HUD's sheet, not the column: on the desktop the battle takes a wider stage (`hudSheet.ts`).
+  return { x: 0, y: content.y, width: hudSheetWidth(), height: fieldHeight };
 }
 
 /**

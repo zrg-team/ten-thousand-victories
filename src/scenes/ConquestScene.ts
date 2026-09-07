@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { ARENA_ROUT_HOLD_MS, ASCENT_TICK_MS } from '../game/ascentConfig';
 import { INK_UI } from '../ui/InkUI';
-import { ACTION_BAR_HEIGHT, GAME_HEIGHT, HEADER_HEIGHT, NEUTRAL_OWNER_ID, PLAYER_KINGDOM_ID } from '../game/constants';
+import { ACTION_BAR_HEIGHT, GAME_HEIGHT, GAME_WIDTH, HEADER_HEIGHT, NEUTRAL_OWNER_ID, PLAYER_KINGDOM_ID, isDesktopSheet, uiColumnX } from '../game/constants';
 import { MAP_SCALE, axialToPixel, hexCorners } from '../map/hex';
 import { traceLandBoundaryLoops } from '../map/boundary';
 import { advanceAscentTick } from '../systems/ascent/AscentTick';
@@ -24,6 +24,7 @@ import { createAscentGameState } from '../state/GameState';
 import { ASCENT_HUD_HEIGHT } from '../ui/ascent/AscentHud';
 import { clashDevice } from '../ui/ink/devices';
 import { MapScene } from './MapScene';
+import { ViewIndex } from './map/ViewIndex';
 import type { BattleFormation } from '../data/ascent/formations';
 import type { ArmyOrders, FieldStance } from '../state/types';
 
@@ -55,10 +56,13 @@ export class ConquestScene extends MapScene {
     return Phaser.Math.Clamp(this.ascentAccumulator / ASCENT_TICK_MS, 0, 1);
   }
   private frontMarker?: Phaser.GameObjects.Container;
-  private ownershipTint?: Phaser.GameObjects.Graphics;
+  private ownershipTint?: Phaser.GameObjects.Container;
+  private readonly ownershipRegions = new Map<string, { graphics: Phaser.GameObjects.Graphics; signature: string }>();
+  private readonly ownershipIndex = new ViewIndex();
+  private ownershipPose = '';
   /** Ownership map the tint was last painted for, so a tick with no flips repaints nothing. */
   private ownershipSignature = '';
-  /** Merged outlines for the foreign-ground veil, rebuilt whenever ownership changes. */
+  /** Province outlines for the foreign-ground veil; geometry is fixed within a world. */
   private readonly foreignLoopCache = new Map<string, Array<Array<{ x: number; y: number }>>>();
 
   constructor() {
@@ -70,6 +74,9 @@ export class ConquestScene extends MapScene {
   }
 
   create(): void {
+    this.ownershipTint = undefined;
+    this.ownershipSignature = ''; this.ownershipPose = '';
+    this.ownershipRegions.clear(); this.ownershipIndex.clear(); this.foreignLoopCache.clear();
     super.create();
     // `MapScene.create` does not call `refresh`, and `update` returns early while the run is
     // paused — which it is for the whole opening prompt chain. Without this first paint the
@@ -81,13 +88,14 @@ export class ConquestScene extends MapScene {
   /** This mode ends in defeat rather than victory; otherwise the clock stops for the same reasons. */
   protected isWorldHalted(): boolean {
     return this.state.isDefeated || this.state.isPaused || this.state.isStrategyPause
-      || Boolean(this.state.isAwayPause);
+      || Boolean(this.state.isAwayPause) || (this.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer).contextLost;
   }
 
   update(time: number, delta: number): void {
     // The classic map re-culls in its own update; this override never called it, so a pan on the
     // Ascent map kept drawing everything that had ever been on screen.
     this.syncViewCulling();
+    this.syncOwnershipCulling();
     // Deliberately not `super.update`: that drives the classic month tick, which this mode
     // replaces outright. Only the ambient-motion sync is shared.
     this.syncWorldMotion();
@@ -157,9 +165,9 @@ export class ConquestScene extends MapScene {
    * is mine" is unanswerable at a glance. Control view answers it but throws away the terrain.
    * This fills the gap — terrain stays readable, ownership reads instantly.
    *
-   * Drawn live above the static bake rather than baked into it: ownership changes several
-   * times a minute in this mode, and re-baking the whole map for each flip would stutter.
-   * Repainted only when the ownership map actually changes.
+   * Each province keeps its own wash above the ground, in the original paint order.
+   * Only changed provinces are repainted and only onscreen provinces submit geometry.
+   * This avoids replaying the whole country's paths on every frame of a camera drag.
    */
   private repaintOwnershipTint(): void {
     // Control view already paints every tile in its owner's colour at full strength.
@@ -170,53 +178,69 @@ export class ConquestScene extends MapScene {
 
     const signature = this.state.lands
       .filter((land) => land.isVisible)
-      .map((land) => `${land.id}:${land.ownerId}`)
+      .map((land) => `${land.id}:${land.ownerId}:${this.ownershipWash(land.ownerId)?.color}`)
       .join(',');
-
-    if (!this.ownershipTint) {
-      this.ownershipTint = this.add.graphics();
-      // Between the baked static texture (1.9) and the per-land markers (2). Below 1.9 the
-      // bake simply covers it — the static layers are composited into one quad drawn on top.
-      this.ownershipTint.setDepth(1.95);
-    }
+    this.ownershipTint ??= this.add.container(0, 0).setDepth(1.95);
     this.ownershipTint.setVisible(true);
     if (signature === this.ownershipSignature) return;
     this.ownershipSignature = signature;
 
-    this.ownershipTint.clear();
+    const live = new Set<string>();
     const hexSize = this.state.mapConfig.hexSize;
-
-    // A theme may prefer to mute foreign ground as a whole region rather than hex by hex — the
-    // per-hex wash below is a visible honeycomb, and its blue is a colour the Đông Hồ palette has
-    // no pigment for.
-    if (this.mapRenderer.drawForeignWash) {
-      this.foreignLoopCache.clear();
-      for (const land of this.state.lands) {
-        if (!land.isVisible || land.ownerId === PLAYER_KINGDOM_ID) continue;
-        const wash = this.ownershipWash(land.ownerId);
-        if (!wash) continue;
-        const loops = traceLandBoundaryLoops(
-          this.state, this.hexTileMap, (v: number) => this.wx(v), (v: number) => this.wy(v), this.foreignLoopCache, land.id,
-        );
-        this.mapRenderer.drawForeignWash(this.ownershipTint, loops, land.ownerId === NEUTRAL_OWNER_ID, wash.color);
-      }
-      return;
-    }
-
-    for (const tile of this.state.hexTiles) {
-      const land = tile.landId ? this.state.lands.find((candidate) => candidate.id === tile.landId) : undefined;
-      if (!land || !land.isVisible) continue;
-
+    for (const land of this.state.lands) {
       const wash = this.ownershipWash(land.ownerId);
-      if (!wash) continue;
-
-      const pixel = axialToPixel(tile.coord, hexSize);
-      const corners = hexCorners({ x: this.wx(pixel.x), y: this.wy(pixel.y) }, hexSize * MAP_SCALE * 1.02)
-        .map(([x, y]) => ({ x, y }));
-
-      this.ownershipTint.fillStyle(wash.color, wash.alpha);
-      this.ownershipTint.fillPoints(corners, true);
+      if (!land.isVisible || !wash) continue;
+      live.add(land.id);
+      const regionSignature = `${land.ownerId}:${wash.color}:${wash.alpha}`;
+      const previous = this.ownershipRegions.get(land.id);
+      if (previous?.signature === regionSignature) continue;
+      const graphics = previous?.graphics ?? this.make.graphics({}, false);
+      if (!previous) this.ownershipTint.add(graphics);
+      graphics.clear();
+      let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+      const include = (points: Array<{ x: number; y: number }>) => {
+        for (const p of points) { left = Math.min(left, p.x); top = Math.min(top, p.y); right = Math.max(right, p.x); bottom = Math.max(bottom, p.y); }
+      };
+      if (this.mapRenderer.drawForeignWash) {
+        const loops = traceLandBoundaryLoops(this.state, this.hexTileMap, (v: number) => this.wx(v), (v: number) => this.wy(v), this.foreignLoopCache, land.id);
+        this.mapRenderer.drawForeignWash(graphics, loops, land.ownerId === NEUTRAL_OWNER_ID, wash.color);
+        for (const loop of loops) include(loop);
+      } else {
+        for (const tile of this.state.hexTiles) {
+          if (tile.landId !== land.id) continue;
+          const pixel = axialToPixel(tile.coord, hexSize);
+          const corners = hexCorners({ x: this.wx(pixel.x), y: this.wy(pixel.y) }, hexSize * MAP_SCALE * 1.02).map(([x, y]) => ({ x, y }));
+          graphics.fillStyle(wash.color, wash.alpha).fillPoints(corners, true);
+          include(corners);
+        }
+      }
+      this.ownershipRegions.set(land.id, { graphics, signature: regionSignature });
+      if (Number.isFinite(left)) this.ownershipIndex.set(land.id, {
+        kind: 'node', object: graphics, x: (left + right) / 2, y: (top + bottom) / 2, radius: 0,
+        // The printed outline wanders a few units beyond the province boundary.
+        bounds: { left: left - 8, right: right + 8, top: top - 8, bottom: bottom + 8 },
+        setCulled: culled => graphics.setVisible(!culled),
+      });
     }
+    for (const [id, region] of this.ownershipRegions) if (!live.has(id)) {
+      this.ownershipIndex.remove(id); region.graphics.destroy(); this.ownershipRegions.delete(id);
+    }
+    // A province returning after conquest/reveal keeps the original paint order.
+    let order = 0;
+    for (const land of this.state.lands) {
+      const region = this.ownershipRegions.get(land.id);
+      if (region) this.ownershipTint.moveTo(region.graphics, order++);
+    }
+    this.syncOwnershipCulling(true);
+  }
+
+  private syncOwnershipCulling(force = false): void {
+    if (!this.ownershipTint?.visible) return;
+    const c = this.cameras.main;
+    const pose = `${c.scrollX}:${c.scrollY}:${c.width}:${c.height}:${c.zoom}`;
+    if (!force && pose === this.ownershipPose) return;
+    this.ownershipPose = pose;
+    this.ownershipIndex.apply(new Phaser.Geom.Rectangle(c.scrollX, c.scrollY, c.width / c.zoom, c.height / c.zoom), 8);
   }
 
   /**
@@ -321,10 +345,12 @@ export class ConquestScene extends MapScene {
     // Registered through `onUi` like everything else here: this handler starts the scene that
     // registers it, so a leaked copy multiplies restarts geometrically (run N fired N of them).
     this.onUi('ui:restart-ascent', () => {
+      const next = createAscentGameState({ seaSides: 1, difficulty: 'normal' });
+      // The hands-on rule carries over from the reign just ended rather than falling back to the
+      // layout's default: a player who flipped it should not be flipped back by "go again".
+      if (next.ascent && this.state.ascent?.hardcore !== undefined) next.ascent.hardcore = this.state.ascent.hardcore;
       this.scene.stop(this.uiSceneKey());
-      this.scene.start('ConquestScene', {
-        state: createAscentGameState({ seaSides: 1, difficulty: 'normal' }),
-      });
+      this.scene.start('ConquestScene', { state: next });
     });
 
     /**
@@ -373,9 +399,11 @@ export class ConquestScene extends MapScene {
       }
     });
 
+    // The player asked for these three from a lane, so they come up on a hands-on run too — the
+    // silence in `enqueueAscentPrompt` is for the director's own proposals of the same cards.
     this.onUi('ui:ascent-envoy', (kingdomId: string) => {
       if (this.state.pendingAscentPrompt) return;
-      if (offerEnvoyTo(this.state, kingdomId)) {
+      if (offerEnvoyTo(this.state, kingdomId, true)) {
         drainAscentPrompts(this.state);
         this.refresh();
         ui.events.emit('state-changed');
@@ -386,7 +414,7 @@ export class ConquestScene extends MapScene {
     // cards the decision director raises on its own clock, reached on demand instead.
     this.onUi('ui:ascent-appoint', (heroId: string) => {
       if (this.state.pendingAscentPrompt) return;
-      if (offerAppointment(this.state, heroId)) {
+      if (offerAppointment(this.state, heroId, true)) {
         drainAscentPrompts(this.state);
         this.refresh();
         ui.events.emit('state-changed');
@@ -498,7 +526,7 @@ export class ConquestScene extends MapScene {
 
     this.onUi('ui:ascent-law', () => {
       if (this.state.pendingAscentPrompt) return;
-      if (offerLawChoice(this.state)) {
+      if (offerLawChoice(this.state, true)) {
         drainAscentPrompts(this.state);
         this.refresh();
         ui.events.emit('state-changed');
@@ -592,20 +620,28 @@ export class ConquestScene extends MapScene {
     // thirteen-digit number against a five-digit one, so the suppression window never once
     // applied and a tap that dismissed a marker also selected the land beneath it.
     if (performance.now() < (window.__suppressMapInputUntil ?? 0)) return true;
-    if (y <= ASCENT_HUD_BOTTOM) return true;
+    // Everything below is in the sheet's own units: the HUD scene's camera covers the sheet on
+    // every layout, and its published rectangles are sheet numbers.
+    const published = (window.__hudTapBounds ?? []).some((rect) => (
+      x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height
+    ));
+    // The top bar. On the phone the strip and the readout stack in the column; on the desktop
+    // they stand side by side in one 52-high band across the whole sheet, with the advice and the
+    // pause/menu cluster at its right end (`conquest/shell.ts`) — a bar, the width of the window.
+    const desktop = isDesktopSheet();
+    if (y <= (desktop ? HEADER_HEIGHT : ASCENT_HUD_BOTTOM) && (desktop || x <= GAME_WIDTH)) return true;
     // The action bar is always present, so its band is fixed UI whether or not a province
     // is selected — otherwise a tap on "Court" also drags the map underneath it.
     if (y >= ASCENT_ACTION_BAR_TOP) return true;
-    if (y >= ASCENT_INSPECT_TOP && this.state.selectedLandId) return true;
+    // The province card, docked at `uiColumnX()` on the desktop and at the column's foot on the phone.
+    if (y >= ASCENT_INSPECT_TOP && this.state.selectedLandId && x >= uiColumnX()) return true;
     // The zoom/mode stack floats over open map, and it moves: it sits above the inspect card
     // when a province is selected and lower when none is. A fixed band would guard the wrong
     // pixels half the time, so the HUD publishes where it actually drew them. Without this the
     // tap-to-select handler here claimed the press, selected the province underneath, and the
     // re-render destroyed the button before its release could fire — the buttons were visible,
     // pressable, and inert.
-    return (window.__hudTapBounds ?? []).some((rect) => (
-      x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height
-    ));
+    return published;
   }
 }
 

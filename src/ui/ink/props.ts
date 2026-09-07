@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { seasonalMark } from './seasonalInk';
 import { PIGMENT, shadePigment } from './palette';
 import { inkPath, mulberry32, printedShape, thickPath, washFill, type Pt } from './stroke';
 import { unitScale } from './proportion';
@@ -42,6 +43,9 @@ export function groundShadow(g: G, x: number, y: number, width: number, alpha = 
  * had to be propped up by a full-screen colour filter to be legible at all. See `ink/season.ts`.
  */
 export function tree(g: G, x: number, y: number, scale: number, seed: number): void {
+  seasonalMark(g, target => draw_tree(target, x, y, scale, seed));
+}
+function draw_tree(g: G, x: number, y: number, scale: number, seed: number): void {
   const s = unitScale('tree', scale);
   const rand = mulberry32(seed);
   const radius = 7 * s;
@@ -282,6 +286,9 @@ function bareCrown(g: G, x: number, topY: number, s: number, radius: number, ran
  * so it is doing more of the work of stating the season than any single tree can.
  */
 export function grassTuft(g: G, x: number, y: number, scale: number, seed: number): void {
+  seasonalMark(g, target => draw_grassTuft(target, x, y, scale, seed));
+}
+function draw_grassTuft(g: G, x: number, y: number, scale: number, seed: number): void {
   const s = unitScale('grassTuft', scale);
   const rand = mulberry32(seed);
   const palette = foliagePalette();
@@ -337,6 +344,9 @@ export function grassTuft(g: G, x: number, y: number, scale: number, seed: numbe
  * without changing what the mountain means.
  */
 export function bush(g: G, x: number, y: number, scale: number, seed: number): void {
+  seasonalMark(g, target => draw_bush(target, x, y, scale, seed));
+}
+function draw_bush(g: G, x: number, y: number, scale: number, seed: number): void {
   const s = unitScale('bush', scale);
   const rand = mulberry32(seed);
   const palette = foliagePalette();
@@ -379,6 +389,9 @@ export function bush(g: G, x: number, y: number, scale: number, seed: number): v
 
 /** Tre — bamboo. Tall arching culms from one clump; the village's own wall. */
 export function bamboo(g: G, x: number, y: number, scale: number, seed: number): void {
+  seasonalMark(g, target => draw_bamboo(target, x, y, scale, seed));
+}
+function draw_bamboo(g: G, x: number, y: number, scale: number, seed: number): void {
   const s = unitScale('bamboo', scale);
   const rand = mulberry32(seed);
   const culms = 5 + Math.floor(rand() * 3);
@@ -415,6 +428,9 @@ export function bamboo(g: G, x: number, y: number, scale: number, seed: number):
 
 /** Chuối — banana. Big torn paddle leaves off a short trunk. */
 export function banana(g: G, x: number, y: number, s: number, seed: number): void {
+  seasonalMark(g, target => draw_banana(target, x, y, s, seed));
+}
+function draw_banana(g: G, x: number, y: number, s: number, seed: number): void {
   s = unitScale('banana', s);
   const rand = mulberry32(seed);
   inkPath(g, [{ x, y }, { x, y: y - 7 * s }], seed, { width: 2.2 * s, alpha: 0.6, wobble: 0.2 * s, step: 4 });
@@ -441,6 +457,9 @@ export function banana(g: G, x: number, y: number, s: number, seed: number): voi
 
 /** Cau — areca palm. A very tall bare trunk with a small crown; lines a village yard. */
 export function areca(g: G, x: number, y: number, scale: number, seed: number): void {
+  seasonalMark(g, target => draw_areca(target, x, y, scale, seed));
+}
+function draw_areca(g: G, x: number, y: number, scale: number, seed: number): void {
   const s = unitScale('areca', scale);
   const rand = mulberry32(seed);
   const height = (28 + rand() * 12) * s;
@@ -493,6 +512,9 @@ export function areca(g: G, x: number, y: number, scale: number, seed: number): 
  * hanging roots over everything, because they fall in front of the leaves as well as below them.
  */
 export function banyan(g: G, x: number, y: number, scale: number, seed: number): void {
+  seasonalMark(g, target => draw_banyan(target, x, y, scale, seed));
+}
+function draw_banyan(g: G, x: number, y: number, scale: number, seed: number): void {
   const s = unitScale('banyan', scale);
   const rand = mulberry32(seed);
   const palette = foliagePalette();

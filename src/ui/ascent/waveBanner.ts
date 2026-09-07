@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../../game/constants';
+import { GAME_HEIGHT, GAME_WIDTH, surfaceWidth } from '../../game/constants';
 import { INK_UI } from '../InkUI';
 import { PIGMENT, shadePigment } from '../ink/palette';
 import { clearPlate, heron, sawtoothBand } from '../ink/devices';
@@ -382,7 +382,9 @@ export function playWaveBanner(
   const centre = bandCentre();
   const halfW = GAME_WIDTH / 2;
 
-  const root = scene.add.container(0, 0).setDepth(BANNER_DEPTH);
+  // Centred on the sheet: the proclamation is built 390 wide and the desktop sheet is wider.
+  const offset = Math.round((surfaceWidth() - GAME_WIDTH) / 2);
+  const root = scene.add.container(offset, 0).setDepth(BANNER_DEPTH);
   let finished = false;
   /** Declared up here so `finish` can cancel them; both are assigned once the plate is built. */
   let holdTimer: Phaser.Time.TimerEvent | undefined;
@@ -439,7 +441,8 @@ export function playWaveBanner(
   // world, and the world is the thing the proclamation is *about*.
   const scrim = scene.add.graphics();
   scrim.fillStyle(PIGMENT.muc, 0.4);
-  scrim.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+  // The scrim covers the whole sheet, so it starts a column's offset left of the root.
+  scrim.fillRect(-offset, 0, surfaceWidth(), GAME_HEIGHT);
   scrim.setAlpha(0);
   root.add(scrim);
 

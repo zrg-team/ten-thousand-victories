@@ -1,6 +1,11 @@
+import { preloadConquestMapArt } from '../ui/conquestMapArt';
+import { preloadStoryPrints } from '../ui/storyPrint';
 import Phaser from 'phaser';
 import { pressBeganUnderSheet } from '../ui/inputGeneration';
-import { ACTION_BAR_HEIGHT, COLORS, GAME_HEIGHT, GAME_WIDTH, HEADER_HEIGHT, PLAYER_KINGDOM_ID, REALTIME_TICK_MS } from '../game/constants';
+import { ACTION_BAR_HEIGHT, COLORS, GAME_HEIGHT, GAME_WIDTH, HEADER_HEIGHT, PLAYER_KINGDOM_ID, REALTIME_TICK_MS, mapViewWidth, surfaceWidth, uiColumnX } from '../game/constants';
+import { isDesktopLayout, isDesktopPlatform } from '../platform/layout';
+import { attachPaperSheet, type PaperSheet } from '../ui/ink/paperSheet';
+import { LAYOUT_RESIZED } from '../game/desktopResize';
 import { TouchController } from '../input/TouchController';
 import { createInitialGameState } from '../state/GameState';
 import { clearAutosave, saveSnapshot } from '../state/save';
@@ -30,6 +35,9 @@ import { type ProgressBadgeVariant, createMapItemRenderer, LABEL_KEEP_OUT, type 
 const MAP_BADGE_SCALE = 1.8;
 import { ArmyRenderer } from './map/ArmyRenderer';
 import { OverlayRenderer } from './map/OverlayRenderer';
+import { captureSeasonalInk, repaintSeasonalInk } from '../ui/ink/seasonalInk';
+import { mapWork, registerMapWork } from './map/mapWorkBudget';
+import { ChunkedMapLayer } from './map/ChunkedMapLayer';
 import { SeasonRenderer, type SeasonScape } from './map/SeasonRenderer';
 import { SettlementRenderer } from './map/SettlementRenderer';
 import { BirdRenderer } from './map/BirdRenderer';
@@ -43,6 +51,7 @@ import { inkPath, washFill } from '../ui/ink/stroke';
 import { t } from '../i18n';
 import { MINIMAP_H, MINIMAP_W } from '../ui/MinimapRenderer';
 import { applyPendingRenderScale, bakeScale, designPointer, liveSettlementInk, lodDropsLabels, lodZoomThreshold, renderScaleNow } from '../game/graphicsQuality';
+import { applyCameraLayout } from '../game/cameraLayout';
 import { qualityLadder } from '../game/qualityLadder';
 import { fitBakeScale } from '../ui/ink/textureLimits';
 import { figureEraFor } from '../ui/ink/devices';
@@ -78,6 +87,8 @@ const CULLING_DISABLED = typeof window !== 'undefined' && /[?&]nocull=1\b/.test(
 const MIN_CAMERA_ZOOM = 0.72;
 const MAX_CAMERA_ZOOM = 1.65;
 const CAMERA_ZOOM_STEP = 0.16;
+/** Over every band the map draws (labels reach 78) and under the paper sheet at 10,000. */
+const WORLD_DIM_DEPTH = 5000;
 const WORLD_PADDING = 300;
 
 /**
@@ -122,6 +133,34 @@ export class MapScene extends Phaser.Scene {
    *  filler, coast, control, zones, decorations, connections, settlement nodes). Baked
    *  once per static change so Phaser stops re-tessellating ~160k fill commands/frame. */
   private staticBakeRT?: Phaser.GameObjects.RenderTexture;
+  private knownVisibility = new Map<string, boolean>();
+  private refreshPending = false;
+  private refreshJob?: Generator<void>;
+  private refreshCosts: number[] = [];
+  private workTag = 'refresh';
+  private workCosts: Record<string, number> = {};
+  private nextVisual(job: Generator<void>): IteratorResult<void> {
+    const start = performance.now(); const result = job.next(); const tag = this.workTag;
+    this.workCosts[tag] = Math.max(this.workCosts[tag] ?? 0, performance.now() - start); return result;
+  }
+  private sceneryJob?: Generator<void>;
+  private stopWorkBudget?: () => void;
+  private readonly prepareScenery = () => mapWork(this, remaining => {
+    if (remaining <= 0 || (this.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer).contextLost) return;
+    const start = performance.now();
+    if (this.refreshPending && this.refreshJob) { this.refreshJob.return(undefined); this.refreshJob = undefined; }
+    if (!this.refreshJob && this.refreshPending) { this.refreshPending = false; this.refreshJob = this.refreshVisuals(); }
+    while (performance.now() - start < remaining) {
+      if (this.refreshJob) { if (this.nextVisual(this.refreshJob).done) this.refreshJob = undefined; else continue; }
+      if (this.sceneryJob) { if (this.nextVisual(this.sceneryJob).done) this.sceneryJob = undefined; else continue; }
+      break;
+    }
+    this.refreshCosts.push(performance.now() - start);
+    if (this.refreshCosts.length > 600) this.refreshCosts.shift();
+  }, true);
+  private groundChunks?: ChunkedMapLayer;
+  private refreshingVisuals = false;
+  private needsGroundBake = false;
   private lastBakedRenderMode?: string;
   /** Protected so a subclass mode can offer the renderer its own layers. */
   protected mapRenderer!: MapRenderer;
@@ -250,6 +289,7 @@ export class MapScene extends Phaser.Scene {
       this.cameras.main.scrollX + point.x / this.mapZoom,
       this.cameras.main.scrollY + point.y / this.mapZoom,
     );
+    this.domTapAnsweredAt = performance.now();
     if (landId) {
       this.selectLand(landId);
     } else {
@@ -340,6 +380,7 @@ export class MapScene extends Phaser.Scene {
     this.isDraggingMap = false;
     this.dragDistance = 0;
     this.renderSignatures = { terrain: '', control: '', fog: '', roads: '', node: '', badge: '' };
+    this.needsGroundBake = false; this.refreshCosts = []; this.workCosts = {};
     this.suppressNextMapTap = false;
     this.domDown = undefined;
     this.domDragDistance = 0;
@@ -359,6 +400,86 @@ export class MapScene extends Phaser.Scene {
   /** Sets the map's zoom in design units, leaving the render scale where it is. */
   protected setMapZoom(value: number): void {
     this.cameras.main.setZoom(value * renderScaleNow());
+    this.layoutWorldOverlays();
+  }
+
+  /**
+   * The desktop's two world-side overlays, beside the chrome column: the paper grain over the
+   * uncovered map, and the dim that stands under a card or a lane (`ui:world-dim`). Both are
+   * fixed to the camera, and a world camera carries the map's own zoom — so a sheet-sized object
+   * covers `1/zoom` of the view, and both are resized whenever the zoom moves. Nothing on the
+   * phone: the chrome scene's own sheet and dims cover the whole screen there.
+   */
+  private worldDim?: Phaser.GameObjects.Rectangle;
+  private worldSheet?: PaperSheet;
+
+  private layoutWorldOverlays(): void {
+    if (!this.worldDim && !this.worldSheet) return;
+    const zoom = this.mapZoom;
+    this.worldDim?.setSize(surfaceWidth() / zoom, GAME_HEIGHT / zoom);
+    this.worldSheet?.resize(mapViewWidth() / zoom, GAME_HEIGHT / zoom, zoom);
+  }
+
+  /**
+   * The world under a sheet: the same diệp the cards lay over the map, at the strength the HUD
+   * asks for — an event window's 0.93, or a docked lane's lighter wash, under which the map is
+   * meant to be looked at while the page is read.
+   */
+  private setWorldDim(on: boolean, alpha = 0.93): void {
+    if (uiColumnX() === 0) return;
+    if (!this.worldDim) {
+      this.worldDim = this.add.rectangle(0, 0, surfaceWidth(), GAME_HEIGHT, PIGMENT.diep, alpha)
+        .setOrigin(0, 0)
+        .setScrollFactor(0)
+        .setDepth(WORLD_DIM_DEPTH)
+        .setVisible(false);
+      this.layoutWorldOverlays();
+    }
+    this.worldDim.setFillStyle(PIGMENT.diep, alpha);
+    this.worldDim.setVisible(on);
+  }
+
+  /** Re-places the world-side overlays after the sheet's width changed (`desktopResize.ts`). */
+  protected layoutForSurface(): void {
+    this.layoutWorldOverlays();
+    const camera = this.cameras.main;
+    camera.setScroll(this.clampScrollX(camera.scrollX), this.clampScrollY(camera.scrollY));
+    this.syncViewCulling(true);
+  }
+
+  // ── The camera against the world ──────────────────────────────────────
+  //
+  // Every scroll clamp measures the *uncovered* view: the whole column on the phone, and on the
+  // desktop the part of the sheet the chrome column does not cover — so the world's right edge
+  // can be brought up to the column's left edge and no further, and "centre on the capital"
+  // puts it in the middle of the map the player can see rather than under the chrome.
+
+  protected clampScrollX(value: number, zoom = this.mapZoom): number {
+    return Phaser.Math.Clamp(value, 0, Math.max(0, this.worldWidth - mapViewWidth() / zoom));
+  }
+
+  protected clampScrollY(value: number, zoom = this.mapZoom): number {
+    return Phaser.Math.Clamp(value, 0, Math.max(0, this.worldHeight - GAME_HEIGHT / zoom));
+  }
+
+  /** Scrolls so a world point sits in the middle of the uncovered view. */
+  protected scrollToCentre(worldX: number, worldY: number, zoom = this.mapZoom): void {
+    this.cameras.main.setScroll(
+      this.clampScrollX(worldX - mapViewWidth() / (2 * zoom), zoom),
+      this.clampScrollY(worldY - GAME_HEIGHT / (2 * zoom), zoom),
+    );
+  }
+
+  /** A keyboard pan, in design units of the view. */
+  private nudgeCamera(dx: number, dy: number): void {
+    const camera = this.cameras.main;
+    const zoom = this.mapZoom;
+    camera.setScroll(this.clampScrollX(camera.scrollX + dx / zoom), this.clampScrollY(camera.scrollY + dy / zoom));
+  }
+
+  preload(): void {
+    preloadConquestMapArt(this, import.meta.env.BASE_URL);
+    preloadStoryPrints(this, import.meta.env.BASE_URL);
   }
 
   create(): void {
@@ -375,6 +496,9 @@ export class MapScene extends Phaser.Scene {
     // times larger, which reads as the map having silently zoomed out.
     this.cameras.main.setOrigin(0, 0);
     this.setMapZoom(1);
+    // And its place on the sheet: the whole of it. On the desktop the sheet is wider than the
+    // chrome column, and this is the camera that fills it. A no-op on the phone.
+    applyCameraLayout(this, renderScaleNow());
     window.__mandateState = this.state;
     this.registry.set('gameState', this.state);
     this.mapRenderer = createMapRenderer(this);
@@ -410,18 +534,42 @@ export class MapScene extends Phaser.Scene {
     this.game.canvas.addEventListener('mouseup', this.domMouseUp);
     this.game.canvas.addEventListener('webglcontextrestored', this.onContextRestored);
     this.awayPause = installAwayPause(this.state, () => this.events.emit('state-changed'));
+    // The desktop sheet changed width under a live map: re-clamp, re-cover, re-cull.
+    if (isDesktopLayout()) this.game.events.on(LAYOUT_RESIZED, this.onLayoutResized);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
 
     this.drawMap();
+    this.knownVisibility = new Map(this.state.lands.map(land => [land.id, land.isVisible]));
+    this.stopWorkBudget = registerMapWork(this, () => this.refreshPending || !!this.refreshJob || !!this.sceneryJob);
+    this.events.on(Phaser.Scenes.Events.UPDATE, this.prepareScenery);
     this.scene.launch(this.uiSceneKey(), { state: this.state });
     this.scene.bringToTop(this.uiSceneKey());
     this.registerUiEvents();
     this.events.emit('state-changed');
   }
 
+  /**
+   * `performance.now()` of the last release the DOM path answered (`handleDomUp`).
+   *
+   * A tap on the map reaches this scene twice. The canvas listener answers the release the moment
+   * the browser delivers it; Phaser queues the same event and answers it again on the next step
+   * through `enableMapDrag`'s `pointerup`. `selectLand` in Dragon Ascent is a *toggle*, so the
+   * second answer undid the first — traced on the desktop layout as two `selectLand` calls a
+   * frame apart for one click, the second with the province already selected. The phone hid it:
+   * the first answer raises the inspect card, whose band (`ASCENT_INSPECT_TOP`) then covers most
+   * plates low on the sheet by the time the second arrives, and only a plate above it toggled
+   * off. The Phaser path yields to a release the DOM path has just answered.
+   */
+  private domTapAnsweredAt = 0;
+
+  private readonly onLayoutResized = (): void => {
+    if (this.scene.isActive()) this.layoutForSurface();
+  };
+
   private cleanup(): void {
     // First, before anything else: the handlers this scene hung on the UI scene's emitter.
     this.offUi();
+    this.game.events.off(LAYOUT_RESIZED, this.onLayoutResized);
     this.awayPause?.dispose();
     this.awayPause = undefined;
     this.game.canvas.removeEventListener('pointerdown', this.domPointerDown);
@@ -443,13 +591,25 @@ export class MapScene extends Phaser.Scene {
     // *before* hiding the source layers, so every static layer under depth 1.5 went on drawing live,
     // every frame, for the rest of the run. Roughly 160k fill and upload commands a frame instead of
     // one textured quad — the "second fight is unplayable" bug.
+    this.refreshJob?.return(undefined); this.refreshJob = undefined; this.refreshPending = false;
+    this.sceneryJob?.return(undefined); this.sceneryJob = undefined;
+    this.events.off(Phaser.Scenes.Events.UPDATE, this.prepareScenery);
+    this.stopWorkBudget?.(); this.stopWorkBudget = undefined;
     this.staticBakeRT = undefined;
+    this.groundChunks?.destroy(); this.groundChunks = undefined;
     this.lastBakedRenderMode = undefined;
+    // Both belong to the display list Phaser has just torn down; the sheet took itself off on
+    // SHUTDOWN. The handles must not survive into the next run's `create`.
+    this.worldDim = undefined;
+    this.worldSheet = undefined;
   }
 
   /** Re-bake the cached terrain + fog textures once a lost WebGL context is restored.
    *  Both RenderTextures are blanked by a context loss, so both must be redrawn. */
   private readonly onContextRestored = (): void => {
+    // Chunk layers restore themselves through the renderer event. The legacy diagnostic
+    // whole-world path still needs this canvas listener.
+    if (this.groundChunks) return;
     // Defer so Phaser's own context restore (texture re-upload) completes first.
     this.time.delayedCall(60, () => {
       if (this.scene.isActive()) {
@@ -534,6 +694,14 @@ export class MapScene extends Phaser.Scene {
     this.onUi('ui:zoom-map', (direction: number) => {
       this.zoomMap(direction);
     });
+    // Desktop only, and told rather than inferred: the chrome scene is the one that knows when a
+    // card or a lane owns the screen (`renderActionBar`).
+    this.onUi('ui:world-dim', (on: boolean, alpha?: number) => {
+      this.setWorldDim(on, alpha);
+    });
+    this.onUi('ui:nudge-camera', (dx: number, dy: number) => {
+      this.nudgeCamera(dx, dy);
+    });
     this.onUi('ui:toggle-render-mode', () => {
       this.state.mapRenderMode = this.state.mapRenderMode === 'terrain' ? 'control' : 'terrain';
       this.applyRenderMode();
@@ -556,18 +724,7 @@ export class MapScene extends Phaser.Scene {
       this.scene.start('MenuScene');
     });
     this.onUi('ui:pan-camera', (worldX: number, worldY: number) => {
-      const cam = this.cameras.main;
-      const zoom = this.mapZoom;
-      cam.scrollX = Phaser.Math.Clamp(
-        worldX - GAME_WIDTH / (2 * zoom),
-        0,
-        Math.max(0, this.worldWidth - GAME_WIDTH / zoom),
-      );
-      cam.scrollY = Phaser.Math.Clamp(
-        worldY - GAME_HEIGHT / (2 * zoom),
-        0,
-        Math.max(0, this.worldHeight - GAME_HEIGHT / zoom),
-      );
+      this.scrollToCentre(worldX, worldY);
     });
     this.onUi('ui:clear-selection', () => {
       this.state.selectedLandId = undefined;
@@ -583,7 +740,7 @@ export class MapScene extends Phaser.Scene {
    */
   protected isWorldHalted(): boolean {
     return this.state.victory || this.state.isPaused || this.state.isStrategyPause
-      || Boolean(this.state.isAwayPause);
+      || Boolean(this.state.isAwayPause) || (this.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer).contextLost;
   }
 
   /**
@@ -614,15 +771,20 @@ export class MapScene extends Phaser.Scene {
    * cull state its predecessor had.
    */
   private syncCullables(): void {
+    for (const _ of this.syncCullableJobs()) { /* initial registration */ }
+  }
+
+  private *syncCullableJobs(): Generator<void> {
     const live = new Set<string>();
 
     for (const [landId, node] of this.landNodes) {
+      yield;
       const id = `land::${landId}`;
       live.add(id);
       // A settlement reaches well below its land centre — walls, the grove, and the name plate
       // sitting 58px under a walled seat — so the reach is generous rather than tight.
       this.viewIndex.set(id, {
-        kind: 'node',
+        kind: 'node', object: node,
         x: node.x,
         y: node.y,
         radius: 140,
@@ -634,6 +796,7 @@ export class MapScene extends Phaser.Scene {
     // baked Graphics here would draw their ink twice over the cached terrain.
     {
       for (const [landId, ink] of this.landInk) {
+        yield;
         const liveInk = ink.filter((object) => this.keepsGroundInkLive(object));
         if (liveInk.length === 0) continue;
         const node = this.landNodes.get(landId);
@@ -642,11 +805,12 @@ export class MapScene extends Phaser.Scene {
         const id = `ink::${landId}`;
         live.add(id);
         this.viewIndex.set(id, {
-          kind: 'node',
+          kind: 'node', object: node,
           // Completed additions can extend well beyond the seat. Cull the whole layout so a
           // house at its edge stays visible while the province centre is offscreen.
           x: bounds ? (bounds.left + bounds.right) / 2 : node.x,
           y: bounds ? (bounds.top + bounds.bottom) / 2 : node.y,
+          bounds,
           radius: bounds ? Math.hypot(bounds.right - bounds.left, bounds.bottom - bounds.top) / 2 + 8 : 140,
           setCulled: (culled) => {
             for (const g of liveInk) g.setVisible(!culled);
@@ -659,14 +823,20 @@ export class MapScene extends Phaser.Scene {
     // their complete bounds so only nearby images draw, including the tip of a tall mountain.
     let decorationIndex = 0;
     for (const object of this.children.list) {
+      yield;
       if (!(object instanceof Phaser.GameObjects.Image)
         || !this.keepsGroundInkLive(object)
         || object.getData('conquestGroundOrder') === 'settlement') continue;
-      const id = `decoration::${decorationIndex++}`;
+      const id = `decoration::${object.getData('decorationKey') ?? decorationIndex++}`;
+      live.add(id);
+      const pose = `${object.x}:${object.y}:${object.scaleX}:${object.scaleY}:${object.rotation}:${object.width}:${object.height}:${object.originX}:${object.originY}`;
+      if (this.viewIndex.has(id) && object.getData('viewPose') === pose) continue;
+      object.setData('viewPose', pose);
       const width = Math.abs(object.displayWidth), height = Math.abs(object.displayHeight);
       live.add(id);
       this.viewIndex.set(id, {
-        kind: 'node',
+        kind: 'node', object,
+        bounds: object.getBounds(),
         x: object.x + (0.5 - object.originX) * width,
         y: object.y + (0.5 - object.originY) * height,
         radius: Math.hypot(width, height) / 2 + 4,
@@ -675,10 +845,11 @@ export class MapScene extends Phaser.Scene {
     }
 
     for (const [landId, label] of this.landLabels) {
+      yield;
       const id = `label::${landId}`;
       live.add(id);
       this.viewIndex.set(id, {
-        kind: 'label',
+        kind: 'label', object: label,
         x: label.x,
         y: label.y,
         radius: 80,
@@ -687,10 +858,11 @@ export class MapScene extends Phaser.Scene {
     }
 
     for (const [landId, flag] of this.flagMarkers) {
+      yield;
       const id = `flag::${landId}`;
       live.add(id);
       this.viewIndex.set(id, {
-        kind: 'flag',
+        kind: 'flag', object: flag,
         x: flag.x,
         y: flag.y,
         radius: 60,
@@ -699,13 +871,14 @@ export class MapScene extends Phaser.Scene {
     }
 
     for (const target of this.armies.cullTargets()) {
+      yield;
       const id = `army::${target.id}`;
       live.add(id);
       // Anchored on the leg the host is walking, not on where it stood when it was indexed — see
       // `ArmyRenderer.cullTargets`. Re-indexing it every frame would cost more than the one object
       // it saves, and `syncViewCulling` would not re-run for it anyway under a still camera.
       this.viewIndex.set(id, {
-        kind: 'army',
+        kind: 'army', object: target.object,
         x: target.x,
         y: target.y,
         radius: target.radius,
@@ -714,6 +887,7 @@ export class MapScene extends Phaser.Scene {
     }
 
     for (const target of this.traffic.cullTargets()) {
+      yield;
       live.add(target.id);
       this.viewIndex.set(target.id, {
         kind: 'traffic',
@@ -725,6 +899,7 @@ export class MapScene extends Phaser.Scene {
     }
 
     for (const target of this.overlays.cloudTargets()) {
+      yield;
       live.add(target.id);
       this.viewIndex.set(target.id, {
         kind: 'cloud',
@@ -842,17 +1017,24 @@ export class MapScene extends Phaser.Scene {
         this.isDraggingMap = true;
       }
 
-      this.cameras.main.scrollX = Phaser.Math.Clamp(
-        this.cameras.main.scrollX - deltaX,
-        0,
-        Math.max(0, this.worldWidth - GAME_WIDTH / this.mapZoom),
-      );
-      this.cameras.main.scrollY = Phaser.Math.Clamp(
-        this.cameras.main.scrollY - deltaY,
-        0,
-        Math.max(0, this.worldHeight - GAME_HEIGHT / this.mapZoom),
-      );
+      this.cameras.main.scrollX = this.clampScrollX(this.cameras.main.scrollX - deltaX);
+      this.cameras.main.scrollY = this.clampScrollY(this.cameras.main.scrollY - deltaY);
     });
+
+    // The wheel zooms the map, about the cursor, on the desktop — where a wheel is what a hand
+    // rests on. Over the column it is the column's: the lists there scroll on the same event and
+    // filter it by their own bounds, so the two never both act. Fixed chrome over the map (the
+    // zoom stack, an inspect card) keeps the wheel off the world under it too.
+    if (isDesktopPlatform()) {
+      this.input.on('wheel', (pointer: Phaser.Input.Pointer, _over: unknown, _dx: number, dy: number) => {
+        if (dy === 0) return;
+        const at = designPointer(pointer);
+        // Over the column only when there is one beside the map; on the phone column the chrome's
+        // own bands are what `isScreenPointOverFixedUi` refuses.
+        if ((uiColumnX() > 0 && at.x >= uiColumnX()) || this.isScreenPointOverFixedUi(at.x, at.y)) return;
+        this.zoomMapAt(dy < 0 ? 1 : -1, at.x, at.y);
+      });
+    }
 
     this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       if (this.suppressNextMapTap) {
@@ -863,6 +1045,11 @@ export class MapScene extends Phaser.Scene {
       // Same rule as the DOM path: the release of a press that began under a sheet is the
       // sheet's, whatever the screen looks like by the time it arrives.
       if (pressBeganUnderSheet() || this.isPointerOverFixedUi(pointer)) {
+        return;
+      }
+
+      // The same release, already answered by the canvas listener — see `domTapAnsweredAt`.
+      if (performance.now() - this.domTapAnsweredAt < 250) {
         return;
       }
 
@@ -1139,6 +1326,10 @@ export class MapScene extends Phaser.Scene {
   }
 
   private repaintHexTerrain(): void {
+    for (const _ of this.repaintHexTerrainJobs()) { /* initial construction */ }
+  }
+
+  private *repaintHexTerrainJobs(): Generator<void> {
     const graphics = this.terrainGraphics;
     const decorationGraphics = this.terrainDecorationGraphics;
     graphics.clear();
@@ -1165,7 +1356,9 @@ export class MapScene extends Phaser.Scene {
     if (this.mapRenderer.drawLandscape) {
       try {
         const geometry = this.landscapeGeometry();
-        this.mapRenderer.drawLandscape({
+        const draw = this.mapRenderer.drawLandscapeJobs?.bind(this.mapRenderer) ?? function* (this: void, ctx: import('../ui/MapRenderer').LandscapeContext) { return renderer.drawLandscape?.(ctx); };
+        const renderer = this.mapRenderer;
+        yield* draw({
           graphics,
           decoration: decorationGraphics,
           tiles: geometry.tiles,
@@ -1187,6 +1380,7 @@ export class MapScene extends Phaser.Scene {
     }
 
     for (const tile of this.state.hexTiles) {
+      yield;
       const land = tile.landId ? this.landAt(tile.landId) : undefined;
       if (land && !land.isVisible) {
         continue;
@@ -1202,6 +1396,7 @@ export class MapScene extends Phaser.Scene {
     }
 
     for (const group of computeTerrainRegions(this.state, this.hexTileMap)) {
+      yield;
       const centers = group
         .filter((tile) => {
           const land = tile.landId ? this.landAt(tile.landId) : undefined;
@@ -1317,8 +1512,27 @@ export class MapScene extends Phaser.Scene {
 
   /** Cache static terrain while preserving the live ground images and high-tier vector ink. */
   private bakeStaticTerrain(): void {
+    if (this.refreshingVisuals) { this.needsGroundBake = true; return; }
     if (typeof window !== 'undefined' && /[?&]nobake=1\b/.test(window.location.search)) {
       this.applyRenderModeVisibility();
+      return;
+    }
+    if (!/[?&]wholebake=1\b/.test(window.location.search)) {
+      const initial = !this.groundChunks;
+      this.groundChunks ??= new ChunkedMapLayer(this, STATIC_BAKE_DEPTH);
+      const band = this.children.list.filter(object => {
+        const layer = object as Phaser.GameObjects.Graphics;
+        return object !== this.staticBakeRT && layer.depth <= 1.5 && !object.getData('mapChunk') && !this.keepsGroundInkLive(object);
+      }) as Phaser.GameObjects.Graphics[];
+      for (const source of band) source.setVisible(true);
+      this.applyRenderModeVisibility();
+      const visible = band.filter(source => source.visible).sort((a, b) => a.depth - b.depth);
+      this.groundChunks.invalidate(visible, this.worldWidth, this.worldHeight, bakeScale());
+      for (const source of band) source.setVisible(false);
+      // Retained live ink keeps the visibility assigned by ViewIndex. Revealing it here
+      // would bypass culling until it crossed a viewport edge again.
+      this.lastBakedRenderMode = this.state.mapRenderMode;
+      if (initial) this.groundChunks.flush();
       return;
     }
     // `scene` is nulled by `GameObject.destroy()`, so this catches a handle that outlived its
@@ -1718,7 +1932,7 @@ export class MapScene extends Phaser.Scene {
       .setDepth(2 + Phaser.Math.Clamp(worldY / Math.max(1, this.worldHeight), 0, 1) * 0.8);
     const isPlayerLand = land.ownerId === PLAYER_KINGDOM_ID;
     const isPlayerCapital = isPlayerLand && land.type === 'castle';
-    const settlement = this.settlements.createSettlementCluster(this.state, land);
+    const settlement = captureSeasonalInk(() => this.settlements.createSettlementCluster(this.state, land));
     container.add(settlement);
     const localStructureBounds = settlement.getData('conquestStructureBounds') as StructureRect | undefined;
     // **After the settlement, because it has to be sized to it.**
@@ -2380,73 +2594,118 @@ export class MapScene extends Phaser.Scene {
    */
 
   protected refresh(): void {
-    // The baked terrain/control/coast/fog/zone layers depend only on ownership and
-    // visibility, so a building-only change (common on economy ticks) skips the whole
-    // expensive repaint+bake and just refreshes the live settlement nodes.
-    const terrainChanged = this.updateSignature('terrain');
-    const controlChanged = this.updateSignature('control');
-    const fogChanged = this.updateSignature('fog');
-    const roadsChanged = this.updateSignature('roads');
-    const nodeChanged = this.updateSignature('node');
-
-    if (terrainChanged) {
-      this.drawBackgroundFillerTiles();
-      this.repaintHexTerrain();
-      this.repaintCoastBuffer();
+    for (const land of this.state.lands) {
+      if (this.knownVisibility.get(land.id) && !land.isVisible) this.overlays?.concealPending();
+      this.knownVisibility.set(land.id, land.isVisible);
     }
-
-    if (controlChanged) {
-      this.repaintControlMap();
-      this.repaintAllZones();
-      this.drawFlagMarkers();
-    }
-
-    if (fogChanged) {
-      this.repaintFogOfWar();
-      this.repaintFillerFogOfWar();
-      this.repaintForeignHaze();
-      this.bakeFog();
-    }
-
-    if (roadsChanged) {
-      this.drawConnections();
-      this.drawCarts();
-      this.drawTravelers();
-    }
-
-    // The per-land signatures inside are the real gate; the sweep is cheap when nothing changed.
-    const inkChanged = this.redrawLandNodes();
-    void nodeChanged;
-
-    if (terrainChanged) {
-      // The accents are drawn per visible tile, so land coming out of the fog has to be given its
-      // own. BEFORE the bake below: the accents live in the bake band now, so a repaint that
-      // landed after the composite would stay invisible until the next one.
-      this.seasons.setScape(this.landscapeGeometry());
-    }
-
-    // The fog keeps its own texture, so it is deliberately absent here: re-inking the fog must not
-    // drag the ground, the ranges and the roads through a re-composite with it. Settlement ink
-    // lives in the band too now, so a town rebuilding re-composites once, here.
-    if (terrainChanged || controlChanged || roadsChanged || inkChanged) {
-      this.bakeStaticTerrain();
-    }
-
-    this.syncSeasonVisuals();
-    this.applyRenderMode();
-    this.updateSelectionOutline();
-    this.drawArmies();
-    this.updateArmyHighlight();
-    if (this.updateSignature('badge')) {
-      this.drawAcquisitionMarkers();
-      this.drawBuildMarkers();
-      this.drawSiegeMarkers();
-      this.drawRecruitMarkers();
-      this.drawBattleMarkers();
-    }
-    this.syncCullables();
+    this.refreshPending = true;
     this.events.emit('state-changed');
     this.scene.get(this.uiSceneKey()).events.emit('state-changed');
+  }
+
+  private *refreshVisuals(): Generator<void> {
+    const previousSignatures = { ...this.renderSignatures };
+    let completed = false;
+    this.refreshingVisuals = true;
+    try {
+      // The baked terrain/control/coast/fog/zone layers depend only on ownership and
+      // visibility, so a building-only change (common on economy ticks) skips the whole
+      // expensive repaint+bake and just refreshes the live settlement nodes.
+      const terrainChanged = this.updateSignature('terrain');
+      const controlChanged = this.updateSignature('control');
+      const fogChanged = this.updateSignature('fog');
+      const roadsChanged = this.updateSignature('roads');
+      const nodeChanged = this.updateSignature('node');
+
+      if (terrainChanged) {
+        this.workTag = 'filler';
+        this.drawBackgroundFillerTiles();
+        yield;
+        this.sceneryJob?.return(undefined); this.sceneryJob = undefined;
+        this.renderedSeason = undefined;
+        this.workTag = 'terrain';
+        yield* this.repaintHexTerrainJobs();
+        this.workTag = 'coast';
+        this.repaintCoastBuffer();
+        yield;
+      }
+
+      if (controlChanged) {
+        this.workTag = 'control';
+        this.repaintControlMap();
+        yield;
+        this.repaintAllZones();
+        yield;
+        this.drawFlagMarkers();
+        yield;
+      }
+
+      if (fogChanged) {
+        this.workTag = 'fog';
+        this.repaintFogOfWar();
+        yield;
+        this.repaintFillerFogOfWar();
+        yield;
+        this.repaintForeignHaze();
+        yield;
+        this.bakeFog();
+        yield;
+      }
+
+      if (roadsChanged) {
+        this.workTag = 'roads';
+        this.drawConnections();
+        yield;
+        this.drawCarts();
+        yield;
+        this.drawTravelers();
+        yield;
+      }
+
+      // The per-land signatures inside are the real gate; the sweep is cheap when nothing changed.
+      this.workTag = 'settlements';
+      const inkChanged = yield* this.redrawLandNodeJobs();
+      void nodeChanged;
+
+      if (terrainChanged) {
+        // The accents are drawn per visible tile, so land coming out of the fog has to be given its
+        // own. BEFORE the bake below: the accents live in the bake band now, so a repaint that
+        // landed after the composite would stay invisible until the next one.
+        this.seasons.setScape(this.landscapeGeometry());
+      }
+
+      // The fog keeps its own texture, so it is deliberately absent here: re-inking the fog must not
+      // drag the ground, the ranges and the roads through a re-composite with it. Settlement ink
+      // lives in the band too now, so a town rebuilding re-composites once, here.
+      this.workTag = 'accents';
+      this.syncSeasonVisuals(terrainChanged);
+      if (terrainChanged || controlChanged || roadsChanged || inkChanged) {
+        this.needsGroundBake = true;
+      }
+      this.applyRenderMode();
+      this.refreshingVisuals = false;
+      if (this.needsGroundBake && !this.sceneryJob) { this.needsGroundBake = false; this.bakeStaticTerrain(); }
+      this.updateSelectionOutline();
+      this.workTag = 'armies';
+      this.drawArmies();
+      yield;
+      this.updateArmyHighlight();
+      if (this.updateSignature('badge')) {
+        this.drawAcquisitionMarkers();
+        this.drawBuildMarkers();
+        this.drawSiegeMarkers();
+        this.drawRecruitMarkers();
+        this.drawBattleMarkers();
+      }
+      this.workTag = 'culling';
+      if (!this.sceneryJob) yield* this.syncCullableJobs();
+      completed = true;
+    } finally {
+      this.refreshingVisuals = false;
+      // An interrupted generation may have only partially painted a band. Recompare against
+      // its last completed state so the replacement cannot mistake partial work for a cache hit.
+      if (!completed) this.renderSignatures = previousSignatures;
+    }
   }
 
   /**
@@ -2456,56 +2715,52 @@ export class MapScene extends Phaser.Scene {
    * ownership does, so this must run whether or not the expensive layers were redrawn. It returns
    * immediately unless the season actually changed, so calling it every tick is free.
    */
-  protected syncSeasonVisuals(): void {
+  protected syncSeasonVisuals(scatterPrepared = false): void {
     if (this.renderedSeason === this.state.season) {
       return;
     }
     this.renderedSeason = this.state.season;
-    this.rebakeScenery();
-    this.seasons.setScape(this.landscapeGeometry());
+    this.rebakeScenery(scatterPrepared);
     this.seasons.sync(this.state.season);
   }
 
-  /**
-   * Turns the leaves. Re-inks every growing thing on the map, and the ground tone under it, in the
-   * season now current.
-   *
-   * This is the path that replaced the full-screen seasonal wash. Only winter paints anything over
-   * the world at all now — the year is read off the canopy, the grass, the ground cast and the name
-   * plates — so those things have to be genuinely redrawn, and they live inside the static bake.
-   *
-   * Measured on a 4x-throttled mid-tier profile (`test_scripts/perf/measure-bake.mjs`, 1560 tiles, 42
-   * lands): **110-220 ms across four runs, median ~170**, against 1200-1500 ms for the `refresh()`
-   * this replaces. Roughly 2% of a seven-second ascent season, once per season. Budget for this
-   * path is 250 ms — if a future scatter change pushes it past that, thin the plan rather than
-   * going back to a full-screen wash.
-   *
-   * Three things buy the eleven-fold saving:
-   *
-   *  · the placement plan is reused, so no scatter generation and no spacing pass — see
-   *    `DongHoMapRenderer.repaintScatter`;
-   *  · the terrain fill, water, ranges and paddy are not touched, being pinned to `BAKE_SEASON`;
-   *  · **no new RenderTexture.** The band layers are still resident `Graphics` after a bake, only
-   *    hidden, so `bakeStaticTerrain` re-composites them from what is already in memory. The map
-   *    already holds ~52 MB of textures; a second scenery buffer to cross-fade against was the one
-   *    design this could not afford, which is why the leaves turn in a single frame rather than
-   *    dissolving. A woodblock print does not dissolve either.
-   *
-   * `redrawLandNodes` is not incidental: a settlement's own grove and its banyan are live objects at
-   * depth 2, outside the bake, and would otherwise stand in last season's green inside a re-inked
-   * country. It also re-letters the name plates in `palette.labelInk`.
-   */
-  protected rebakeScenery(): void {
-    setFoliageSeason(this.state.season);
-    if (this.terrainDecorationGraphics && this.mapRenderer.repaintScatter) {
-      this.mapRenderer.repaintScatter(this.terrainDecorationGraphics);
-    }
-    // At full strength, into the bake band, before the one composite below — the cross-fade
-    // went with the layer's liveness (a woodblock print does not dissolve either; see above).
-    this.seasons.bakeAccents(this.state.season);
-    this.redrawLandNodes();
-    this.bakeStaticTerrain();
+  /** Refresh seasonal paths and existing labels in bounded steps, then invalidate ground once.
+   * Terrain placement, settlement structure, and completed chunk imagery stay resident. */
+  protected rebakeScenery(scatterPrepared = false): void {
+    this.sceneryJob?.return(undefined);
+    this.sceneryJob = this.prepareSeason(scatterPrepared);
   }
+
+  private *prepareSeason(scatterPrepared = false): Generator<void> {
+    this.workTag = 'scatter';
+    setFoliageSeason(this.state.season);
+    if (!scatterPrepared && this.terrainDecorationGraphics) {
+      if (this.mapRenderer.repaintScatterJobs) yield* this.mapRenderer.repaintScatterJobs(this.terrainDecorationGraphics);
+      else this.mapRenderer.repaintScatter?.(this.terrainDecorationGraphics);
+    }
+    yield;
+    this.workTag = 'accents';
+    this.seasons.bakeAccents(this.state.season);
+    for (const [landId, ink] of this.landInk) {
+      for (const object of ink) if (object instanceof Phaser.GameObjects.Graphics) { repaintSeasonalInk(object); yield; }
+      const node = this.landNodes.get(landId);
+      const visit = (object: Phaser.GameObjects.GameObject): void => {
+        if (object instanceof Phaser.GameObjects.Graphics) repaintSeasonalInk(object);
+        if (object instanceof Phaser.GameObjects.Container) object.list.forEach(visit);
+      };
+      if (node) visit(node);
+      for (const label of this.landLabels.get(landId)?.list ?? []) if (label instanceof Phaser.GameObjects.Text) label.setColor(foliagePalette().labelInk);
+      yield;
+    }
+    this.workTag = 'bake';
+    this.needsGroundBake = false; this.bakeStaticTerrain();
+    this.workTag = 'culling';
+    yield* this.syncCullableJobs();
+  }
+
+  performanceStats() { return { ground: this.groundChunks?.stats(), fog: this.overlays?.chunkStats(),
+    refreshPending: this.refreshPending || !!this.refreshJob, workCosts: this.workCosts, maxRefreshWorkMs: Math.max(0, ...this.refreshCosts),
+    sceneryPending: !!this.sceneryJob }; }
 
   /** Updates one cached render signature and reports whether it changed. */
   private updateSignature(kind: RenderLayer): boolean {
@@ -2561,24 +2816,16 @@ export class MapScene extends Phaser.Scene {
     }
   }
 
-  /**
-   * Signature of one land's live settlement node.
-   *
-   * The season is in here for a reason that is easy to lose: a node carries seasonal ink. Its name
-   * plate is lettered in `foliagePalette().labelInk` and its grove and banyan are drawn in the
-   * current foliage, and both are live objects at depth 2, outside the bake. `rebakeScenery()`
-   * calls `redrawLandNodes()` for exactly that re-inking — so without the season here, the leaves
-   * would turn across the country while every town stood in last season's green.
-   */
+  /** Structure and ownership invalidate a settlement; seasons update its retained paths. */
   private landNodeSignature(land: Land): string {
     const buildings = land.buildings.map((building) => `${building.type}${building.level}`).join(',');
     // The era dresses the citadel (`setDrawnEra` inside the cluster build), so a dynasty turning
     // must re-ink the seat — without it the walls stayed fifteenth-century while the host outside
     // advanced through four dynasties.
-    return `${land.ownerId}:${land.isVisible ? 1 : 0}:${buildings}:${this.state.season}:${figureEraFor(this.state)}`;
+    return `${land.ownerId}:${land.isVisible ? 1 : 0}:${buildings}:${figureEraFor(this.state)}`;
   }
 
-  /** Signature of the live settlement nodes: visibility, ownership, buildings and season. */
+  /** Signature of the live settlement nodes: visibility, ownership, buildings and era. */
   private getNodeSignature(): string {
     return this.state.lands.map((land) => `${land.id}:${this.landNodeSignature(land)}`).join('|');
   }
@@ -2593,8 +2840,14 @@ export class MapScene extends Phaser.Scene {
    * `createLandNode` returns early) from rebuilding on every pass.
    */
   private redrawLandNodes(): boolean {
+    const jobs = this.redrawLandNodeJobs(); let result = jobs.next();
+    while (!result.done) result = jobs.next(); return result.value;
+  }
+
+  private *redrawLandNodeJobs(): Generator<void, boolean> {
     let changed = false;
     for (const land of this.state.lands) {
+      yield;
       const signature = this.landNodeSignature(land);
       if (this.nodeSignatures.get(land.id) === signature) {
         continue;
@@ -2690,10 +2943,17 @@ export class MapScene extends Phaser.Scene {
     return this.isScreenPointOverFixedUi(point.x, point.y);
   }
 
+  /**
+   * In the sheet's own units: the HUD scene's camera covers the sheet on every layout, so its
+   * published rectangles and its bands are sheet numbers. (The classic HUD's bands below belong to
+   * the shelved modes and their column.)
+   */
   protected isScreenPointOverFixedUi(x: number, y: number): boolean {
+    if ((this.state.isPaused && !this.state.isStrategyPause)
+      || performance.now() < (window.__suppressMapInputUntil ?? 0)) {
+      return true;
+    }
     return (
-      (this.state.isPaused && !this.state.isStrategyPause) ||
-      performance.now() < (window.__suppressMapInputUntil ?? 0) ||
       this.isPointInMinimapUi(x, y) ||
       y < HEADER_HEIGHT ||
       (x >= GAME_WIDTH - 72 && x <= GAME_WIDTH - 8 && y >= HEADER_HEIGHT + 7 && y <= HEADER_HEIGHT + 39) ||
@@ -2745,8 +3005,9 @@ export class MapScene extends Phaser.Scene {
       return undefined;
     }
 
+    // The sheet's width, not the column's: the canvas is the whole sheet.
     return {
-      x: ((event.clientX - rect.left) / rect.width) * GAME_WIDTH,
+      x: ((event.clientX - rect.left) / rect.width) * surfaceWidth(),
       y: ((event.clientY - rect.top) / rect.height) * GAME_HEIGHT,
     };
   }
@@ -2759,7 +3020,17 @@ export class MapScene extends Phaser.Scene {
     return this.hexTileMap.get(hexKey(coord))?.landId;
   }
 
+  /** The buttons' zoom: about the middle of the uncovered view. */
   private zoomMap(direction: number): void {
+    this.zoomMapAt(direction, mapViewWidth() / 2, GAME_HEIGHT / 2);
+  }
+
+  /**
+   * One step of zoom that holds the world point under a screen point still — the middle of the
+   * view for the buttons, the cursor for the wheel. `focusX`/`focusY` are in the sheet's design
+   * units, measured from the world camera's own origin.
+   */
+  private zoomMapAt(direction: number, focusX: number, focusY: number): void {
     const camera = this.cameras.main;
     const oldZoom = this.mapZoom;
     const nextZoom = Phaser.Math.Clamp(oldZoom + direction * CAMERA_ZOOM_STEP, MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM);
@@ -2767,11 +3038,11 @@ export class MapScene extends Phaser.Scene {
       return;
     }
 
-    const centerWorldX = camera.scrollX + GAME_WIDTH / (2 * oldZoom);
-    const centerWorldY = camera.scrollY + GAME_HEIGHT / (2 * oldZoom);
+    const worldX = camera.scrollX + focusX / oldZoom;
+    const worldY = camera.scrollY + focusY / oldZoom;
     this.setMapZoom(nextZoom);
-    camera.scrollX = Phaser.Math.Clamp(centerWorldX - GAME_WIDTH / (2 * nextZoom), 0, Math.max(0, this.worldWidth - GAME_WIDTH / nextZoom));
-    camera.scrollY = Phaser.Math.Clamp(centerWorldY - GAME_HEIGHT / (2 * nextZoom), 0, Math.max(0, this.worldHeight - GAME_HEIGHT / nextZoom));
+    camera.scrollX = this.clampScrollX(worldX - focusX / nextZoom, nextZoom);
+    camera.scrollY = this.clampScrollY(worldY - focusY / nextZoom, nextZoom);
     this.state.message = `Map zoom ${Math.round(nextZoom * 100)}%.`;
     this.scene.get(this.uiSceneKey()).events.emit('state-changed');
   }
@@ -2790,10 +3061,7 @@ export class MapScene extends Phaser.Scene {
     const targetX = anchor ? this.wx(anchor.x) : this.worldWidth / 2;
     const targetY = anchor ? this.wy(anchor.y) : this.worldHeight / 2;
 
-    camera.setScroll(
-      Phaser.Math.Clamp(targetX - GAME_WIDTH / (2 * zoom), 0, Math.max(0, this.worldWidth - GAME_WIDTH / zoom)),
-      Phaser.Math.Clamp(targetY - GAME_HEIGHT / (2 * zoom), 0, Math.max(0, this.worldHeight - GAME_HEIGHT / zoom)),
-    );
+    this.scrollToCentre(targetX, targetY, zoom);
   }
 
   private shortName(land: Land): string {

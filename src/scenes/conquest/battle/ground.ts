@@ -12,7 +12,7 @@
  */
 import Phaser from 'phaser';
 import { RectClip } from '../../../ui/ink/clipRect';
-import { GAME_WIDTH } from '../../../game/constants';
+import { hudSheetWidth } from '../../../game/cameraLayout';
 import { areca, bamboo, grassTuft, hayStack, softRidge, tree } from '../../../ui/ink/props';
 import { groundTone, inkPath, mulberry32 } from '../../../ui/ink/stroke';
 import { PIGMENT } from '../../../ui/ink/palette';
@@ -118,7 +118,7 @@ export function buildBattleGround(self: ConquestUIScene, battle: AscentBattle): 
   const top = content.y;
   const bottom = top + ui.fieldHeight;
   const x0 = 0;
-  const x1 = GAME_WIDTH;
+  const x1 = hudSheetWidth();
   const horizon = top + ui.fieldHeight * 0.30;
   const land = findLand(self.state, battle.landId);
   const seed = Math.round((battle.landId.length * 977) + battle.totalRounds * 31);
@@ -140,7 +140,7 @@ export function buildBattleGround(self: ConquestUIScene, battle: AscentBattle): 
   // `ui/ink/clipRect` for the measurement. The stencil clips in screen space and so is the same
   // shape at every graphics tier.
   const clip = new RectClip(self, {
-    x: 0, y: top, width: GAME_WIDTH, height: ui.fieldHeight,
+    x: 0, y: top, width: hudSheetWidth(), height: ui.fieldHeight,
   });
   ui.groundClip = clip;
   clip.begin(field);
@@ -411,7 +411,7 @@ export function buildBattleForeground(self: ConquestUIScene, battle: AscentBattl
   const top = content.y;
   const bottom = top + ui.fieldHeight;
   const x0 = 0;
-  const x1 = GAME_WIDTH;
+  const x1 = hudSheetWidth();
   const land = findLand(self.state, battle.landId);
   // The same seed the ground was drawn from, so the two halves of one picture agree about which
   // province this is and the foreground does not reshuffle when only it is rebuilt.
@@ -427,7 +427,7 @@ export function buildBattleForeground(self: ConquestUIScene, battle: AscentBattl
   // added to `field` after that is unclipped — which for props drawn at the field's own edges
   // means a bamboo hanging past the frame onto the rails below it.
   const clip = new RectClip(self, {
-    x: 0, y: top, width: GAME_WIDTH, height: ui.fieldHeight,
+    x: 0, y: top, width: hudSheetWidth(), height: ui.fieldHeight,
   });
   ui.foregroundClip = clip;
   clip.begin(field);

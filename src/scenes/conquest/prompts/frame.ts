@@ -13,6 +13,7 @@
 import { t } from '../../../i18n';
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, HEADER_HEIGHT } from '../../../game/constants';
+import { hudSheetHeight } from '../../../game/cameraLayout';
 import { INK_UI, type UIBounds } from '../../../ui/InkUI';
 import { playArrivalFanfare } from '../../../ui/ascent/arrivalFanfare';
 import { ASCENT_HUD_HEIGHT } from '../../../ui/ascent/AscentHud';
@@ -58,7 +59,7 @@ export function promptFrame(
   }
   const dimTop = opts.coverReadout ? top + ASCENT_HUD_HEIGHT : top;
   const dim = self.add
-    .rectangle(0, dimTop, GAME_WIDTH, GAME_HEIGHT - dimTop, INK_UI.overlay, 0.93)
+    .rectangle(0, dimTop, GAME_WIDTH, hudSheetHeight() - dimTop, INK_UI.overlay, 0.93)
     .setOrigin(0, 0)
     .setInteractive();
   self.modalLayer.add(dim);
@@ -90,7 +91,7 @@ export function promptFrame(
   self.modalLayer.add(subtitleText);
   cursor += subtitleText.height + 14;
 
-  return { x: 20, y: cursor, width: GAME_WIDTH - 40, height: GAME_HEIGHT - cursor - 20 };
+  return { x: 20, y: cursor, width: GAME_WIDTH - 40, height: hudSheetHeight() - cursor - 20 };
 }
 
 export function choose(self: ConquestUIScene, choiceId: string): void {
@@ -130,7 +131,7 @@ export function promptScrollBody(self: ConquestUIScene,
   // higher than it needed to for no reason the player could see.
   const viewportHeight = Math.max(80, Math.min(
     content.height,
-    GAME_HEIGHT - footerHeight - content.y,
+    hudSheetHeight() - footerHeight - content.y,
   ));
   const scroll = self.ui.scrollArea({
     x: content.x,
@@ -175,7 +176,7 @@ export function promptFoot(
     close: { label: string; onTap: () => void };
   },
 ): void {
-  const y = GAME_HEIGHT - PROMPT_FOOTER_HEIGHT + PROMPT_HINT_ROOM;
+  const y = hudSheetHeight() - PROMPT_FOOTER_HEIGHT + PROMPT_HINT_ROOM;
   if (!foot.back) {
     self.modalLayer.add(self.ui.button(
       { x: content.x, y, width: content.width, height: 40 },
@@ -226,7 +227,7 @@ function drawHoldHint(self: ConquestUIScene, content: UIBounds, footerHeight: nu
   // draws into that room: below the cards, above the buttons, touching neither.
   const viewportEnd = content.y + Math.max(80, Math.min(
     content.height,
-    GAME_HEIGHT - footerHeight - content.y,
+    hudSheetHeight() - footerHeight - content.y,
   ));
   const y = viewportEnd + 2;
   // Never over the footer's own buttons: on the shortest screen the viewport already reaches them.

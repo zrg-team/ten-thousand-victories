@@ -1,3 +1,4 @@
+import { installPerformanceBench } from './game/performanceBench';
 import Phaser from 'phaser';
 import { gameConfig } from './game/config';
 import { createInitialGameState, createCampaignGameState, createEmpireGameState, createAscentGameState } from './state/GameState';
@@ -13,6 +14,8 @@ import { installQualityLadder } from './game/qualityLadder';
 import { renderScaleNow } from './game/graphicsQuality';
 import type { CoronationSheet } from './ui/coronation/CoronationSheet';
 import { installResilience } from './game/resilience';
+import { isDesktopPlatform, layoutDiagnosis } from './platform/layout';
+import { installDesktopResize } from './game/desktopResize';
 
 declare global {
   interface Window {
@@ -58,6 +61,8 @@ declare global {
      */
     __splashDone?: () => void;
     __fontsCss?: Promise<void>;
+    /** Why this page chose the sheet it did — see `platform/layout.ts`. */
+    __layoutDiagnosis?: ReturnType<typeof layoutDiagnosis>;
   }
 }
 
@@ -85,6 +90,16 @@ watchInstall();
 
 const game = new Phaser.Game(gameConfig);
 window.__phaserGame = game;
+installPerformanceBench();
+// A right-click on the map is a map gesture, not a request for the browser's menu — on the desktop
+// layout only, where a mouse is what is expected to be in the hand.
+if (isDesktopPlatform()) game.input.mouse?.disableContextMenu();
+// One line, once, so a page that chose the wrong sheet can say why without a debugger: every
+// signal the computer question and the sheet were decided from. Also on `window` for a report.
+window.__layoutDiagnosis = layoutDiagnosis();
+console.info('[layout]', JSON.stringify(window.__layoutDiagnosis));
+// The desktop sheet follows the window; the phone's never moves. See `game/desktopResize.ts`.
+installDesktopResize(game);
 window.__inkStamps = stampStats;
 window.__ladder = installQualityLadder(game);
 // The two watchdogs behind "come back from the background and the game is blank": a loop a throw

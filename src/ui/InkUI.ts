@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
+import { cachedText } from './cachedText';
 import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
+import { sheetSpan } from '../game/cameraLayout';
 import { addPressFeedback } from './animations';
 import {
   installPressWatch, liftForInput, markControlBorn, noteControlFired, pressIsEchoOnto, releaseNotOwnedBy, sheetIsUp, insideSheet } from './inputGeneration';
@@ -8,10 +10,12 @@ import { UI_FONT } from './fonts';
 import { RectClip } from './ink/clipRect';
 import { PIGMENT } from './ink/palette';
 import { inkPath, mulberry32, washFill, type Pt } from './ink/stroke';
-import { designLength, designPointer } from '../game/graphicsQuality';
+import { designLength, localPointer } from '../game/graphicsQuality';
+import { isDesktopPlatform } from '../platform/layout';
 import { t } from '../i18n';
 import { applyStamp, placeStamp, stampDesign, type Stamp } from './ink/stamp';
 import { soundDirector } from './sound/SoundDirector';
+import { InkVirtualList, measureInkText } from './InkVirtualList';
 
 /**
  * A printed surface: a sheet of paper with a hand-pulled contour round it.
@@ -208,6 +212,7 @@ export interface InkCardRow {
 }
 
 export interface InkCardOptions extends InkSurfaceOptions {
+  cacheText?: boolean;
   title?: string;
   subtitle?: string;
   status?: string;
@@ -330,6 +335,19 @@ export class InkScrollArea {
   private velocity = 0;
   private lastMove?: { y: number; t: number };
   private disposed = false;
+  private scrollListeners = new Set<() => void>();
+  private disposeListeners = new Set<() => void>();
+  private lazyRows: Array<{ key: string; top: number; height: number; build: () => void }> = [];
+  private lazyList?: InkVirtualList<InkScrollArea['lazyRows'][number]>;
+  private lazyCount = 0;
+  get offset(): number { return this.scrollY; }
+  onScroll(fn: () => void): () => void { this.scrollListeners.add(fn); return () => this.scrollListeners.delete(fn); }
+  onDispose(fn: () => void): void { this.disposeListeners.add(fn); }
+  /** Existing page builders can append into content; only the rows near the viewport are built. */
+  lazyRow(key: string, top: number, height: number, build: () => void): void {
+    this.lazyRows.push({ key, top, height, build });
+  }
+  virtualStats(): { total: number; mounted: number; spare: number } | undefined { return this.lazyList?.stats(); }
   /** Set while something is drawn over the list; nothing under a sheet may move. */
   private locked = false;
   private readonly wheelHandler: (
@@ -474,24 +492,61 @@ export class InkScrollArea {
     // gate. A scene without a registered sheet locks its lists by hand (`setLocked`).
     // Only a list UNDER the sheet is locked — a list inside it is the sheet's own and scrolls.
     if (this.locked || (sheetIsUp() && !insideSheet(this.container))) return false;
-    const at = designPointer(pointer);
+    // Column-local, not sheet-space. On the desktop this scene's camera sits at the right edge of
+    // a wider sheet, and the scene's pointer stream still carries wheel events from over the map
+    // beside it — this test is the only thing that keeps a list from scrolling on those.
+    const at = localPointer(this.scene, pointer);
+    // Where the list actually is, not where it was asked to be: on the desktop a lane's page is
+    // docked at the sheet's edge and a card is centred by moving the whole modal layer, and the
+    // list rides inside it — its own `bounds` are still column numbers.
+    const world = this.container.getWorldTransformMatrix();
     return (
-      at.x >= this.bounds.x &&
-      at.x <= this.bounds.x + this.bounds.width &&
-      at.y >= this.bounds.y &&
-      at.y <= this.bounds.y + this.bounds.height
+      at.x >= world.tx &&
+      at.x <= world.tx + this.bounds.width &&
+      at.y >= world.ty &&
+      at.y <= world.ty + this.bounds.height
     );
   }
 
   setContentHeight(height: number): void {
     this.contentHeight = Math.max(0, height);
     this.maxScroll = Math.max(0, this.contentHeight - this.bounds.height);
+    if (this.lazyRows.length !== this.lazyCount) {
+      this.lazyCount = this.lazyRows.length;
+      if (!this.lazyList) this.lazyList = new InkVirtualList(this, {
+        key: row => row.key, top: row => row.top, measure: row => row.height,
+        create: () => this.scene.add.container(),
+        bind: (holder, row) => {
+          holder.removeAll(true);
+          const before = new Set(this.content.list);
+          row.build();
+          const built = this.content.list.filter(child => !before.has(child));
+          for (const child of built) {
+            const positioned = child as Phaser.GameObjects.Container;
+            positioned.y -= row.top;
+            holder.add(child);
+          }
+        },
+        unbind: holder => holder.removeAll(true),
+      }, this.lazyRows);
+      else this.lazyList.setItems(this.lazyRows);
+    }
     this.setScroll(this.scrollY);
+  }
+
+  snapshotAnchor(): { key?: string; inset: number; offset: number } {
+    const row = this.lazyRows.find(row => row.top + row.height > this.scrollY);
+    return { key: row?.key, inset: this.scrollY - (row?.top ?? 0), offset: this.scrollY };
+  }
+  restoreAnchor(anchor: { key?: string; inset: number; offset: number }): void {
+    const row = this.lazyRows.find(row => row.key === anchor.key);
+    this.setScroll(row ? row.top + anchor.inset : anchor.offset);
   }
 
   setScroll(value: number): void {
     this.scrollY = Phaser.Math.Clamp(value, 0, this.maxScroll);
     this.content.y = -this.scrollY;
+    for (const fn of this.scrollListeners) fn();
   }
 
   addTo(parent: Phaser.GameObjects.Container): void {
@@ -513,6 +568,8 @@ export class InkScrollArea {
       return;
     }
     this.disposed = true;
+    for (const fn of this.disposeListeners) fn();
+    this.disposeListeners.clear(); this.scrollListeners.clear();
     this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.glideHandler);
     this.scene.input.off('wheel', this.wheelHandler);
     this.scene.input.off('pointerdown', this.downHandler);
@@ -538,6 +595,24 @@ export class InkUI {
     overrides: Phaser.Types.GameObjects.Text.TextStyle = {},
   ): Phaser.GameObjects.Text {
     return this.scene.add.text(x, y, text, { ...textStyle(variant), ...overrides });
+  }
+
+  measureCard(width: number, minimum: number, opts: InkCardOptions): number {
+    const textWidth = width - 20 - (opts.action && opts.actionPlacement !== 'bottom' ? 82 : 0);
+    const measure = (value: string, variant: 'label' | 'caption' | 'body', extra: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
+      measureInkText(this.scene, value, { ...textStyle(variant), wordWrap: { width: textWidth }, ...extra });
+    let height = 18;
+    if (opts.title) height += measure(opts.title, 'label', { wordWrap: { width: textWidth - (opts.status ? 58 : 0) } }) + 5;
+    if (opts.subtitle) height += measure(opts.subtitle, 'caption') + 4;
+    for (const row of opts.rows ?? []) {
+      const value = `${row.label}: ${row.value}`;
+      height += value.length > Math.max(28, Math.floor(textWidth / 8))
+        ? measure(row.label, 'caption') + 2 + measure(row.value, 'body', { fontSize: '12px', lineSpacing: 3 }) + 5
+        : measure(value, 'body', { fontSize: '12px' }) + 4;
+    }
+    if (opts.body) height += measure(opts.body, 'body', { fontSize: '12px', lineSpacing: 5 });
+    if (opts.action && opts.actionPlacement === 'bottom') height += 34;
+    return Math.max(minimum, Math.round(height));
   }
 
   /**
@@ -620,21 +695,25 @@ export class InkUI {
     // Vietnamese lines wrap differently than a char estimate would predict). The requested
     // height is only a minimum. After the last line is stacked, the box's final height is
     // known and the background is inserted behind the text.
+    const label = (x: number, y: number, text: string, variant: 'label' | 'caption' | 'body', overrides: Phaser.Types.GameObjects.Text.TextStyle) =>
+      opts.cacheText ? cachedText(this.scene, x, y, text, { ...textStyle(variant), ...overrides }) : this.label(x, y, text, variant, overrides);
     let cursorY = 8;
-    const stack = (obj: Phaser.GameObjects.Text, gapBelow: number): void => {
+    const stack = (obj: Phaser.GameObjects.Text | Phaser.GameObjects.Image, gapBelow: number): void => {
       container.add(obj);
+      // Cached CanvasTexture images carry physical frame dimensions in displayHeight.
+      // Their logical height matches Text.height; neither label is scaled in this layout.
       cursorY += obj.height + gapBelow;
     };
 
     if (opts.title) {
-      stack(this.label(padding, cursorY, opts.title, 'label', {
+      stack(label(padding, cursorY, opts.title, 'label', {
         fontSize: '15px',
         wordWrap: { width: textWidth - (opts.status ? 58 : 0) },
       }), 5);
     }
 
     if (opts.subtitle) {
-      stack(this.label(padding, cursorY, opts.subtitle, 'caption', {
+      stack(label(padding, cursorY, opts.subtitle, 'caption', {
         wordWrap: { width: textWidth },
       }), 4);
     }
@@ -644,14 +723,14 @@ export class InkUI {
         const rowText = `${row.label}: ${row.value}`;
         const longValue = rowText.length > Math.max(28, Math.floor(textWidth / 8));
         if (longValue) {
-          stack(this.label(padding, cursorY, row.label, 'caption', { wordWrap: { width: textWidth } }), 2);
-          stack(this.label(padding, cursorY, row.value, 'body', {
+          stack(label(padding, cursorY, row.label, 'caption', { wordWrap: { width: textWidth } }), 2);
+          stack(label(padding, cursorY, row.value, 'body', {
             fontSize: '12px',
             lineSpacing: 3,
             wordWrap: { width: textWidth },
           }), 5);
         } else {
-          stack(this.label(padding, cursorY, rowText, 'body', {
+          stack(label(padding, cursorY, rowText, 'body', {
             fontSize: '12px',
             wordWrap: { width: textWidth },
           }), 4);
@@ -660,7 +739,7 @@ export class InkUI {
     }
 
     if (opts.body) {
-      stack(this.label(padding, cursorY, opts.body, 'body', {
+      stack(label(padding, cursorY, opts.body, 'body', {
         fontSize: '12px',
         lineSpacing: 5,
         wordWrap: { width: textWidth },
@@ -674,7 +753,16 @@ export class InkUI {
     const height = Math.max(bounds.height, Math.round(contentBottom));
 
     // Insert the background behind the already-stacked text.
-    container.addAt(this.panel({ x: 0, y: 0, width: bounds.width, height }, opts), 0);
+    if (opts.ornaments) container.addAt(this.panel({ x: 0, y: 0, width: bounds.width, height }, opts), 0);
+    else {
+      const surface = { fill: opts.fill ?? INK_UI.parchment, fillAlpha: (opts.fillAlpha ?? 1) * (opts.muted ? .55 : 1),
+        border: opts.border ?? INK_UI.brush, borderAlpha: (opts.borderAlpha ?? .86) * (opts.muted ? .6 : 1),
+        borderWidth: opts.borderWidth ?? 1.2, cut: opts.cut, seed: Math.round(bounds.width) };
+      const stamp = stampDesign(this.scene, `ui:card:${bounds.width}:${height}:${JSON.stringify(surface)}`,
+        { left: -3, top: -3, right: bounds.width + 3, bottom: height + 3 },
+        (g, x, y) => { g.translateCanvas(x, y); printedSurface(g, bounds.width, height, surface); g.translateCanvas(-x, -y); }, { pool: 'ui' });
+      container.addAt(placeStamp(this.scene, stamp, 0, 0), 0);
+    }
 
     if (opts.status) {
       // A label, not a pill. On paper a filled chip reads as a sticker; letter-spaced small caps
@@ -949,6 +1037,14 @@ export class InkUI {
         draw(false);
       }
     });
+    // Hover, on the desktop only: the ink darkens under the cursor the way it darkens under a
+    // finger, and `pointerout` above already takes it back. A phone never hovers, and a touch's
+    // own `pointerover` would flash every button on the way to a press.
+    if (isDesktopPlatform()) {
+      hitArea.on('pointerover', () => {
+        if (!disabled) draw(true);
+      });
+    }
 
     const parts: Phaser.GameObjects.GameObject[] = surface ? [surface] : [];
     if (glyph) parts.push(glyph);
@@ -1077,8 +1173,10 @@ export class InkUI {
     const headerHeight = 104;
     const footerHeight = 66;
 
+    // The whole sheet, from its left edge: on a page scene that edge is left of x = 0 (`sheetSpan`).
+    const span = sheetSpan(this.scene);
     const blocker = this.scene.add
-      .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, INK_UI.overlay, 0.88)
+      .rectangle(span.left, 0, span.width, GAME_HEIGHT, INK_UI.overlay, 0.88)
       .setOrigin(0, 0)
       .setInteractive();
     // Both halves of a press. The release used to fall through to the scene-level `pointerup`,

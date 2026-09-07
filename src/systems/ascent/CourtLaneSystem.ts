@@ -248,12 +248,13 @@ function ungovernedCount(state: GameState): number {
   return Math.max(0, owned.length - governed);
 }
 
-export function offerAppointment(state: GameState, heroId: string): boolean {
+/** `requested`: asked for from the Court lane rather than raised by the director's clock. */
+export function offerAppointment(state: GameState, heroId: string, requested = false): boolean {
   const hero = state.heroes.find((candidate) => candidate.id === heroId);
   if (!hero) return false;
   const options = buildAppointmentOptions(state, hero);
   if (options.length === 0) return false;
-  enqueueAscentPrompt(state, { kind: 'court-appointment', heroId, options });
+  enqueueAscentPrompt(state, { kind: 'court-appointment', heroId, options }, { requested });
   return true;
 }
 
@@ -419,7 +420,8 @@ export function tickEdictDiscovery(state: GameState): void {
   }
 }
 
-export function offerLawChoice(state: GameState): boolean {
+/** `requested`: asked for from the Court lane rather than raised by the director's clock. */
+export function offerLawChoice(state: GameState, requested = false): boolean {
   const projectIds = buildLawOptions(state);
   if (projectIds.length === 0) return false;
   enqueueAscentPrompt(state, {
@@ -429,7 +431,7 @@ export function offerLawChoice(state: GameState): boolean {
     // Tax left this prompt: a standing policy offered as an event card could only be set when
     // the card happened to come up. It is now the dial on the court screen (see TaxSystem).
     taxOptions: [],
-  });
+  }, { requested });
   return true;
 }
 

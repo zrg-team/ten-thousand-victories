@@ -35,7 +35,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
 const errors = [];
 const warnings = [];
-page.on('pageerror', (err) => errors.push(`PAGEERROR: ${err.message}`));
+page.on('pageerror', (err) => errors.push(`PAGEERROR: ${err.stack ?? err.message}`));
 page.on('console', (m) => {
   const text = m.text().slice(0, 240);
   if (m.type() === 'error') errors.push(`CONSOLE: ${text}`);

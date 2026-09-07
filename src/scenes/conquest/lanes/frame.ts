@@ -1,3 +1,4 @@
+import { measureInkText } from '../../../ui/InkVirtualList';
 /**
  * The lane: the door in, the scrolling body every bar screen fills, and the door out.
  *
@@ -11,7 +12,10 @@
  * listeners off again.
  */
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../../../game/constants';
+import { GAME_WIDTH, HEADER_HEIGHT } from '../../../game/constants';
+import { hudSheetHeight } from '../../../game/cameraLayout';
+import { laneIsDocked } from '../hudSheet';
+import { RectClip } from '../../../ui/ink/clipRect';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import { openingFor, takeOpening } from '../../../systems/story/StorySystem';
 import { contestedFronts } from '../../../systems/ascent/battleReport';
@@ -354,6 +358,9 @@ export function laneList(self: ConquestUIScene,
     });
   }
 
+  const anchorKey = `laneScroll:${title}:${laneOpts.tabs?.active ?? 0}`;
+  const savedAnchor = self.data.get(anchorKey) as ReturnType<typeof scroll.snapshotAnchor> | undefined;
+  scroll.onDispose(() => self.data.set(anchorKey, scroll.snapshotAnchor()));
   const rowWidth = content.width - 6;
   let y = 0;
 
@@ -364,6 +371,10 @@ export function laneList(self: ConquestUIScene,
     // A portrait sits in its own column beside the card, so a hero row is recognisable at a
     // glance and the card's own auto-fit is untouched.
     const faceCol = opts.portrait ? LANE_PORTRAIT_COLUMN : 0;
+    const measuredHeight = self.ui.measureCard(rowWidth - faceCol, 54, opts);
+    const top = y;
+    scroll.lazyRow(`${opts.portrait?.id ?? opts.title}`, top, measuredHeight + 8, () => {
+    const y = top;
     const row = self.ui.card({ x: faceCol, y, width: rowWidth - faceCol, height: 54 }, opts);
     const height = (row.getData('cardHeight') as number) ?? 54;
     let holder: Phaser.GameObjects.Container = row;
@@ -388,7 +399,8 @@ export function laneList(self: ConquestUIScene,
       (opts.portrait ? holder : row).add(hit);
     }
     scroll.content.add(holder);
-    y += height + 8;
+    });
+    y += measuredHeight + 8;
   };
 
   /**
@@ -401,39 +413,17 @@ export function laneList(self: ConquestUIScene,
    * rule beside it, and no surface at all.
    */
   const addHeading = (headingTitle: string, hint?: string) => {
-    // Air above the heading, but never above the first one — a gap at the top of the list reads
-    // as the frame being misaligned.
-    if (y > 0) {
-      y += 14;
-    }
-    const label = self.add.text(2, y, headingTitle.toLocaleUpperCase(), {
-      color: INK_UI_HEX.mutedText,
-      fontFamily: UI_FONT,
-      fontSize: '10px',
-      fontStyle: '700',
-    }).setOrigin(0, 0);
-    label.setLetterSpacing?.(1.6);
-    scroll.content.add(label);
-
-    // The rule runs from the end of the label to the far edge, so the heading sits *in* the line
-    // rather than above it.
-    const rule = self.add.graphics();
-    rule.lineStyle(1, INK_UI.brush, 0.22);
-    rule.lineBetween(label.width + 10, y + 6, rowWidth, y + 6);
-    scroll.content.add(rule);
-    y += 16;
-
-    if (hint) {
-      const note = self.add.text(2, y, hint, {
-        color: INK_UI_HEX.mutedText,
-        fontFamily: UI_FONT,
-        fontSize: '10px',
-        wordWrap: { width: rowWidth - 4 },
-      }).setOrigin(0, 0).setAlpha(0.85);
-      scroll.content.add(note);
-      y += note.height + 4;
-    }
-    y += 4;
+    if (y > 0) y += 14;
+    const top = y;
+    const hintStyle = { color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '10px', wordWrap: { width: rowWidth - 4 } };
+    const height = 20 + (hint ? measureInkText(self, hint, hintStyle) + 4 : 0);
+    scroll.lazyRow(`heading:${headingTitle}`, top, height, () => {
+      const label = self.add.text(2, top, headingTitle.toLocaleUpperCase(), { color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '10px', fontStyle: '700' }).setOrigin(0);
+      label.setLetterSpacing?.(1.6); scroll.content.add(label);
+      const rule = self.add.graphics(); rule.lineStyle(1, INK_UI.brush, .22); rule.lineBetween(label.width + 10, top + 6, rowWidth, top + 6); scroll.content.add(rule);
+      if (hint) scroll.content.add(self.add.text(2, top + 16, hint, hintStyle).setOrigin(0).setAlpha(.85));
+    });
+    y += height;
   };
 
   /**
@@ -445,15 +435,11 @@ export function laneList(self: ConquestUIScene,
    * room of a thing you can press. A statement should take the room a sentence takes.
    */
   const addNote = (text: string, tone?: number) => {
-    const note = self.add.text(2, y, text, {
-      color: tone ? cssHex(tone) : INK_UI_HEX.mutedText,
-      fontFamily: UI_FONT,
-      fontSize: '11px',
-      lineSpacing: 1,
-      wordWrap: { width: rowWidth - 4 },
-    }).setOrigin(0, 0);
-    scroll.content.add(note);
-    y += note.height + 8;
+    const top = y;
+    const style = { color: tone ? cssHex(tone) : INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '11px', lineSpacing: 1, wordWrap: { width: rowWidth - 4 } };
+    const height = measureInkText(self, text, style) + 8;
+    scroll.lazyRow(`note:${text}`, top, height, () => scroll.content.add(self.add.text(2, top, text, style).setOrigin(0)));
+    y += height;
   };
 
   /**
@@ -468,7 +454,7 @@ export function laneList(self: ConquestUIScene,
     height: number,
     build: (parent: Phaser.GameObjects.Container, width: number) => number | void,
   ) => {
-    const holder = self.add.container(0, y);
+    const holder = self.add.container(0, y).setData('virtualFlow', { scroll, top: y });
     const measured = build(holder, rowWidth);
     scroll.content.add(holder);
     y += (typeof measured === 'number' ? measured : height) + 8;
@@ -476,6 +462,7 @@ export function laneList(self: ConquestUIScene,
 
   const finish = () => {
     scroll.setContentHeight(Math.max(content.height - LANE_FOOTER_HEIGHT - footerExtra - tabsExtra, y));
+    if (savedAnchor) scroll.restoreAnchor(savedAnchor);
 
     // **The whole foot is one panel, edge to edge, and everything else sits on it.**
     //
@@ -495,7 +482,7 @@ export function laneList(self: ConquestUIScene,
     const belowStack = backExtra;
     // Where the foot of the page begins. With a sheet this is the sheet's own top edge and it
     // moves as the sheet folds; without one it is the top of the fixed footer chrome.
-    const stackTop = GAME_HEIGHT - LANE_CLOSE_BUTTON_OFFSET - belowStack
+    const stackTop = hudSheetHeight() - LANE_CLOSE_BUTTON_OFFSET - belowStack
       - (hasSheet
         ? sheetDrawHeight
         : (laneOpts.footerToggle ? LANE_TOGGLE_HEIGHT + 8 : 0)
@@ -508,8 +495,13 @@ export function laneList(self: ConquestUIScene,
       // Down past the sheet's top edge, not to it. The corners are cut, so a scrim that stops on
       // the line leaves two bright notches beside them where the page shows through undimmed —
       // reported exactly that way. The sheet is drawn over this, so the overlap never shows.
+      //
+      // From the top of the page, not of the sheet: docked at the desktop's right edge the page
+      // sits under a top bar that runs the whole sheet, and a scrim over the bar's last 390 units
+      // darkened one segment of it while the sheet was up — a bar of two tones.
+      const scrimTop = laneIsDocked(self) ? HEADER_HEIGHT : 0;
       const scrim = self.add.rectangle(
-        0, 0, GAME_WIDTH, stackTop + 14, INK_UI.brush, 0.16,
+        0, scrimTop, GAME_WIDTH, stackTop + 14 - scrimTop, INK_UI.brush, 0.16,
       ).setOrigin(0, 0).setInteractive();
       if (self.dockSlideFrom) {
         scrim.setAlpha(0);
@@ -538,7 +530,21 @@ export function laneList(self: ConquestUIScene,
     // close button is deliberately NOT in here — it is the page's, not the sheet's, and it must
     // sit still while the sheet moves past it.
     const sheetLayer = self.add.container(0, self.dockSlideFrom ?? 0);
+    // Docked at the desktop's right edge, the panel ends where the bottom bar begins and the bar
+    // stays up beside it — so the sheet's deliberate overhang (below) and its slide would land on
+    // the bar. The whole layer is bracketed by a stencil that ends at the panel's foot: nothing
+    // the sheet draws or slides through shows below it. A no-op on the phone, where the bar is
+    // down under a lane.
+    const foot = laneIsDocked(self)
+      ? new RectClip(self, { x: 0, y: HEADER_HEIGHT, width: GAME_WIDTH, height: hudSheetHeight() - HEADER_HEIGHT })
+      : undefined;
+    foot?.begin(self.modalLayer);
     self.modalLayer.add(sheetLayer);
+    if (foot) {
+      foot.end(self.modalLayer);
+      foot.apply(sheetLayer);
+      sheetLayer.once('destroy', () => foot.destroy());
+    }
     if (self.dockSlideFrom) {
       const slide = self.tweens.add({
         targets: sheetLayer, y: 0, duration: 190, ease: 'Cubic.easeOut',
@@ -570,7 +576,7 @@ export function laneList(self: ConquestUIScene,
           x: 0,
           y: stackTop,
           width: GAME_WIDTH,
-          height: GAME_HEIGHT + sheetOpenBodyHeight + 60 - stackTop,
+          height: hudSheetHeight() + sheetOpenBodyHeight + 60 - stackTop,
         },
         { borderWidth: 1.6, borderAlpha: 0.7 },
       ));
@@ -680,13 +686,13 @@ export function laneList(self: ConquestUIScene,
     const widgetY = sheetRowsBottom + 8;
     const pickerY = sheetOpen
       ? sheetRowsBottom + (sheetWidget ? sheetWidget.height + 8 : 0) + 8
-      : GAME_HEIGHT - LANE_CLOSE_BUTTON_OFFSET - belowStack
+      : hudSheetHeight() - LANE_CLOSE_BUTTON_OFFSET - belowStack
         - (laneOpts.footerToggle ? LANE_TOGGLE_HEIGHT + 8 : 0)
         - LANE_PICKER_HEIGHT - 8;
     const toggleY = sheetOpen
       ? sheetRowsBottom + (sheetWidget ? sheetWidget.height + 8 : 0)
         + (sheetPicker ? LANE_PICKER_HEIGHT + 8 : 0) + 8
-      : GAME_HEIGHT - LANE_CLOSE_BUTTON_OFFSET - belowStack - LANE_TOGGLE_HEIGHT - 8;
+      : hudSheetHeight() - LANE_CLOSE_BUTTON_OFFSET - belowStack - LANE_TOGGLE_HEIGHT - 8;
     // Folded, they are not drawn at all — they are the sheet's contents, and a sheet that folds
     // its title but keeps its body is the thing four rounds of this were reported for.
     const drawFooterControls = !hasSheet || sheetOpen;
@@ -755,7 +761,7 @@ export function laneList(self: ConquestUIScene,
       self.modalLayer.add(self.ui.button(
         {
           x: content.x,
-          y: GAME_HEIGHT - LANE_CLOSE_BUTTON_OFFSET - LANE_BACK_BUTTON_HEIGHT - 8,
+          y: hudSheetHeight() - LANE_CLOSE_BUTTON_OFFSET - LANE_BACK_BUTTON_HEIGHT - 8,
           width: content.width,
           height: LANE_BACK_BUTTON_HEIGHT,
         },
@@ -773,7 +779,7 @@ export function laneList(self: ConquestUIScene,
       // moves: the page's own action keeps the emphasis and about two thirds of the width, and a
       // quiet close sits beside it. Commit on the left, dismiss on the right, both under a thumb.
       const footer = laneOpts.footer;
-      const y = GAME_HEIGHT - LANE_CLOSE_BUTTON_OFFSET;
+      const y = hudSheetHeight() - LANE_CLOSE_BUTTON_OFFSET;
       if (footer.soleAction) {
         self.modalLayer.add(self.ui.button(
           { x: content.x, y, width: content.width, height: LANE_CLOSE_BUTTON_HEIGHT },
@@ -797,7 +803,7 @@ export function laneList(self: ConquestUIScene,
         ));
       }
     } else if (backSharesRow && laneOpts.back) {
-      const y = GAME_HEIGHT - LANE_CLOSE_BUTTON_OFFSET;
+      const y = hudSheetHeight() - LANE_CLOSE_BUTTON_OFFSET;
       const split = footerSplit(content.x, content.width, t('ascent.lane.close'));
       self.modalLayer.add(self.ui.button(
         { x: split.leftX, y, width: split.leftWidth, height: LANE_CLOSE_BUTTON_HEIGHT },
@@ -824,7 +830,7 @@ function laneCloseButton(self: ConquestUIScene, content: UIBounds): void {
   self.modalLayer.add(self.ui.button(
     {
       x: content.x,
-      y: GAME_HEIGHT - LANE_CLOSE_BUTTON_OFFSET,
+      y: hudSheetHeight() - LANE_CLOSE_BUTTON_OFFSET,
       width: content.width,
       height: LANE_CLOSE_BUTTON_HEIGHT,
     },

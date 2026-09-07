@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
+import { sheetSpan } from '../game/cameraLayout';
 import type { TranslationKey } from '../i18n';
 import { getLanguage, setLanguage, t, type LanguageCode } from '../i18n';
 import { drawLanguageFlag } from './languageFlags';
@@ -154,8 +155,11 @@ export class Copilot {
   private renderVeil(target?: UIBounds): void {
     const veil = this.scene.add.graphics().setDepth(DEPTH);
     veil.fillStyle(INK_UI.overlay, 0.82);
+    // From the sheet's left edge, not the column's: on a page scene (the front page) that edge is
+    // left of x = 0, and a veil laid from 0 left the landscape lit beside a dimmed page (`sheetSpan`).
+    const { left, width } = sheetSpan(this.scene);
     if (!target) {
-      veil.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+      veil.fillRect(left, 0, width, GAME_HEIGHT);
     } else {
       // 6 units of air round the subject, so the frame sits off the button rather than on it.
       const box = {
@@ -164,10 +168,12 @@ export class Copilot {
         width: target.width + 12,
         height: target.height + 12,
       };
-      veil.fillRect(0, 0, GAME_WIDTH, box.y);
-      veil.fillRect(0, box.y + box.height, GAME_WIDTH, GAME_HEIGHT - box.y - box.height);
-      veil.fillRect(0, box.y, box.x, box.height);
-      veil.fillRect(box.x + box.width, box.y, GAME_WIDTH - box.x - box.width, box.height);
+      // The veil is the sheet's width: on the desktop the tour has to cover the map beside the
+      // column too, or the lit rectangle is one bright patch in a half-dimmed window.
+      veil.fillRect(left, 0, width, box.y);
+      veil.fillRect(left, box.y + box.height, width, GAME_HEIGHT - box.y - box.height);
+      veil.fillRect(left, box.y, box.x - left, box.height);
+      veil.fillRect(box.x + box.width, box.y, left + width - box.x - box.width, box.height);
       veil.lineStyle(2, INK_UI.cinnabar, 0.9);
       veil.strokeRoundedRect(box.x, box.y, box.width, box.height, 10);
     }
@@ -175,7 +181,7 @@ export class Copilot {
 
     // Everything under the tour is deaf while it is up, the lit rectangle included.
     const blocker = this.scene.add
-      .rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0xffffff, 0.001)
+      .rectangle(left, 0, width, GAME_HEIGHT, 0xffffff, 0.001)
       .setOrigin(0, 0)
       .setDepth(DEPTH)
       .setInteractive();

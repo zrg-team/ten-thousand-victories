@@ -16,6 +16,20 @@ two different kinds of answer.
 | [`gate/`](gate/) | 2 | *Does it still boot?* — the cheapest checks | `smoke`, `check-console` |
 | `scratch/` | — | throwaway probes, **gitignored** | `_<topic>.mjs` |
 
+## Desktop map dragging
+
+`npm run perf:drag` measures actual mouse dragging in headed Chromium at
+`http://localhost:5179/`, including a fully revealed map and 4× CPU throttling.
+Use `QUALITY=auto` and `CPU_RATE=4` to apply throttling before launch calibration.
+Results include the actual GPU, drawing buffer, chosen profile, frame timings, long
+browser tasks, and drawing work under `output/map-drag/`. Timing is diagnostic,
+not a physical-device certification. See [the measured change report](../docs/development/map-drag-performance.md).
+
+`npm run verify:map-drag` checks drag/release behavior, precise offscreen bounds,
+seasonal refreshes, ownership changes and paint order, zoom limits, and resizing in
+English/Vietnamese across 1280px, 1920px, and ultrawide desktops. It fails on broken
+assertions or browser exceptions and writes screenshots under `output/verify-map-drag/`.
+
 ## Start here
 
 A dev server must already be running — **no harness starts one** — and every script must be run
@@ -27,6 +41,7 @@ node test_scripts/verify/verify-ascent.mjs          # the Dragon Ascent loop end
 node test_scripts/verify/verify-dynasty.mjs         # the Tong Pha ledger: XP banks once, the ceremony walks, every trait is read; the dossier gates (page fit, lineage, live reign, the timed reign-end sequence, the chip's house share)
 node test_scripts/verify/verify-draft-depth.mjs     # the deck: upgrades >= 25% of offers, a deck slot once two cards are held, a held card's third copy in <= 8 rubbings (8 seeds)
 node test_scripts/verify/verify-legacy.mjs          # the Legacy vault: twenty perks on a ten-step ladder (old stores migrate), a loadout of three, only the loadout applies; hands-on rule silences the lane cards and the autopilot
+node test_scripts/verify/verify-desktop-layout.mjs  # the desktop sheet: world across the window, the 390 column at the right edge, keys, wheel, resize, the cabinet's hands-on default — and the phone untouched (five viewport contexts)
 node test_scripts/verify/verify-list-press.mjs        # a button inside a list fires on the lift and a drag scrolls; chrome still fires on the press
 node test_scripts/verify/verify-scroll-under-sheet.mjs  # HOTFIX gate: lists inside a run's pages scroll; only a list under a sheet is locked
 node test_scripts/verify/verify-cabinet.mjs         # the Cabinet of Seals: rubbings honour pity, x3 combines, cabinet levels reach the draft, the bind step binds, the page takes taps
@@ -118,8 +133,21 @@ empire economy was food-negative when in fact the harness had never constructed 
   raster counts, the fight beat's cost ledger, and the bake/season-turn regression guards.
 - `verify/verify-listeners.mjs` — scene-event listeners must not stack across runs.
 - `verify/verify-ink-stamps.mjs` — the stamp registry on both backends, context loss included.
-- `verify/verify-ladder.mjs` — the quality ladder steps down under heat and climbs back on calm
-  (run WITHOUT `?capture=1`, which pins the ladder for every other harness).
+- `verify/verify-ladder.mjs` — launch-only Auto calibration, fixed current sessions, next-launch
+  recommendations and preserved manual choices (runs without `?capture=1`).
+- `perf/performance-acceptance.mjs` — production-compatible 4x-CPU Codex, scrolling, season,
+  construction, ownership and chunk-budget gates. `measure-bake.mjs` also runs the fully
+  revealed `performance-map-stress.mjs` gate.
+- `perf/performance-soak.mjs` — 20 real minutes, repeated navigation, direct CDP heap samples
+  after full collection, and a comparison after returning to the original starting scene.
+- `verify/verify-map-work-budget.mjs` — active queue fairness, idle capacity and cleanup.
+- `verify/verify-performance-policy.mjs` — simulated 60/90/120/144 Hz, 30/60 FPS pacing,
+  exact elapsed-time delivery, full object bounds and the automatic clarity floor.
+- `verify/verify-performance-layouts.mjs` — English/Vietnamese, short phones through ultrawide
+  desktop mode, all profiles, zoom extremes and list clipping; visual coverage, not an FPS gate.
+- `verify/verify-fog-chunks.mjs`, `verify/verify-atlas-loading.mjs` — stale fog on panning,
+  missing/corrupt atlas recovery and the original-image bypass.
+- `verify/verify-portrait-cache.mjs` — dev-server portrait pressure and live-owner retention.
 - `verify/verify-fps-cap.mjs`, `verify/verify-tick-clock.mjs` — pacing and clock-carry contracts.
 - `verify/verify-lost-ground.mjs` (`yarn verify:lost-ground`) — a province whose line broke does
   not fight again with its militia remnant that wave: later columns join the standing siege, and

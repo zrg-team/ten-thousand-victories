@@ -1,8 +1,11 @@
+import { desktopDesignHeight, initialSurfaceWidth, isDesktopLayout } from '../platform/layout';
+
 /**
  * The design surface, in game units.
  *
  * Width is fixed: every bar, card and button in the game is laid out against 390, and letting it
- * move would mean re-tuning a hundred call sites for nothing.
+ * move would mean re-tuning a hundred call sites for nothing. The desktop layout does not move it
+ * either — it widens the *sheet* under the column instead; see `surfaceWidth` below.
  *
  * Height is NOT fixed, and that is the whole point. Phaser's `Scale.FIT` fits the design box inside
  * the visible viewport, so a design taller than the viewport gets scaled down by height and the
@@ -46,7 +49,64 @@ function designHeight(): number {
   return Math.round(Math.max(MIN_DESIGN_HEIGHT, Math.min(MAX_DESIGN_HEIGHT, GAME_WIDTH * ratio)));
 }
 
-export const GAME_HEIGHT = designHeight();
+/**
+ * On the desktop the height is a constant instead. A 16:9 window's own aspect would clamp this to
+ * 620, the height at which a four-card draft and its footer (about 775) fell off the bottom edge;
+ * 760 is inside the band every screen is proven to fit and leaves the map the width. See
+ * `platform/layout.ts` for how a page decides it is a desktop.
+ */
+export const GAME_HEIGHT = isDesktopLayout() ? desktopDesignHeight() : designHeight();
+
+/**
+ * The sheet Phaser is actually given, which on the phone is the column and on the desktop is
+ * wider: the world scene fills it, and the 390-wide chrome sits in a column at its right edge
+ * (`uiColumnX`) or, for a page with nothing behind it, in the middle (`pageColumnX`). Every layout
+ * number in the game stays column-local — a scene is placed on the sheet by its camera's viewport
+ * (`game/cameraLayout.ts`), not by adding an offset to what it draws.
+ *
+ * Module state rather than a constant because the desktop sheet follows the window: a resize
+ * re-derives it (`game/desktopResize.ts`) and every reader below sees the new width. On the phone
+ * it never moves.
+ */
+let surface = isDesktopLayout() ? initialSurfaceWidth() : GAME_WIDTH;
+
+export function surfaceWidth(): number {
+  return surface;
+}
+
+/** Whether the sheet is wider than the column — the desktop, with its own HUD composition. */
+export function isDesktopSheet(): boolean {
+  return surface > GAME_WIDTH;
+}
+
+/**
+ * The dock: where a 390-wide panel's left edge sits when it is pinned to the sheet's right edge —
+ * a lane's page, the province card. Zero on the phone, where the column is the sheet, so nothing
+ * there changes.
+ */
+export function uiColumnX(): number {
+  return surface - GAME_WIDTH;
+}
+
+/** A standalone page's column, centred on the sheet. */
+export function pageColumnX(): number {
+  return Math.round((surface - GAME_WIDTH) / 2);
+}
+
+/**
+ * The world camera's width: what "centre the map on the capital" and every scroll clamp measure
+ * against. The whole sheet — on the desktop the chrome is a top bar, a bottom bar and panels that
+ * come and go over the map, exactly as the phone's chrome floats over it.
+ */
+export function mapViewWidth(): number {
+  return surface;
+}
+
+/** Desktop only — the phone's sheet is the column and does not move. */
+export function setSurfaceWidth(width: number): void {
+  if (!isDesktopLayout()) return;
+  surface = Math.round(width);
+}
 
 /**
  * The resource strip at the top of the screen.

@@ -52,10 +52,34 @@ export interface ShellDescriptor {
    * Called once, on the first frame the menu is actually on the glass.
    *
    * The shell supplies the callback rather than the game reaching for a known channel, because
-   * the channels have nothing in common: React Native has `ReactNativeWebView.postMessage`, Tauri
-   * has its event bus, and a future shell will have a third thing. One closure hides all three.
+   * the channels have nothing in common: React Native has `ReactNativeWebView.postMessage`, an
+   * Electron preload has `ipcRenderer`, and a future shell will have a third thing. One closure
+   * hides all three.
    */
   ready?: () => void;
+
+  /**
+   * Put the window into or out of fullscreen.
+   *
+   * A desktop cabinet owns its window, and the document's fullscreen API — which the web build
+   * uses — is not the same thing inside one: an Electron window goes fullscreen through the
+   * window, not the document. Optional; the web fallback is the document API.
+   */
+  toggleFullscreen?: () => void;
+  /** Close the application. A tab has no such thing, so the game only offers it inside a shell. */
+  quit?: () => void;
+  /**
+   * The Steam bridge, present only in the Steam cabinet with Steam running.
+   *
+   * Two calls and nothing else: the cabinet holds the Steamworks client in its own process and
+   * the game never sees an id or a session. Nothing in `src/` calls these yet — achievement
+   * definitions wait for the store listing — but the shape is fixed here so the cabinet and the
+   * game cannot drift while they wait.
+   */
+  steam?: {
+    unlockAchievement: (id: string) => void;
+    setRichPresence: (key: string, value: string) => void;
+  };
 }
 
 declare global {
@@ -129,6 +153,43 @@ export function usesServiceWorker(): boolean {
  */
 export function allowsDonationLinks(): boolean {
   return shellKind() !== 'mobile';
+}
+
+/** Whether the shell can leave — a tab cannot, and the run menu offers nothing it cannot do. */
+export function canQuitShell(): boolean {
+  return typeof window.__shell?.quit === 'function';
+}
+
+/** Close the application, where there is one to close. Nothing happens on the web. */
+export function quitShell(): void {
+  try {
+    window.__shell?.quit?.();
+  } catch {
+    // A shell that throws on its own callback is not something the game can do anything about.
+  }
+}
+
+/**
+ * Fullscreen, through whichever door this page has: the shell's own when it offers one, else the
+ * document's, which Phaser's scale manager wraps. `scale` is Phaser's, typed structurally so this
+ * file stays free of the engine.
+ */
+export function toggleFullscreen(scale: { isFullscreen: boolean; startFullscreen(): void; stopFullscreen(): void }): void {
+  if (typeof window.__shell?.toggleFullscreen === 'function') {
+    try {
+      window.__shell.toggleFullscreen();
+    } catch {
+      // Same rule as the other callbacks: the shell's failure must not become the game's.
+    }
+    return;
+  }
+  if (scale.isFullscreen) scale.stopFullscreen();
+  else scale.startFullscreen();
+}
+
+/** The Steam bridge, or undefined outside the Steam cabinet. */
+export function shellSteam(): NonNullable<ShellDescriptor['steam']> | undefined {
+  return window.__shell?.steam;
 }
 
 /**

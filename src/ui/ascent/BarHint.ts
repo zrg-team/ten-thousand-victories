@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, ACTION_BAR_HEIGHT } from '../../game/constants';
+import { GAME_HEIGHT, ACTION_BAR_HEIGHT, surfaceWidth } from '../../game/constants';
 import { t } from '../../i18n';
 import type { GameState } from '../../state/types';
 import type { Advice } from '../../systems/ascent/Advisor';
@@ -105,7 +105,7 @@ export class BarHint {
     const top = bottom - height;
     this.plateTop = top;
     // Centred on the lane, held inside the sheet: the outer lanes would otherwise hang off it.
-    const x = Math.round(Math.min(GAME_WIDTH - 8 - width, Math.max(8, centreX - width / 2)));
+    const x = Math.round(Math.min(surfaceWidth() - 8 - width, Math.max(8, centreX - width / 2)));
 
     this.plate?.destroy();
     this.plate = this.ui.panel({ x, y: top, width, height }, {

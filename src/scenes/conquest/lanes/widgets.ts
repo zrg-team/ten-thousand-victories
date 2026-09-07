@@ -1,3 +1,5 @@
+import { measureInkText } from '../../../ui/InkVirtualList';
+import type { InkScrollArea } from '../../../ui/InkUI';
 /**
  * The pieces a lane page is built from above the level of a row — owned by no one screen, reached
  * for by court, army, build, the muster form and the conquest prompt alike.
@@ -79,59 +81,32 @@ export function actionTiles(self: ConquestUIScene,
   tiles: Array<{ title: string; note?: string; border: number; muted?: boolean; onTap?: () => void }>,
   opts: { columns?: 1 | 2 } = {},
 ): number {
-  const GAP = 6;
-  // Two by default — a grid is how you compare eight buildable lands or six orders at a glance.
-  // One when the tiles are a *list* of a few things rather than a field to scan: the four
-  // neighbours carry a name, a number and one line each, and paired off they wrapped their titles
-  // onto three lines to save a scroll nobody was doing.
-  const COLUMNS = opts.columns ?? 2;
-  const tileWidth = (width - GAP * (COLUMNS - 1)) / COLUMNS;
-  const inner = tileWidth - 18;
+  const GAP = 6, COLUMNS = opts.columns ?? 2;
+  const tileWidth = (width - GAP * (COLUMNS - 1)) / COLUMNS, inner = tileWidth - 18;
+  const flow = parent.getData('virtualFlow') as { scroll: InkScrollArea; top: number } | undefined;
+  const titleStyle = { color: INK_UI_HEX.inkText, fontFamily: UI_FONT, fontSize: '12px', fontStyle: '700', wordWrap: { width: inner }, lineSpacing: -1 };
+  const noteStyle = { color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '9px', wordWrap: { width: inner }, lineSpacing: -1 };
   let y = 0;
-
   for (let index = 0; index < tiles.length; index += COLUMNS) {
     const row = tiles.slice(index, index + COLUMNS);
-    const built = row.map((tile) => {
-      const title = self.add.text(0, 0, tile.title, {
-        color: INK_UI_HEX.inkText, fontFamily: UI_FONT, fontSize: '12px', fontStyle: '700',
-        wordWrap: { width: inner }, lineSpacing: -1,
-      });
-      const note = tile.note
-        ? self.add.text(0, 0, tile.note, {
-            color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '9px',
-            wordWrap: { width: inner }, lineSpacing: -1,
-          })
-        : undefined;
-      return { tile, title, note };
-    });
-    const height = Math.max(42, ...built.map(({ title, note }) => 9 + title.height + (note ? note.height + 3 : 0) + 9));
-
-    built.forEach(({ tile, title, note }, column) => {
-      const holder = self.add.container(column * (tileWidth + GAP), y);
-      holder.add(self.ui.panel({ x: 0, y: 0, width: tileWidth, height }, {
-        border: tile.border,
-        borderWidth: 1.5,
-        muted: tile.muted,
-      }));
-      title.setPosition(9, 9).setAlpha(tile.muted ? 0.55 : 1);
-      holder.add(title);
-      if (note) {
-        note.setPosition(9, 9 + title.height + 3).setAlpha(tile.muted ? 0.5 : 0.9);
-        holder.add(note);
-      }
+    const height = Math.max(42, ...row.map(tile => 18 + measureInkText(self, tile.title, titleStyle) + (tile.note ? measureInkText(self, tile.note, noteStyle) + 3 : 0)));
+    const top = y + (flow?.top ?? 0);
+    const build = () => row.forEach((tile, column) => {
+      const holder = self.add.container(column * (tileWidth + GAP), top);
+      holder.add(self.ui.panel({ x: 0, y: 0, width: tileWidth, height }, { border: tile.border, borderWidth: 1.5, muted: tile.muted }));
+      const title = self.add.text(9, 9, tile.title, titleStyle).setAlpha(tile.muted ? .55 : 1); holder.add(title);
+      if (tile.note) holder.add(self.add.text(9, 9 + title.height + 3, tile.note, noteStyle).setAlpha(tile.muted ? .5 : .9));
       if (tile.onTap) {
-        const hit = self.add
-          .rectangle(tileWidth / 2, height / 2, tileWidth, height, 0xffffff, 0.001)
-          .setInteractive({ useHandCursor: true });
+        const hit = self.add.rectangle(tileWidth / 2, height / 2, tileWidth, height, 0xffffff, .001).setInteractive({ useHandCursor: true });
         hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
           if (scrollGestureConsumedTap(pointer)) return;
-          soundDirector.tap();
-          tile.onTap?.();
-        });
-        holder.add(hit);
+          soundDirector.tap(); tile.onTap?.();
+        }); holder.add(hit);
       }
-      parent.add(holder);
+      (flow?.scroll.content ?? parent).add(holder);
     });
+    if (flow) flow.scroll.lazyRow(`grid:${row.map(tile => tile.title).join('|')}`, top, height + GAP, build);
+    else build();
     y += height + GAP;
   }
   return Math.max(0, y - GAP);

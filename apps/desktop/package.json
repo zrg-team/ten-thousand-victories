@@ -1,0 +1,51 @@
+{
+  "name": "van-thang-desktop",
+  "version": "1.1.0",
+  "private": true,
+  "description": "The Steam / desktop cabinet for Vạn Thắng — Electron around the shell build.",
+  "main": "main.js",
+  "scripts": {
+    "sync": "node scripts/sync-web.mjs",
+    "start": "electron .",
+    "dist": "electron-builder --dir",
+    "dist:installers": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "devDependencies": {
+    "electron": "44.2.0",
+    "electron-builder": "26.15.3"
+  },
+  "dependencies": {
+    "steamworks.js": "0.4.0"
+  },
+  "build": {
+    "appId": "team.zrg.vanthang",
+    "productName": "Van Thang",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "web/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/steamworks.js/**"
+    ],
+    "win": {
+      "target": ["dir", "nsis"],
+      "icon": "web/icon-512.png"
+    },
+    "mac": {
+      "target": ["dir", "dmg"],
+      "category": "public.app-category.strategy-games",
+      "icon": "web/icon-512.png"
+    },
+    "linux": {
+      "target": ["dir", "AppImage"],
+      "category": "Game",
+      "icon": "web/icon-512.png"
+    }
+  }
+}

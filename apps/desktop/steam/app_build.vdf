@@ -1,0 +1,23 @@
+"AppBuild"
+{
+	// Fill in from the Steamworks partner site once the listing exists. Every other number in
+	// this folder hangs off these two.
+	"AppID" "REPLACE_WITH_APP_ID"
+	"Desc" "Vạn Thắng — desktop build (see docs/development/desktop-builds.md)"
+
+	// `stage.mjs` writes the depot content here; `BuildOutput` is steamcmd's own scratch.
+	"ContentRoot" "content"
+	"BuildOutput" "output"
+
+	// Upload to a named branch and promote by hand in the partner site. Leaving this empty uploads
+	// to no branch, which is the safest default for a script anyone can run.
+	"SetLive" ""
+
+	"Depots"
+	{
+		"REPLACE_WITH_WINDOWS_DEPOT_ID" "depot_build_windows.vdf"
+		// Uncomment as each platform's depot is created.
+		// "REPLACE_WITH_MACOS_DEPOT_ID" "depot_build_macos.vdf"
+		// "REPLACE_WITH_LINUX_DEPOT_ID" "depot_build_linux.vdf"
+	}
+}

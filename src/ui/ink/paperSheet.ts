@@ -14,7 +14,7 @@
  * stays reachable at `?fx=shader` for A/B.
  */
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../../game/constants';
+import { GAME_HEIGHT, GAME_WIDTH, pageColumnX, surfaceWidth } from '../../game/constants';
 import { renderScale } from '../../game/graphicsQuality';
 import { PIGMENT } from './palette';
 import { mulberry32 } from './stroke';
@@ -34,6 +34,11 @@ export interface PaperSheet {
   tone: Phaser.GameObjects.Image;
   setStrength(strength: number): void;
   setVisible(visible: boolean): void;
+  /**
+   * Re-covers a different box, in the scene's design units. `cameraZoom` is the map zoom a world
+   * camera carries on top of the render scale — 1 for a chrome or page scene.
+   */
+  resize(width: number, height: number, cameraZoom?: number): void;
   destroy(): void;
 }
 
@@ -163,20 +168,36 @@ export function ensurePaperToneTexture(scene: Phaser.Scene): string {
 }
 
 /**
+ * The sheet for a page scene — a screen with nothing behind it. On the phone that is the column;
+ * on the desktop the page's camera covers the whole sheet with the column in the middle
+ * (`cameraLayout.ts`), and the grain has to reach the edges of the window with it.
+ */
+export function attachPagePaper(scene: Phaser.Scene, opts: { depth?: number; strength?: number } = {}): PaperSheet | undefined {
+  return attachPaperSheet(scene, { ...opts, x: -pageColumnX(), width: surfaceWidth(), height: GAME_HEIGHT });
+}
+
+/**
  * Lays the sheet over a scene. Call from the LAST scene that renders (the UI scene of a pair, or
  * a standalone scene); returns undefined when the tier or a switch says no.
  */
 export function attachPaperSheet(
   scene: Phaser.Scene,
-  opts: { depth?: number; strength?: number } = {},
+  /**
+   * `width`/`height` default to the column. The desktop's world scene asks for the part of the
+   * sheet its chrome column does not cover, so the map beside the column is on paper too.
+   */
+  opts: { depth?: number; strength?: number; x?: number; width?: number; height?: number } = {},
 ): PaperSheet | undefined {
   if (!paperSheetEnabled()) return undefined;
 
   const asked = Number(query('paper'));
   const strength0 = Number.isFinite(asked) && asked > 0 ? asked : (opts.strength ?? 1);
   const depth = opts.depth ?? PAPER_SHEET_DEPTH;
+  const width = opts.width ?? GAME_WIDTH;
+  const height = opts.height ?? GAME_HEIGHT;
+  const x = opts.x ?? 0;
 
-  const tile = scene.add.tileSprite(0, 0, GAME_WIDTH, GAME_HEIGHT, ensurePaperGrainTexture(scene))
+  const tile = scene.add.tileSprite(x, 0, width, height, ensurePaperGrainTexture(scene))
     .setOrigin(0, 0)
     .setScrollFactor(0)
     .setDepth(depth)
@@ -184,12 +205,12 @@ export function attachPaperSheet(
   // One grain texel ≈ one buffer pixel, whatever the render scale — the grain must not soften.
   tile.setTileScale(1 / renderScale());
 
-  const tone = scene.add.image(0, 0, ensurePaperToneTexture(scene))
+  const tone = scene.add.image(x, 0, ensurePaperToneTexture(scene))
     .setOrigin(0, 0)
     .setScrollFactor(0)
     .setDepth(depth + 0.01)
     .setBlendMode(Phaser.BlendModes.MULTIPLY);
-  tone.setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+  tone.setDisplaySize(width, height);
 
   // The sheet breathes: a slow drift of the grain, imperceptible directly, gone when you stare.
   // Except under ?capture=1 — the harness mode that compares screenshots pixel by pixel, where a
@@ -213,6 +234,13 @@ export function attachPaperSheet(
     setVisible(visible: boolean) {
       tile.setVisible(visible);
       tone.setVisible(visible);
+    },
+    resize(nextWidth: number, nextHeight: number, cameraZoom = 1) {
+      tile.setSize(nextWidth, nextHeight);
+      // Still one grain texel per buffer pixel: a world camera carries the map's own zoom on top
+      // of the render scale, and the grain must not soften or sharpen with it.
+      tile.setTileScale(1 / (renderScale() * cameraZoom));
+      tone.setDisplaySize(nextWidth, nextHeight);
     },
     destroy() {
       drift?.remove();

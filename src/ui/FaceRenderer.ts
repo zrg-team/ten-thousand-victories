@@ -136,6 +136,25 @@ const BADGE_TEXTURE_PREFIX = 'hero-face:';
 const BADGE_RASTER = 1.5;
 /** Render textures kept alive for as long as their saved texture is: destroying one destroys the other. */
 const badgeTextures = new Map<string, Phaser.GameObjects.RenderTexture>();
+const badgeRefs = new Map<string, { refs: number; used: number; bytes: number }>();
+/** Visible and pooled images retain their texture until destruction, including hidden scene owners. */
+export function retainHeroFace(image: Phaser.GameObjects.Image): Phaser.GameObjects.Image {
+  const key = image.texture.key, entry = badgeRefs.get(key);
+  if (!entry) return image;
+  entry.refs++; entry.used = performance.now();
+  image.once(Phaser.GameObjects.Events.DESTROY, () => { entry.refs = Math.max(0, entry.refs - 1); entry.used = performance.now(); evictBadges(); });
+  return image;
+}
+function evictBadges(except?: string): void {
+  const limit = 16 * 1048576;
+  let bytes = [...badgeRefs.values()].reduce((n, entry) => n + entry.bytes, 0);
+  for (const [key, entry] of [...badgeRefs].filter(([key, entry]) => key !== except && entry.refs === 0).sort((a, b) => a[1].used - b[1].used)) {
+    if (bytes <= limit) break;
+    bytes -= entry.bytes; unregisterGpuBake(key); badgeTextures.get(key)?.texture.destroy(); badgeTextures.get(key)?.destroy(); badgeTextures.delete(key); badgeRefs.delete(key);
+  }
+}
+export function portraitCacheStats() { return { count: badgeRefs.size, bytes: [...badgeRefs.values()].reduce((n, e) => n + e.bytes, 0), retained: [...badgeRefs.values()].filter(e => e.refs > 0).length }; }
+
 
 /**
  * A hero's portrait as a single texture, baked once and reused — for the map, where a face
@@ -162,7 +181,7 @@ export function heroFaceTextureKey(scene: Phaser.Scene, hero: Hero): string | un
   if (scene.textures.exists(key)) return key;
   if (!heroFacesReady(scene)) return undefined;
   const renderer = scene.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer;
-  if (renderer?.contextLost) return undefined;
+  if (renderer?.contextLost || renderer.gl.isContextLost()) return undefined;
 
   const width = Math.ceil(HERO_FACE_W * BADGE_RASTER);
   const height = Math.ceil(HERO_FACE_H * BADGE_RASTER);
@@ -187,6 +206,8 @@ export function heroFaceTextureKey(scene: Phaser.Scene, hero: Hero): string | un
   paint(scene);
   target.saveTexture(key);
   badgeTextures.set(key, target);
+  badgeRefs.set(key, { refs: 0, used: performance.now(), bytes: width * height * 4 });
+  evictBadges(key);
   registerGpuBake(scene.game, key, () => {
     if (!badgeTextures.has(key) || !scene.textures.exists(key) || !heroFacesReady(scene)) {
       unregisterGpuBake(key);
@@ -232,7 +253,7 @@ export function renderHeroFace(
   if (textureKey) {
     const centreX = (HERO_FACE_EXTENT.left + HERO_FACE_EXTENT.right) / 2;
     const centreY = (HERO_FACE_EXTENT.top + HERO_FACE_EXTENT.bottom) / 2;
-    root.add(scene.add.image(centreX, centreY, textureKey).setDisplaySize(HERO_FACE_W, HERO_FACE_H));
+    root.add(retainHeroFace(scene.add.image(centreX, centreY, textureKey)).setDisplaySize(HERO_FACE_W, HERO_FACE_H));
     return root;
   }
 

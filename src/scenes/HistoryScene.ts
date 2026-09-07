@@ -1,3 +1,5 @@
+import { preloadStoryPrints } from '../ui/storyPrint';
+import { preloadConquestMapArt } from '../ui/conquestMapArt';
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import { applyRenderScale, designPointer } from '../game/graphicsQuality';
@@ -34,7 +36,8 @@ import { PIGMENT } from '../ui/ink/palette';
 import type { ArmyComposition, ArmyWardrobe } from '../state/types';
 import { RULE_COLOUR } from '../ui/ink/eraRule';
 import { TITLE_FONT, UI_FONT } from '../ui/fonts';
-import { attachPaperSheet } from '../ui/ink/paperSheet';
+import { attachPagePaper } from '../ui/ink/paperSheet';
+import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
 
 type HistoryTab = 'dynasties' | 'figures' | 'stories' | 'army' | 'terms';
 
@@ -192,6 +195,7 @@ export class HistoryScene extends Phaser.Scene {
    * to zero on purpose: that IS a new list.
    */
   private pendingScroll = 0;
+  private pendingAnchor?: ReturnType<InkScrollArea['snapshotAnchor']>;
   /** What the Army tab is currently showing. Opens on the dynasty the game itself defaults to. */
   private armyTheme: ArmyWardrobe = 'ly';
   private armyTier: FigureTier = 1;
@@ -202,10 +206,23 @@ export class HistoryScene extends Phaser.Scene {
     super('HistoryScene');
   }
 
+  preload(): void {
+    preloadStoryPrints(this, import.meta.env.BASE_URL);
+    // The authored soldier sheets. Boot preloads only the map's families now, and the run scenes
+    // fetch the figures when they need them — so a page opened straight from the menu found no
+    // sheet and `figureStamp` quietly baked the procedural understudy onto the Army plate, the
+    // exact drift the plate's own comment says it cannot have. Loaded here, once per visit; the
+    // atlas is skipped when a run has already brought it in.
+    preloadConquestMapArt(this, import.meta.env.BASE_URL, ['figures'], false);
+  }
+
   create(): void {
     applyRenderScale(this);
     applyPaperFX(this);
-    attachPaperSheet(this);
+    attachPagePaper(this);
+    // The desktop's sheet beyond the column: the front page's landscape, faint, so this reads as a
+    // page lying on the same desk. Nothing on the phone.
+    attachDesktopBackdrop(this);
     this.ui = new InkUI(this);
     this.mapRenderer = createMapRenderer(this);
     // The sheet, and nothing else. The menu's diorama is a fine thing to arrive at and a poor
@@ -281,7 +298,7 @@ export class HistoryScene extends Phaser.Scene {
             return;
           }
           this.tab = tab;
-          this.pendingScroll = 0;
+          this.pendingScroll = 0; this.pendingAnchor = undefined;
           // A new list starts at the top and with nothing open. Carrying an expansion across tabs
           // means opening one and finding a different page already scrolled into its middle.
           this.expanded = undefined;
@@ -322,7 +339,9 @@ export class HistoryScene extends Phaser.Scene {
     // A header tap parks on that header; anything else keeps the reader where they were. Both go
     // through `setScroll`, which clamps — so a section near the foot of a short list comes to rest
     // as far down as the list actually goes rather than scrolling past its own end.
-    scroll.setScroll(this.anchorY !== undefined ? this.anchorY - 4 : this.pendingScroll);
+    if (this.anchorY !== undefined) scroll.setScroll(this.anchorY - 4);
+    else if (this.pendingAnchor) scroll.restoreAnchor(this.pendingAnchor);
+    else scroll.setScroll(this.pendingScroll);
     this.anchorSection = undefined;
     this.anchorY = undefined;
     // One render, one arrival. Left set, the next rebuild — opening a card, pressing a chip —
@@ -494,7 +513,9 @@ export class HistoryScene extends Phaser.Scene {
    */
   private collapseSection(key: string): void {
     const scroll = this.scroll;
-    const list = (scroll?.content.list ?? []) as Phaser.GameObjects.Container[];
+    // Virtual holders are recycled in insertion order; reading order is their content-space y.
+    const list = [...(scroll?.content.list ?? [])] as Phaser.GameObjects.Container[];
+    list.sort((a, b) => a.y - b.y);
     const headerIndex = list.findIndex((item) => item.getData?.('sectionKey') === key);
     if (headerIndex < 0) {
       this.applyToggle(key, false);
@@ -755,15 +776,19 @@ export class HistoryScene extends Phaser.Scene {
    * reader tapping down a list is waiting on the interface.
    */
   private revealCard(card: Phaser.GameObjects.Container): void {
-    const settled = card.y;
-    card.setAlpha(0).setY(settled + 6);
+    // Relative, not to a remembered y. A card is built inside a lazy row, and the scroll area
+    // re-parents it into the row's holder the moment the builder returns, shifting its y from
+    // content space to the holder's. A tween aimed at the y read *before* that shift lands the
+    // card a whole row's height below its portrait — which is how an opened biography vanished
+    // and left its face beside a blank. Phaser resolves `-=` on the first update, after the shift.
+    card.setAlpha(0).setY(card.y + 6);
     // Tagged rather than inferred: the harness asserts the reveal ran without having to catch a
     // 170ms tween mid-flight, which is the kind of check that passes on a fast machine and fails in
     // CI for no reason anybody can reproduce.
     card.setData('revealed', true);
     this.tweens.add({
       targets: card,
-      y: settled,
+      y: '-=6',
       alpha: 1,
       duration: 170,
       ease: 'Quad.easeOut',
@@ -785,14 +810,15 @@ export class HistoryScene extends Phaser.Scene {
     if (typeof row.y !== 'number' || typeof row.setAlpha !== 'function') {
       return;
     }
-    const settled = row.y;
-    row.setAlpha(0).setY(settled + 6);
+    // Relative for the same reason `revealCard` is: the row may be re-parented into a lazy holder
+    // before this tween takes its first step.
+    row.setAlpha(0).setY(row.y + 6);
     // Tagged rather than inferred, for the same reason the single-card reveal is: the harness can
     // assert the stagger ran without having to catch a tween mid-flight.
     row.setData('sectionRevealed', true);
     this.tweens.add({
       targets: row,
-      y: settled,
+      y: '-=6',
       alpha: 1,
       duration: 170,
       delay: Math.min(index, 6) * 26,
@@ -876,18 +902,22 @@ export class HistoryScene extends Phaser.Scene {
         const open = this.expanded === key;
         const dates = FIGURE_DATES[hero.id];
         const bio = heroBio(hero);
-        const card = this.ui.card({ x: PORTRAIT + 8, y, width: LIST_WIDTH - PORTRAIT - 14, height: PORTRAIT }, {
+        const opts = {
           title: heroName(hero),
           subtitle: `${heroTypeLabel(hero.type)} · ${dates ? t('history.figures.lived', { dates }) : t('history.figures.unknown')}`,
           body: open ? bio : this.clip(bio),
           border: open ? INK_UI.cinnabar : undefined,
-        });
+        };
+        const top = y;
+        const measured = this.ui.measureCard(LIST_WIDTH - PORTRAIT - 14, PORTRAIT, opts);
+        scroll.lazyRow(key, top, measured + CARD_GAP, () => {
+        const y = top;
+        const card = this.ui.card({ x: PORTRAIT + 8, y, width: LIST_WIDTH - PORTRAIT - 14, height: PORTRAIT }, opts);
         this.makeTappable(card, key, LIST_WIDTH - PORTRAIT - 14);
         scroll.content.add(card);
         if (open) {
           this.revealCard(card);
         }
-        const cardHeight = (card.getData('cardHeight') as number | undefined) ?? PORTRAIT;
         // The portrait rides beside the card rather than inside it, because the card grows with
         // its prose and a face stretched to match would be worse than a face that simply sits at
         // the top of a tall entry.
@@ -900,7 +930,8 @@ export class HistoryScene extends Phaser.Scene {
           this.revealRow(card, step);
           this.revealRow(face, step);
         }
-        y += cardHeight + CARD_GAP;
+        });
+        y += measured + CARD_GAP;
       }
     }
 
@@ -972,13 +1003,17 @@ export class HistoryScene extends Phaser.Scene {
           : open
             ? `${happened}\n\n${t('history.stories.inGame')} — ${historyText(`stories.${id}.inGame`)}`
             : this.clip(happened);
-        const card = this.ui.card({ x: ROW_INDENT, y, width, height: 58 }, {
+        const opts = {
           title: storyTitle(id),
           subtitle: STORY_ANCHORS[id] ?? '',
           body,
           border: open ? INK_UI.cinnabar : undefined,
           muted: !written,
-        });
+        };
+        const top = y;
+        const measured = this.ui.measureCard(width, 58, opts);
+        scroll.lazyRow(key, top, measured + CARD_GAP, () => {
+        const card = this.ui.card({ x: ROW_INDENT, y: top, width, height: 58 }, opts);
         if (written) {
           this.makeTappable(card, key, width);
         }
@@ -988,7 +1023,8 @@ export class HistoryScene extends Phaser.Scene {
         } else if (this.revealSection === group.id) {
           this.revealRow(card, group.ids.indexOf(id));
         }
-        y += ((card.getData('cardHeight') as number | undefined) ?? 58) + CARD_GAP;
+        });
+        y += measured + CARD_GAP;
       }
     }
     return y;
@@ -1022,11 +1058,15 @@ export class HistoryScene extends Phaser.Scene {
         const key = `term:${term}`;
         const open = this.expanded === key;
         const body = historyText(`terms.${term}.body`);
-        const card = this.ui.card({ x: ROW_INDENT, y, width, height: 52 }, {
+        const opts = {
           title: historyText(`terms.${term}.title`),
           body: open ? body : this.clip(body),
           border: open ? INK_UI.cinnabar : undefined,
-        });
+        };
+        const top = y;
+        const measured = this.ui.measureCard(width, 52, opts);
+        scroll.lazyRow(key, top, measured + CARD_GAP, () => {
+        const card = this.ui.card({ x: ROW_INDENT, y: top, width, height: 52 }, opts);
         this.makeTappable(card, key, width);
         scroll.content.add(card);
         if (open) {
@@ -1034,7 +1074,8 @@ export class HistoryScene extends Phaser.Scene {
         } else if (this.revealSection === group.id) {
           this.revealRow(card, group.ids.indexOf(term));
         }
-        y += ((card.getData('cardHeight') as number | undefined) ?? 52) + CARD_GAP;
+        });
+        y += measured + CARD_GAP;
       }
     }
     return y;
@@ -1515,6 +1556,7 @@ ${historyText('army.formation.note')}`,
           return;
         }
         this.pendingScroll = this.scroll ? -this.scroll.content.y : 0;
+      this.pendingAnchor = this.scroll?.snapshotAnchor();
         chip.pick();
         this.render();
       });
@@ -1637,6 +1679,7 @@ ${historyText('army.formation.note')}`,
         return;
       }
       this.pendingScroll = this.scroll ? -this.scroll.content.y : 0;
+      this.pendingAnchor = this.scroll?.snapshotAnchor();
       this.expanded = this.expanded === key ? undefined : key;
       this.render();
     });

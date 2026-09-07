@@ -188,12 +188,15 @@ try {
   check('iOS keeps the repository link', ios.text.includes(IMPROVE_ALONE));
   check('iOS does not print the fragment', !ios.text.includes(IMPROVE), 'standing alone it needs the capital');
 
-  // ── 4. Android: the same build, and Play has no such rule ───────────────────────────────────
+  // ── 4. Android: the same build, and the same answer — the store build is sold ─────────────
+  // Play permits a donation link; the rule in `allowsDonationLinks` leaves it out anyway, because
+  // asking somebody who has just paid for the game to also buy a coffee is a second ask. The
+  // rule is the cabinet, not the OS, so Android reads exactly as iOS does.
   const android = await boot({ kind: 'mobile', os: 'android', version: '0.2.0' });
   check('Android boots', android.booted, android.errors.slice(0, 2).join(' | '));
   check('Android fires the ready callback', android.readyFired);
-  check('Android keeps the donation link', android.text.includes(COFFEE), 'Play has no equivalent rule');
-  check('Android keeps the repository link', android.text.includes(IMPROVE), 'the sentence half');
+  check('Android draws no donation link', !android.text.includes(COFFEE), 'the store build is sold');
+  check('Android keeps the repository link', android.text.includes(IMPROVE_ALONE));
   check('Android omits the old connective phrase', !android.text.includes(CONNECTIVE));
 
   // ── 5. Desktop: a cabinet that answers to no store ──────────────────────────────────────────

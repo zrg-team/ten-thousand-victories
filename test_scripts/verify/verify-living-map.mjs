@@ -2,7 +2,7 @@
 //
 //   menu · a calm bamboo-and-lotus river replaces the miniature battlefield
 //   menu · every broad paddy stays on the right bank
-//   menu · the seal is a circle on any sheet, not an ellipse on a short one
+//   menu · a compact wordmark replaces the launcher emblem
 //   menu · mountains, bamboo and lotus move as registered depth layers
 //   menu · the water under the lotus swells on its own, without being touched
 //   map  · every buffalo cart faces the way it is going, on BOTH legs of its round trip
@@ -41,9 +41,9 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 390, height: 664 }
 
   const menu = await page.evaluate(() => {
     const scene = window.__phaserGame.scene.getScene('MenuScene');
-    // The seal is the one graphics object drawn at the top of the sheet outside the art layer.
-    const loose = scene.children.list.filter((c) => c.type === 'Graphics' && c.y < 140 && c.y > 10);
-    const seal = loose[0];
+    const heading = scene.children.list.find((c) => c.getData?.('menuHeading'));
+    const emblem = scene.children.list.find((c) => c.name === 'app-emblem-river-v7'
+      || c.texture?.key === 'app-emblem-river-v7');
     const art = scene.children.list.find((c) => c.type === 'Container'
       && c.getData?.('menuLandscapeRole') === 'illustration');
     const layers = art?.list?.filter((c) => c.type === 'Image'
@@ -101,8 +101,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 390, height: 664 }
     lotusInteraction?.emit('pointermove', { isDown: true }, lotusInteraction.displayWidth * 0.58, lotusInteraction.displayHeight * 0.5);
     return {
       vScale: scene.vScale,
-      sealScaleX: seal?.scaleX ?? null,
-      sealScaleY: seal?.scaleY ?? null,
+      heading: heading ? { text: heading.text ?? heading.getData('headingText'), bottom: heading.y + heading.displayHeight / 2 } : null,
+      emblemPresent: Boolean(emblem),
       art: art ? {
         x: ground?.x,
         top: ground ? ground.y - ground.displayHeight / 2 : null,
@@ -228,9 +228,9 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 390, height: 664 }
     };
   });
 
-  // A circle drawn into a container squashed vertically is an ellipse. The seal must not be in one.
-  check(`${label}: seal keeps its aspect`, menu.sealScaleX !== null && Math.abs(menu.sealScaleX - menu.sealScaleY) < 1e-6,
-    `scale ${menu.sealScaleX}x${menu.sealScaleY}, sheet squash ${menu.vScale.toFixed(3)}`);
+  check(`${label}: compact heading leaves the artwork clear and no launcher emblem is shown`,
+    !menu.emblemPresent && menu.heading?.text === 'VẠN THẮNG' && menu.heading.bottom < menu.art?.top,
+    JSON.stringify(menu.heading));
   check(`${label}: four registered artwork plates are loaded`, menu.art?.layers?.length === 4
     && ['ground', 'mountains', 'bamboo', 'lotus'].every((name) => menu.art.layers.some((layer) => layer.name === name))
     && new Set(menu.art.layers.map((layer) => layer.texture)).size === 4

@@ -199,7 +199,8 @@ export function tourStages(self: ConquestUIScene): Array<{
       when: () => true,
       steps: () => {
         const context = { battleLive: realmUnderAttack(self.state) };
-        const slots = actionBarSlots(self.state.gameMode, context);
+        // The bar's own width: on the desktop it spans the sheet and the cluster is at its far end.
+        const slots = actionBarSlots(self.state.gameMode, context, self.actionBar.barWidth);
         const known = ['battle', 'build', 'heroes', 'court', 'army', 'affairs', 'chronicle', 'pause', 'menu'];
         return slots
           .filter((slot) => known.includes(slot.action))
@@ -207,7 +208,8 @@ export function tourStages(self: ConquestUIScene): Array<{
             id: `bar-${slot.action}`,
             heading: `copilot.bar.${slot.action}.h` as CopilotStep['heading'],
             body: `copilot.bar.${slot.action}.b` as CopilotStep['body'],
-            target: () => ({
+            // Off the bar itself: on the desktop the pause/menu cluster is lifted into the top bar.
+            target: () => self.actionBar.slotBounds(slot.action) ?? ({
               x: slot.x,
               y: ACTION_BUTTON_Y - ACTION_BUTTON_HEIGHT / 2,
               width: slot.width,

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from './constants';
+import { GAME_HEIGHT, surfaceWidth } from './constants';
 import { BootScene } from '../scenes/BootScene';
 import { MenuScene } from '../scenes/MenuScene';
 import { GuideScene } from '../scenes/GuideScene';
@@ -28,7 +28,9 @@ const needsCapture =
 export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game-root',
-  width: GAME_WIDTH * RENDER_SCALE,
+  // The sheet, not the column: on the desktop the world scene fills a surface wider than 390 and
+  // the chrome is placed on it by camera viewport — see `constants.surfaceWidth`.
+  width: surfaceWidth() * RENDER_SCALE,
   height: GAME_HEIGHT * RENDER_SCALE,
   backgroundColor: '#e9dfc2',
   scale: {
@@ -39,19 +41,15 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     // camera is zoomed by the same factor, which puts scenes back into 390-wide design units. The
     // net effect is that a phone at pixel ratio 3 draws 1170x2532 real pixels instead of drawing
     // 390x844 and letting the browser blow it up on the way to the glass.
-    width: GAME_WIDTH * RENDER_SCALE,
+    width: surfaceWidth() * RENDER_SCALE,
     height: GAME_HEIGHT * RENDER_SCALE,
   },
   input: {
     activePointers: 3,
     touch: true,
   },
-  // Vsync paces the loop: a 120 Hz panel runs (and shows) 120. No `limit` here — Phaser's
-  // limiter accumulates delta against a fixed rate, so a limit AT the panel's own rate beats
-  // against rAF jitter and skips real frames (measured: limit 60 halved a 120 Hz desktop, and
-  // the beat judders a 60 Hz one). The ladder engages a limiter only for a true 30-fps rung.
-  // `min: 2` keeps long stalls honest: the clamp floor is 500 ms, so a 400 ms map rebuild
-  // reaches the game clock as 400 ms of real time instead of the default 20-fps swallow.
+  // FramePacer caps rendering at 60 by default and passes exact elapsed time to the game.
+  // Phaser's own limiter stays disabled; manual full-display refresh remains available.
   fps: { min: 2 },
   render: {
     preserveDrawingBuffer: needsCapture,

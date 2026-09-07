@@ -1,302 +1,87 @@
-/**
- * The quality ladder: measure the frames the device actually delivers, and move the rung.
- *
- * Two clocks are watched per frame: `step` (PRE_STEP → POST_RENDER, what the game costs) and
- * `gap` (`game.loop.rawDelta`, what the player experiences — it includes everything the browser
- * did between frames). Windows close every ~2.5 s of gap time; a window whose p95 gap runs hot
- * against the budget counts toward a step down, a window that is calm on BOTH clocks counts
- * toward a step up. Hysteresis on both sides, a cap of two steps per session in each direction,
- * and a rung left twice is never climbed back into — the device already said no.
- *
- * All of that applies to AUTO sessions only. A tier the player picked by hand pins the ladder
- * outright — see `pinned` below for the phone that taught us why.
- *
- * What a rung changes immediately: the paper sheet's visibility, the fps limit, the LOD/scatter
- * answers (`setActiveRung` slots under `profile()`). The buffer scale is requested here and lands
- * at the next scene boundary (`applyPendingRenderScale`) — a mid-run buffer resize under a live
- * fight is exactly the hitch this whole system exists to remove.
- *
- * `?noladder=1` pins everything (every perf harness passes it: a CPU-throttled measurement that
- * steps the quality down mid-run measures the ladder, not the game). `?ladder=fast` shrinks the
- * windows for the ladder's own harness.
- */
+/** Launch selector and passive monitor. The compatibility name is retained for scene callers. */
 import Phaser from 'phaser';
-import {
-  defaultGraphicsQuality, getGraphicsQuality, renderScaleNow, requestRenderScale, setActiveRung,
-} from './graphicsQuality';
-import { RUNGS, RUNG_STORAGE_KEY, rungForTier, startingRung, type Rung, type RungId } from './qualityRungs';
+import { getGraphicsMode, getGraphicsQuality, renderScaleNow, requestRenderScale, setActiveRung, setSessionQuality } from './graphicsQuality';
+import { RUNGS, RUNG_STORAGE_KEY, rungForTier, type Rung, type RungId } from './qualityRungs';
 import { activePaperSheets } from '../ui/ink/paperSheet';
+import { cachedLaunchProfile, percentile, recommendNextLaunch, type AutoProfile } from './launchGraphics';
+import { FramePacer } from './framePacer';
 
-interface LadderTuning {
-  windowMs: number;
-  warmupMs: number;
-  downAt: number;
-  upAt: number;
-  downAfter: number;
-  upAfter: number;
-  maxStepsDown: number;
-  maxStepsUp: number;
-}
-
-const DEFAULTS: LadderTuning = {
-  windowMs: 2500, warmupMs: 5000, downAt: 1.25, upAt: 0.6, downAfter: 2, upAfter: 5,
-  maxStepsDown: 2, maxStepsUp: 2,
-};
-
-function query(name: string): string | undefined {
-  try {
-    return new URLSearchParams(window.location.search).get(name) ?? undefined;
-  } catch {
-    return undefined;
-  }
-}
-
+let fullRefresh: boolean | undefined;
+export function fullRefreshEnabled(): boolean { if (fullRefresh !== undefined) return fullRefresh; try { return fullRefresh = localStorage.getItem('mandate:graphics:refresh:v1') === 'display'; } catch { return fullRefresh = false; } }
+export function setFullRefresh(enabled: boolean): void { fullRefresh = enabled; try { localStorage.setItem('mandate:graphics:refresh:v1', enabled ? 'display' : '60'); } catch { /* private mode */ } }
 export class QualityLadder {
   private rung: Rung;
-  private ceiling: Rung;
-  private readonly tuning: LadderTuning;
-  private readonly enabled: boolean;
-  /**
-   * An explicitly chosen tier pins the ladder: the sampler never moves the rung, in either
-   * direction. The ladder exists to protect the DEFAULT experience on a device nobody measured;
-   * a hand-picked tier is a promise. Before this, a phone that ran high hot stepped down
-   * mid-run, the step landed at the next scene boundary, and the player's NEXT run baked a
-   * whole tier softer than the one they were just enjoying — "start game, sharp; leave, start
-   * new game, blurry", 100% of the time, from an explicit Cao. If an explicit tier is too heavy
-   * for the device, the honest answer is the settings row, one tap away — not a silent overrule.
-   */
   private pinned: boolean;
-
+  private sceneCap?: number;
+  private pacer = new FramePacer();
+  private holdLeft = 5000;
   private stepT0 = 0;
-  private stepSamples: number[] = [];
-  private gapSamples: number[] = [];
-  private windowGapMs = 0;
-  private warmupLeft: number;
-  /**
-   * Remaining GAP time to ignore, not a wall-clock deadline. A hold covers "the next N ms of
-   * frames" — and frame time is what the sampler judges, so it is what the hold must be spent
-   * in. A wall-clock deadline also swallowed verify-ladder whole: the harness steps the loop by
-   * hand faster than real time, and a 1.5 s deadline outlived its entire synthetic heat phase.
-   */
-  private holdLeft = 0;
-  private hotWindows = 0;
-  private calmWindows = 0;
-  private stepsDown = 0;
-  private stepsUp = 0;
-  private readonly leftTwice = new Map<RungId, number>();
-  private sceneCap: number | undefined;
-  private appliedLimit = 0;
-  private fpsTimer: ReturnType<typeof setTimeout> | undefined;
-
-  constructor(private readonly game: Phaser.Game) {
-    // `?capture=1` marks every harness run: a CPU-throttled measurement that stepped the
-    // quality down mid-run would measure the ladder, not the game — and flake every pixel gate.
-    // The dev server is pinned too (unless `?ladder=` asks): vite transforms and HMR make every
-    // dev frame slow in ways no player's device is, and the first live session measured exactly
-    // that — two steps down and a persisted 'low' from an IDLE MENU. Frames in dev measure the
-    // tooling, not the game.
-    const inDev = typeof import.meta !== 'undefined' && Boolean(import.meta.env?.DEV) && query('ladder') === undefined;
-    this.enabled = query('noladder') !== '1' && query('capture') !== '1' && !inDev;
-    const fast = query('ladder') === 'fast';
-    this.tuning = fast ? { ...DEFAULTS, windowMs: 600, warmupMs: 1000, upAfter: 3 } : DEFAULTS;
-    this.warmupLeft = this.tuning.warmupMs;
-
-    const explicitStored = typeof localStorage !== 'undefined' ? localStorage.getItem('mandate:graphics:v1') : null;
-    this.pinned = Boolean(explicitStored);
-    const start = startingRung({
-      explicitTier: explicitStored ? getGraphicsQuality() : undefined,
-      defaultTier: defaultGraphicsQuality(),
-      devicePixelRatio: typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
-      // A rung persisted while the ladder is pinned came from a session that could not have
-      // measured anything real (a dev session before the guard above existed, most likely) —
-      // honouring it would keep a polluted 'low' forever.
-      persisted: this.enabled && typeof localStorage !== 'undefined' ? localStorage.getItem(RUNG_STORAGE_KEY) : null,
+  private samples: number[] = [];
+  private work: number[] = [];
+  private elapsed = 0;
+  private hot = 0;
+  private calibrating = false;
+  private enabled: boolean;
+  constructor(private game: Phaser.Game) {
+    const query = new URLSearchParams(window.location.search);
+    this.enabled = query.get('capture') !== '1' && query.get('noladder') !== '1';
+    this.pinned = getGraphicsMode() !== 'auto';
+    try { localStorage.removeItem(RUNG_STORAGE_KEY); } catch { /* obsolete automatic rungs */ }
+    const chosen = this.pinned ? rungForTier(getGraphicsQuality()).id : cachedLaunchProfile() ?? 'medium';
+    this.rung = RUNGS.find(r => r.id === chosen)!;
+    this.apply(this.rung);
+    const installPacing = () => queueMicrotask(() => {
+      const callback = game.loop.callback;
+      game.loop.callback = (time: number, _delta: number) => {
+        const delivered = this.pacer.next(time, this.calibrating ? 0 : this.targetFps());
+        if (delivered !== undefined) callback(time, delivered);
+      };
     });
-    this.rung = start.rung;
-    this.ceiling = start.ceiling;
-
-    // The starting rung is applied even with the ladder disabled — `?noladder=1` means "do not
-    // MOVE", not "ignore the persisted answer". (Harnesses also pin the tier, which wins above.)
-    this.apply(this.rung, { initial: true });
-
-    if (this.enabled) {
-      game.events.on(Phaser.Core.Events.PRE_STEP, this.onPreStep, this);
-      game.events.on(Phaser.Core.Events.POST_RENDER, this.onPostRender, this);
-    }
+    if (game.isRunning) installPacing(); else game.events.once(Phaser.Core.Events.READY, installPacing);
+    game.events.on(Phaser.Core.Events.PRE_STEP, this.pre, this);
+    game.events.on(Phaser.Core.Events.POST_RENDER, this.post, this);
+    game.events.on(Phaser.Core.Events.RESUME, this.resume, this);
+    game.events.on(Phaser.Core.Events.VISIBLE, this.resume, this);
+    game.events.once(Phaser.Core.Events.DESTROY, () => {
+      game.events.off(Phaser.Core.Events.PRE_STEP, this.pre, this); game.events.off(Phaser.Core.Events.POST_RENDER, this.post, this);
+      game.events.off(Phaser.Core.Events.RESUME, this.resume, this); game.events.off(Phaser.Core.Events.VISIBLE, this.resume, this);
+    });
   }
-
-  state(): { rung: RungId; ceiling: RungId; scale: number; hot: number; calm: number; stepsDown: number; stepsUp: number; enabled: boolean; pinned: boolean } {
-    return {
-      rung: this.rung.id, ceiling: this.ceiling.id, scale: renderScaleNow(),
-      hot: this.hotWindows, calm: this.calmWindows,
-      stepsDown: this.stepsDown, stepsUp: this.stepsUp, enabled: this.enabled,
-      pinned: this.pinned,
-    };
-  }
-
-  /**
-   * An explicit choice — the settings row, a harness. Moves the ceiling with the rung, and pins
-   * the ladder from here on: a session where the player has spoken is no longer the ladder's to
-   * steer (see `pinned`).
-   */
-  force(id: RungId): void {
-    const rung = RUNGS.find((r) => r.id === id);
-    if (rung) {
-      this.pinned = true;
-      this.rung = rung;
-      this.ceiling = rung;
-      this.apply(rung, {});
-    }
-  }
-
-  /** Ignore the next `ms` of frame time — a bake or a scene build is not the frame rate. */
-  hold(ms: number): void {
-    this.holdLeft = Math.max(this.holdLeft, ms);
-  }
-
-  /**
-   * Throw away what has been measured so far and stop measuring for a moment.
-   *
-   * For work the ladder must not read as the device failing: a scene build, a bake, a context
-   * restore. Clearing the samples matters as much as the hold — frames already in the window were
-   * measured during the expensive thing, and a hold alone would leave them there to be judged the
-   * moment it lifted.
-   */
-  forgetWindow(ms: number): void {
-    this.hold(ms);
-    this.stepSamples = [];
-    this.gapSamples = [];
-    this.windowGapMs = 0;
-  }
-
-  markSceneStart(): void {
-    this.forgetWindow(1500);
-  }
-
-  /** A scene that wants its own pacing cap (the front page idles at 30). */
-  setSceneCap(fps?: number): void {
-    this.sceneCap = fps;
-    this.applyFps();
-  }
-
-  private onPreStep(_time: number, delta: number): void {
-    this.stepT0 = performance.now();
-    if (this.pinned) return;
-    // The event's own delta, not `loop.rawDelta`: a manually-stepped loop (every harness, and
-    // the resume path) never refreshes rawDelta, and the ladder would keep judging stale gaps.
-    const gap = delta;
-    if (this.holdLeft > 0) {
-      this.holdLeft -= gap;
-      return;
-    }
-    if (this.warmupLeft > 0) {
-      this.warmupLeft -= gap;
-      return;
-    }
-    this.gapSamples.push(gap);
-    this.windowGapMs += gap;
-    if (this.windowGapMs >= this.tuning.windowMs) this.closeWindow();
-  }
-
-  private onPostRender(): void {
-    if (this.pinned || this.holdLeft > 0 || this.warmupLeft > 0) return;
-    this.stepSamples.push(performance.now() - this.stepT0);
-  }
-
-  private closeWindow(): void {
-    const gapP95 = percentile(this.gapSamples, 0.95);
-    const stepP95 = percentile(this.stepSamples, 0.95);
-    this.gapSamples = [];
-    this.stepSamples = [];
-    this.windowGapMs = 0;
-
-    const budget = 1000 / Math.min(this.rung.fps, this.sceneCap ?? 60);
-    if (gapP95 > budget * this.tuning.downAt) {
-      this.hotWindows += 1;
-      this.calmWindows = 0;
-      if (this.hotWindows >= this.tuning.downAfter) this.stepDown();
-      return;
-    }
-    if (stepP95 < budget * this.tuning.upAt && gapP95 <= budget * 1.1) {
-      this.calmWindows += 1;
-      this.hotWindows = 0;
-      if (this.calmWindows >= this.tuning.upAfter) this.stepUp();
-      return;
-    }
-    this.hotWindows = 0;
-    this.calmWindows = 0;
-  }
-
-  private stepDown(): void {
-    this.hotWindows = 0;
-    if (this.stepsDown >= this.tuning.maxStepsDown) return;
-    const at = RUNGS.indexOf(this.rung);
-    if (at >= RUNGS.length - 1) return;
-    this.leftTwice.set(this.rung.id, (this.leftTwice.get(this.rung.id) ?? 0) + 1);
-    this.rung = RUNGS[at + 1];
-    this.stepsDown += 1;
-    this.apply(this.rung, {});
-  }
-
-  private stepUp(): void {
-    this.calmWindows = 0;
-    if (this.stepsUp >= this.tuning.maxStepsUp) return;
-    const at = RUNGS.indexOf(this.rung);
-    if (at <= RUNGS.indexOf(this.ceiling)) return;
-    const above = RUNGS[at - 1];
-    if ((this.leftTwice.get(above.id) ?? 0) >= 2) return;
-    this.rung = above;
-    this.stepsUp += 1;
-    this.apply(this.rung, {});
-  }
-
-  private apply(rung: Rung, opts: { initial?: boolean }): void {
-    setActiveRung(rung);
+  private resume(): void { this.pacer.reset(); this.forgetWindow(5000); }
+  state() { return { rung: this.rung.id, ceiling: this.pinned ? this.rung.id : 'high', scale: renderScaleNow(), hot: this.hot, calm: 0,
+    stepsDown: 0, stepsUp: 0, enabled: this.enabled, pinned: this.pinned, fps: this.targetFps(), calibrating: this.calibrating }; }
+  force(id: RungId): void { const rung = RUNGS.find(r => r.id === id); if (rung) { this.pinned = true; this.apply(rung); } }
+  useAuto(profile: AutoProfile = cachedLaunchProfile() ?? 'medium'): void { this.pinned = false; this.apply(RUNGS.find(r => r.id === profile)!); }
+  calibration(active: boolean): void { this.calibrating = active; this.pacer.reset(); this.forgetWindow(5000); }
+  targetFps(): number { return Math.min(this.sceneCap ?? Infinity, this.rung.fps < 60 ? this.rung.fps : fullRefreshEnabled() ? Infinity : 60); }
+  hold(ms: number): void { this.holdLeft = Math.max(this.holdLeft, ms); }
+  forgetWindow(ms: number): void { this.hold(ms); this.samples = []; this.work = []; this.elapsed = 0; }
+  markSceneStart(): void { this.forgetWindow(1500); }
+  setSceneCap(fps?: number): void { if (fps !== this.sceneCap) { this.sceneCap = fps; this.pacer.reset(); this.forgetWindow(1500); } }
+  private apply(rung: Rung): void {
+    this.rung = rung; setSessionQuality(rung.id === 'high' ? 'high' : rung.id.startsWith('low') ? 'low' : 'medium');
+    setActiveRung(rung); requestRenderScale(rung.scale);
     for (const sheet of activePaperSheets()) sheet.setVisible(rung.paper);
-    this.applyFps();
-    requestRenderScale(rung.scale);
-    if (!opts.initial && typeof localStorage !== 'undefined') {
-      try { localStorage.setItem(RUNG_STORAGE_KEY, rung.id); } catch { /* private mode */ }
-    }
+    this.pacer.reset(); this.forgetWindow(3000);
   }
-
-  private applyFps(): void {
-    const cap = Math.min(this.rung.fps, this.sceneCap ?? Infinity);
-    // 60 means "vsync paces us", not a limiter at 60: Phaser's limiter accumulates delta
-    // against a fixed rate, so a limit at (or above) the panel's own rate skips real frames on
-    // jitter and halves a 120 Hz panel outright. Only a true sub-60 cap engages it.
-    const limit = cap >= 60 ? 0 : cap;
-    if (limit === this.appliedLimit) return;
-    this.appliedLimit = limit;
-    // One macrotask later, never mid-step: `setFPSLimit` stops and restarts the rAF loop, and a
-    // restart from INSIDE a step (scene create, any game event) re-arms `isRunning` before the
-    // still-running step closure checks it — both then reschedule, and the game double-steps
-    // forever after. Deferring puts the swap between frames, where stop() cancels cleanly.
-    if (this.fpsTimer !== undefined) clearTimeout(this.fpsTimer);
-    this.fpsTimer = setTimeout(() => {
-      this.fpsTimer = undefined;
-      const loop = this.game.loop as unknown as { setFPSLimit?: (fps: number) => void } | undefined;
-      loop?.setFPSLimit?.(limit);
-    }, 0);
+  private pre(_time: number, delta: number): void {
+    this.stepT0 = performance.now();
+    if (!this.enabled || this.pinned || this.calibrating || document.hidden) return;
+    if (this.holdLeft > 0) { this.holdLeft -= delta; return; }
+    this.samples.push(delta); this.elapsed += delta;
+  }
+  private post(): void {
+    if (!this.enabled || this.pinned || this.calibrating || this.holdLeft > 0 || document.hidden) return;
+    this.work.push(performance.now() - this.stepT0);
+    if (this.elapsed < 10000) return;
+    const budget = 1000 / Math.min(60, this.targetFps());
+    const slow = percentile(this.samples, .95) > budget * 1.3 || percentile(this.work, .95) > budget * .9;
+    this.hot = slow ? this.hot + 1 : 0;
+    if (this.hot >= 3 && this.rung.id !== 'clarity') recommendNextLaunch(this.rung.id === 'high' ? 'medium' : 'clarity');
+    this.samples = []; this.work = []; this.elapsed = 0;
   }
 }
-
-function percentile(samples: number[], p: number): number {
-  if (samples.length === 0) return 0;
-  const sorted = [...samples].sort((a, b) => a - b);
-  return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))];
-}
-
 let installed: QualityLadder | undefined;
-
-/** Once, from main.ts, after the game exists. */
-export function installQualityLadder(game: Phaser.Game): QualityLadder {
-  installed ??= new QualityLadder(game);
-  return installed;
-}
-
-export function qualityLadder(): QualityLadder | undefined {
-  return installed;
-}
-
+export function installQualityLadder(game: Phaser.Game): QualityLadder { installed ??= new QualityLadder(game); return installed; }
+export function qualityLadder(): QualityLadder | undefined { return installed; }
 export { rungForTier };
