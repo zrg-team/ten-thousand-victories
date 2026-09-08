@@ -70,6 +70,9 @@ export class ViewIndex {
    * other, is how a cart ends up visible because the zoom changed while it was off-screen.
    */
   setSuppressed(kinds: Iterable<CullKind>): boolean {
+    // The normal frame path passes one of three immutable arrays. Avoid allocating a
+    // Set and a spread array simply to discover that this frame's LOD is unchanged.
+    if (Array.isArray(kinds) && kinds.length === this.suppressed.size && kinds.every(kind => this.suppressed.has(kind))) return false;
     const next = new Set(kinds);
     if (next.size === this.suppressed.size && [...next].every((kind) => this.suppressed.has(kind))) {
       return false;

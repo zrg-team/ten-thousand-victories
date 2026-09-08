@@ -1,0 +1,8 @@
+{
+  "file": "src/scenes/map/GraphicsPartition.ts",
+  "change": "Normalize mixed CRLF/LF and remove blank EOF while preparing the PR.",
+  "frozenSha256": "c92049c7adc4a175f5df2640bc943c3ec60a40d5e3255a8f755be1df22bc95a1",
+  "prSha256": "3c91efc794137882307152a030cfa378ab909c0e74e95170c2d565e099d9dfbb",
+  "normalizedContentsEqual": true,
+  "otherMeasuredInputsByteIdentical": 2221
+}

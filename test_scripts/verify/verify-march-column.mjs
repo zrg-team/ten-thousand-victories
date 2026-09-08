@@ -37,7 +37,7 @@ page.on('pageerror', (e) => errors.push(String(e)));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 await page.addInitScript(() => localStorage.setItem('mandate:language:v1', 'vi'));
 await page.goto(`${URL}/?capture=1&noladder=1`, { waitUntil: 'domcontentloaded' });
-await page.waitForFunction(() => typeof window.__startBenchGame === 'function', null, { timeout: 30000 });
+await page.waitForFunction(() => typeof window.__startBenchGame === 'function' && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
 
 // ── 1. The shape, straight out of `armyShape` ────────────────────────────────────────────────
 const shapes = await page.evaluate(async () => {

@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { startWorld, resolveOpening, FIRST_OPTION } from '../perf/_boot.mjs';
 const URL = process.env.DEV_URL ?? 'http://localhost:5179/';
-const OUT = 'output/verify-map-drag';
+const OUT = process.env.OUT ?? 'output/verify-map-drag';
 const browser = await chromium.launch({ headless: false });
 const results = [];
 await mkdir(OUT, { recursive: true });
@@ -30,7 +30,8 @@ try {
    }
    return { checked, mismatch, invalidBounds };
   });
-  await page.goto(URL); await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'));
+  const target=new globalThis.URL(URL);target.searchParams.set('bench','1');
+  await page.goto(target.href); await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'));
   await startWorld(page, { mode: 'ascent' }); await resolveOpening(page);
   await page.evaluate(() => { const s = window.__phaserGame.scene.getScene('ConquestScene'); s.state.isStrategyPause = true; for (const land of s.state.lands) { land.isVisible = true; land.isExplored = true; } s.refresh(); }); await settled();
   await page.evaluate(() => { const s = window.__phaserGame.scene.getScene('ConquestScene'); s.setMapZoom(.9); s.cameras.main.setScroll(500, 1050); }); await settled();
@@ -59,8 +60,8 @@ try {
    return { removed, retained, hidden, ordered, restored: s.ownershipTint.visible && s.ownershipRegions.has(land.id) };
   }); assert.ok(Object.values(ownership).every(Boolean), JSON.stringify(ownership));
   const season = await page.evaluate(async src => {
-   const { advanceAscentTick } = await import('/src/systems/ascent/AscentTick.ts');
-   const { resolveAscentPrompt } = await import('/src/systems/ascent/AscentResolver.ts');
+   const advanceAscentTick = window.__performanceBench ? () => window.__performanceBench.tick() : (await import('/src/systems/ascent/AscentTick.ts')).advanceAscentTick;
+   const resolveAscentPrompt = window.__performanceBench ? (_state, choice) => window.__performanceBench.resolve(choice) : (await import('/src/systems/ascent/AscentResolver.ts')).resolveAscentPrompt;
    const s = window.__phaserGame.scene.getScene('ConquestScene'), from = s.state.season, first = eval(src);
    for (let i = 0; i < 5 && s.state.season === from; i++) { let n = 0; while (s.state.pendingAscentPrompt && n++ < 20) resolveAscentPrompt(s.state, first(s.state.pendingAscentPrompt)); advanceAscentTick(s.state); }
    for (const land of s.state.lands) { land.isVisible = true; land.isExplored = true; }

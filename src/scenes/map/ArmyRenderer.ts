@@ -200,6 +200,7 @@ export class ArmyRenderer {
   private faceBadges = new Map<string, { heroId: string; badge: Phaser.GameObjects.GameObject }>();
   /** Live dust puffs, so they can be cleared without leaking tweens. */
   private dust: Phaser.GameObjects.Ellipse[] = [];
+  private idleDust: Phaser.GameObjects.Ellipse[] = [];
   /**
    * When each host last kicked up dust — **per host**, not one clock for the whole map.
    *
@@ -944,23 +945,10 @@ export class ArmyRenderer {
     // Cut again with the trail (see `DUST_LIFE_MS`): on screen these measured 20 to 52 points
     // across against a column eight points wide, which is not dust — it is a row of puddles. A
     // puff is now about a third of a man wide and half as dark as it was.
-    const puff = this.scene.add.ellipse(
-      x - 2 + Math.random() * 4,
-      // Kept low. Dust hangs at the ankles for a moment before it lifts.
-      y - 0.5 + Math.random() * 2,
-      3 + Math.random() * 2,
-      1.6 + Math.random() * 1,
-      // **Ink, not mountain.**
-      //
-      // `INK.mountain` is a muted sage (0x8a9883) laid over a cream map: correcting a puff that
-      // was too big by also making it fainter left dust the same value as the ground it sat on,
-      // which is invisible rather than subtle. The ground shadow under a host is `muc` at 0.07,
-      // so dust is the same pigment at rather more than double — a warm smudge that reads on
-      // parchment without becoming a blot.
-      DUST_INK,
-      0.18,
-    );
-    puff.setDepth(69);
+    const px=x-2+Math.random()*4, py=y-0.5+Math.random()*2;
+    const width=3+Math.random()*2, height=1.6+Math.random();
+    const puff=this.idleDust.pop()??this.scene.add.ellipse(0,0,width,height,DUST_INK,0.18);
+    puff.setPosition(px,py).setSize(width,height).setScale(1).setAlpha(1).setVisible(true).setActive(true).setDepth(69);
     this.dust.push(puff);
 
     this.scene.tweens.add({
@@ -973,8 +961,10 @@ export class ArmyRenderer {
       duration: DUST_LIFE_MS,
       ease: 'Quad.easeOut',
       onComplete: () => {
-        this.dust = this.dust.filter((item) => item !== puff);
-        puff.destroy();
+        const index=this.dust.indexOf(puff);if(index>=0)this.dust.splice(index,1);
+        puff.setVisible(false).setActive(false).setScale(1).setAlpha(1).setPosition(0,0);
+        puff.removeInteractive();
+        if(this.idleDust.length<32)this.idleDust.push(puff);else puff.destroy();
       },
     });
   }
@@ -1003,11 +993,11 @@ export class ArmyRenderer {
   }
 
   clearDust(): void {
-    for (const puff of this.dust) {
+    for (const puff of [...this.dust,...this.idleDust]) {
       this.scene.tweens.killTweensOf(puff);
       puff.destroy();
     }
-    this.dust = [];
+    this.dust = [];this.idleDust = [];
   }
 
   /** Kills tweens on a container and every nested descendant (e.g. the formation's

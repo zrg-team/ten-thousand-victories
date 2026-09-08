@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 
 const URL = process.env.DEV_URL ?? 'http://127.0.0.1:5180';
-const OUT = 'output/traveler-variants/runtime';
+const OUT = process.env.OUT ?? 'output/traveler-variants/runtime';
 mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
@@ -22,6 +22,10 @@ try {
   await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
   await page.evaluate(() => window.__startBenchGame(20260906, 'ascent'));
   await page.waitForFunction(() => window.__phaserGame?.scene.isActive('ConquestScene'), null, { timeout: 30000 });
+  // Reveal uses the yielding preparation queue. Inspect population after it is
+  // current, rather than racing the first incomplete settlement generation.
+  await page.evaluate(()=>{const s=window.__phaserGame.scene.getScene('ConquestScene');s.state.isPaused=true;s.ascentAccumulator=-1e9;for(const l of s.state.lands){l.isVisible=true;l.isExplored=true;}s.refresh();});
+  await page.waitForFunction(()=>{const p=window.__phaserGame.scene.getScene('ConquestScene').performanceStats();return !p.refreshPending&&!p.sceneryPending&&!p.ground.pending&&!p.fog.pending;},null,{timeout:180000});
   const audit = await page.evaluate(async () => {
     const s = window.__phaserGame.scene.getScene('ConquestScene');
     s.state.isPaused = true; s.ascentAccumulator = -1e9;
@@ -128,12 +132,18 @@ try {
     const { conquestTravelerArtId } = await import('/src/ui/conquestTravelerStyles.ts');
     const art = conquestTravelerArtId(17, 0);
     s.textures.remove(`conquest-art:${art}-walk`);
-    const a = s.mapItems.createTraveler(17, 0); const still = a.list[0].texture.key; a.destroy();
-    s.textures.remove(`conquest-art:${art}`);
-    const b = s.mapItems.createTraveler(17, 0); const original = b.list[0].texture.key; b.destroy();
-    return { art, still, original };
+    const a = s.mapItems.createTraveler(17, 0); const still = a.list[0].texture.key, frame = a.list[0].frame.name; a.destroy();
+    if(s.textures.exists(`conquest-art:${art}`))s.textures.remove(`conquest-art:${art}`);
+    // Authored stills now share an atlas. Simulate only this frame being absent;
+    // destroying the shared texture would invalidate every live traveller.
+    const atlas=s.textures.get(still),has=atlas.has;
+    if(still.startsWith('conquest-atlas:'))atlas.has=function(name){return name===frame?false:has.call(this,name);};
+    let original;
+    try{const b = s.mapItems.createTraveler(17, 0); original = b.list[0].texture.key; b.destroy();}
+    finally{atlas.has=has;}
+    return { art, still, frame, original };
   });
-  assert.equal(fallback.still, `conquest-art:${fallback.art}`, 'missing walk sheet falls back to matching still');
+  assert.ok(fallback.still===`conquest-art:${fallback.art}`||fallback.frame===`conquest-art:${fallback.art}`, 'missing walk sheet falls back to matching still or its atlas frame');
   assert.ok(fallback.original.startsWith('conquest-art:life.traveler-walk'), 'missing new art falls back to original traveller');
   assert.deepEqual(errors, []);
   writeFileSync(`${OUT}/audit.json`, JSON.stringify({ ...audit, fallback, errors,
