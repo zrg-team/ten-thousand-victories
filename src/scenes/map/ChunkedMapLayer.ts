@@ -8,10 +8,40 @@ type Source = Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Tran
 interface Part { source: Source; commands?: number[]; signature: string }
 interface Tile { key: string; target: Phaser.GameObjects.RenderTexture; image: Phaser.GameObjects.Image; bytes: number; used: number; visible: boolean; nearby: boolean; signature: string; owner: ChunkedMapLayer }
 interface Budget { tiles: Set<Tile>; pending: number; limit: number }
+/** A rectangle of the world, in design units. Structurally a `Phaser.Geom.Rectangle`, so one serves for both. */
+export interface WorldRect { x: number; y: number; width: number; height: number }
+/**
+ * Ground to keep under paper: its bounds, and when the caller has it, its actual outline — a
+ * province is a ragged hex region, and its bounding box reaches well into the neighbours it
+ * shares corners with. Paper in the shape of the province reads as the province gone dark,
+ * which in this theme is exactly what unexplored ground looks like; paper in the shape of a box
+ * reads as a hole in the picture.
+ */
+export interface ConcealRegion extends WorldRect { loops?: ReadonlyArray<ReadonlyArray<{ x: number; y: number }>> }
 const budgets = new WeakMap<Phaser.Scene, Budget>();
 const ids = new WeakMap<object, number>();
 let serial = 0;
 function id(object: object): number { let n = ids.get(object); if (!n) { n = ++serial; ids.set(object, n); } return n; }
+
+/**
+ * How much of a frame a band may spend while a cell IN VIEW has no imagery.
+ *
+ * The ordinary allowance is `mapWork`'s 3 ms a frame, shared between every band and the scene's
+ * own refresh — the right price for prefetch and for repainting under imagery that is still
+ * standing, and the wrong one for a hole in the picture: a frame that shows bare paper where the
+ * world should be is not a frame saved. Measured at 6x CPU throttle (`verify-map-blank`): a pan
+ * into unpainted ground and a context restore both left cells empty for as long as the 3 ms
+ * allowance took to fill them. At this budget the fill costs a few frames of a lower rate,
+ * which is the cheaper of the two.
+ */
+const VISIBLE_BOOST_MS = 24;
+
+const intersects = (a: WorldRect, b: WorldRect): boolean =>
+  a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+const intersection = (a: WorldRect, b: WorldRect): WorldRect => {
+  const x = Math.max(a.x, b.x), y = Math.max(a.y, b.y);
+  return { x, y, width: Math.min(a.x + a.width, b.x + b.width) - x, height: Math.min(a.y + a.height, b.y + b.height) - y };
+};
 
 /** One ground/fog band. Preparation and rasterisation both yield between bounded pieces. */
 export class ChunkedMapLayer {
@@ -29,8 +59,13 @@ export class ChunkedMapLayer {
   private disposed = false;
   private budget: Budget;
   private cover?: Phaser.GameObjects.Graphics;
-  private covered = false;
-  private awaitingConceal = false;
+  /**
+   * Ground that must stay hidden until its fog is current — provinces just lost, by rectangle.
+   * Armed by the `invalidate` that follows, and released tile by tile as imagery comes back.
+   */
+  private concealed: ConcealRegion[] = [];
+  /** Raised since the last invalidation and not yet armed; `concealSettled` takes these down whole. */
+  private concealPending: ConcealRegion[] = [];
   private blocked = false;
   private frameCosts: number[] = [];
   private builds = 0;
@@ -41,11 +76,11 @@ export class ChunkedMapLayer {
   private readonly tick = () => mapWork(this.scene, remaining => this.update(remaining));
   private readonly restored = () => { this.clearTiles(); this.invalidate(this.sources, this.width, this.height, this.scale); };
 
-  constructor(private scene: Phaser.Scene, private depth: number, private conservative = false) {
+  constructor(private scene: Phaser.Scene, private depth: number) {
     let budget = budgets.get(scene);
     if (!budget) { budget = { tiles: new Set(), pending: 0, limit: (getGraphicsQuality() === 'high' ? 96 : 64) * 1048576 }; budgets.set(scene, budget); }
     this.budget = budget;
-    this.stopBudget = registerMapWork(scene, () => !!this.prepare || !!this.paint || this.pendingWork || this.lastPose !== this.pose());
+    this.stopBudget = registerMapWork(scene, () => !!this.prepare || !!this.paint || this.pendingWork || this.concealed.length > 0 || this.lastPose !== this.pose());
     budget.limit = (getGraphicsQuality() === 'high' ? 96 : 64) * 1048576;
     scene.events.on(Phaser.Scenes.Events.UPDATE, this.tick);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.destroy());
@@ -60,20 +95,55 @@ export class ChunkedMapLayer {
     const nextScale = Math.min(scale, (maxTextureSize(this.scene) - 4) / SIZE);
     if (nextScale !== this.scale) this.clearTiles();
     this.scale = nextScale;
-    this.invalidations++; this.awaitingConceal = false;
-    if (this.conservative) {
-      this.cover ??= this.scene.add.graphics().setDepth(this.depth + 0.001).setData('mapChunk', true);
-      if (this.tiles.size === 0 || this.covered) this.conceal(false);
-    }
+    this.invalidations++;
+    // The regions raised for this repaint are now the repaint's to release: each stands until
+    // every tile under it has been painted from the plans prepared below.
+    this.concealed.push(...this.concealPending); this.concealPending = [];
     this.prepare = this.preparePlans();
+    this.paintCover();
   }
 
-  /** Called before a queued visibility loss, so old cached imagery cannot leak information. */
-  conceal(awaitInvalidation = true): void {
-    this.awaitingConceal = awaitInvalidation;
-    this.covered = true;
-    this.cover?.clear().fillStyle(0xe9dfc2, 1).fillRect(0, 0, this.width, this.height).setVisible(true);
+  /**
+   * Hides ground until its fog has been re-inked.
+   *
+   * Raised by the scene the moment a province drops out of sight — before the fog Graphics has
+   * been repainted, let alone re-planned — so the imagery standing over it, which shows the
+   * province as it was, cannot outlive the refresh. What this used to do was cover the WHOLE
+   * world in opaque paper and release that cover only once a later `invalidate` had been fully
+   * painted out. Two faults, one screen: the ground, the towns and the armies vanished under the
+   * fog band for the length of every repaint; and a conceal that no invalidation followed — a
+   * hostile host's sighting going dark, then lit again before the refresh read its signatures —
+   * left the sheet blank until some unrelated fog change came along. Measured at 6x CPU throttle
+   * (`verify-map-blank`): the entire map paper for the whole of a 900-frame sample.
+   *
+   * A conceal now names the ground it is about. The rectangles stand whole until the next
+   * `invalidate` arms them, then only over tiles not yet painted from the current plans, and
+   * `concealSettled` takes them down when the refresh that raised them found nothing to re-ink.
+   * No region means the whole world — kept for a caller that cannot say where, and never what
+   * the map itself asks for.
+   */
+  conceal(regions?: readonly ConcealRegion[], awaitInvalidation = true): void {
+    if (this.disposed) return;
+    const rects: ConcealRegion[] = regions && regions.length > 0
+      ? regions.map(region => ({ ...region }))
+      : [{ x: 0, y: 0, width: this.width, height: this.height }];
+    (awaitInvalidation ? this.concealPending : this.concealed).push(...rects);
+    this.cover ??= this.scene.add.graphics().setDepth(this.depth + 0.001).setData('mapChunk', true);
+    this.paintCover();
   }
+
+  /**
+   * The refresh that raised a conceal re-read the state and found the fog unchanged: what is
+   * standing is current, and the cover has nothing left to hide.
+   */
+  concealSettled(): void {
+    if (this.concealPending.length === 0) return;
+    this.concealPending = [];
+    this.paintCover();
+  }
+
+  /** How many concealed regions are standing, armed or not. */
+  concealedCount(): number { return this.concealed.length + this.concealPending.length; }
 
   private *preparePlans(): Generator<void> {
     const plans = new Map<string, Part[]>();
@@ -115,6 +185,8 @@ export class ChunkedMapLayer {
     return new Phaser.Geom.Rectangle(x * SIZE, y * SIZE, Math.min(SIZE, this.width - x * SIZE), Math.min(SIZE, this.height - y * SIZE));
   }
   private signature(parts: Part[]): string { return parts.map(part => part.signature).join('|'); }
+  /** Whether the tile standing on a cell was painted from the current plans. */
+  private isCurrent(key: string): boolean { return this.tiles.get(key)?.signature === this.planSignatures.get(key); }
   private release(tile: Tile): void {
     tile.image.destroy(); tile.target.texture.destroy(); tile.target.destroy(); this.tiles.delete(tile.key); this.budget.tiles.delete(tile);
     this.pendingWork = true;
@@ -133,6 +205,71 @@ export class ChunkedMapLayer {
     return false;
   }
 
+  /**
+   * The cells in view with nothing right to show: no tile at all, or a concealed cell whose
+   * imagery is still on its way. These are the frames worth spending real time on.
+   */
+  private visibleDeficit(): number {
+    const view = this.view();
+    const planned = !this.prepare;
+    let count = 0;
+    for (const key of this.plans.keys()) {
+      const box = this.rectangle(key);
+      if (!intersects(box, view)) continue;
+      const tile = this.tiles.get(key);
+      if (!tile) { count++; continue; }
+      if (this.concealed.some(region => intersects(region, box)) && (!planned || !this.isCurrent(key))) count++;
+    }
+    return count;
+  }
+
+  /**
+   * Redraws the paper over concealed ground: pending regions whole, armed regions only while a
+   * tile beneath is not yet painted from the current plans. While plans are being prepared every
+   * armed region is drawn whole, because the OLD plan's signatures would pass every tile.
+   *
+   * A region with an outline is drawn as that outline for as long as any tile under it is stale;
+   * a bare rectangle is clipped to the stale tiles. The outline is not clipped because a province
+   * is one shape to the eye, and half a province in paper reads as a fault rather than as fog.
+   */
+  private paintCover(): void {
+    const cover = this.cover;
+    if (!cover) return;
+    cover.clear();
+    let drawn = 0;
+    const fill = (region: WorldRect): void => {
+      if (region.width <= 0 || region.height <= 0) return;
+      cover.fillRect(region.x, region.y, region.width, region.height);
+      drawn++;
+    };
+    const outline = (region: ConcealRegion): void => {
+      for (const loop of region.loops ?? []) {
+        if (loop.length < 3) continue;
+        cover.fillPoints(loop as Array<{ x: number; y: number }>, true);
+        drawn++;
+      }
+    };
+    const whole = (region: ConcealRegion): void => { if (region.loops) outline(region); else fill(region); };
+    cover.fillStyle(0xe9dfc2, 1);
+    for (const region of this.concealPending) whole(region);
+    const planned = !this.prepare;
+    for (const region of this.concealed) {
+      if (!planned) { whole(region); continue; }
+      const stale = [...this.plans.keys()].filter(key => intersects(this.rectangle(key), region) && !this.isCurrent(key));
+      if (stale.length === 0) continue;
+      if (region.loops) { outline(region); continue; }
+      for (const key of stale) fill(intersection(this.rectangle(key), region));
+    }
+    cover.setVisible(drawn > 0);
+  }
+
+  /** An armed region comes down once every tile under it is current — offscreen ones included, so a stale tile the camera reaches later is still covered until it is repainted. */
+  private releaseConcealed(): void {
+    if (this.prepare || this.concealed.length === 0) return;
+    const keys = [...this.plans.keys()];
+    this.concealed = this.concealed.filter(region => keys.some(key => intersects(this.rectangle(key), region) && !this.isCurrent(key)));
+  }
+
   private *paintTile(key: string, parts: Part[]): Generator<void> {
     const renderer = this.scene.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer;
     if (renderer.contextLost || renderer.gl.isContextLost()) return;
@@ -145,7 +282,13 @@ export class ChunkedMapLayer {
     const mipmapped = powerOfTwo(textureWidth) && powerOfTwo(textureHeight);
     const bytes = Math.ceil(textureWidth * textureHeight * 4 * (mipmapped ? 4 / 3 : 1));
     const visible = Phaser.Geom.Intersects.RectangleToRectangle(box, this.view());
-    if (!this.room(bytes, visible)) { this.blocked = true; this.pendingWork = visible; return; }
+    if (!this.room(bytes, visible)) {
+      // The tile this one replaces is the one thing the budget can always give back. Only for a
+      // cell in view: a prefetch that evicts the imagery it is refreshing shows paper for nothing.
+      const old = visible ? this.tiles.get(key) : undefined;
+      if (old) this.release(old);
+      if (!old || !this.room(bytes, visible)) { this.blocked = true; this.pendingWork = visible; return; }
+    }
     this.budget.pending += bytes;
     let target: Phaser.GameObjects.RenderTexture | undefined;
     let scratch: Phaser.GameObjects.Graphics | undefined;
@@ -199,7 +342,9 @@ export class ChunkedMapLayer {
       tile.nearby = Phaser.Geom.Intersects.RectangleToRectangle(this.rectangle(tile.key), nearby);
       tile.image.setVisible(tile.visible); if (tile.visible) tile.used = this.clock;
     }
-    while (!this.blocked && performance.now() - started < budgetMs) {
+    // A hole in the picture outranks the frame budget — see `VISIBLE_BOOST_MS`.
+    const allowed = this.visibleDeficit() > 0 ? Math.max(budgetMs, VISIBLE_BOOST_MS) : budgetMs;
+    while (!this.blocked && performance.now() - started < allowed) {
       if (this.prepare) { if (this.prepare.next().done) this.prepare = undefined; else continue; }
       if (this.paint) {
         if (this.paint.next().done) { this.paint = undefined; this.paintingKey = undefined; } else continue;
@@ -220,31 +365,21 @@ export class ChunkedMapLayer {
       }
       this.paintingKey = candidates[0][0]; this.paint = this.paintTile(...candidates[0]);
     }
-    // On a pan, an unbuilt fog cell must never expose the map beneath it. Covers are
-    // interiors only and remain opaque until the replacement is committed.
-    if (this.conservative && this.cover) {
-      this.cover.clear().fillStyle(0xe9dfc2, 1);
-      if (this.awaitingConceal || (this.prepare && this.covered)) this.cover.fillRect(0, 0, this.width, this.height);
-      else for (const [key, parts] of this.plans) {
-        const box = this.rectangle(key);
-        // A visibility loss may have happened while this tile was offscreen. Even after
-        // the previous viewport settled, its stale cached fog cannot be trusted on a pan.
-        if (Phaser.Geom.Intersects.RectangleToRectangle(box, view) && this.tiles.get(key)?.signature !== this.planSignatures.get(key)) {
-          this.cover.fillRect(box.x, box.y, box.width, box.height);
-        }
-      }
-      this.cover.setVisible(true);
-      if (!this.awaitingConceal && !this.prepare && !this.paint && [...this.plans].every(([key]) => !Phaser.Geom.Intersects.RectangleToRectangle(this.rectangle(key), view) || this.tiles.get(key)?.signature === this.planSignatures.get(key))) this.covered = false;
-    }
+    // Concealed ground: an armed region stands only over tiles that are not yet current, and comes
+    // down when none are left — a stale tile the camera has not reached keeps its region standing.
+    this.releaseConcealed();
+    this.paintCover();
     if (budgetMs < 100) this.frameCosts.push(performance.now() - started);
     if (this.frameCosts.length > 600) this.frameCosts.shift();
   }
 
   /** Initial map construction and deterministic screenshots may finish the visible area before exposing it. */
   flush(): void { this.update(30_000); }
-  stats(): { tiles: number; bytes: number; pending: boolean; builds: number; invalidations: number; maxWorkMs: number } {
+  stats(): { tiles: number; bytes: number; pending: boolean; deficit: number; concealed: number; builds: number; invalidations: number; maxWorkMs: number } {
     return { tiles: this.tiles.size, bytes: [...this.budget.tiles].reduce((sum, tile) => sum + tile.bytes, this.budget.pending),
-      pending: !!this.prepare || !!this.paintingKey || [...this.plans].some(([key]) => Phaser.Geom.Intersects.RectangleToRectangle(this.rectangle(key), this.view()) && this.tiles.get(key)?.signature !== this.planSignatures.get(key)), builds: this.builds, invalidations: this.invalidations, maxWorkMs: Math.max(0, ...this.frameCosts) };
+      pending: !!this.prepare || !!this.paintingKey || [...this.plans].some(([key]) => Phaser.Geom.Intersects.RectangleToRectangle(this.rectangle(key), this.view()) && this.tiles.get(key)?.signature !== this.planSignatures.get(key)),
+      deficit: this.visibleDeficit(), concealed: this.concealedCount(),
+      builds: this.builds, invalidations: this.invalidations, maxWorkMs: Math.max(0, ...this.frameCosts) };
   }
   destroy(): void {
     if (this.disposed) return;

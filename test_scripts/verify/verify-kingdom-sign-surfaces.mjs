@@ -1,0 +1,65 @@
+import { chromium } from 'playwright';
+import { mkdirSync, writeFileSync } from 'node:fs';
+const out = 'output/kingdom-signs'; mkdirSync(out, { recursive: true });
+const browser = await chromium.launch(), errors = [], checks = [];
+const check = (ok, name, detail) => { checks.push({ ok, name, detail }); console.log(`${ok ? 'PASS' : 'FAIL'} ${name}`); };
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+page.on('pageerror', e => errors.push(e.message));
+page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+await page.goto(`${process.env.DEV_URL ?? 'http://127.0.0.1:5183'}/?capture=1&noladder=1&layout=desktop`);
+await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'));
+const gallery = await page.evaluate(async () => {
+  const { setDynastyFounder } = await import('/src/state/dynasty.ts');
+  const { rollFounder } = await import('/src/ui/faces/kingLook.ts');
+  const { DYNASTY_SIGNS } = await import('/src/data/dynastySigns.ts');
+  const { drawHouseSeal, drawHouseSign, drawHouseBanner } = await import('/src/ui/ascent/houseBanner.ts');
+  const { createPlayerLandFlag } = await import('/src/ui/playerFlag.ts');
+  const { InkMapItemRenderer } = await import('/src/ui/InkMapItemRenderer.ts');
+  const { AtlasMapItemRenderer } = await import('/src/ui/AtlasMapItemRenderer.ts');
+  const { DongHoMapItemRenderer } = await import('/src/ui/DongHoMapItemRenderer.ts');
+  const { ILLUSTRATED_ATLAS_THEME } = await import('/src/ui/mapTheme.ts');
+  const m = window.__phaserGame.scene.getScene('MenuScene');
+  m.children.removeAll(true); m.cameras.main.setZoom(1).setScroll(0, 0);
+  const w = m.scale.width, h = m.scale.height, results = [];
+  m.add.rectangle(0, 0, w, h, 0xefe4c8).setOrigin(0);
+  const f = rollFounder(0, () => 0.7);
+  const collect = root => { const found = []; const visit = o => { for(const k of ['houseSign','houseBanner','houseSeal']) if(o.getData(k)) found.push(o.getData(k)); o.list?.forEach(visit); }; visit(root); return found; };
+  DYNASTY_SIGNS.forEach((emblem, i) => {
+    const sign = { field: 0x26313c, trim: 0xf3e6c4, emblem };
+    f.banner = sign; setDynastyFounder(f, 'Lê');
+    const x = (i % 4 + 0.1) * w / 4, y = (Math.floor(i / 4) + 0.3) * h / 4;
+    drawHouseSeal(m, sign, 48).setPosition(x + 28, y + 30);
+    drawHouseSign(m, sign, 64, 64).setPosition(x + 76, y);
+    drawHouseBanner(m, sign, 66, 82).setPosition(x + 157, y - 7);
+    const flag = createPlayerLandFlag(m, false, i * 33).setPosition(x + 257, y + 65);
+    results.push(collect(flag).every(s => s.emblem === emblem && s.field === sign.field && s.trim === sign.trim));
+    m.add.text(x + 25, y + 100, emblem, { fontSize: '22px', color: '#30251d' });
+  });
+  f.banner = { field: 0x26313c, trim: 0xf3e6c4, emblem: 'blade' }; setDynastyFounder(f, 'Lê');
+  const themes = [new InkMapItemRenderer(m), new AtlasMapItemRenderer(m, ILLUSTRATED_ATLAS_THEME), new DongHoMapItemRenderer(m)];
+  const themeMarks = themes.map(renderer => { const marker = renderer.createArmyMarker(500, true, 0xff0000, 99); const marks = collect(marker); marker.destroy(true); return marks; });
+  return { allFlags: results.length === 16 && results.every(Boolean), themeMarks };
+});
+check(gallery.allFlags, 'all 16 saved designs reach the map flag without seed substitution');
+check(gallery.themeMarks.every(m => m.length && m.every(s => s.emblem === 'blade' && s.field === 0x26313c && s.trim === 0xf3e6c4)), 'player army identity matches in all three map themes');
+await page.waitForTimeout(150); await page.screenshot({ path: `${out}/shared-designs.png` });
+
+// A real battle exercises the planted standards and the desktop royal-scroll seal.
+await page.evaluate(() => { const g = window.__phaserGame; g.scene.stop('MenuScene'); g.scene.start('BattleArenaScene'); });
+await page.waitForTimeout(700);
+await page.evaluate(() => { const s = window.__phaserGame.scene.getScene('BattleArenaScene'); s.ourMen = 1500; s.theirMen = 1500; s.startFight(); });
+await page.waitForFunction(() => window.__phaserGame.scene.getScene('ConquestUIScene')?.openPromptKey === 'lane:battle');
+await page.waitForTimeout(1600);
+const battle = await page.evaluate(() => {
+  const ui = window.__phaserGame.scene.getScene('ConquestUIScene'), marks = [], flags = [];
+  const visit = o => { if(o.getData('houseSeal')) marks.push(o.getData('houseSeal')); if(o.getData('playerStandard')) flags.push(o.getData('playerStandard')); o.list?.forEach(visit); };
+  visit(ui.modalLayer);
+  return { marks, flags };
+});
+check(battle.marks.length > 0 && battle.flags.length > 0 && [...battle.marks, ...battle.flags].every(s => s.emblem === 'blade' && s.field === 0x26313c && s.trim === 0xf3e6c4), 'actual battle seal and planted player standard match the saved sword', battle);
+await page.screenshot({ path: `${out}/battle.png` });
+writeFileSync(`${out}/battle-state.json`, await page.evaluate(() => window.render_game_to_text()));
+await browser.close();
+check(errors.length === 0, 'no browser errors', errors);
+writeFileSync(`${out}/surfaces-results.json`, JSON.stringify({ checks, errors }, null, 2));
+process.exit(checks.some(c => !c.ok) ? 1 : 0);

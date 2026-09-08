@@ -136,10 +136,11 @@ export function create(self: MenuScene): void {
     forgetSheet(self.modalLayer);
   });
   // After the page, never before it: every rectangle the tour points at is a measured one.
-  if (self.mode === 'main' && !hasSeenTour()) {
+  if (self.mode === 'main' && (self.replayCopilot || !hasSeenTour())) {
     if (self.menuOpening) {
       self.menuOpening.afterOpen = () => {
-        if (self.scene.isActive() && self.mode === 'main' && !self.copilot && !hasSeenTour()) startTour(self);
+        if (self.scene.isActive() && self.mode === 'main' && !self.copilot
+          && (self.replayCopilot || !hasSeenTour())) startTour(self);
       };
     } else startTour(self);
   }
@@ -166,6 +167,7 @@ export function create(self: MenuScene): void {
  * scene it was touring would be a tour component that could only ever tour one.
  */
 function startTour(self: MenuScene): void {
+  self.replayCopilot = false;
   const steps: CopilotStep[] = [
     // The first card offers the language, because it is the first thing anybody sees and it is
     // shown in whatever the browser defaulted to. The front page's own switch is at the foot of

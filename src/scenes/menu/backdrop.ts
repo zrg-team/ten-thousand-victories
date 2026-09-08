@@ -179,10 +179,10 @@ function drawDongHoIllustration(self: MenuScene): void {
     .setDepth(-8)
     .setData('menuLandscapeRole', 'illustration')
     .setData('menuArtwork', {
-      version: 13,
+      version: 14,
       layers: ['ground', 'mountains', 'mountain-mist', 'river-fx', 'bamboo', 'lotus'],
       composition: ['karst-mountains', 's-curve-river', 'foreground-lotus', 'right-bank-paddies', 'right-bank-bamboo-grove'],
-      motion: ['mountain-drift', 'mountain-mist', 'bamboo-breeze', 'lotus-sway', 'pointer-lotus-spring', 'river-surface-flow', 'lotus-water-wakes', 'lotus-idle-swell', 'tap-and-drag-wakes'],
+      motion: ['mountain-drift', 'mountain-mist', 'bamboo-breeze', 'lotus-sway', 'pointer-lotus-spring', 'masked-river-refraction', 'river-surface-flow', 'lotus-water-wakes', 'lotus-idle-swell', 'tap-and-drag-wakes'],
       width,
       height,
     });

@@ -41,7 +41,7 @@ import type { ConquestUIScene } from '../../ConquestUIScene';
  * every administrative prompt in the mode. This is the run's central reward moment, so the
  * cards are now real card faces (baked once per `(id, level)` — see `cardFace.ts`, and the perf
  * ledger's warning about live Graphics), held across the bottom third the way a hand is held:
- * tap to raise, tap the raised card to take. The reroll and skip stay in the footer, and the
+ * tap to raise, swipe up or double-tap to take. The reroll and skip stay in the footer, and the
  * prompt bus and resolver are untouched — a reroll re-renders through `promptSignature` exactly
  * as before.
  *
@@ -67,7 +67,7 @@ export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentProm
   // (~30 units around fanTop−40) and, above it, the gesture hint's. Sized apart or the pill
   // prints straight over the hint whenever the raised card sits mid-screen.
   const hint = self.add.text(content.x + content.width / 2, 0, t('ascent.draft.fanHint'), {
-    color: '#6f6250', fontFamily: UI_FONT, fontSize: '10px', align: 'center',
+    color: '#604b2d', fontFamily: UI_FONT, fontSize: '11px', fontStyle: '700', align: 'center',
     wordWrap: { width: content.width - 8 },
   }).setOrigin(0.5, 1);
   // Reserve the measured hint above the highest edge of the floating take button.

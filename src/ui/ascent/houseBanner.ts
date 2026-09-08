@@ -4,6 +4,20 @@ import { getDynasty, type DynastyBanner } from '../../state/dynasty';
 import { ROYAL_HOUSES } from '../faces/kingLook';
 import { BANNER_EMBLEM_SIZE, drawBannerEmblem } from './bannerEmblems';
 
+/** The same designed motif pressed as a square seal on the menu's royal document. */
+export function drawHouseSeal(scene: Phaser.Scene, sign: DynastyBanner, size: number): Phaser.GameObjects.Container {
+  const root = scene.add.container(0, 0).setRotation(-0.06)
+    .setData('houseSeal', { ...sign, size }).setSize(size, size);
+  const half = size / 2;
+  const g = scene.add.graphics().fillStyle(sign.field, 0.95).fillRect(-half, -half, size, size);
+  g.lineStyle(0.8, sign.trim, 0.75).strokeRect(-half + 1.5, -half + 1.5, size - 3, size - 3);
+  root.add(g);
+  root.add(drawBannerEmblem(scene, sign.emblem, sign.trim,
+    luma(sign.trim) > 140 ? INK_UI.brush : 0xf3e6c4, sign.field)
+    .setScale(size * 0.75 / BANNER_EMBLEM_SIZE));
+  return root;
+}
+
 /** The same dynasty sign mounted on a ceremonial flag. */
 export function drawHouseBanner(
   scene: Phaser.Scene,

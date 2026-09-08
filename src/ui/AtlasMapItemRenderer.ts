@@ -6,6 +6,7 @@ import type { MapThemeDefinition, MapThemePalette } from './mapTheme';
 import { IsoBuildingRenderer } from './IsoBuildingRenderer';
 import { SoldierRenderer } from './SoldierRenderer';
 import { createPlayerLandFlag } from './playerFlag';
+import { drawHouseSign, houseBanner } from './ascent/houseBanner';
 import type { HostKit } from './ink/devices';
 
 /**
@@ -130,7 +131,7 @@ export class AtlasMapItemRenderer implements MapItemRenderer {
     // Rivals fly their own colours so two empires on the map are told apart at a glance; the
     // player keeps the theme's player hue plus the ring added below.
     const bannerColor = isPlayer
-      ? this.colors.mapObjects.player
+      ? houseBanner().field
       : (kingdomColor ?? this.colors.mapObjects.rival);
     const graphics = this.scene.add.graphics();
     if (isPlayer) {
@@ -146,12 +147,13 @@ export class AtlasMapItemRenderer implements MapItemRenderer {
     graphics.lineStyle(1.6, this.colors.ink, 0.9);
     graphics.lineBetween(-13, -15, -13, -2);
     graphics.fillStyle(bannerColor, 0.96);
-    graphics.fillTriangle(-13, -28, 2, -24, -13, -19);
+    if (!isPlayer) graphics.fillTriangle(-13, -28, 2, -24, -13, -19);
     const text = this.scene.add.text(0, -23, compactNumber(total), {
       color: '#31241b', fontSize: '10px', fontStyle: '700',
     }).setOrigin(0.5);
     const formation = this.soldiers.createFormation(isPlayer, 12);
     container.add([graphics, text, formation]);
+    if (isPlayer) container.add(drawHouseSign(this.scene, houseBanner(), 18, 18).setPosition(-43, -31));
     return container;
   }
 

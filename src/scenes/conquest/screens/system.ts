@@ -15,7 +15,7 @@ import { heroTemplates } from '../../../data/heroes';
 import { heroName, heroTypeLabel, rarityLabel, t } from '../../../i18n';
 import { LANE_FOOTER_HEIGHT, RARITY_COLOR } from '../constants';
 import { canQuitShell, quitShell } from '../../../platform/shell';
-import { saveSnapshot } from '../../../state/save';
+import { clearFinishedRunSaves, endSaveSession, saveSnapshot } from '../../../state/save';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 
 
@@ -130,7 +130,12 @@ export function showSystemMenu(self: ConquestUIScene): void {
   // worse than no row. The reign is written down first, exactly as "save and exit" writes it.
   if (canQuitShell()) {
     item(t('ascent.sys.quit'), 'secondary', () => {
-      saveSnapshot(self.state);
+      if (!self.state.ascent?.arena && !clearFinishedRunSaves(self.state) && !saveSnapshot(self.state)) {
+        self.state.message = t('msg.saveUnavailable');
+        self.closeLane();
+        return;
+      }
+      endSaveSession(self.state);
       quitShell();
     });
   }

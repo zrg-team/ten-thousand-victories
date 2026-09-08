@@ -45,7 +45,7 @@ export interface DynastyFounder {
    * `choice` rides along only so the Temple can reopen the steppers where they were left.
    */
   look?: DynastyLook;
-  /** Two colours and a mark — the house's chrome, never a map-flag system. */
+  /** Two colours and a mark shared by the house's seals, banners and player standards. */
   banner?: DynastyBanner;
   /**
    * The era the *forces* are styled in, taken from the họ. Decoupled from `era`, which is the

@@ -33,7 +33,7 @@ import type { MenuScene } from '../MenuScene';
 export function drawDriftingLeaves(self: MenuScene): void {
   // Quality buys leaves and nothing else — each is static geometry moved by a transform, so the
   // per-frame cost is the same three numbers whatever it looks like.
-  const count = getGraphicsQuality() === 'low' ? 3 : 6;
+  const count = getGraphicsQuality() === 'low' ? 6 : 12;
   for (let index = 0; index < count; index += 1) {
     const random = mulberry32(4_700 + index * 613);
     const blade = self.add.graphics()

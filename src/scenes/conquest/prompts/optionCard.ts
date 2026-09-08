@@ -12,6 +12,7 @@
 import Phaser from 'phaser';
 import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type UIBounds } from '../../../ui/InkUI';
 import { CARD_ICON_SIZE, drawCardIcon, type CardIconId } from '../../../ui/CardIcons';
+import { addStoryChoiceIcon, isStoryChoiceIcon, STORY_CHOICE_ICON_SIZE } from '../../../ui/storyChoiceIcons';
 import { UI_FONT } from '../../../ui/fonts';
 import { soundDirector } from '../../../ui/sound/SoundDirector';
 import { BADGE_CLEARANCE, ICON_GUTTER, cssHex } from '../constants';
@@ -53,6 +54,8 @@ export function optionCard(self: ConquestUIScene,
     reserveRight?: number;
     /** Glyph drawn in a left gutter. Resolved from the option id by `iconForOption`. */
     icon?: CardIconId;
+    /** Story choices share generated motifs with the held decisions in the Chronicle. */
+    iconArt?: 'story';
     accent: number;
     /**
      * Tints the whole card face with the accent at this alpha. Rarity's second voice: the
@@ -77,7 +80,9 @@ export function optionCard(self: ConquestUIScene,
   // A glyph shifts the whole text column right rather than overlapping it, so a card
   // with an icon wraps exactly as one without it does — the auto-fit height logic below
   // depends on the measured text being honest.
-  const gutter = opts.icon ? ICON_GUTTER : 0;
+  const storyIcon = opts.icon && opts.iconArt === 'story' && isStoryChoiceIcon(opts.icon) ? opts.icon : undefined;
+  // Reserve the same room even if an optional atlas download fails.
+  const gutter = storyIcon ? STORY_CHOICE_ICON_SIZE + 12 : opts.icon ? ICON_GUTTER : 0;
   const textX = 16 + gutter;
   const textWidth = bounds.width - 32 - gutter - (opts.reserveRight ?? 0);
 
@@ -122,7 +127,7 @@ export function optionCard(self: ConquestUIScene,
     : undefined;
   const noteHeight = noteText ? noteText.height + 8 : 0;
   const contentBottom = bodyText.y + bodyText.height + 10 + noteHeight;
-  const height = Math.max(bounds.height, contentBottom);
+  const height = Math.max(bounds.height, contentBottom, storyIcon ? STORY_CHOICE_ICON_SIZE + 20 : 0);
 
   if (noteText) {
     noteText.setY(height - noteHeight);
@@ -154,8 +159,14 @@ export function optionCard(self: ConquestUIScene,
   }
 
   if (opts.icon) {
-    const glyph = drawCardIcon(self, opts.icon, opts.accent);
-    glyph.setPosition(16 + CARD_ICON_SIZE / 2, height / 2).setAlpha(alpha);
+    const size = storyIcon ? STORY_CHOICE_ICON_SIZE : CARD_ICON_SIZE;
+    let glyph: Phaser.GameObjects.Image | Phaser.GameObjects.Container | undefined = storyIcon
+      ? addStoryChoiceIcon(self, storyIcon) : undefined;
+    if (!glyph) {
+      glyph = drawCardIcon(self, opts.icon, opts.accent).setScale(size / CARD_ICON_SIZE);
+      if (storyIcon) glyph.setData('storyChoiceIcon', { id: storyIcon, source: 'procedural-fallback' });
+    }
+    glyph.setPosition(16 + size / 2, height / 2).setAlpha(alpha);
     container.addAt(glyph, 2);
   }
 

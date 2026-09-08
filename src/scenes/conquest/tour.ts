@@ -45,6 +45,7 @@ export function maybeRunTour(self: ConquestUIScene, hidden: boolean): void {
    * bar or the clock, and none of that is visible behind a card — those wait.
    */
   const stage = tourStages(self).find((candidate) => !self.tourStagesShown.has(candidate.id)
+    && (!self.state.ascent?.arena || candidate.id === 'fight')
     && (candidate.overCard || !hidden)
     && candidate.when());
   if (!stage) return;

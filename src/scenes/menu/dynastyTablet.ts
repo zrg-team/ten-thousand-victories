@@ -10,7 +10,7 @@ import { dynastyFounderHero } from '../../ui/dynastyPortrait';
 import { renderHeroFaceInBox } from '../../ui/FaceRenderer';
 import { t } from '../../i18n';
 import { INK_UI } from '../../ui/InkUI';
-import { seal } from '../../ui/ink/devices';
+import { drawHouseSeal, houseBanner } from '../../ui/ascent/houseBanner';
 import { motionMs } from '../../game/lifeSettings';
 import { drawHatch } from './helpers';
 import type { MenuScene } from '../MenuScene';
@@ -353,12 +353,11 @@ export function renderDynastyTablet(self: MenuScene, x: number, y: number, width
      * that fidgets. Killed in `clearContent`: a repeating tween left running against a destroyed
      * graphic either throws or lands an alpha on a recycled object.
      */
-    const stamp = self.add.graphics();
     // Top corner, the way a seal is pressed onto a document — and clear of the line beneath it,
     // which is where the first pass put the two on top of each other.
     // Centred on a compact board — at 15 it was pressed into the top rule and clipped by it.
-    seal(stamp, width - 26, merged ? Math.round(height / 2) : tight ? 19 : 21,
-      merged ? 20 : tight ? 22 : 24, 'lotus');
+    const stamp = drawHouseSeal(self, houseBanner(), merged ? 20 : tight ? 22 : 24)
+      .setPosition(width - 26, merged ? Math.round(height / 2) : tight ? 19 : 21);
     tablet.add(stamp);
     self.dynastyPulse?.remove();
     self.dynastyPulse = self.tweens.add({

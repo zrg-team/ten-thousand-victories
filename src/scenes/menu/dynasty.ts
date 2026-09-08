@@ -117,7 +117,7 @@ export function renderDynastySheet(self: MenuScene): void {
   const legacy = getLegacy();
   const PAD = 20;
   const W = GAME_WIDTH - PAD * 2;
-  const bodyTop = renderDynastyTitleBar(self);
+  const bodyTop = renderDynastyTitleBar(self, t('dynasty.title'), false);
 
   // Never played: the page says what it would hold rather than a column of zeroes.
   if (store.reigns === 0 && !store.liveReign) {

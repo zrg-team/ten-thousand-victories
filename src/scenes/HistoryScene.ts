@@ -1,9 +1,9 @@
-import { preloadStoryPrints } from '../ui/storyPrint';
+import { loadPageAssets, showPageLoading } from '../ui/pageLoading';
 import { preloadConquestMapArt } from '../ui/conquestMapArt';
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
+import { GAME_HEIGHT, GAME_WIDTH, surfaceWidth } from '../game/constants';
 import { applyRenderScale, designPointer } from '../game/graphicsQuality';
-import { heroBio, heroName, heroTypeLabel, t } from '../i18n';
+import { getLanguage, heroBio, heroName, heroTypeLabel, t } from '../i18n';
 import { historyText } from '../i18n/history';
 import { storyCatalogIds, storyTitle } from '../i18n/story';
 import type { EraRule, HistoryEra } from '../data/history';
@@ -27,7 +27,6 @@ import { BACK_BAR_BAND, BACK_BAR_HEIGHT, InkUI, INK_UI, INK_UI_HEX, type InkScro
 import { scrollGestureConsumedTap } from '../ui/InkUI';
 import { createMapRenderer, type MapRenderer } from '../ui/MapRenderer';
 import { renderHeroFaceInBox } from '../ui/FaceRenderer';
-import { applyPaperFX } from '../ui/ink/PaperFX';
 import { inkPath } from '../ui/ink/stroke';
 import { armyShape, clearPlate, type FigureArm, type FigureTier } from '../ui/ink/devices';
 import { bucketFor, figurePlaceScale, figureStamp, stampedArmy } from '../ui/ink/figureStamps';
@@ -36,7 +35,8 @@ import { PIGMENT } from '../ui/ink/palette';
 import type { ArmyComposition, ArmyWardrobe } from '../state/types';
 import { RULE_COLOUR } from '../ui/ink/eraRule';
 import { TITLE_FONT, UI_FONT } from '../ui/fonts';
-import { attachPagePaper } from '../ui/ink/paperSheet';
+import { LAYOUT_RESIZED } from '../game/desktopResize';
+import { isDesktopLayout } from '../platform/layout';
 import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
 
 type HistoryTab = 'dynasties' | 'figures' | 'stories' | 'army' | 'terms';
@@ -79,9 +79,7 @@ const MAX_PLATE_UPSCALE = 2.1;
 
 const ARMY_PLATE_MEN = 2420;
 
-const SIDE = 12;
-const LIST_WIDTH = GAME_WIDTH - SIDE * 2;
-const CARD_GAP = 8;
+const CARD_GAP = 14;
 /**
  * How far a row steps in from the heading it belongs to.
  *
@@ -91,7 +89,7 @@ const CARD_GAP = 8;
  */
 const ROW_INDENT = 10;
 /** Where the scrolling list starts: under the title, the subtitle and the tab strip. */
-const LIST_TOP = 108;
+
 /** The way back sits at the foot; the list gives up `BACK_BAR_BAND` to clear it. Same as the manual. */
 const PORTRAIT = 46;
 /** The Dynasties timeline: the rail's own x, and where the cards start to the right of it. */
@@ -111,9 +109,9 @@ const CHROME_DEPTH = 5;
 const OTHER_GROUP = 'other';
 
 /**
- * The real record behind the game, as four lists you can read.
+ * The record behind the game, with four reading chapters and an interactive army reference.
  *
- * A scene rather than another `mode` on `MenuScene`: this is four sections with a scrolling list
+ * A scene rather than another `mode` on `MenuScene`: this is five chapters with a scrolling list
  * and an expanding detail, and the menu is already the longest file in `scenes/` without carrying
  * a scroll surface anywhere in it.
  *
@@ -123,6 +121,19 @@ const OTHER_GROUP = 'other';
  * to blur those two apart — every entry that has an opinion labels it as ours.
  */
 export class HistoryScene extends Phaser.Scene {
+  private pageWidth = 366;
+  private listWidth = 366;
+  private left = 12;
+  private listTop = 0;
+  private contentStart = 0;
+  private armyControlsTop = 0;
+  private reading: Partial<Record<HistoryTab, { offset: number; expanded?: string }>> = {};
+  private readonly resize = (): void => {
+    this.pendingScroll = this.scroll?.offset ?? 0;
+    this.pendingAnchor = this.scroll?.snapshotAnchor();
+    this.render();
+  };
+  private readonly escape = (): void => { this.scene.start('MenuScene'); };
   private ui!: InkUI;
   private mapRenderer!: MapRenderer;
   private tab: HistoryTab = 'dynasties';
@@ -136,16 +147,7 @@ export class HistoryScene extends Phaser.Scene {
    * the same argument as `pendingScroll` — a page that forgets where you were makes you navigate
    * twice for every thing you wanted to read once.
    */
-  private openSection: Record<HistoryTab, string> = {
-    dynasties: ERA_PERIODS[0]?.id ?? '',
-    // Resolved in `create`: the first age that anybody is actually filed under. Written flat here
-    // because the roster has to be read to know which one that is.
-    figures: '',
-    stories: STORY_GROUPS[0]?.id ?? '',
-    // Not a list. The wardrobe is a plate you change, and it has no sections to shut.
-    army: '',
-    terms: TERM_GROUPS[0]?.id ?? '',
-  };
+  private openSection: Record<HistoryTab, string> = { dynasties: '', figures: '', stories: '', army: '', terms: '' };
   /**
    * The section header the next re-render should park itself on, and where it landed.
    *
@@ -191,8 +193,8 @@ export class HistoryScene extends Phaser.Scene {
    *
    * Opening an entry rebuilds the whole list, and a rebuilt scroll area starts at the top — so
    * tapping the fortieth champion answered by throwing the reader back to the first. Carrying the
-   * offset across keeps the row you touched under the finger that touched it. A tab change sets it
-   * to zero on purpose: that IS a new list.
+   * offset across keeps the row you touched under the finger that touched it. Each tab retains its own
+   * offset and expanded entry so a reference lookup does not lose the article being read.
    */
   private pendingScroll = 0;
   private pendingAnchor?: ReturnType<InkScrollArea['snapshotAnchor']>;
@@ -206,20 +208,42 @@ export class HistoryScene extends Phaser.Scene {
     super('HistoryScene');
   }
 
+  init(): void {
+    this.tab = 'dynasties';
+    this.expanded = undefined;
+    this.openSection = { dynasties: '', figures: '', stories: '', army: '', terms: '' };
+    this.reading = {};
+    this.pendingScroll = 0;
+    this.pendingAnchor = undefined;
+    this.anchorSection = undefined;
+    this.anchorY = undefined;
+    this.revealSection = undefined;
+  }
+
+  historyState(): object {
+    const flat = (list: Phaser.GameObjects.GameObject[]): Phaser.GameObjects.GameObject[] =>
+      list.flatMap(o => [o, ...('list' in o ? flat((o as Phaser.GameObjects.Container).list) : [])]);
+    const objects = flat(this.scroll?.content.list ?? []);
+    return {
+      mode: 'history', language: getLanguage(), tab: this.tab, tabs: TABS,
+      expanded: this.expanded, openSection: this.openSection[this.tab],
+      scrollOffset: Math.round(this.scroll?.offset ?? 0),
+      sections: objects.filter(o => o.getData('sectionKey')).map(o => o.getData('sectionKey')),
+      entries: [...new Set([
+        ...objects.filter(o => o.getData('rowKey')).map(o => o.getData('rowKey')),
+      ])],
+      army: { dynasty: this.armyTheme, rank: this.armyTier, arm: this.armyArm, formation: this.armyDoctrine },
+    };
+  }
+
   preload(): void {
-    preloadStoryPrints(this, import.meta.env.BASE_URL);
-    // The authored soldier sheets. Boot preloads only the map's families now, and the run scenes
-    // fetch the figures when they need them — so a page opened straight from the menu found no
-    // sheet and `figureStamp` quietly baked the procedural understudy onto the Army plate, the
-    // exact drift the plate's own comment says it cannot have. Loaded here, once per visit; the
-    // atlas is skipped when a run has already brought it in.
-    preloadConquestMapArt(this, import.meta.env.BASE_URL, ['figures'], false);
+    showPageLoading(this);
+    // The opening chapter uses boot assets. Soldier sheets belong to the Army tab;
+    // story card prints are not displayed anywhere in History.
   }
 
   create(): void {
     applyRenderScale(this);
-    applyPaperFX(this);
-    attachPagePaper(this);
     // The desktop's sheet beyond the column: the front page's landscape, faint, so this reads as a
     // page lying on the same desk. Nothing on the phone.
     attachDesktopBackdrop(this);
@@ -228,23 +252,24 @@ export class HistoryScene extends Phaser.Scene {
     // The sheet, and nothing else. The menu's diorama is a fine thing to arrive at and a poor
     // thing to read a page of prose over.
     this.mapRenderer.drawBackground(GAME_WIDTH, GAME_HEIGHT).setDepth(-10);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.clear());
-    // The page develops onto the paper rather than replacing it. Fading in from the sheet's own
-    // colour (`#e9dfc2`) means only the ink arrives: no black flash, no white one, and the
-    // parchment under it never appears to change.
-    this.cameras.main.fadeIn(190, 0xe9, 0xdf, 0xc2);
-    // People opens on the first age anybody is actually filed under. Three of the eleven headings
-    // have no written-up champion at all, so opening on `HISTORY_ERAS[0]` would greet the reader
-    // with an empty drawer and no reason given for it.
-    const peopled = this.figuresByEra();
-    this.openSection.figures = HISTORY_ERAS.find((era) => peopled.get(era.id)?.length)?.id ?? '';
+    this.game.events.on(LAYOUT_RESIZED, this.resize);
+    this.input.keyboard?.on('keydown-ESC', this.escape);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.game.events.off(LAYOUT_RESIZED, this.resize);
+      this.input.keyboard?.off('keydown-ESC', this.escape);
+      this.clear();
+    });
     this.render();
   }
 
   private render(): void {
     this.clear();
+    this.pageWidth = isDesktopLayout() ? Math.min(860, surfaceWidth() - 64) : GAME_WIDTH - 24;
+    this.listWidth = this.tab === 'army' ? Math.min(560, this.pageWidth) : this.pageWidth;
+    this.left = (GAME_WIDTH - this.listWidth) / 2;
+    this.content.push(this.add.rectangle((GAME_WIDTH - this.pageWidth) / 2 - 12, 0,
+      this.pageWidth + 24, GAME_HEIGHT, INK_UI.parchmentShade).setOrigin(0));
     this.renderHeader();
-    this.renderTabs();
     this.renderList();
   }
 
@@ -263,60 +288,100 @@ export class HistoryScene extends Phaser.Scene {
   }
 
   private renderHeader(): void {
-    this.chrome(this.ui.backBar(
-      GAME_HEIGHT - BACK_BAR_HEIGHT - 10,
-      () => this.scene.start('MenuScene'),
-    ));
-
-    this.chrome(this.add.text(GAME_WIDTH / 2, 14, t('history.title'), {
-      color: '#2a2118',
-      fontFamily: TITLE_FONT,
-      fontSize: '19px',
-      fontStyle: '700',
+    const left = (GAME_WIDTH - this.pageWidth) / 2;
+    const paper = this.chrome(this.add.graphics());
+    this.chrome(this.add.text(GAME_WIDTH / 2, 12, t('history.title'), {
+      color: INK_UI.inkText, fontFamily: TITLE_FONT, fontSize: '21px', fontStyle: '700',
     }).setOrigin(0.5, 0));
-
-    this.chrome(this.add.text(GAME_WIDTH / 2, 44, this.tab === 'army' ? historyText('army.subtitle') : t('history.subtitle'), {
-      color: '#6b5230',
-      fontFamily: UI_FONT,
-      fontSize: '11px',
-      align: 'center',
-      wordWrap: { width: LIST_WIDTH - 20 },
+    const subtitle = this.chrome(this.add.text(GAME_WIDTH / 2, 43, t('history.subtitle'), {
+      color: INK_UI.mutedText, fontFamily: UI_FONT, fontSize: '11px', align: 'center',
+      lineSpacing: 3, wordWrap: { width: this.pageWidth - 20 },
     }).setOrigin(0.5, 0));
+    let y = Math.max(76, subtitle.y + subtitle.height + 14);
+    const wide = this.pageWidth > 600;
+    // Three + two generous targets on phones; one row across the desktop reading sheet.
+    for (let index = 0; index < TABS.length; index++) {
+      const tab = TABS[index];
+      const columns = wide ? 5 : index < 3 ? 3 : 2;
+      const column = wide ? index : index < 3 ? index : index - 3;
+      const row = wide || index < 3 ? 0 : 1;
+      const width = (this.pageWidth - (columns - 1) * 8) / columns;
+      this.chrome(this.ui.button({ x: left + column * (width + 8), y: y + row * 46, width, height: 38 },
+        t(`history.tab.${tab}`), () => this.selectTab(tab),
+        { variant: this.tab === tab ? 'primary' : 'ghost', fontSize: '13px' },
+      ).setData('historyTab', tab));
+    }
+    y += (wide ? 1 : 2) * 46 + 4;
+    this.chrome(this.ui.button({ x: left, y, width: this.pageWidth, height: 34 },
+      t(this.tab === 'army' ? 'history.controls' : 'history.contents'), () => this.showContents(),
+      { variant: 'secondary', fontSize: '12px', icon: this.tab === 'army' ? 'gear' : 'book' },
+    ).setData('historyContents', true));
+    this.listTop = y + 44;
+    paper.fillStyle(INK_UI.parchmentShade, 1).fillRect(left - 12, 0, this.pageWidth + 24, this.listTop);
+    paper.setInteractive(new Phaser.Geom.Rectangle(left - 12, 0, this.pageWidth + 24, this.listTop),
+      Phaser.Geom.Rectangle.Contains);
+    this.chrome(this.add.rectangle(left - 12, GAME_HEIGHT - BACK_BAR_BAND - 10,
+      this.pageWidth + 24, BACK_BAR_BAND + 10, INK_UI.parchmentShade).setOrigin(0).setInteractive());
+    this.chrome(this.ui.backBar(GAME_HEIGHT - BACK_BAR_HEIGHT - 10, () => this.scene.start('MenuScene'))
+      .setData('historyBack', true));
   }
 
-  private renderTabs(): void {
-    // Five across a 390 sheet leaves 70 apiece, down from 88 when there were four. The labels are
-    // one word in both languages for exactly this reason — "Dynasties / Triều đại" fits at 10px,
-    // "Historical figures" would not have fitted at any size.
-    const width = Math.floor((LIST_WIDTH - 4 * 4) / 5);
-    TABS.forEach((tab, index) => {
-      this.chrome(this.ui.button(
-        { x: SIDE + index * (width + 4), y: 70, width, height: 28 },
-        t(`history.tab.${tab}` as 'history.tab.dynasties'),
-        () => {
-          if (this.tab === tab) {
-            return;
-          }
-          this.tab = tab;
-          this.pendingScroll = 0; this.pendingAnchor = undefined;
-          // A new list starts at the top and with nothing open. Carrying an expansion across tabs
-          // means opening one and finding a different page already scrolled into its middle.
-          this.expanded = undefined;
-          this.render();
-        },
-        { variant: this.tab === tab ? 'secondary' : 'ghost', fontSize: '10px' },
-      ));
-    });
+  private selectTab(tab: HistoryTab): void {
+    if (tab === this.tab) return;
+    loadPageAssets(this, () => {
+      if (tab === 'army') preloadConquestMapArt(this, import.meta.env.BASE_URL, ['figures'], false);
+    }, () => this.showTab(tab));
+  }
+
+  private showTab(tab: HistoryTab): void {
+    this.reading[this.tab] = { offset: this.scroll?.offset ?? 0, expanded: this.expanded };
+    this.tab = tab;
+    this.pendingScroll = this.reading[tab]?.offset ?? 0;
+    this.expanded = this.reading[tab]?.expanded;
+    this.pendingAnchor = undefined;
+    this.anchorSection = undefined;
+    this.anchorY = undefined;
+    this.render();
+  }
+
+  private showContents(): void {
+    if (this.tab === 'army') {
+      this.scroll?.setScroll(this.armyControlsTop);
+      return;
+    }
+    this.openSection[this.tab] = '';
+    this.expanded = undefined;
+    this.pendingScroll = 0;
+    this.pendingAnchor = undefined;
+    this.anchorSection = undefined;
+    this.anchorY = undefined;
+    this.render();
+  }
+
+  private renderChapterIntro(scroll: InkScrollArea): number {
+    const count = this.tab === 'dynasties' ? HISTORY_ERAS.length
+      : this.tab === 'figures' ? [...this.figuresByEra().values()].reduce((n, group) => n + group.length, 0)
+      : this.tab === 'stories' ? storyCatalogIds.length
+      : this.tab === 'terms' ? GLOSSARY_TERMS.length : VIET_WARDROBE_ORDER.length;
+    const width = this.listWidth - 6;
+    const card = this.ui.card({ x: 0, y: 0, width, height: 70 }, {
+      title: t(`history.chapter.${this.tab}.title`),
+      subtitle: t(`history.chapter.${this.tab}.count`, { count }),
+      body: t(`history.chapter.${this.tab}.body`),
+      border: INK_UI.parchmentDark,
+    }).setData('historyIntro', this.tab);
+    scroll.content.add(card);
+    return (card.getData('cardHeight') as number) + 18;
   }
 
   /** The list window: everything under the tab strip, less a hair of margin at the foot. */
   private listHeight(): number {
-    return GAME_HEIGHT - LIST_TOP - 10 - BACK_BAR_BAND;
+    return GAME_HEIGHT - this.listTop - 10 - BACK_BAR_BAND;
   }
 
   private renderList(): void {
     const height = this.listHeight();
-    const scroll = this.ui.scrollArea({ x: SIDE, y: LIST_TOP, width: LIST_WIDTH, height });
+    const scroll = this.ui.scrollArea({ x: this.left, y: this.listTop, width: this.listWidth, height });
     this.scroll = scroll;
     // `addTo` is not optional and is not a convenience: it parents the area's swallow-zone and its
     // content in that order, so the cards sit above the zone. Left at the scene root the zone is
@@ -329,6 +394,7 @@ export class HistoryScene extends Phaser.Scene {
     // Every list stacks by each card's OWN reported height. `InkUI.card` grows to fit whatever its
     // body wraps to and the requested height is only a minimum, so a fixed stride would overlap the
     // moment an entry ran to a third line — which in Vietnamese most of them do.
+    this.contentStart = this.renderChapterIntro(scroll);
     const used = this.tab === 'dynasties' ? this.buildDynasties(scroll)
       : this.tab === 'figures' ? this.buildFigures(scroll)
       : this.tab === 'stories' ? this.buildStories(scroll)
@@ -380,7 +446,7 @@ export class HistoryScene extends Phaser.Scene {
     colour?: number;
   }): number {
     const x = opts.x ?? 0;
-    const width = opts.width ?? LIST_WIDTH - 6;
+    const width = opts.width ?? this.listWidth - 6;
     const accent = opts.colour ?? INK_UI.cinnabar;
     if (opts.key === this.anchorSection) {
       this.anchorY = y;
@@ -395,13 +461,13 @@ export class HistoryScene extends Phaser.Scene {
     // it.
     const count = opts.count
       ? this.add.text(width - 10, 9, opts.count, {
-        color: '#8a7350', fontFamily: UI_FONT, fontSize: '9px',
+        color: INK_UI.mutedText, fontFamily: UI_FONT, fontSize: '10px',
       }).setOrigin(1, 0)
       : undefined;
     const title = this.add.text(24, 8, opts.title, {
       color: opts.open ? '#2a2118' : '#4a3b28',
       fontFamily: TITLE_FONT,
-      fontSize: '13px',
+      fontSize: '15px',
       fontStyle: '700',
       wordWrap: { width: width - 34 - (count ? count.width + 8 : 0) },
     });
@@ -412,20 +478,20 @@ export class HistoryScene extends Phaser.Scene {
     }
     if (opts.meta) {
       const meta = this.add.text(24, bottom + 3, opts.meta, {
-        color: '#6b5230', fontFamily: UI_FONT, fontSize: '9px', wordWrap: { width: width - 34 },
+        color: INK_UI.mutedText, fontFamily: UI_FONT, fontSize: '11px', wordWrap: { width: width - 34 },
       });
       bottom = meta.y + meta.height;
       holder.add(meta);
     }
     if (opts.note) {
       const note = this.add.text(24, bottom + 3, opts.note, {
-        color: '#7a6748', fontFamily: UI_FONT, fontSize: '9px', lineSpacing: 2,
+        color: INK_UI.mutedText, fontFamily: UI_FONT, fontSize: '12px', lineSpacing: 4,
         wordWrap: { width: width - 34 },
       });
       bottom = note.y + note.height;
       holder.add(note);
     }
-    const height = bottom + 9;
+    const height = Math.max(48, bottom + 12);
 
     skin.fillStyle(opts.open ? INK_UI.parchment : INK_UI.parchmentShade, 1);
     skin.fillRoundedRect(0, 0, width, height, 6);
@@ -457,11 +523,11 @@ export class HistoryScene extends Phaser.Scene {
     const hit = this.add.rectangle(width / 2, height / 2, width, height, 0xffffff, 0.001)
       .setInteractive({ useHandCursor: true });
     hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (scrollGestureConsumedTap(pointer)) {
+      if (scrollGestureConsumedTap(pointer) || pointer.getDistance() > 8) {
         return;
       }
       const at = designPointer(pointer);
-      if (at.y < LIST_TOP || at.y > LIST_TOP + this.listHeight()) {
+      if (at.y < this.listTop || at.y > this.listTop + this.listHeight()) {
         return;
       }
       this.toggleSection(opts.key);
@@ -613,7 +679,7 @@ export class HistoryScene extends Phaser.Scene {
    * advance, which is the same mistake as a fixed stride.
    */
   private buildDynasties(scroll: InkScrollArea): number {
-    const headingWidth = LIST_WIDTH - 6 - TIMELINE_X;
+    const headingWidth = this.listWidth - 6 - TIMELINE_X;
     const width = headingWidth - ROW_INDENT;
     const eraById = new Map(HISTORY_ERAS.map((era) => [era.id, era]));
     const periods = this.sections(ERA_PERIODS, HISTORY_ERAS.map((era) => era.id));
@@ -630,7 +696,7 @@ export class HistoryScene extends Phaser.Scene {
       }),
     );
     const nodes: { y: number; radius: number; colour: number }[] = [];
-    let y = this.buildRuleLegend(scroll);
+    let y = this.buildRuleLegend(scroll, this.contentStart);
 
     for (const period of periods) {
       const members = membersOf(period);
@@ -689,6 +755,7 @@ export class HistoryScene extends Phaser.Scene {
           : this.clip(historyText(`eras.${era.id}.body`), 92);
         const card = this.ui.card({ x: TIMELINE_X + ROW_INDENT, y, width, height: 62 }, {
           title: historyText(`eras.${era.id}.title`),
+          status: t(open ? 'history.read.close' : 'history.read.open'),
           // The length of the age beside its dates, because "111 BC – 938" does not announce itself
           // as ten times "1778 – 1802" until you do the subtraction.
           // The rule is named only when it is not self-rule. Printing "Vietnamese rule" on eight of
@@ -742,7 +809,7 @@ export class HistoryScene extends Phaser.Scene {
    * off by the edge of the sheet is worse than no legend — the entry that goes missing is exactly
    * the colour that needed explaining.
    */
-  private buildRuleLegend(scroll: InkScrollArea): number {
+  private buildRuleLegend(scroll: InkScrollArea, start: number): number {
     const swatches = this.add.graphics();
     let x = 2;
     let row = 0;
@@ -752,19 +819,19 @@ export class HistoryScene extends Phaser.Scene {
         fontFamily: UI_FONT,
         fontSize: '10px',
       }).setOrigin(0, 0);
-      if (x > 2 && x + 12 + label.width > LIST_WIDTH - 6) {
+      if (x > 2 && x + 12 + label.width > this.listWidth - 6) {
         x = 2;
         row += 1;
       }
-      const centreY = row * 15 + 7;
-      label.setPosition(x + 12, row * 15 + 1);
+      const centreY = start + row * 15 + 7;
+      label.setPosition(x + 12, start + row * 15 + 1);
       swatches.fillStyle(RULE_COLOUR[rule], 0.92);
       swatches.fillCircle(x + 4, centreY, 4);
       scroll.content.add(label);
       x += 12 + label.width + 14;
     }
     scroll.content.add(swatches);
-    return (row + 1) * 15 + 8;
+    return start + (row + 1) * 15 + 12;
   }
 
   /**
@@ -876,7 +943,7 @@ export class HistoryScene extends Phaser.Scene {
    * The heading each of them was already standing under is the obvious thing to make shut.
    */
   private buildFigures(scroll: InkScrollArea): number {
-    let y = 0;
+    let y = this.contentStart;
     const grouped = this.figuresByEra();
     for (const era of HISTORY_ERAS) {
       const group = grouped.get(era.id);
@@ -904,16 +971,17 @@ export class HistoryScene extends Phaser.Scene {
         const bio = heroBio(hero);
         const opts = {
           title: heroName(hero),
+          status: t(open ? 'history.read.close' : 'history.read.open'),
           subtitle: `${heroTypeLabel(hero.type)} · ${dates ? t('history.figures.lived', { dates }) : t('history.figures.unknown')}`,
           body: open ? bio : this.clip(bio),
           border: open ? INK_UI.cinnabar : undefined,
         };
         const top = y;
-        const measured = this.ui.measureCard(LIST_WIDTH - PORTRAIT - 14, PORTRAIT, opts);
+        const measured = this.ui.measureCard(this.listWidth - PORTRAIT - 14, PORTRAIT, opts);
         scroll.lazyRow(key, top, measured + CARD_GAP, () => {
         const y = top;
-        const card = this.ui.card({ x: PORTRAIT + 8, y, width: LIST_WIDTH - PORTRAIT - 14, height: PORTRAIT }, opts);
-        this.makeTappable(card, key, LIST_WIDTH - PORTRAIT - 14);
+        const card = this.ui.card({ x: PORTRAIT + 8, y, width: this.listWidth - PORTRAIT - 14, height: PORTRAIT }, opts);
+        this.makeTappable(card, key, this.listWidth - PORTRAIT - 14);
         scroll.content.add(card);
         if (open) {
           this.revealCard(card);
@@ -953,7 +1021,7 @@ export class HistoryScene extends Phaser.Scene {
       });
       if (sectionOpen) {
         const card = this.ui.card(
-          { x: ROW_INDENT, y, width: LIST_WIDTH - 6 - ROW_INDENT, height: 52 },
+          { x: ROW_INDENT, y, width: this.listWidth - 6 - ROW_INDENT, height: 52 },
           { body: rest.join(' · '), muted: true },
         );
         scroll.content.add(card);
@@ -978,8 +1046,8 @@ export class HistoryScene extends Phaser.Scene {
    * and now shut behind a heading that says it.
    */
   private buildStories(scroll: InkScrollArea): number {
-    const width = LIST_WIDTH - 6 - ROW_INDENT;
-    let y = 0;
+    const width = this.listWidth - 6 - ROW_INDENT;
+    let y = this.contentStart;
     for (const group of this.sections(STORY_GROUPS, storyCatalogIds)) {
       const sectionOpen = this.openSection.stories === group.id;
       y = this.sectionHeader(scroll, y, {
@@ -1005,6 +1073,7 @@ export class HistoryScene extends Phaser.Scene {
             : this.clip(happened);
         const opts = {
           title: storyTitle(id),
+          status: written ? t(open ? 'history.read.close' : 'history.read.open') : undefined,
           subtitle: STORY_ANCHORS[id] ?? '',
           body,
           border: open ? INK_UI.cinnabar : undefined,
@@ -1039,8 +1108,8 @@ export class HistoryScene extends Phaser.Scene {
    * twenty-four. The reading order survives inside each drawer.
    */
   private buildTerms(scroll: InkScrollArea): number {
-    const width = LIST_WIDTH - 6 - ROW_INDENT;
-    let y = 0;
+    const width = this.listWidth - 6 - ROW_INDENT;
+    let y = this.contentStart;
     for (const group of this.sections(TERM_GROUPS, GLOSSARY_TERMS)) {
       const sectionOpen = this.openSection.terms === group.id;
       y = this.sectionHeader(scroll, y, {
@@ -1060,6 +1129,7 @@ export class HistoryScene extends Phaser.Scene {
         const body = historyText(`terms.${term}.body`);
         const opts = {
           title: historyText(`terms.${term}.title`),
+          status: t(open ? 'history.read.close' : 'history.read.open'),
           body: open ? body : this.clip(body),
           border: open ? INK_UI.cinnabar : undefined,
         };
@@ -1106,8 +1176,8 @@ export class HistoryScene extends Phaser.Scene {
    * finger that pressed it.
    */
   private buildArmy(scroll: InkScrollArea): number {
-    const width = LIST_WIDTH - 6;
-    let y = 0;
+    const width = this.listWidth - 6;
+    let y = this.contentStart;
 
     // ── the plate ───────────────────────────────────────────────────────
     // A framed sheet with one soldier on it, drawn large. The scale is set from the frame rather
@@ -1221,6 +1291,7 @@ export class HistoryScene extends Phaser.Scene {
     y += plateHeight + CARD_GAP;
 
     // ── the three rows of chips ─────────────────────────────────────────
+    this.armyControlsTop = y;
     y = this.armyChips(scroll, y, width, historyText('army.label.dynasty'), 4,
       VIET_WARDROBE_ORDER.map((theme) => ({
         key: theme,
@@ -1521,7 +1592,7 @@ ${historyText('army.formation.note')}`,
     }));
     const top = y + 14;
     const gap = 5;
-    const height = 26;
+    const height = 36;
     const chipWidth = Math.floor((width - (perRow - 1) * gap) / perRow);
 
     chips.forEach((chip, index) => {
@@ -1548,11 +1619,11 @@ ${historyText('army.formation.note')}`,
       hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
         // A drag that ended on a chip is a scroll, not a tap — and the chips are in the middle of
         // the list, which is exactly where a reader grabs it to scroll.
-        if (scrollGestureConsumedTap(pointer)) {
+        if (scrollGestureConsumedTap(pointer) || pointer.getDistance() > 8) {
           return;
         }
         const at = designPointer(pointer);
-        if (at.y < LIST_TOP || at.y > LIST_TOP + this.listHeight()) {
+        if (at.y < this.listTop || at.y > this.listTop + this.listHeight()) {
           return;
         }
         this.pendingScroll = this.scroll ? -this.scroll.content.y : 0;
@@ -1561,6 +1632,7 @@ ${historyText('army.formation.note')}`,
         this.render();
       });
       holder.add(hit);
+      holder.setData('historyArmyChip', chip.key);
       scroll.content.add(holder);
     });
 
@@ -1667,7 +1739,7 @@ ${historyText('army.formation.note')}`,
     const hit = this.add.rectangle(width / 2, height / 2, width, height, 0xffffff, 0.001)
       .setInteractive({ useHandCursor: true });
     hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (scrollGestureConsumedTap(pointer) || this.closing) {
+      if (scrollGestureConsumedTap(pointer) || pointer.getDistance() > 8 || this.closing) {
         return;
       }
       // A geometry mask hides pixels, not hit areas. Once the list has been scrolled, the rows that
@@ -1675,7 +1747,7 @@ ${historyText('army.formation.note')}`,
       // it — so Back stopped working, and tapping the bare paper beside it silently opened a row
       // nobody could see. Only a tap that lands inside the list window counts.
       const at = designPointer(pointer);
-      if (at.y < LIST_TOP || at.y > LIST_TOP + this.listHeight()) {
+      if (at.y < this.listTop || at.y > this.listTop + this.listHeight()) {
         return;
       }
       this.pendingScroll = this.scroll ? -this.scroll.content.y : 0;

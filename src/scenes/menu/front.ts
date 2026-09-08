@@ -17,6 +17,7 @@ import { Copilot, type CopilotStep } from '../../ui/Copilot';
 import { TITLE_FONT, UI_FONT } from '../../ui/fonts';
 import { dongHoWordmark } from '../../ui/ink/dongHoWordmark';
 import { royalScroll } from '../../ui/ink/royalScroll';
+import { drawHouseSeal, houseBanner } from '../../ui/ascent/houseBanner';
 import { isDesktopPlatform } from '../../platform/layout';
 import { SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
 import { pageFloor, renderPageHead } from './helpers';
@@ -106,8 +107,11 @@ function renderDesktopMain(self: MenuScene): void {
   const panelTop = Math.round((GAME_HEIGHT - panelHeight) / 2);
   const margin = surfaceWidth() < 1000 ? 28 : 56;
   const offsetX = surfaceWidth() - margin - panelWidth - pageColumnX() - panelX;
-  self.content.push(royalScroll(self, panelX, panelTop, panelWidth, panelHeight).setDepth(-4)
+  self.content.push(royalScroll(self, panelX, panelTop, panelWidth, panelHeight, false).setDepth(-4)
     .setData('desktopMenuPanel', { width: panelWidth, height: panelHeight }));
+  const sign = houseBanner();
+  self.content.push(drawHouseSeal(self, sign, 24).setPosition(GAME_WIDTH / 2, panelTop + 130)
+    .setData('menuKingdomSign', { ...sign, source: 'dynasty' }));
   const title = dongHoWordmark(self, GAME_WIDTH / 2, panelTop + 62, 248);
   self.content.push(title, self.ui.label(GAME_WIDTH / 2, panelTop + 107, 'TEN THOUSAND VICTORIES', 'caption', {
     fontFamily: UI_FONT, fontSize: '9px', color: '#5a4c39',
@@ -279,7 +283,8 @@ export function startAscentRun(self: MenuScene): void {
  * and a player who watched it has not thereby been told what a skirmish is.
  */
 function startClassicTour(self: MenuScene): void {
-  if (self.classicTourDone || self.copilot || hasSeenClassicTour()) return;
+  if (self.classicTourDone || self.copilot || (!self.replayCopilot && hasSeenClassicTour())) return;
+  self.replayCopilot = false;
   self.classicTourDone = true;
 
   const steps: CopilotStep[] = [

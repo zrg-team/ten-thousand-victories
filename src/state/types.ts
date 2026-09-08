@@ -1248,9 +1248,9 @@ export type Historicity = 'chinh-su' | 'da-su' | 'ngoai-truyen';
 /**
  * The generic woodblock band behind a card. Chosen by tag, never by story.
  *
- * Deliberately not per-story art: a template binds a random hero and a random province, so a
- * picture specific to one instance is a lie on every other map. The same band appearing
- * across many stories is correct rather than a compromise.
+ * Symbolic settings, rendered as generated Đông Hồ prints. A template binds a random hero
+ * and province, so the illustration establishes a scene while the live portrait identifies
+ * the actual speaker. Procedural bands remain an offline/missing-art fallback only.
  */
 export type StoryBand =
   | 'court' | 'river' | 'field' | 'coast' | 'mountain' | 'march'

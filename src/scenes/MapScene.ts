@@ -1,5 +1,7 @@
 import { preloadConquestMapArt } from '../ui/conquestMapArt';
-import { preloadStoryPrints } from '../ui/storyPrint';
+import { showPageLoading } from '../ui/pageLoading';
+import { preloadStoryPrints, preloadStorySettings } from '../ui/storyPrint';
+import { preloadStoryChoiceIcons } from '../ui/storyChoiceIcons';
 import { preloadThroneHall } from '../ui/ascent/throneHall';
 import Phaser from 'phaser';
 import { pressBeganUnderSheet } from '../ui/inputGeneration';
@@ -9,7 +11,7 @@ import { attachPaperSheet, type PaperSheet } from '../ui/ink/paperSheet';
 import { LAYOUT_RESIZED } from '../game/desktopResize';
 import { TouchController } from '../input/TouchController';
 import { createInitialGameState } from '../state/GameState';
-import { clearAutosave, saveSnapshot } from '../state/save';
+import { clearFinishedRunSaves, endSaveSession, resumeSaveSession, saveSnapshot } from '../state/save';
 import { installAwayPause, type AwayPauseHandle } from '../game/awayPause';
 import { bribeLand, startDiplomaticClaim, startIntimidation, settleLand } from '../systems/AcquisitionSystem';
 import { findLand, isAdjacent } from '../systems/LandSystem';
@@ -38,7 +40,7 @@ import { ArmyRenderer } from './map/ArmyRenderer';
 import { OverlayRenderer } from './map/OverlayRenderer';
 import { captureSeasonalInk, repaintSeasonalInk } from '../ui/ink/seasonalInk';
 import { mapWork, registerMapWork } from './map/mapWorkBudget';
-import { ChunkedMapLayer } from './map/ChunkedMapLayer';
+import { ChunkedMapLayer, type ConcealRegion } from './map/ChunkedMapLayer';
 import { SeasonRenderer, type SeasonScape } from './map/SeasonRenderer';
 import { SettlementRenderer } from './map/SettlementRenderer';
 import { BirdRenderer } from './map/BirdRenderer';
@@ -91,6 +93,8 @@ const CAMERA_ZOOM_STEP = 0.16;
 /** Over every band the map draws (labels reach 78) and under the paper sheet at 10,000. */
 const WORLD_DIM_DEPTH = 5000;
 const WORLD_PADDING = 300;
+/** Frame time the refresh job may take while a lost province is standing under paper. Matches the chunk bands' own boost. */
+const CONCEAL_BOOST_MS = 24;
 
 /**
  * `bakeScale()` is read at each bake, not once: the quality ladder can change the rung mid-run,
@@ -147,11 +151,16 @@ export class MapScene extends Phaser.Scene {
   private sceneryJob?: Generator<void>;
   private stopWorkBudget?: () => void;
   private readonly prepareScenery = () => mapWork(this, remaining => {
-    if (remaining <= 0 || (this.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer).contextLost) return;
+    // Paper is standing over a province while this job re-inks its fog (`concealPending` below), so
+    // the job is hurried the same way the chunk bands hurry a hole in view: a frame spent showing a
+    // paper patch is not a frame saved. The steps are atomic, and at the shared 3 ms allowance a
+    // slow device runs exactly one of them a frame.
+    const allowed = this.overlays?.concealing() ? Math.max(remaining, CONCEAL_BOOST_MS) : remaining;
+    if (allowed <= 0 || (this.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer).contextLost) return;
     const start = performance.now();
     if (this.refreshPending && this.refreshJob) { this.refreshJob.return(undefined); this.refreshJob = undefined; }
     if (!this.refreshJob && this.refreshPending) { this.refreshPending = false; this.refreshJob = this.refreshVisuals(); }
-    while (performance.now() - start < remaining) {
+    while (performance.now() - start < allowed) {
       if (this.refreshJob) { if (this.nextVisual(this.refreshJob).done) this.refreshJob = undefined; else continue; }
       if (this.sceneryJob) { if (this.nextVisual(this.sceneryJob).done) this.sceneryJob = undefined; else continue; }
       break;
@@ -479,8 +488,11 @@ export class MapScene extends Phaser.Scene {
   }
 
   preload(): void {
+    showPageLoading(this);
     preloadConquestMapArt(this, import.meta.env.BASE_URL);
     preloadStoryPrints(this, import.meta.env.BASE_URL);
+    preloadStorySettings(this, import.meta.env.BASE_URL);
+    preloadStoryChoiceIcons(this, import.meta.env.BASE_URL);
     preloadThroneHall(this, import.meta.env.BASE_URL);
   }
 
@@ -548,6 +560,13 @@ export class MapScene extends Phaser.Scene {
     this.scene.bringToTop(this.uiSceneKey());
     this.registerUiEvents();
     this.events.emit('state-changed');
+    const consumeRecovery = (): void => {
+      if (this.scene.isActive() && !this.state.isAwayPause && !document.hidden) resumeSaveSession(this.state);
+    };
+    this.game.events.once(Phaser.Core.Events.POST_RENDER, consumeRecovery);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.game.events.off(Phaser.Core.Events.POST_RENDER, consumeRecovery);
+    });
   }
 
   /**
@@ -715,13 +734,17 @@ export class MapScene extends Phaser.Scene {
       this.refresh();
     });
     this.onUi('ui:exit-to-menu', (saveFirst: boolean) => {
-      if (saveFirst) {
-        saveSnapshot(this.state);
+      if (saveFirst && !this.state.ascent?.arena && !clearFinishedRunSaves(this.state)) {
+        if (!saveSnapshot(this.state)) {
+          this.state.message = t('msg.saveUnavailable');
+          this.refresh();
+          return;
+        }
       }
       // Either way the run has been left on purpose, so the slot that answers "the device took
       // it from me" no longer describes anything: without this, declining to save and then
       // pressing Continue handed back the run just walked out of.
-      clearAutosave();
+      endSaveSession(this.state);
       this.scene.stop(this.uiSceneKey());
       this.scene.start('MenuScene');
     });
@@ -753,6 +776,7 @@ export class MapScene extends Phaser.Scene {
    * broken. Called every frame; acts only on the change.
    */
   protected syncWorldMotion(): void {
+    clearFinishedRunSaves(this.state);
     const halted = this.isWorldHalted();
     if (halted === this.worldMotionHalted) return;
     this.worldMotionHalted = halted;
@@ -2596,10 +2620,23 @@ export class MapScene extends Phaser.Scene {
    */
 
   protected refresh(): void {
+    clearFinishedRunSaves(this.state);
+    // A province dropping out of sight is answered before anything is repainted: the fog band puts
+    // paper over exactly that ground until its fog is back (`ChunkedMapLayer.conceal`), so the
+    // imagery standing there — the province as it was — cannot outlive the refresh. Exactly that
+    // ground and no more: this used to raise a cover over the whole world, and a hostile host's
+    // sighting going dark raised it every tick.
+    const lost: ConcealRegion[] = [];
     for (const land of this.state.lands) {
-      if (this.knownVisibility.get(land.id) && !land.isVisible) this.overlays?.concealPending();
+      if (this.knownVisibility.get(land.id) && !land.isVisible) {
+        const region = this.overlays?.landConcealRegion(
+          this.state, this.hexTileMap, (value) => this.wx(value), (value) => this.wy(value), land.id,
+        );
+        if (region) lost.push(region);
+      }
       this.knownVisibility.set(land.id, land.isVisible);
     }
+    if (lost.length > 0) this.overlays?.concealPending(lost);
     this.refreshPending = true;
     this.events.emit('state-changed');
     this.scene.get(this.uiSceneKey()).events.emit('state-changed');
@@ -2652,6 +2689,11 @@ export class MapScene extends Phaser.Scene {
         yield;
         this.bakeFog();
         yield;
+      } else {
+        // A province that went dark and was lit again before this job read the signatures — a
+        // hostile host passing through — raised a conceal that no fog change will ever arm. The
+        // fog standing is the fog the state asks for; the paper comes down here, not never.
+        this.overlays?.concealSettled();
       }
 
       if (roadsChanged) {

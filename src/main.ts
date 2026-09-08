@@ -1,4 +1,5 @@
 import { installPerformanceBench } from './game/performanceBench';
+import { pageLoadingState } from './ui/pageLoading';
 import Phaser from 'phaser';
 import { gameConfig } from './game/config';
 import { createInitialGameState, createCampaignGameState, createEmpireGameState, createAscentGameState } from './state/GameState';
@@ -13,6 +14,8 @@ import { stampStats } from './ui/ink/stamp';
 import { installQualityLadder } from './game/qualityLadder';
 import { renderScaleNow } from './game/graphicsQuality';
 import type { CoronationSheet } from './ui/coronation/CoronationSheet';
+import type { GuideScene } from './scenes/GuideScene';
+import type { HistoryScene } from './scenes/HistoryScene';
 import { installResilience } from './game/resilience';
 import { isDesktopPlatform, layoutDiagnosis } from './platform/layout';
 import { installDesktopResize } from './game/desktopResize';
@@ -131,10 +134,19 @@ window.__fpsProbe = (seconds = 3) => new Promise((resolve) => {
 });
 
 window.render_game_to_text = () => {
+  const loading = pageLoadingState();
+  if (loading) return JSON.stringify(loading);
+  if (window.__phaserGame?.scene.isActive('HistoryScene')) {
+    return JSON.stringify((window.__phaserGame.scene.getScene('HistoryScene') as HistoryScene).historyState());
+  }
+  if (window.__phaserGame?.scene.isActive('GuideScene')) {
+    return JSON.stringify((window.__phaserGame.scene.getScene('GuideScene') as GuideScene).guideState());
+  }
   if (window.__phaserGame?.scene.isActive('MenuScene')) {
     const menu = window.__phaserGame.scene.getScene('MenuScene') as Phaser.Scene & { templeSheet?: CoronationSheet };
     return JSON.stringify({
       mode: 'menu',
+      kingdomSign: menu.children.list.find(o => o.getData('menuKingdomSign'))?.getData('menuKingdomSign'),
       bannerEditor: menu.templeSheet?.bannerState(),
       wardrobe: menu.templeSheet?.wardrobeState(),
       language: getLanguage(),
@@ -146,10 +158,10 @@ window.render_game_to_text = () => {
         ? ['ground', 'mountains', 'mountain-mist', 'river-fx', 'bamboo', 'lotus'] : undefined,
       riverGestures: getMapTheme() === 'dong-ho'
         ? ['tap', 'drag', 'hover-wake'] : undefined,
+      ambientMotion: getMapTheme() === 'dong-ho'
+        ? ['mountain-drift', 'mountain-mist', 'bamboo-breeze', 'lotus-sway', 'masked-river-refraction', 'river-surface-flow'] : undefined,
       lotusGestures: getMapTheme() === 'dong-ho'
         ? ['hover', 'drag', 'water-wake'] : undefined,
-      ambientMotion: getMapTheme() === 'dong-ho'
-        ? ['mountain-drift', 'mountain-mist', 'bamboo-breeze', 'lotus-sway', 'river-surface-flow'] : undefined,
     });
   }
 
@@ -167,8 +179,19 @@ window.render_game_to_text = () => {
         openPromptKey?: string;
         chronicleTab?: 'actions' | 'ongoing' | 'heard' | 'recorded';
         coronationSheet?: CoronationSheet;
+        modalLayer?: Phaser.GameObjects.Container;
       }
     : undefined;
+
+  // Read the illustration actually on the sheet, including missing-art fallbacks.
+  let storyIllustration: Record<string, unknown> | undefined;
+  const storyChoiceIcons: Array<Record<string, unknown>> = [];
+  const readIllustration = (object: Phaser.GameObjects.GameObject): void => {
+    if (object.getData('storyIllustration')) storyIllustration = object.getData('storyIllustration');
+    if (object.getData('storyChoiceIcon')) storyChoiceIcons.push(object.getData('storyChoiceIcon'));
+    if (object instanceof Phaser.GameObjects.Container) object.list.forEach(readIllustration);
+  };
+  if (ascentUi?.modalLayer) readIllustration(ascentUi.modalLayer);
 
   return JSON.stringify({
     coordinateSystem: 'Phaser canvas pixels, origin top-left, x right, y down',
@@ -287,6 +310,8 @@ window.render_game_to_text = () => {
             : null,
           ui: {
             screen: ascentUi?.openPromptKey || 'map',
+            storyIllustration,
+            storyChoiceIcons: storyChoiceIcons.length ? storyChoiceIcons : undefined,
             bannerEditor: state.pendingAscentPrompt?.kind === 'coronation' ? ascentUi?.coronationSheet?.bannerState() : undefined,
             wardrobe: state.pendingAscentPrompt?.kind === 'coronation' ? ascentUi?.coronationSheet?.wardrobeState() : undefined,
             chronicleTab: ascentUi?.openPromptKey === 'lane:chronicle'

@@ -8,6 +8,7 @@ import { INK } from './inkTheme';
 import { PIGMENT, mutePigment } from './ink/palette';
 import { conquestArtStamp } from './conquestMapArt';
 import { placeStamp } from './ink/stamp';
+import { drawHouseBanner, houseBanner } from './ascent/houseBanner';
 
 /**
  * The five standards keep their geometry — the waving cloth, the scalloped fringe, the nested
@@ -70,9 +71,17 @@ export const PLAYER_FLAG_STYLES: PlayerFlagStyle[] = [
   'ngu-sac',
 ];
 
-/** Seeded dynastic standard marking land owned by the player. */
+/** Player standards share the saved dynasty sign; only rival standards use the seed. */
 export function createPlayerLandFlag(scene: Phaser.Scene, isCapital = false, styleSeed = 0, muted = false): Phaser.GameObjects.Container {
   const container = scene.add.container(0, 0);
+  if (!muted) {
+    const sign = houseBanner();
+    // Keep the existing ground anchor (+8) and roughly 54-unit mast used by map/battle layouts.
+    container.add(drawHouseBanner(scene, sign, 36, 58).setPosition(-2.88, -50));
+    container.setData('playerStandard', { ...sign, isCapital });
+    if (isCapital) container.setScale(1.22);
+    return container;
+  }
   const style = pickFlagStyle(styleSeed);
   const artStyle = style === 'yellow-red-medallion' ? 'yellow-medallion' : style;
   const artId = isCapital

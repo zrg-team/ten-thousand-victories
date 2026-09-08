@@ -219,6 +219,9 @@ export function create(self: ConquestUIScene): void {
   // Taken once, here, rather than read where it is used: the flag is a one-shot handoff from the
   // manual and any second reader would find it already spent.
   self.guidedRun = takeGuidedRun();
+  // Phaser reuses this scene instance. A replay must teach again, even after an earlier run.
+  self.runTourDone = false;
+  self.tourStagesShown.clear();
   // A first run teaches by default, and the manual's button forces it for any run.
   self.tourActive = self.guidedRun || !hasSeenRunTour();
 

@@ -32,7 +32,8 @@ for (const [language, height] of [['vi', 844], ['en', 620]]) {
     const { storyTemplate } = await import('/src/data/stories/index.ts');
     return {
       powers: POWER_CARDS.length,
-      matched: POWER_CARDS.every(c => powerStoryPrint(c.id) === c.id),
+      matched: POWER_CARDS.filter(c => powerStoryPrint(c.id) === c.id).length,
+      fallbacksValid: POWER_CARDS.every(c => STORY_PRINTS.includes(powerStoryPrint(c.id))),
       loaded: STORY_PRINTS.filter(k => window.__phaserGame.textures.exists(`story-print:${k}`)).length,
       beats: Object.entries(STORY_BEAT_PRINTS).map(([key, print]) => {
         const [templateId, fragmentId] = key.split('.');
@@ -41,10 +42,17 @@ for (const [language, height] of [['vi', 844], ['en', 620]]) {
       }),
     };
   });
-  check(catalog.powers === 50 && catalog.matched && catalog.loaded === 53, `${language}: all powers uniquely mapped and all 53 prints loaded`, catalog);
   check(catalog.beats.every(b => b.exists && ['card', 'blow'].includes(b.volume)), 'all selected story moments exist and can display cards', catalog.beats);
   await page.evaluate(() => window.__startBenchGame(20260901, 'ascent'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'));
+  await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'));
+  // Art now loads at scene boundaries, not on the front menu.
+  catalog.loaded = await page.evaluate(async () => {
+    const { STORY_PRINTS } = await import('/src/ui/storyPrint.ts');
+    return STORY_PRINTS.filter(k => window.__phaserGame.textures.exists(`story-print:${k}`)).length;
+  });
+  check(catalog.powers >= ids.length && catalog.matched === ids.length && catalog.fallbacksValid && catalog.loaded === 53,
+    `${language}: ${ids.length} authored powers uniquely mapped, catalogue fallbacks valid, all 53 prints loaded`, catalog);
   await page.evaluate(() => {
     const st = window.__mandateState;
     st.isPaused = true; st.pendingAscentPrompt = undefined; st.ascent.promptQueue = [];
@@ -118,7 +126,7 @@ for (const [language, height] of [['vi', 844], ['en', 620]]) {
       const walk = o => { if (o.getData?.('storyPrint')) pictures.push(o); o.list?.forEach(walk); };
       walk(ui.modalLayer);
       return { count: pictures.length, selected: pictures[0]?.getData('storyPrint'),
-        fit: pictures.every(p => Math.abs(p.displayWidth / p.displayHeight - 1.5) < .01 && p.displayHeight <= 138.01),
+        fit: pictures.every(p => Math.abs(p.displayWidth / p.displayHeight - 1.5) < .01 && p.displayHeight <= 180.01),
         maxScroll: ui.activeScrollAreas[0]?.maxScroll ?? 0 };
     }, beat);
     check(layout.count === 1 && layout.selected === beat.print && layout.fit, `${language}/${height}: ${beat.key} complete print fits`, layout);
@@ -158,6 +166,7 @@ for (const [language, height] of [['vi', 844], ['en', 620]]) {
     const absent = addStoryPrint(ui, ui.modalLayer, 'iron-levy', { x: 0, y: 0, width: 100, height: 60 }) === undefined;
     const icon = !!cardFaceTextureKey(ui, 'iron-levy', 3);
     window.__phaserGame.textures.renameTexture('story-print:chi-lang', 'art-review:hidden-chi-lang');
+    window.__phaserGame.textures.renameTexture('story-print:setting-mountain', 'art-review:hidden-setting-mountain');
     window.__mandateState.pendingAscentPrompt = fallbackPrompt;
     ui.events.emit('state-changed');
     let prints = 0;

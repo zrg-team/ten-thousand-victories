@@ -15,3 +15,14 @@ export const SIGN_COSTS: Record<DynastySign, number> = {
 export function dynastySign(id: string): DynastySign | undefined {
   return (DYNASTY_SIGNS as readonly string[]).includes(id) ? id as DynastySign : undefined;
 }
+
+/** A deliberate reroll chooses a different available motif; never grants ownership. */
+export function randomDynastySign(
+  available: readonly DynastySign[] = DYNASTY_SIGNS,
+  next: () => number = Math.random,
+  previous?: string,
+): DynastySign {
+  const alternatives = available.filter(id => id !== previous);
+  const pool = alternatives.length ? alternatives : available;
+  return pool[Math.min(pool.length - 1, Math.max(0, Math.floor(next() * pool.length)))] ?? 'crown';
+}

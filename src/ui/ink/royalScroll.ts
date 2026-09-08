@@ -14,13 +14,14 @@ type G = Phaser.GameObjects.Graphics;
  */
 export function royalScroll(
   scene: Phaser.Scene, x: number, y: number, width: number, height: number,
+  withSeal = true,
 ): Phaser.GameObjects.Image {
-  const stamp = stampDesign(scene, `ui:royal-scroll:v1:${width}:${height}`,
+  const stamp = stampDesign(scene, `ui:royal-scroll:v2:${width}:${height}:${withSeal ? 'lotus' : 'plain'}`,
     { left: -19, right: width + 21, top: -13, bottom: height + 17 },
     (g, ax, ay) => {
       g.translateCanvas(ax, ay);
       drawPaper(g, width, height);
-      drawBorder(g, width, height);
+      drawBorder(g, width, height, withSeal);
       drawRoll(g, width, 0, false);
       drawRoll(g, width, height, true);
       g.translateCanvas(-ax, -ay);
@@ -75,7 +76,7 @@ function drawPaper(g: G, w: number, h: number): void {
     wobble: 0.3, step: 24, bleed: 0.12, closed: true });
 }
 
-function drawBorder(g: G, w: number, h: number): void {
+function drawBorder(g: G, w: number, h: number, withSeal: boolean): void {
   // Keep the narrow ornamental register entirely outside the buttons' reading field.
   for (const x of [10, w - 10]) {
     inkPath(g, [{ x, y: 16 }, { x, y: h - 16 }], 633 + x,
@@ -98,7 +99,7 @@ function drawBorder(g: G, w: number, h: number): void {
     cloud(g, x, h - 18, side, 0.34);
   }
   // The game's drawn lotus device identifies the seal; no invented imperial lettering.
-  seal(g, w / 2, 130, 20, 'lotus');
+  if (withSeal) seal(g, w / 2, 130, 20, 'lotus');
   for (const [left, right] of [[30, w / 2 - 23], [w / 2 + 23, w - 30]]) {
     g.lineStyle(0.7, PIGMENT.hoe, 0.5);
     g.lineBetween(left, 130, right, 130);

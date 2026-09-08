@@ -613,6 +613,42 @@ class SoundDirector {
     if (shape.second) this.rustle(when + shape.second.after, shape.second.paper);
   }
 
+  /**
+   * Relief reaching the field: a drum, struck.
+   *
+   * Three low strokes rising for ours — the trống trận calling the column in — and two heavier,
+   * slower ones for theirs. The same skin the army lane knocks on, held longer; nothing tonal,
+   * because the fight already has its bed.
+   */
+  relief(enemy: boolean): void {
+    if (!this.ensure()) return;
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const when = ctx.currentTime;
+    if (!this.claimVoice(when)) return;
+    const strokes: Array<[number, number]> = enemy
+      ? [[0, 0.22], [0.34, 0.26]]
+      : [[0, 0.16], [0.15, 0.2], [0.3, 0.26]];
+    for (const [after, level] of strokes) this.thud(when + after, enemy ? 96 : 120, enemy ? 48 : 62, level);
+  }
+
+  /** A drum skin struck: the knock's low cousin, with a body that rings for a fifth of a second. */
+  private thud(when: number, from: number, to: number, level: number): void {
+    const ctx = this.ctx;
+    const dest = this.out;
+    if (!ctx || !dest) return;
+    const body = ctx.createOscillator();
+    body.type = 'sine';
+    body.frequency.setValueAtTime(from, when);
+    body.frequency.exponentialRampToValueAtTime(to, when + 0.09);
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0001, when);
+    env.gain.linearRampToValueAtTime(level, when + 0.008);
+    env.gain.exponentialRampToValueAtTime(0.0005, when + 0.22);
+    body.connect(env); env.connect(dest);
+    body.start(when); body.stop(when + 0.25);
+  }
+
   /** A short low thump: the weight of stock, a drum skin, a plank. */
   private knock(when: number, from: number, to: number, level: number): void {
     const ctx = this.ctx;

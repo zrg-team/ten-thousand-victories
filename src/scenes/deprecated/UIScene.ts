@@ -2312,8 +2312,7 @@ export class UIScene extends Phaser.Scene {
     this.clearModalLayer();
     this.modalLayer.setVisible(true);
     const panel = new CampaignScorePanel(this, this.state, () => {
-      this.scene.stop('UIScene');
-      this.scene.start('MenuScene');
+      this.events.emit('ui:exit-to-menu', false);
     });
     for (const obj of panel.render()) {
       this.modalLayer.add(obj);

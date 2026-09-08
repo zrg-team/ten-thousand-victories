@@ -17,6 +17,7 @@ import { GAME_HEIGHT, HEADER_HEIGHT } from '../../../game/constants';
 import { hudSheetWidth } from '../../../game/cameraLayout';
 import { battleStageSpan, setHudSheet } from '../hudSheet';
 import { royalScroll } from '../../../ui/ink/royalScroll';
+import { drawHouseSeal, houseBanner } from '../../../ui/ascent/houseBanner';
 import { ourHosts, battleTelegraph } from '../../../systems/ascent/BattleSystem';
 import { defenceCommanderOf } from '../../../systems/ascent/landCommand';
 import { findLand } from '../../../systems/LandSystem';
@@ -296,8 +297,10 @@ function battleHeaderFrame(self: ConquestUIScene, battle: AscentBattle): {
   const { top, bottom: stageBottom, frame } = battleStageSpan();
   if (frame > 0) {
     self.modalLayer.add(royalScroll(
-      self, -frame, top - frame, hudSheetWidth() + frame * 2, stageBottom - top + frame * 2,
+      self, -frame, top - frame, hudSheetWidth() + frame * 2, stageBottom - top + frame * 2, false,
     ));
+    self.modalLayer.add(drawHouseSeal(self, houseBanner(), 24)
+      .setPosition(hudSheetWidth() / 2, top - frame + 130));
   }
   // Opaque, and only this screen is. `beginOverlay` hides the map for the battle lane and for
   // nothing else, so the seven percent showing through at 0.93 was not the world - it was the
@@ -595,9 +598,10 @@ export function showBattle(self: ConquestUIScene): void {
   const exits = self.add.container(0, 0);
   const moment = self.add.container(0, 0);
   const relief = self.add.container(0, 0);
+  const fanfare = self.add.container(0, 0);
   const fallen = self.add.graphics();
   field.add(fallen);
-  self.modalLayer.add([field, bubbles, floaters, pips, readout, relief, orders, exits, moment]);
+  self.modalLayer.add([field, bubbles, floaters, pips, readout, relief, fanfare, orders, exits, moment]);
 
   self.battleUi = {
     content,
@@ -610,6 +614,8 @@ export function showBattle(self: ConquestUIScene): void {
     bubbleShoutAt: 0,
     bubbleOf: {},
     bubbleFaded: { ours: false, theirs: false },
+    bubbleCalled: {},
+    fanfare,
     notice: frame.notice,
     logLine: frame.log,
     pipBounds: frame.pips,

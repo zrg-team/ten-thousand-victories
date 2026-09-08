@@ -5,10 +5,10 @@ Expansion requested on 6 September 2026: at least 50 new images matching `public
 ## Artwork and coverage
 
 - One distinct new scene for each of the 50 existing power card IDs, including ordinary drafts, story rewards, evolutions, and the eight founding advantages. No card IDs, effects, rarity or saved collections change.
-- Original `harvest`, `muster`, and `petition` prints are retained, making 53 illustrations in the runtime folder.
+- Original `harvest`, `muster`, and `petition` prints are retained, making a 53-image card pool. The [12 story settings added on 8 September](dong-ho-story-settings.md) bring the runtime folder to 65 illustrations.
 - Full card faces share the new mappings through `src/ui/storyPrint.ts`; the draft detail and opening power choices use the same selection.
 - Sixteen selected Chronicle moments use matching scenes. The mapping names exact fragments so an image does not reveal a future outcome throughout an entire story. The actual speaker keeps their own portrait.
-- Images are symbolic scenes, not precise portraits or claims of dynasty-specific uniform reconstruction. Unillustrated story moments keep their existing procedural bands.
+- Images are symbolic scenes, not precise portraits or claims of dynasty-specific uniform reconstruction. Other story moments now use [generated setting prints](dong-ho-story-settings.md); procedural bands are a missing-art fallback only.
 
 ## Shared visual rules
 

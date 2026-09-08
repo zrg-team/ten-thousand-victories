@@ -1594,12 +1594,12 @@ export function seal(g: G, x: number, y: number, size: number, motif: SealMotif 
  * reads at seven pixels tall. A Greek-key meander at that size renders, unmistakably, as the letter
  * P repeated ninety times; this does not.
  */
-export function sawtoothBand(g: G, x: number, y: number, width: number, height: number, alpha = 0.42): void {
-  g.lineStyle(0.75, PIGMENT.muc, alpha);
+export function sawtoothBand(g: G, x: number, y: number, width: number, height: number, alpha = 0.42, colour: number = PIGMENT.muc): void {
+  g.lineStyle(0.75, colour, alpha);
   g.lineBetween(x, y, x + width, y);
   g.lineBetween(x, y + height, x + width, y + height);
   const step = height * 1.05;
-  g.lineStyle(0.75, PIGMENT.muc, alpha * 1.2);
+  g.lineStyle(0.75, colour, alpha * 1.2);
   for (let index = 0; x + index * step < x + width - step; index += 1) {
     const px = x + 1 + index * step;
     g.strokePoints(

@@ -73,16 +73,8 @@ const RAISE_SCALE = 1.12;
 const BOTTOM_PAD = 6;
 /** Two taps this close on the same raised card are a take. */
 const DOUBLE_TAP_MS = 350;
-/** An upward travel this long is a flick, and a flick is a take. */
-const FLICK_UP = 44;
-/**
- * The most a flick may take, wall-clock. Generous on purpose: nothing in the fan's area
- * scrolls, so direction and distance are the real discriminators — the window only rules out a
- * finger that pressed, wandered off, and came back. Measured: 500ms rejected a deliberate flick
- * dragged at frame rate (headless frames stretched an eight-step swipe to a full second, and a
- * slow human swipe-up is no faster).
- */
-const FLICK_WINDOW_MS = 1200;
+/** A deliberate upward swipe selects, including a slow swipe or a hold before lifting. */
+const SWIPE_UP = 44;
 
 /** The deal's beats, at full motion. Every one goes through `motionMs`. */
 const DEAL_SLIDE_GAP = 80;
@@ -114,7 +106,7 @@ export class CardFan {
   private takeButtonWidth = 0;
   private lastTap?: { index: number; at: number };
   /** The card a press began on, in raw pointer space — judged at release, wherever that lands. */
-  private pressed?: { index: number; x: number; y: number; at: number };
+  private pressed?: { index: number; x: number; y: number; id: number };
   private readonly cardW: number;
   private readonly cardH: number;
   /** While the deal plays nothing is raised or taken; while the merge plays nothing is taken twice. */
@@ -180,15 +172,15 @@ export class CardFan {
       // The browse gesture: entering a card raises it — a mouse by hovering, a thumb by
       // sliding across the fan. Phaser fires `pointerover` for both.
       zone.on('pointerover', () => {
-        if (this.dealing) return;
+        if (this.dealing || this.merging) return;
         if (this.raised !== index) this.raise(index);
       });
       // Only the press-down is read on the card itself. The release is judged at the scene's
       // own stream, because a flick's whole point is that the finger lets go somewhere *above*
       // the card — where the card's zone never hears the up.
       zone.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-        if (this.dealing) return;
-        this.pressed = { index, x: pointer.x, y: pointer.y, at: scene.time.now };
+        if (this.dealing || this.merging || this.pressed) return;
+        this.pressed = { index, x: pointer.x, y: pointer.y, id: pointer.id };
       });
       container.add(zone);
 
@@ -318,21 +310,27 @@ export class CardFan {
   /** One press, three readings: an upward flick takes, a quick second tap takes, a tap raises. */
   private onRelease(pointer: Phaser.Input.Pointer): void {
     const pressed = this.pressed;
+    if (!pressed || pressed.id !== pointer.id) return;
     this.pressed = undefined;
-    if (!pressed || this.dealing) return;
+    if (this.dealing || this.merging || pointer.event?.type === 'touchcancel') return;
 
     // Distances in design units, not raw pixels — the render scale doubles or triples the raw
     // deltas on exactly the phones this is for, and a flick threshold must not.
     const rose = designLength(pressed.y - pointer.y);
     const drifted = Math.abs(designLength(pointer.x - pressed.x));
-    const dt = this.scene.time.now - pressed.at;
-    if (rose > FLICK_UP && drifted < 70 && dt < FLICK_WINDOW_MS) {
+    // Require upward-dominant travel so a sideways browse with a little lift cannot select.
+    // No speed limit: a careful swipe should work just as reliably as a quick flick.
+    if (rose >= SWIPE_UP && rose > drifted) {
+      this.lastTap = undefined;
       this.raise(pressed.index);
       this.takeAt(pressed.index);
       return;
     }
     // Anything that travelled is a browse or an abandoned flick, not a tap.
-    if (rose > 14 || drifted > 14 || -rose > 24) return;
+    if (rose > 14 || drifted > 14 || -rose > 24) {
+      this.lastTap = undefined;
+      return;
+    }
 
     const now = this.scene.time.now;
     const doubled = this.raised === pressed.index
@@ -410,8 +408,10 @@ export class CardFan {
     button.add(text);
     const zone = this.scene.add.zone(-w / 2, -h / 2, w, h).setOrigin(0, 0)
       .setInteractive({ useHandCursor: true });
-    zone.on('pointerup', () => {
-      if (this.dealing) return;
+    zone.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      // A swipe may end over this pill. Let the scene judge that card gesture once,
+      // including cancellation and direction, instead of treating its release as a button tap.
+      if (this.dealing || this.pressed || pointer.event?.type === 'touchcancel') return;
       this.takeAt(this.raised);
     });
     button.add(zone);

@@ -1,0 +1,137 @@
+{
+  "mode": "built-in ImageGen",
+  "assets": [
+    {
+      "id": "court",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-491259e6-92cf-4aeb-8f1e-7a52438e2b12.png",
+      "master": "output/story-settings/masters/court.png",
+      "runtime": "public/art/story-prints/setting-court-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 103234,
+      "sha256": "712fd09fae163021a71dfeb119edf0e67f47fa84ea7b2d84c206485624d25cc9",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#court"
+    },
+    {
+      "id": "river",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-8e730211-4156-469a-85f3-35fb1f4cf46b.png",
+      "master": "output/story-settings/masters/river.png",
+      "runtime": "public/art/story-prints/setting-river-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 132428,
+      "sha256": "343535da9a91821e2f7b586ae0b5bed3837e8155ddbf88736f6f397bb7b2222f",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#river"
+    },
+    {
+      "id": "field",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-b563fe04-b8b6-471c-bd1b-3e119d629a01.png",
+      "master": "output/story-settings/masters/field.png",
+      "runtime": "public/art/story-prints/setting-field-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 127260,
+      "sha256": "da5ad878094ad345b4d347bc6c7ab9ef3cf733387ad658d4a0165bee04798c35",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#field"
+    },
+    {
+      "id": "coast",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-22e31a65-c433-4ddd-98d4-f54d94fcfd08.png",
+      "master": "output/story-settings/masters/coast.png",
+      "runtime": "public/art/story-prints/setting-coast-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 143054,
+      "sha256": "adaf101061ae63ab1ae12c9f814c074dad68c69c41adfa209671c8da7b5c0b03",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#coast"
+    },
+    {
+      "id": "mountain",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-a2ce7a2d-a8d2-4989-8bcd-742f7c8ec88c.png",
+      "master": "output/story-settings/masters/mountain.png",
+      "runtime": "public/art/story-prints/setting-mountain-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 132860,
+      "sha256": "8e3885de4a0cb08e8cf1adcdc30be4c4e24550a0fae7d1ce9c6046d34bf190cd",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#mountain"
+    },
+    {
+      "id": "march",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-70e4ebb5-664a-455f-9a15-1b7d9d3cc280.png",
+      "master": "output/story-settings/masters/march.png",
+      "runtime": "public/art/story-prints/setting-march-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 130194,
+      "sha256": "c4587f41b3649254051898dcf0d71c498463d35115fa80126b09a08e24b6a99f",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#march"
+    },
+    {
+      "id": "fire",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-44a1f130-5846-43a4-b4bb-a6f01896b9bf.png",
+      "master": "output/story-settings/masters/fire.png",
+      "runtime": "public/art/story-prints/setting-fire-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 116088,
+      "sha256": "bd809902909aea6aaa349fdbdba4dd74c8722f631ce417d8dd7d1b750e4a444b",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#fire"
+    },
+    {
+      "id": "granary",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-486e67f3-a142-41d0-83c0-cf0cdd280220.png",
+      "master": "output/story-settings/masters/granary.png",
+      "runtime": "public/art/story-prints/setting-granary-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 133122,
+      "sha256": "a93838aef7f4a1c406b7df6de9f1ca105702a933cd405d47c7f4bb003125205d",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#granary"
+    },
+    {
+      "id": "night",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-77382d86-23e8-4eab-9064-1883e19bc24c.png",
+      "master": "output/story-settings/masters/night.png",
+      "runtime": "public/art/story-prints/setting-night-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 122878,
+      "sha256": "6c5177ba5aa0ed3336f3b63b5cb5a38f0a2a93dd4857d9b76d818947e2021184",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#night"
+    },
+    {
+      "id": "crowd",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-367a8d25-12ad-490e-8b4d-509c1d59d8d7.png",
+      "master": "output/story-settings/masters/crowd.png",
+      "runtime": "public/art/story-prints/setting-crowd-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 126290,
+      "sha256": "c1da69f15f41f1a9dfbcd3d0bbe52ab0f457ed41e18a6d8728b0c9ba9671d377",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#crowd"
+    },
+    {
+      "id": "shrine",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-1131b469-bc01-472a-a40f-f6f3bdd89093.png",
+      "master": "output/story-settings/masters/shrine.png",
+      "runtime": "public/art/story-prints/setting-shrine-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 118200,
+      "sha256": "2181dac8657a61a5e8d1dff21e901fb8828c3b363628c76306374d719c201543",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#shrine"
+    },
+    {
+      "id": "border",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-474c36df-6f28-4cf9-9e0b-4354fe3f40e3.png",
+      "master": "output/story-settings/masters/border.png",
+      "runtime": "public/art/story-prints/setting-border-v1.webp",
+      "width": 768,
+      "height": 432,
+      "bytes": 124762,
+      "sha256": "9f0f844d9c4e058d2a917d59d16853fe9eb05900631098d84ae1c8b0250916b2",
+      "prompt": "docs/dong-ho-story-setting-prompts.json#border"
+    }
+  ]
+}

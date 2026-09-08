@@ -16,6 +16,7 @@ import { SoldierRenderer } from './SoldierRenderer';
 import type { LandBuildingType } from '../state/types';
 import { UI_FONT } from './fonts';
 import { createPlayerLandFlag } from './playerFlag';
+import { drawHouseSign, houseBanner } from './ascent/houseBanner';
 import type { MapItemRenderer, ProgressBadgeVariant } from './MapItemRenderer';
 
 export class InkMapItemRenderer implements MapItemRenderer {
@@ -154,6 +155,8 @@ export class InkMapItemRenderer implements MapItemRenderer {
 
     const formation = this.soldiers.createFormation(isPlayer, 12);
     container.add(formation);
+
+    if (isPlayer) container.add(drawHouseSign(this.scene, houseBanner(), 18, 18).setPosition(-43, -27));
 
     return container;
   }

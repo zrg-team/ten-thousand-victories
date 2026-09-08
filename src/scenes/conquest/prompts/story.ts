@@ -74,6 +74,7 @@ export function showStoryBeat(self: ConquestUIScene, prompt: Extract<AscentPromp
       { x: 0, y: used, width: bodyWidth, height: 68 },
       {
         icon: iconForOption(option.id),
+        iconArt: 'story',
         title: storyText(key(option.id), prompt.params),
         body: storyText(key(`${option.id}.d`), prompt.params),
         note: option.cost
