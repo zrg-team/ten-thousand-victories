@@ -446,6 +446,7 @@ export class DongHoMapRenderer implements MapRenderer {
     // `inkFoot` for the measurements.
     image.setDepth(groundDepth(stampFootY(image)));
     this.generatedDecoration.push(image);
+    this.scene.events.emit('map-decoration-ready', image);
     return true;
   }
 
@@ -478,6 +479,7 @@ export class DongHoMapRenderer implements MapRenderer {
     // Redraws can change clear bottom padding. Sort on the actual root/foot ink, as relief does.
     image.setDepth(groundDepth(stampFootY(image)));
     this.generatedDecoration.push(image);
+    this.scene.events.emit('map-decoration-ready', image);
     return true;
   }
 

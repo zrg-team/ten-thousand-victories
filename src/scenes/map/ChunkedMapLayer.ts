@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { getGraphicsQuality } from '../../game/graphicsQuality';
 import { mapWork, registerMapWork } from './mapWorkBudget';
+import { mapPreparationWorker } from './MapPreparationWorker';
 import { maxTextureSize } from '../../ui/ink/textureLimits';
 import { MAP_CHUNK_SIZE as SIZE, graphicsCells, commandBatches } from './GraphicsChunks';
 
@@ -72,8 +73,15 @@ export class ChunkedMapLayer {
   private invalidations = 0;
   private pendingWork = true;
   private lastPose = '';
+  private readonly viewRect = new Phaser.Geom.Rectangle();
+  private readonly nearbyRect = new Phaser.Geom.Rectangle();
+  private readonly rectangles = new Map<string,Phaser.Geom.Rectangle>();
+  private synchronous = false;
   private stopBudget: () => void;
-  private readonly tick = () => mapWork(this.scene, remaining => this.update(remaining));
+  private readonly tick = () => {
+    if(!this.prepare&&!this.paint&&!this.pendingWork&&!this.concealed.length&&this.lastPose===this.pose())return;
+    mapWork(this.scene, remaining => this.update(remaining));
+  };
   private readonly restored = () => { this.clearTiles(); this.invalidate(this.sources, this.width, this.height, this.scale); };
 
   constructor(private scene: Phaser.Scene, private depth: number) {
@@ -91,6 +99,7 @@ export class ChunkedMapLayer {
     if (this.disposed) return;
     this.prepare?.return(undefined); this.paint?.return(undefined); this.paint = undefined; this.paintingKey = undefined;
     this.sources = sources.filter(source => !!source.scene) as Source[];
+    if(this.width!==width||this.height!==height)this.rectangles.clear();
     this.width = width; this.height = height;
     const nextScale = Math.min(scale, (maxTextureSize(this.scene) - 4) / SIZE);
     if (nextScale !== this.scale) this.clearTiles();
@@ -158,7 +167,7 @@ export class ChunkedMapLayer {
       if (!source.scene) continue;
       const base = `${id(source)}:${source.x}:${source.y}:${source.scaleX}:${source.scaleY}:${source.rotation}:${source.alpha}`;
       if (source instanceof Phaser.GameObjects.Graphics) {
-        const cells = yield* graphicsCells(source);
+        const cells = yield* graphicsCells(source, this.synchronous);
         for (const [key, cell] of cells) add(key, { source, commands: cell.commands, signature: `${base}:${cell.hash}:${cell.commands.length}` });
       } else {
         const bounded = source as Source & { getBounds?(): Phaser.Geom.Rectangle; texture?: { key: string }; frame?: { name: string | number }; tintTopLeft?: number; flipX?: boolean; flipY?: boolean };
@@ -178,11 +187,13 @@ export class ChunkedMapLayer {
 
   private view(): Phaser.Geom.Rectangle {
     const camera = this.scene.cameras.main;
-    return new Phaser.Geom.Rectangle(camera.scrollX, camera.scrollY, camera.width / camera.zoom, camera.height / camera.zoom);
+    return this.viewRect.setTo(camera.scrollX, camera.scrollY, camera.width / camera.zoom, camera.height / camera.zoom);
   }
   private rectangle(key: string): Phaser.Geom.Rectangle {
+    const saved=this.rectangles.get(key);if(saved)return saved;
     const [x, y] = key.split(',').map(Number);
-    return new Phaser.Geom.Rectangle(x * SIZE, y * SIZE, Math.min(SIZE, this.width - x * SIZE), Math.min(SIZE, this.height - y * SIZE));
+    const box=new Phaser.Geom.Rectangle(x * SIZE, y * SIZE, Math.min(SIZE, this.width - x * SIZE), Math.min(SIZE, this.height - y * SIZE));
+    this.rectangles.set(key,box);return box;
   }
   private signature(parts: Part[]): string { return parts.map(part => part.signature).join('|'); }
   /** Whether the tile standing on a cell was painted from the current plans. */
@@ -336,7 +347,7 @@ export class ChunkedMapLayer {
     if (this.disposed || renderer.contextLost || renderer.gl.isContextLost()) return;
     const started = performance.now(), view = this.view(); this.clock++; this.blocked = false;
     const pose = this.pose(); if (pose !== this.lastPose) this.pendingWork = true; this.lastPose = pose;
-    const nearby = Phaser.Geom.Rectangle.Clone(view); Phaser.Geom.Rectangle.Inflate(nearby, SIZE / 2, SIZE / 2);
+    const nearby = this.nearbyRect.setTo(view.x-SIZE/2,view.y-SIZE/2,view.width+SIZE,view.height+SIZE);
     for (const tile of this.tiles.values()) {
       tile.visible = Phaser.Geom.Intersects.RectangleToRectangle(this.rectangle(tile.key), view);
       tile.nearby = Phaser.Geom.Intersects.RectangleToRectangle(this.rectangle(tile.key), nearby);
@@ -345,7 +356,10 @@ export class ChunkedMapLayer {
     // A hole in the picture outranks the frame budget — see `VISIBLE_BOOST_MS`.
     const allowed = this.visibleDeficit() > 0 ? Math.max(budgetMs, VISIBLE_BOOST_MS) : budgetMs;
     while (!this.blocked && performance.now() - started < allowed) {
-      if (this.prepare) { if (this.prepare.next().done) this.prepare = undefined; else continue; }
+      if (this.prepare) {
+        if (this.prepare.next().done) this.prepare = undefined;
+        else { if (!this.synchronous && mapPreparationWorker(this.scene)?.waiting) break; continue; }
+      }
       if (this.paint) {
         if (this.paint.next().done) { this.paint = undefined; this.paintingKey = undefined; } else continue;
       }
@@ -374,7 +388,12 @@ export class ChunkedMapLayer {
   }
 
   /** Initial map construction and deterministic screenshots may finish the visible area before exposing it. */
-  flush(): void { this.update(30_000); }
+  flush(): void {
+    // A caller cannot synchronously wait for a worker message on this thread.
+    // Abandon only the pending plan and recompute it with the same pure functions.
+    if(this.prepare && mapPreparationWorker(this.scene)?.waiting){this.prepare.return(undefined);this.prepare=this.preparePlans();}
+    this.synchronous=true;try{this.update(30_000);}finally{this.synchronous=false;}
+  }
   stats(): { tiles: number; bytes: number; pending: boolean; deficit: number; concealed: number; builds: number; invalidations: number; maxWorkMs: number } {
     return { tiles: this.tiles.size, bytes: [...this.budget.tiles].reduce((sum, tile) => sum + tile.bytes, this.budget.pending),
       pending: !!this.prepare || !!this.paintingKey || [...this.plans].some(([key]) => Phaser.Geom.Intersects.RectangleToRectangle(this.rectangle(key), this.view()) && this.tiles.get(key)?.signature !== this.planSignatures.get(key)),
@@ -384,6 +403,7 @@ export class ChunkedMapLayer {
   destroy(): void {
     if (this.disposed) return;
     this.disposed = true; this.stopBudget(); this.prepare?.return(undefined); this.paint?.return(undefined); this.clearTiles(); this.cover?.destroy();
+    this.rectangles.clear();this.sources=[];this.plans.clear();this.planSignatures.clear();
     this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.tick);
     (this.scene.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer).off?.(Phaser.Renderer.Events.RESTORE_WEBGL, this.restored);
   }

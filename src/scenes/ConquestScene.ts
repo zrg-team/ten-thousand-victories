@@ -41,6 +41,7 @@ import type { ArmyOrders, FieldStance } from '../state/types';
  *  4. it answers the ascent prompt bus
  */
 export class ConquestScene extends MapScene {
+  protected override retainedMapPaths():Phaser.GameObjects.Graphics[]{return [...super.retainedMapPaths(),...[...this.ownershipRegions.values()].map(region=>region.graphics)];}
   /**
    * Scene time at which the Skirmish may hand back to its setup screen.
    *

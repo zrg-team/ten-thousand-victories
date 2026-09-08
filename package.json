@@ -12,6 +12,12 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5179",
     "perf:drag": "node test_scripts/perf/measure-map-drag.mjs",
+    "perf:conquest": "node test_scripts/perf/conquest-performance.mjs",
+    "perf:map-refresh": "node test_scripts/perf/measure-map-refresh.mjs",
+    "perf:spatial": "node test_scripts/perf/compare-spatial-index.mjs",
+    "perf:chunk-raster": "node test_scripts/perf/compare-chunk-raster.mjs",
+    "verify:retained-scenery": "node test_scripts/verify/verify-retained-scenery.mjs",
+    "verify:map-preparation": "node test_scripts/verify/verify-map-preparation.mjs",
     "verify:map-drag": "node test_scripts/verify/verify-map-drag.mjs",
     "perf:acceptance": "node test_scripts/perf/performance-acceptance.mjs",
     "perf:soak": "node test_scripts/perf/performance-soak.mjs",

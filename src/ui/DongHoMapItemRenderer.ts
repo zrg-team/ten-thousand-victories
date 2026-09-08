@@ -1108,6 +1108,7 @@ export class DongHoMapItemRenderer extends InkMapItemRenderer {
           : { scaleX: base * 1.06, scaleY: base * 1.06, duration: 820, ease: 'Sine.easeInOut' };
 
     const tween = scene.tweens.add({ targets: mark, yoyo: true, repeat: -1, ...spec });
+    container.setData('progressTween', tween);
     container.once(Phaser.GameObjects.Events.DESTROY, () => tween.remove());
   }
 
@@ -1122,7 +1123,6 @@ export class DongHoMapItemRenderer extends InkMapItemRenderer {
     const scene = this.scene as Phaser.Scene;
     const container = scene.add.container(x, y);
     const g = scene.add.graphics();
-    const ratio = Math.max(0, Math.min(1, progress / Math.max(1, required)));
     const urgent = variant === 'acquisition' || variant === 'siege' || variant === 'battle';
     const w = 60;
     const plate: Pt[] = [{ x: -w / 2, y: -12 }, { x: w / 2, y: -12 }, { x: w / 2, y: 12 }, { x: -w / 2, y: 12 }];
@@ -1130,9 +1130,7 @@ export class DongHoMapItemRenderer extends InkMapItemRenderer {
     inkPath(g, plate, 502, { width: 0.9, alpha: 0.78, colour: urgent ? PIGMENT.son : PIGMENT.muc,
       wobble: 0.2, step: 15, closed: true, bleed: 0.1 });
     g.fillStyle(PIGMENT.muc, 0.12).fillRect(-5, 7, 29, 2);
-    if (ratio > 0) {
-      g.fillStyle(urgent ? PIGMENT.son : PIGMENT.tram, 0.9).fillRect(-5, 7, 29 * ratio, 2);
-    }
+    const bar = scene.add.graphics();
     // The glyph occupies its own cell beside the count, with its pivot at the cell centre.
     const generated = conquestArtStamp(scene, `marker.${variant}`, {
       left: -10, right: 10, top: -10, bottom: 10,
@@ -1145,14 +1143,24 @@ export class DongHoMapItemRenderer extends InkMapItemRenderer {
       mark.setScale(variant === 'siege' || variant === 'battle' ? 0.55 : 0.82);
     }
     container.add(g);
+    container.add(bar);
     container.add(mark);
     this.animateOrderGlyph(container, mark, variant);
 
     // Rounded, always. `order.progress` is a running fractional total, and printed raw it put
     // `9.31294468968111/100` across the middle of the map.
-    container.add(scene.add.text(10, -8, `${Math.round(progress)}/${Math.round(required)}`, {
+    const text = scene.add.text(10, -8, '', {
       color: '#2a2118', fontFamily: UI_FONT, fontSize: '9px', fontStyle: '700',
-    }).setOrigin(0.5, 0).setResolution(4));
+    }).setOrigin(0.5, 0).setResolution(4);
+    container.add(text);
+    let previousRatio = NaN;
+    const update = (p: number, r: number): void => {
+      const ratio = Math.max(0, Math.min(1, p / Math.max(1, r)));
+      if (ratio !== previousRatio) {bar.clear();if(ratio>0)bar.fillStyle(urgent ? PIGMENT.son : PIGMENT.tram,0.9).fillRect(-5,7,29*ratio,2);previousRatio=ratio;}
+      const label = `${Math.round(p)}/${Math.round(r)}`;
+      if(text.text!==label)text.setText(label);
+    };
+    container.setData('updateProgress', update);update(progress, required);
     container.setSize(w, 24).setData('mapAnnotation', 'progress');
     return container;
   }

@@ -2,15 +2,19 @@
 import { boot, startWorld, resolveOpening, FIRST_OPTION, arg } from './_boot.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 const minutes = Number(arg('minutes', '20'));
-const { browser, page, cdp, errors } = await boot({ quality: 'medium', dpr: 2, gc: true, query: '?capture=1&bench=1' });
+const { browser, page, cdp, errors } = await boot({ quality: 'medium', dpr: 2, gc: true, headless:process.env.HEADED!=='1', query: '?capture=1&bench=1' + (process.env.EXTRA_QUERY??'') });
 const directory = arg('out', 'output/performance-review/soak');
 await mkdir(directory, { recursive: true });
 const samples = [];
-let runs = 1, navigations = 0, turns = 0, previousTurn = 0, battleSamples = 0;
+let runs = 1, navigations = 0, turns = 0, previousTurn = 0, battleSamples = 0, resumes = 0;
 try {
   await startWorld(page, { mode: 'ascent' }); await resolveOpening(page);
-  const start = Date.now(); let nextSample = start;
+  const start = Date.now(); let nextSample = start, nextResume=start+120000;
   while (Date.now() - start < minutes * 60000) {
+    if(Date.now()>=nextResume){
+      await page.evaluate(()=>window.dispatchEvent(new Event('blur')));await page.waitForTimeout(250);
+      await page.evaluate(()=>window.dispatchEvent(new Event('focus')));resumes++;nextResume=Date.now()+120000;
+    }
     const state = await page.evaluate(src => {
       const st = window.__mandateState, game = window.__phaserGame;
       const ui = game.scene.getScene('ConquestUIScene'), world = game.scene.getScene('ConquestScene');
@@ -37,6 +41,10 @@ try {
         ui.closeLane(); window.__mandateState.isStrategyPause = false;
       });
       navigations++;
+      // Real input during the live simulation exercises moving markers and the
+      // retained layer together. This soak is not a frame-timing benchmark.
+      await page.mouse.move(230,330);await page.mouse.down();
+      await page.mouse.move(navigations%2?170:290,390,{steps:12});await page.mouse.up();
       await page.waitForTimeout(100);
       await cdp.send('HeapProfiler.collectGarbage');
       const heap = (await cdp.send('Runtime.getHeapUsage')).usedSize;
@@ -67,7 +75,7 @@ try {
   const resetHeap=(await cdp.send('Runtime.getHeapUsage')).usedSize;
   const retainedGrowth=(resetHeap-samples[0].heap)/1048576;
   const ok = errors.length === 0 && turns > 0 && samples.every(s => s.map.ground.bytes <= 64 * 1048576 && s.chunks === s.map.ground.tiles + s.map.fog.tiles) && retainedGrowth < 24;
-  const result = { ok, minutes, elapsedSeconds: (Date.now()-start)/1000, runs, turns, battleSamples, navigations, tailHeapGrowthMiB: heapGrowth/1048576, resetHeapMiB: resetHeap/1048576, retainedGrowthMiB:retainedGrowth, samples, errors };
+  const result = { ok, minutes, elapsedSeconds: (Date.now()-start)/1000, runs, turns, battleSamples, navigations, resumes, tailHeapGrowthMiB: heapGrowth/1048576, resetHeapMiB: resetHeap/1048576, retainedGrowthMiB:retainedGrowth, samples, errors };
   await writeFile(`${directory}/results.json`, JSON.stringify(result, null, 2));
   console.log(JSON.stringify({ ...result, samples: samples.length })); process.exitCode = ok ? 0 : 1;
 } finally { await browser.close(); }

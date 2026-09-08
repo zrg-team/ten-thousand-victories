@@ -4,6 +4,8 @@ import { preloadStoryPrints, preloadStorySettings } from '../ui/storyPrint';
 import { preloadStoryChoiceIcons } from '../ui/storyChoiceIcons';
 import { preloadThroneHall } from '../ui/ascent/throneHall';
 import Phaser from 'phaser';
+import { RetainedMapRenderer } from './map/RetainedMapRenderer';
+import { ProgressBadgeCache } from './map/ProgressBadgeCache';
 import { pressBeganUnderSheet } from '../ui/inputGeneration';
 import { ACTION_BAR_HEIGHT, COLORS, GAME_HEIGHT, GAME_WIDTH, HEADER_HEIGHT, PLAYER_KINGDOM_ID, REALTIME_TICK_MS, mapViewWidth, surfaceWidth, uiColumnX } from '../game/constants';
 import { isDesktopLayout, isDesktopPlatform } from '../platform/layout';
@@ -86,6 +88,9 @@ type RenderLayer = 'terrain' | 'control' | 'fog' | 'roads' | 'node' | 'badge';
 const RENDER_LAYERS: RenderLayer[] = ['terrain', 'control', 'fog', 'roads', 'node', 'badge'];
 /** `?nocull=1` — diagnostic, to A/B the view culling the way `?nobake=1` A/Bs the bake. */
 const CULLING_DISABLED = typeof window !== 'undefined' && /[?&]nocull=1\b/.test(window.location.search);
+const NO_SUPPRESSED_DETAIL: CullKind[] = [];
+const SUPPRESSED_TRAFFIC: CullKind[] = ['traffic'];
+const SUPPRESSED_TRAFFIC_AND_LABELS: CullKind[] = ['traffic', 'label'];
 
 const MIN_CAMERA_ZOOM = 0.72;
 const MAX_CAMERA_ZOOM = 1.65;
@@ -138,6 +143,8 @@ export class MapScene extends Phaser.Scene {
    *  filler, coast, control, zones, decorations, connections, settlement nodes). Baked
    *  once per static change so Phaser stops re-tessellating ~160k fill commands/frame. */
   private staticBakeRT?: Phaser.GameObjects.RenderTexture;
+  private retainedScenery?: RetainedMapRenderer;
+  private progressBadges = new ProgressBadgeCache((x,y,p,r,v) => this.mapItems.createProgressBadge(x,y,p,r,v));
   private knownVisibility = new Map<string, boolean>();
   private refreshPending = false;
   private refreshJob?: Generator<void>;
@@ -150,7 +157,9 @@ export class MapScene extends Phaser.Scene {
   }
   private sceneryJob?: Generator<void>;
   private stopWorkBudget?: () => void;
-  private readonly prepareScenery = () => mapWork(this, remaining => {
+  private readonly prepareScenery = () => {
+    if(!this.refreshPending&&!this.refreshJob&&!this.sceneryJob)return;
+    mapWork(this, remaining => {
     // Paper is standing over a province while this job re-inks its fog (`concealPending` below), so
     // the job is hurried the same way the chunk bands hurry a hole in view: a frame spent showing a
     // paper patch is not a frame saved. The steps are atomic, and at the shared 3 ms allowance a
@@ -158,7 +167,6 @@ export class MapScene extends Phaser.Scene {
     const allowed = this.overlays?.concealing() ? Math.max(remaining, CONCEAL_BOOST_MS) : remaining;
     if (allowed <= 0 || (this.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer).contextLost) return;
     const start = performance.now();
-    if (this.refreshPending && this.refreshJob) { this.refreshJob.return(undefined); this.refreshJob = undefined; }
     if (!this.refreshJob && this.refreshPending) { this.refreshPending = false; this.refreshJob = this.refreshVisuals(); }
     while (performance.now() - start < allowed) {
       if (this.refreshJob) { if (this.nextVisual(this.refreshJob).done) this.refreshJob = undefined; else continue; }
@@ -167,7 +175,8 @@ export class MapScene extends Phaser.Scene {
     }
     this.refreshCosts.push(performance.now() - start);
     if (this.refreshCosts.length > 600) this.refreshCosts.shift();
-  }, true);
+    }, true);
+  };
   private groundChunks?: ChunkedMapLayer;
   private refreshingVisuals = false;
   private needsGroundBake = false;
@@ -211,6 +220,30 @@ export class MapScene extends Phaser.Scene {
   private viewIndex = new ViewIndex();
   /** The camera pose the culling was last computed for, so a still camera costs one comparison. */
   private lastCullPose = '';
+  private lastCullX = NaN;
+  private lastCullY = NaN;
+  private lastCullZoom = NaN;
+  private lastCullWidth = NaN;
+  private lastCullHeight = NaN;
+  private readonly cullView = new Phaser.Geom.Rectangle();
+  private dynamicCullIds = new Set<string>();
+  private staticCullIds = new Set<string>();
+  private sceneryCullIds = new Set<string>();
+  private decorationPoses = new WeakMap<Phaser.GameObjects.Image, number[]>();
+  private readonly registerDecoration = (object: Phaser.GameObjects.Image): void => {
+    const id = `decoration::${object.getData('decorationKey')}`;
+    if(!this.keepsGroundInkLive(object)){this.viewIndex.remove(id);this.sceneryCullIds.delete(id);return;}
+    let pose=this.decorationPoses.get(object);
+    const values=[object.x,object.y,object.scaleX,object.scaleY,object.rotation,object.width,object.height,object.originX,object.originY];
+    if(pose && values.every((value,i)=>value===pose![i]) && this.viewIndex.has(id))return;
+    if(!pose){
+      pose=[];this.decorationPoses.set(object,pose);
+      object.once('destroy',()=>{this.viewIndex.remove(id);this.sceneryCullIds.delete(id);this.retainedScenery?.invalidate();});
+    }
+    for(let i=0;i<values.length;i++)pose[i]=values[i];
+    this.sceneryCullIds.add(id);
+    this.viewIndex.set(id,{kind:'node',object,x:object.x,y:object.y,radius:0,bounds:object.getBounds(),setCulled:culled=>object.setVisible(!culled)});
+  };
   private renderSignatures: Record<RenderLayer, string> = {
     terrain: '',
     control: '',
@@ -379,6 +412,8 @@ export class MapScene extends Phaser.Scene {
     this.landById = new Map<string, Land>();
     this.nodeSignatures = new Map<string, string>();
     this.viewIndex = new ViewIndex();
+    this.staticCullIds.clear();this.sceneryCullIds.clear();this.dynamicCullIds.clear();
+    this.decorationPoses=new WeakMap();
     this.lastCullPose = '';
     this.fillerTiles = [];
     this.fillerTileMap = new Map<string, HexTile>();
@@ -552,7 +587,12 @@ export class MapScene extends Phaser.Scene {
     if (isDesktopLayout()) this.game.events.on(LAYOUT_RESIZED, this.onLayoutResized);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
 
+    this.events.on('map-decoration-ready',this.registerDecoration);
     this.drawMap();
+    // Keep the original Phaser path available for diagnosis and compatibility.
+    if (new URLSearchParams(location.search).get('retained') !== '0' && 'gl' in this.game.renderer) {
+      this.retainedScenery = new RetainedMapRenderer(this, () => !!this.refreshJob || !!this.sceneryJob,()=>this.retainedMapPaths());
+    }
     this.knownVisibility = new Map(this.state.lands.map(land => [land.id, land.isVisible]));
     this.stopWorkBudget = registerMapWork(this, () => this.refreshPending || !!this.refreshJob || !!this.sceneryJob);
     this.events.on(Phaser.Scenes.Events.UPDATE, this.prepareScenery);
@@ -612,6 +652,8 @@ export class MapScene extends Phaser.Scene {
     // *before* hiding the source layers, so every static layer under depth 1.5 went on drawing live,
     // every frame, for the rest of the run. Roughly 160k fill and upload commands a frame instead of
     // one textured quad — the "second fight is unplayable" bug.
+    this.progressBadges.destroy();
+    this.events.off('map-decoration-ready',this.registerDecoration);
     this.refreshJob?.return(undefined); this.refreshJob = undefined; this.refreshPending = false;
     this.sceneryJob?.return(undefined); this.sceneryJob = undefined;
     this.events.off(Phaser.Scenes.Events.UPDATE, this.prepareScenery);
@@ -800,9 +842,10 @@ export class MapScene extends Phaser.Scene {
     for (const _ of this.syncCullableJobs()) { /* initial registration */ }
   }
 
-  private *syncCullableJobs(): Generator<void> {
+  private *syncCullableJobs(includeStatic = true, includeScenery = includeStatic): Generator<void> {
+    if (includeStatic) this.retainedScenery?.invalidate();
     const live = new Set<string>();
-
+    if (includeStatic) {
     for (const [landId, node] of this.landNodes) {
       yield;
       const id = `land::${landId}`;
@@ -847,6 +890,8 @@ export class MapScene extends Phaser.Scene {
 
     // Printed foliage and relief share the live foot-sorted band with settlements. Register
     // their complete bounds so only nearby images draw, including the tip of a tall mountain.
+    if (includeScenery && this.mapRenderer.theme.id !== 'dong-ho') {
+    const scenery = new Set<string>();
     let decorationIndex = 0;
     for (const object of this.children.list) {
       yield;
@@ -854,12 +899,12 @@ export class MapScene extends Phaser.Scene {
         || !this.keepsGroundInkLive(object)
         || object.getData('conquestGroundOrder') === 'settlement') continue;
       const id = `decoration::${object.getData('decorationKey') ?? decorationIndex++}`;
-      live.add(id);
+      scenery.add(id);
       const pose = `${object.x}:${object.y}:${object.scaleX}:${object.scaleY}:${object.rotation}:${object.width}:${object.height}:${object.originX}:${object.originY}`;
       if (this.viewIndex.has(id) && object.getData('viewPose') === pose) continue;
       object.setData('viewPose', pose);
       const width = Math.abs(object.displayWidth), height = Math.abs(object.displayHeight);
-      live.add(id);
+      scenery.add(id);
       this.viewIndex.set(id, {
         kind: 'node', object,
         bounds: object.getBounds(),
@@ -868,6 +913,10 @@ export class MapScene extends Phaser.Scene {
         radius: Math.hypot(width, height) / 2 + 4,
         setCulled: (culled) => object.setVisible(!culled),
       });
+    }
+
+    for(const id of this.sceneryCullIds)if(!scenery.has(id))this.viewIndex.remove(id);
+    this.sceneryCullIds=scenery;
     }
 
     for (const [landId, label] of this.landLabels) {
@@ -896,10 +945,16 @@ export class MapScene extends Phaser.Scene {
       });
     }
 
+    }
+    if (includeStatic) {
+      for(const id of this.staticCullIds)if(!live.has(id))this.viewIndex.remove(id);
+      this.staticCullIds=live;
+    }
+    const dynamic = new Set<string>();
     for (const target of this.armies.cullTargets()) {
       yield;
       const id = `army::${target.id}`;
-      live.add(id);
+      dynamic.add(id);
       // Anchored on the leg the host is walking, not on where it stood when it was indexed — see
       // `ArmyRenderer.cullTargets`. Re-indexing it every frame would cost more than the one object
       // it saves, and `syncViewCulling` would not re-run for it anyway under a still camera.
@@ -914,7 +969,7 @@ export class MapScene extends Phaser.Scene {
 
     for (const target of this.traffic.cullTargets()) {
       yield;
-      live.add(target.id);
+      dynamic.add(target.id);
       this.viewIndex.set(target.id, {
         kind: 'traffic',
         x: target.x,
@@ -926,7 +981,7 @@ export class MapScene extends Phaser.Scene {
 
     for (const target of this.overlays.cloudTargets()) {
       yield;
-      live.add(target.id);
+      dynamic.add(target.id);
       this.viewIndex.set(target.id, {
         kind: 'cloud',
         x: target.x,
@@ -936,7 +991,8 @@ export class MapScene extends Phaser.Scene {
       });
     }
 
-    this.viewIndex.retainOnly(live);
+    for (const id of this.dynamicCullIds) if (!dynamic.has(id)) this.viewIndex.remove(id);
+    this.dynamicCullIds = dynamic;
     // The roster just changed, so the pose cache cannot vouch for the new entries.
     this.syncViewCulling(true);
   }
@@ -952,9 +1008,9 @@ export class MapScene extends Phaser.Scene {
   private suppressedDetail(): CullKind[] {
     const threshold = lodZoomThreshold();
     if (threshold === undefined || this.mapZoom >= threshold) {
-      return [];
+      return NO_SUPPRESSED_DETAIL;
     }
-    return lodDropsLabels() ? ['traffic', 'label'] : ['traffic'];
+    return lodDropsLabels() ? SUPPRESSED_TRAFFIC_AND_LABELS : SUPPRESSED_TRAFFIC;
   }
 
   /**
@@ -970,19 +1026,21 @@ export class MapScene extends Phaser.Scene {
       return;
     }
     const camera = this.cameras.main;
-    const pose = `${Math.round(camera.scrollX)}|${Math.round(camera.scrollY)}|${camera.zoom.toFixed(3)}`;
+    const x = camera.scrollX, y = camera.scrollY, zoom = camera.zoom;
     const lodChanged = this.viewIndex.setSuppressed(this.suppressedDetail());
-    if (!force && !lodChanged && pose === this.lastCullPose) {
+    if (!force && !lodChanged && x === this.lastCullX && y === this.lastCullY && zoom === this.lastCullZoom
+      && camera.width === this.lastCullWidth && camera.height === this.lastCullHeight) {
       return;
     }
-    this.lastCullPose = pose;
+    this.lastCullX = x; this.lastCullY = y; this.lastCullZoom = zoom;
+    this.lastCullWidth = camera.width; this.lastCullHeight = camera.height;
 
     // Built from scroll and zoom rather than read off `camera.worldView`, which Phaser only
     // recomputes in preRender. The first cull runs at the end of `drawMap`, before any frame has
     // been rendered, where `worldView` is still empty — and because scroll and zoom are already
     // final by then, the pose cache would have locked that answer in and culled the whole map,
     // player's capital included. The camera's origin is (0,0), so scroll is the top-left corner.
-    const view = new Phaser.Geom.Rectangle(
+    const view = this.cullView.setTo(
       camera.scrollX,
       camera.scrollY,
       camera.width / camera.zoom,
@@ -2414,9 +2472,7 @@ export class MapScene extends Phaser.Scene {
   }
 
   private drawAcquisitionMarkers(): void {
-    for (const marker of this.acquisitionMarkers) {
-      marker.destroy();
-    }
+    this.progressBadges.begin('acquisition');
     this.acquisitionMarkers = [];
 
     for (const order of this.state.acquisitionOrders) {
@@ -2426,10 +2482,11 @@ export class MapScene extends Phaser.Scene {
       }
 
       const { x, y } = this.getVisibleLandMarkerPoint(land);
-      const marker = this.progressBadge(x, y, order.progress, order.required, 'acquisition');
+      const marker = this.progressBadge(land.id, x, y, order.progress, order.required, 'acquisition');
       marker.setDepth(72);
       this.acquisitionMarkers.push(marker);
     }
+    this.progressBadges.end('acquisition');
   }
 
   /**
@@ -2438,9 +2495,9 @@ export class MapScene extends Phaser.Scene {
    * Đông Hồ uses a wider single plate for glyph and count; the other themes retain their
    * original base size. All stop growing above the normal reading zoom.
    */
-  private progressBadge(x: number, y: number, progress: number, required: number, variant: ProgressBadgeVariant): Phaser.GameObjects.Container {
+  private progressBadge(id: string, x: number, y: number, progress: number, required: number, variant: ProgressBadgeVariant): Phaser.GameObjects.Container {
     const base = this.mapRenderer.theme.id === 'dong-ho' ? 1.1 : MAP_BADGE_SCALE;
-    return this.mapItems.createProgressBadge(x, y, progress, required, variant)
+    return this.progressBadges.get(id, x, y, progress, required, variant)
       .setData('annotationBaseScale', base).setScale(base * Math.min(1, 1.15 / this.mapZoom));
   }
 
@@ -2461,9 +2518,7 @@ export class MapScene extends Phaser.Scene {
 
   /** Shows a hammer-and-progress badge over any district with construction underway. */
   private drawBuildMarkers(): void {
-    for (const marker of this.buildMarkers) {
-      marker.destroy();
-    }
+    this.progressBadges.begin('build');
     this.buildMarkers = [];
 
     for (const order of this.state.buildOrders) {
@@ -2473,10 +2528,11 @@ export class MapScene extends Phaser.Scene {
       }
 
       const { x, y } = this.getVisibleLandMarkerPoint(land);
-      const marker = this.progressBadge(x, y, order.progress, order.required, 'build');
+      const marker = this.progressBadge(land.id, x, y, order.progress, order.required, 'build');
       marker.setDepth(72);
       this.buildMarkers.push(marker);
     }
+    this.progressBadges.end('build');
   }
 
   /**
@@ -2493,9 +2549,7 @@ export class MapScene extends Phaser.Scene {
    * The carried clock wins where a province somehow has both, being the more final of the two.
    */
   private drawSiegeMarkers(): void {
-    for (const marker of this.siegeMarkers) {
-      marker.destroy();
-    }
+    this.progressBadges.begin('siege');
     this.siegeMarkers = [];
 
     const carried = new Set<string>();
@@ -2507,7 +2561,7 @@ export class MapScene extends Phaser.Scene {
       }
 
       const { x, y } = this.getVisibleLandMarkerPoint(land);
-      const marker = this.progressBadge(x, y, order.progress, order.required, 'siege');
+      const marker = this.progressBadge(land.id, x, y, order.progress, order.required, 'siege');
       marker.setDepth(72);
       this.siegeMarkers.push(marker);
     }
@@ -2521,11 +2575,12 @@ export class MapScene extends Phaser.Scene {
       // Seasons spent against seasons bought, so the badge fills as the walls run out — the same
       // "how far through is this" the other five badges carry.
       const marker = this.progressBadge(
-        x, y, Math.max(0, siege.ticks - siege.ticksLeft), Math.max(1, siege.ticks), 'siege',
+        land.id, x, y, Math.max(0, siege.ticks - siege.ticksLeft), Math.max(1, siege.ticks), 'siege',
       );
       marker.setDepth(72);
       this.siegeMarkers.push(marker);
     }
+    this.progressBadges.end('siege');
   }
 
   /**
@@ -2544,9 +2599,7 @@ export class MapScene extends Phaser.Scene {
    * blades with a wall under them, and it is the more specific statement of the two.
    */
   private drawBattleMarkers(): void {
-    for (const marker of this.battleMarkers) {
-      marker.destroy();
-    }
+    this.progressBadges.begin('battle');
     this.battleMarkers = [];
 
     for (const fight of liveBattles(this.state)) {
@@ -2563,18 +2616,17 @@ export class MapScene extends Phaser.Scene {
       // through is this" the other four badges carry, for the one of them the player can still
       // change the answer to.
       const marker = this.progressBadge(
-        x, y, fight.round, Math.max(1, fight.totalRounds), 'battle',
+        land.id, x, y, fight.round, Math.max(1, fight.totalRounds), 'battle',
       );
       marker.setDepth(72);
       this.battleMarkers.push(marker);
     }
+    this.progressBadges.end('battle');
   }
 
   /** Shows a flag-and-progress badge over the capital while an army is being recruited. */
   private drawRecruitMarkers(): void {
-    for (const marker of this.recruitMarkers) {
-      marker.destroy();
-    }
+    this.progressBadges.begin('recruit');
     this.recruitMarkers = [];
 
     for (const order of this.state.recruitmentOrders) {
@@ -2584,10 +2636,11 @@ export class MapScene extends Phaser.Scene {
       }
 
       const { x, y } = this.getVisibleLandMarkerPoint(land);
-      const marker = this.progressBadge(x, y, order.progress, order.required, 'recruit');
+      const marker = this.progressBadge(land.id, x, y, order.progress, order.required, 'recruit');
       marker.setDepth(72);
       this.recruitMarkers.push(marker);
     }
+    this.progressBadges.end('recruit');
   }
 
   private getVisibleLandMarkerPoint(land: Land): { x: number; y: number } {
@@ -2742,7 +2795,7 @@ export class MapScene extends Phaser.Scene {
         this.drawBattleMarkers();
       }
       this.workTag = 'culling';
-      if (!this.sceneryJob) yield* this.syncCullableJobs();
+      if (!this.sceneryJob) yield* this.syncCullableJobs(terrainChanged || controlChanged || roadsChanged || inkChanged, terrainChanged);
       completed = true;
     } finally {
       this.refreshingVisuals = false;
@@ -2802,7 +2855,19 @@ export class MapScene extends Phaser.Scene {
     yield* this.syncCullableJobs();
   }
 
-  performanceStats() { return { ground: this.groundChunks?.stats(), fog: this.overlays?.chunkStats(),
+  protected retainedMapPaths():Phaser.GameObjects.Graphics[]{
+    const paths=new Set<Phaser.GameObjects.Graphics>();
+    const visit=(object:Phaser.GameObjects.GameObject):void=>{
+      if(this.tweens.getTweensOf(object).length)return;
+      if(object instanceof Phaser.GameObjects.Graphics)paths.add(object);
+      if(object instanceof Phaser.GameObjects.Container)for(const child of object.list)visit(child);
+    };
+    for(const ink of this.landInk.values())for(const object of ink)visit(object);
+    for(const node of this.landNodes.values())visit(node);
+    return [...paths];
+  }
+
+  performanceStats() { return { badges: this.progressBadges.stats(), ground: this.groundChunks?.stats(), fog: this.overlays?.chunkStats(), retained: this.retainedScenery?.stats(),
     refreshPending: this.refreshPending || !!this.refreshJob, workCosts: this.workCosts, maxRefreshWorkMs: Math.max(0, ...this.refreshCosts),
     sceneryPending: !!this.sceneryJob }; }
 

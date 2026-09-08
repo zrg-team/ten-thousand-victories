@@ -1,0 +1,164 @@
+{
+  "physicalA9": "not yet verified",
+  "sourceMatchesMeasuredRelease": true,
+  "timing": {
+    "pairs": 15,
+    "parameterParity": true,
+    "failures": [],
+    "profiles": [
+      {
+        "quality": "high",
+        "cpuImprovementPercent": 31.909547745584142,
+        "medianPairedCpuImprovementPercent": 30.113636375903262,
+        "uploadReductionPercent": 61.927368436815925,
+        "zeroUnchangedSceneryVertexUpload": true
+      },
+      {
+        "quality": "medium",
+        "cpuImprovementPercent": 36.36363635910879,
+        "medianPairedCpuImprovementPercent": 36.36363635910879,
+        "uploadReductionPercent": 58.91933147602222,
+        "zeroUnchangedSceneryVertexUpload": true
+      },
+      {
+        "quality": "clarity",
+        "cpuImprovementPercent": 37.749999994412065,
+        "medianPairedCpuImprovementPercent": 30.864197532283676,
+        "uploadReductionPercent": 54.44236226482392,
+        "zeroUnchangedSceneryVertexUpload": true
+      }
+    ],
+    "regressionGates": true
+  },
+  "openGates": [
+    {
+      "gate": "visible-season-under-1s",
+      "status": "fail",
+      "medianMilliseconds": 1232.2
+    },
+    {
+      "gate": "GPU duration",
+      "status": "regressed",
+      "note": "See gpu/results.json; draw calls also increased."
+    },
+    {
+      "gate": "pinch interaction",
+      "status": "unsupported-in-both-builds"
+    },
+    {
+      "gate": "physical-A9",
+      "status": "not-yet-verified"
+    },
+    {
+      "gate": "isolated-live-simulation-cost",
+      "status": "unavailable",
+      "note": "World-update stage includes culling/motion; the original paired hook missed Phaser Systems cached update."
+    },
+    {
+      "gate": "real-hidden-tab suspension",
+      "status": "unavailable",
+      "note": "Desktop driver kept document.hidden false during tab switching. Explicit blur/focus paths were exercised."
+    },
+    {
+      "gate": "no-continuing-heap-growth",
+      "status": "not-established",
+      "note": "Both versions retain a gradual upward drift over sixteen equivalent scene cycles. Candidate stays below baseline; see memory.trend."
+    }
+  ],
+  "note": "Soak and final lifecycle data are recorded separately. Full method, raw data, failed experiments and limitations are in docs/development/conquest-a9-performance.md.",
+  "soak": {
+    "elapsedSeconds": 1802.978,
+    "campaigns": 3,
+    "turns": 503,
+    "panelOpenings": 59,
+    "simulatedResumes": 14,
+    "errors": [],
+    "chunkBudgetMaintained": true,
+    "resetHeapMiB": 32.30902862548828,
+    "coldToWarmGrowthMiB": 10.608501434326172,
+    "note": "Existing soak 24 MiB cold-to-warm allowance; separate repeated-state baseline+10 MiB comparison is authoritative for that gate."
+  },
+  "memory": {
+    "baselineMiB": 34.03446578979492,
+    "candidateMiB": 31.80417251586914,
+    "deltaMiB": -2.2302932739257812,
+    "within10MiB": true,
+    "cyclesPerVersion": 16,
+    "trend": [
+      {
+        "version": "baseline",
+        "cycle2MiB": 32.673038482666016,
+        "cycle15MiB": 34.65982437133789,
+        "growthMiB": 1.986785888671875,
+        "buffers": [
+          9
+        ],
+        "vaos": [
+          16
+        ]
+      },
+      {
+        "version": "candidate",
+        "cycle2MiB": 30.207298278808594,
+        "cycle15MiB": 32.36707305908203,
+        "growthMiB": 2.1597747802734375,
+        "buffers": [
+          23
+        ],
+        "vaos": [
+          21
+        ]
+      }
+    ]
+  },
+  "recovery": [
+    {
+      "version": "baseline",
+      "contextSupported": true,
+      "visibleScenery": 1522,
+      "cameraBefore": [
+        0,
+        0,
+        1.44
+      ],
+      "cameraAfter": [
+        0,
+        0,
+        1.44
+      ],
+      "glError": 0,
+      "errors": [],
+      "background": {
+        "hidden": false,
+        "resumedHidden": false,
+        "framesAfterResume": 24,
+        "visibilityTransitionVerified": false,
+        "note": "Driver kept the game visible; real hidden-tab suspension is unavailable in this run. Explicit blur/focus handlers were exercised separately."
+      }
+    },
+    {
+      "version": "candidate",
+      "contextSupported": true,
+      "visibleScenery": 1522,
+      "cameraBefore": [
+        0,
+        0,
+        1.44
+      ],
+      "cameraAfter": [
+        0,
+        0,
+        1.44
+      ],
+      "glError": 0,
+      "errors": [],
+      "background": {
+        "hidden": false,
+        "resumedHidden": false,
+        "framesAfterResume": 26,
+        "visibilityTransitionVerified": false,
+        "note": "Driver kept the game visible; real hidden-tab suspension is unavailable in this run. Explicit blur/focus handlers were exercised separately."
+      }
+    }
+  ]
+}
