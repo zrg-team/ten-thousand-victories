@@ -222,6 +222,9 @@ export class MenuScene extends Phaser.Scene {
   /** Set for this visit to the classic page, so a re-render cannot raise the tour twice. */
   classicTourDone = false;
 
+  /** An explicit replay for this menu visit; consumed when its copilot opens. */
+  replayCopilot = false;
+
   /**
    * Which page the standing tour belongs to.
    *
@@ -255,10 +258,12 @@ export class MenuScene extends Phaser.Scene {
 
   /* ---------------------------------------------------------- Phaser lifecycle */
 
-  init(data?: { mode?: MenuMode }): void {
+  init(data?: { mode?: MenuMode; replayCopilot?: boolean }): void {
     // Another scene coming back to a page (the deck's Back returns to the dynasty page): the mode
     // rides in as scene data. Without it the scene restarts wherever it last was.
     if (data?.mode) this.mode = data.mode;
+    this.replayCopilot = data?.replayCopilot === true;
+    if (this.replayCopilot) this.classicTourDone = false;
   }
 
   create(): void { shell.create(this); }

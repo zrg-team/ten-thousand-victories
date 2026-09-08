@@ -12,6 +12,7 @@
 import { GAME_HEIGHT, GAME_WIDTH } from '../../../game/constants';
 import { hudSheetHeight } from '../../../game/cameraLayout';
 import { addStoryIllustration } from '../../../ui/storyIllustration';
+import { iconForOption } from '../../../ui/CardIcons';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import {
   heldBeat,
@@ -282,6 +283,8 @@ export function showStoryPage(self: ConquestUIScene, storyId: string): void {
           { x: 0, y: used, width: bodyWidth, height: 64 },
           {
             title: storyText(key(option.id), held.params),
+            icon: iconForOption(option.id),
+            iconArt: 'story',
             body: storyText(key(`${option.id}.d`), held.params),
             note: option.cost ? formatResourceList(option.cost) : undefined,
             noteColor: option.affordable ? undefined : cssHex(INK_UI.cinnabar),

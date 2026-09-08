@@ -24,6 +24,8 @@
     "verify:listeners": "node test_scripts/verify/verify-listeners.mjs",
     "verify:ladder": "node test_scripts/verify/verify-ladder.mjs",
     "verify:resume": "node test_scripts/verify/verify-resume.mjs",
+    "verify:map-blank": "node test_scripts/verify/verify-map-blank.mjs",
+    "verify:relief-fanfare": "node test_scripts/verify/verify-relief-fanfare.mjs",
     "verify:echo": "node test_scripts/verify/verify-press-echo.mjs",
     "verify:lost-ground": "node test_scripts/verify/verify-lost-ground.mjs",
     "verify:draft-depth": "node test_scripts/verify/verify-draft-depth.mjs",

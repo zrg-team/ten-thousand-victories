@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { INK_UI } from '../InkUI';
 import { PIGMENT } from '../ink/palette';
-import { seal } from '../ink/devices';
+import { drawHouseSeal, houseBanner } from './houseBanner';
 
 /**
  * The moment a ruler joins — a **chiếu chỉ**, an imperial edict being sealed.
@@ -54,8 +54,7 @@ export function playArrivalFanfare(
   root.add(rays);
 
   // The chop itself, in lacquer red, stamped down onto the paper.
-  const chop = scene.add.graphics();
-  seal(chop, 0, 0, 54, 'star');
+  const chop = drawHouseSeal(scene, houseBanner(), 54);
   chop.setScale(2.6).setAlpha(0);
   root.add(chop);
 

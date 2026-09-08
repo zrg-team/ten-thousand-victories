@@ -1,3 +1,4 @@
+import { createRiverSurface } from './waterSurface';
 import { drawMountainMist } from '../../ui/ink/mountainMist';
 /**
  * The living parts of the Đông Hồ illustration: the plate drift, the river surface, the touch
@@ -33,6 +34,7 @@ export function animateDongHoIllustration(self: MenuScene,
   },
 ): void {
   const { left, top, width, height } = bounds;
+  const water = createRiverSurface(self, bounds, layers);
   const at = (x: number, y: number): Phaser.Math.Vector2 => new Phaser.Math.Vector2(
     left + width * x,
     top + height * y,
@@ -117,23 +119,23 @@ export function animateDongHoIllustration(self: MenuScene,
   // The centre of the painted river, read from the generated plate in normalized coordinates.
   // Effects and hit feedback share this curve, so a ripple cannot appear in a rice plot.
   const river = new Phaser.Curves.Spline([
-    at(0.52, 0.43), at(0.46, 0.47), at(0.34, 0.51), at(0.20, 0.57),
-    at(0.15, 0.64), at(0.22, 0.71), at(0.38, 0.80), at(0.53, 0.90),
-    at(0.60, 0.97),
+    at(0.493, 0.476), at(0.405, 0.504), at(0.245, 0.541), at(0.114, 0.582),
+    at(0.18, 0.640), at(0.355, 0.698), at(0.48, 0.770), at(0.60, 0.870),
+    at(0.62, 0.97),
   ]);
   // The channel opens toward the viewer. All ambient effects use a signed lane within that
   // perspective width instead of collapsing onto the centre spline (the artificial single rail
   // visible in the previous build). `lane = -1..1` means left bank through right bank.
-  const riverHalfWidthAt = (t: number): number => width * Phaser.Math.Linear(0.012, 0.16, t);
   const riverLaneAt = (t: number, lane: number): {
     point: Phaser.Math.Vector2;
     tangent: Phaser.Math.Vector2;
   } => {
     const centre = river.getPointAt(t);
     const tangent = river.getTangentAt(t).normalize();
-    const normal = new Phaser.Math.Vector2(-tangent.y, tangent.x);
+    const bank = water.banksAt(centre.y);
+    const fraction = (Phaser.Math.Clamp(lane, -0.78, 0.78) + 1) * 0.5;
     return {
-      point: centre.clone().add(normal.scale(riverHalfWidthAt(t) * Phaser.Math.Clamp(lane, -0.78, 0.78))),
+      point: new Phaser.Math.Vector2(left + width * Phaser.Math.Linear(bank.left, bank.right, fraction) / 1536, centre.y),
       tangent,
     };
   };
@@ -144,7 +146,7 @@ export function animateDongHoIllustration(self: MenuScene,
   const riverVeil = self.add.graphics()
     .setData('menuWaterTreatment', 'soft-paper-glaze')
     .setData('menuWaterCoverage', 'river-only');
-  layers.waterFx.add(riverVeil);
+  water.effects.add(riverVeil);
   const glazeBands = [
     { from: 0, to: 0.38, width: width * 0.024, alpha: 0.17 },
     { from: 0.32, to: 0.68, width: width * 0.052, alpha: 0.16 },
@@ -163,73 +165,8 @@ export function animateDongHoIllustration(self: MenuScene,
     .setData('menuRiverVeilBands', glazeBands.length)
     .setData('menuWaterGraphic', 'two-tone-reflection-wash');
 
-  const currentCount = getGraphicsQuality() === 'low' ? 6 : 8;
-  const shimmerAnchors = [0.18, 0.3, 0.43, 0.56, 0.68, 0.79, 0.88, 0.95];
-  const shimmerLanes = [-0.68, 0.18, 0.66, -0.28, 0.46, -0.58, 0.06, 0.72];
-  for (let index = 0; index < currentCount; index += 1) {
-    const anchor = shimmerAnchors[index];
-    const lane = shimmerLanes[index];
-    const { point, tangent } = riverLaneAt(anchor, lane);
-    // The earlier cream-on-cream glints were moving, but disappeared into the paper grain at
-    // phone size. These are broad indigo-watercolour pools with a paper-bright inner reflection:
-    // large enough to read, still far slower than the rejected sliding-scratch current.
-    const travel = 12 + (index % 3) * 2;
-    const span = 10 + anchor * 10;
-    const baseScale = 0.58 + anchor * 0.66;
-    const duration = 8_500 + index * 400;
-    const flow = { clock: 0 };
-    const phaseOffset = (index / currentCount) * 0.86;
-    const current = self.add.graphics()
-      .setData('menuAmbient', 'river-current')
-      .setData('menuCurrentMotion', 'forward-surface-flow')
-      .setData('menuCurrentVisibility', 'phone-readable')
-      .setData('menuCurrentGraphic', 'layered-watercolour-ripples')
-      .setData('menuCurrentInterpolation', 'forward-fade-loop')
-      .setData('menuCurrentAnchor', anchor)
-      .setData('menuCurrentLane', lane)
-      .setData('menuCurrentTravel', travel)
-      .setData('menuCurrentDuration', duration)
-      .setData('menuCurrentMotionProxy', flow);
-    layers.waterFx.add(current);
-    const glintHeight = 3.4 + anchor * 1.8;
-    current.fillStyle(PIGMENT.chamWash, 0.64);
-    current.fillEllipse(-span * 0.18, 0.2, span * 0.72, glintHeight);
-    current.fillStyle(PIGMENT.chamPale, 0.42);
-    current.fillEllipse(span * 0.36, -0.15, span * 0.58, glintHeight * 0.78);
-    current.fillStyle(PIGMENT.diepHi, 0.82);
-    current.fillEllipse(-span * 0.14, -0.28, span * 0.36, glintHeight * 0.28);
-    current.fillEllipse(span * 0.38, -0.36, span * 0.26, glintHeight * 0.22);
-    current
-      .setPosition(point.x - tangent.x * travel * 0.5, point.y - tangent.y * travel * 0.5)
-      .setRotation(Math.atan2(tangent.y, tangent.x))
-      .setScale(baseScale)
-      .setAlpha(0.2);
-    self.tweens.add({
-      targets: flow,
-      clock: { from: 0, to: 1 },
-      duration,
-      repeat: -1,
-      ease: 'Linear',
-      onUpdate: () => {
-        const phase = (flow.clock + phaseOffset) % 1;
-        const envelope = Math.sin(Math.PI * phase);
-        current
-          .setPosition(
-            point.x + tangent.x * travel * (phase - 0.5),
-            point.y + tangent.y * travel * (phase - 0.5),
-          )
-          .setScale(
-            baseScale * (0.94 + envelope * 0.12),
-            baseScale * (0.98 + envelope * 0.04),
-          )
-          .setAlpha(0.16 + envelope * (0.62 + (index % 2) * 0.04));
-      },
-    });
-  }
-
-  // A moving current can still read as static in a single glance, so the channel also carries
-  // staggered surface pulses. These are compact water rings, never long strokes: each quietly
-  // opens and disappears before another one answers farther downstream.
+  // Keep the soft expanding wave rings alongside the animated painted surface.
+  // The filled oval glints and floating flecks were removed at the user's request.
   const pulseAnchors = getGraphicsQuality() === 'low'
     ? [0.24, 0.42, 0.6, 0.78, 0.94]
     : [0.2, 0.32, 0.44, 0.56, 0.69, 0.82, 0.94];
@@ -250,7 +187,7 @@ export function animateDongHoIllustration(self: MenuScene,
     pulse.lineStyle(0.78, PIGMENT.diepHi, 0.9);
     pulse.strokeEllipse(0, 0.4, ringWidth * 0.68, ringHeight * 0.68);
     pulse.setScale(0.52).setAlpha(0.76);
-    layers.waterFx.add(pulse);
+    water.effects.add(pulse);
     self.tweens.add({
       targets: pulse,
       scaleX: 1.32,
@@ -261,54 +198,6 @@ export function animateDongHoIllustration(self: MenuScene,
       repeat: -1,
       repeatDelay: 160 + (index % 2) * 140,
       ease: 'Sine.easeOut',
-    });
-  }
-
-  // Direction is carried by a sparse set of paper-light flecks following the actual spline.
-  // They are intentionally tiny, not lines, and take well over a minute to cross the illustration;
-  // this makes the river unmistakably alive without returning to the fast sliding-current look.
-  const flowMoteCount = getGraphicsQuality() === 'low' ? 6 : 9;
-  const flowMoteLanes = [-0.72, -0.34, 0.12, 0.58, 0.76, -0.52, 0.36, 0.68, -0.12];
-  for (let index = 0; index < flowMoteCount; index += 1) {
-    const lane = flowMoteLanes[index];
-    const mote = self.add.graphics()
-      .setData('menuAmbient', 'river-flow-mote')
-      .setData('menuRiverMoteMotion', 'smooth-spline-downstream')
-      .setData('menuRiverMoteLane', lane);
-    const length = 3.2 + (index % 3) * 1.2;
-    const thickness = 1.2 + (index % 2) * 0.45;
-    mote.fillStyle(PIGMENT.chamPale, 0.58);
-    mote.fillEllipse(0, 0.35, length * 1.28, thickness * 1.35);
-    mote.fillStyle(PIGMENT.diepHi, 0.92);
-    mote.fillEllipse(-length * 0.08, 0, length, thickness);
-    layers.waterFx.add(mote);
-
-    const flow = { clock: 0 };
-    const offset = (index + 0.35) / flowMoteCount;
-    const duration = Math.round((110_000 + (index % 4) * 7_000) * (width / 326));
-    mote
-      .setData('menuRiverMoteDuration', duration)
-      .setData('menuRiverMoteProxy', flow);
-    const placeMote = (): void => {
-      const phase = (offset + flow.clock) % 1;
-      const t = Phaser.Math.Linear(0.1, 0.98, phase);
-      const laneWander = lane + Math.sin((flow.clock + index * 0.17) * Math.PI * 2) * 0.055;
-      const { point, tangent } = riverLaneAt(t, laneWander);
-      const edgeFade = Phaser.Math.Clamp(Math.min(phase / 0.07, (1 - phase) / 0.07), 0, 1);
-      mote
-        .setPosition(point.x, point.y)
-        .setRotation(Math.atan2(tangent.y, tangent.x))
-        .setScale(0.72 + t * 0.52)
-        .setAlpha(edgeFade * (0.52 + (index % 3) * 0.08));
-    };
-    placeMote();
-    self.tweens.add({
-      targets: flow,
-      clock: { from: 0, to: 1 },
-      duration,
-      repeat: -1,
-      ease: 'Linear',
-      onUpdate: placeMote,
     });
   }
 
@@ -372,8 +261,10 @@ export function animateDongHoIllustration(self: MenuScene,
   const touch = self.add.zone(left, top, width, height)
     .setOrigin(0, 0)
     .setDepth(-6)
-    .setInteractive()
     .setData('menuLandscapeInteraction', 'river-ripple');
+  layers.waterFx.parentContainer!.add(touch);
+  touch.setInteractive(new Phaser.Geom.Rectangle(0, 0, width, height),
+    (_area: Phaser.Geom.Rectangle, x: number, y: number) => water.contains(left + x, top + y));
   touch.setData('menuRiverGestures', ['tap', 'drag', 'hover-wake']);
   const nearestOnRiver = (targetX: number, targetY: number): {
     point: Phaser.Math.Vector2;
@@ -397,24 +288,29 @@ export function animateDongHoIllustration(self: MenuScene,
   };
 
   touch.on('pointerdown', (_pointer: Phaser.Input.Pointer, localX: number, localY: number) => {
-    const nearest = nearestOnRiver(left + localX, top + localY);
+    const x = left + localX, y = top + localY;
+    if (!water.contains(x, y)) return;
+    const nearest = nearestOnRiver(x, y);
+    nearest.point.set(x, y);
     const angle = Math.atan2(nearest.tangent.y, nearest.tangent.x);
-    spawnDongHoWake(self, layers.waterFx, nearest.point.x, nearest.point.y, angle, width / GAME_WIDTH, 1);
-    spawnDongHoRipple(self, layers.waterFx, nearest.point.x, nearest.point.y, width / GAME_WIDTH);
+    spawnDongHoWake(self, water.effects, nearest.point.x, nearest.point.y, angle, width / GAME_WIDTH, 1);
+    spawnDongHoRipple(self, water.effects, nearest.point.x, nearest.point.y, width / GAME_WIDTH);
   });
 
   let lastWakeAt = -1_000;
   let lastDragRippleAt = -1_000;
   touch.on('pointermove', (pointer: Phaser.Input.Pointer, localX: number, localY: number) => {
-    const nearest = nearestOnRiver(left + localX, top + localY);
-    const closeToWater = nearest.distance <= (width * 0.075) ** 2;
+    const x = left + localX, y = top + localY;
+    const nearest = nearestOnRiver(x, y);
+    nearest.point.set(x, y);
+    const closeToWater = water.contains(x, y);
     if (!closeToWater || self.time.now - lastWakeAt < 90) return;
     lastWakeAt = self.time.now;
     const angle = Math.atan2(nearest.tangent.y, nearest.tangent.x);
-    spawnDongHoWake(self, layers.waterFx, nearest.point.x, nearest.point.y, angle, width / GAME_WIDTH, pointer.isDown ? 0.9 : 0.42);
+    spawnDongHoWake(self, water.effects, nearest.point.x, nearest.point.y, angle, width / GAME_WIDTH, pointer.isDown ? 0.9 : 0.42);
     if (pointer.isDown && self.time.now - lastDragRippleAt >= 260) {
       lastDragRippleAt = self.time.now;
-      spawnDongHoRipple(self, layers.waterFx, nearest.point.x, nearest.point.y, width / GAME_WIDTH * 0.72);
+      spawnDongHoRipple(self, water.effects, nearest.point.x, nearest.point.y, width / GAME_WIDTH * 0.72);
     }
   });
 
@@ -429,9 +325,18 @@ export function animateDongHoIllustration(self: MenuScene,
   )
     .setOrigin(0, 0)
     .setDepth(-5.8)
-    .setInteractive()
     .setData('menuLandscapeInteraction', 'lotus-sway')
     .setData('menuLotusGestures', ['hover', 'drag', 'water-wake']);
+  layers.waterFx.parentContainer!.add(lotusTouch);
+  // Only the actual painted plant takes lotus gestures; open water between leaves keeps its flow response.
+  lotusTouch.setInteractive(new Phaser.Geom.Rectangle(0, 0, lotusTouch.width, lotusTouch.height),
+    (_area: Phaser.Geom.Rectangle, x: number, y: number) => {
+      const local = layers.lotus.getLocalTransformMatrix().applyInverse(lotusTouch.x + x, lotusTouch.y + y);
+      return (self.textures.getPixelAlpha(
+        Math.floor(local.x + layers.lotus.width * layers.lotus.originX),
+        Math.floor(local.y + layers.lotus.height * layers.lotus.originY), layers.lotus.texture.key,
+      ) ?? 0) > 32;
+    });
   layers.lotus.setData('menuLotusWaterResponse', 'stem-waterline-ripples');
   const lotusStemAnchors = [
     { id: 'large-flower', touchX: left + width * 0.22, x: left + width * 0.19, y: top + height * (0.915 + LOTUS_SINK) },
@@ -456,7 +361,7 @@ export function animateDongHoIllustration(self: MenuScene,
     // plant enters the water. Keep a tiny directional nudge so dragging still feels connected.
     const nudgeX = Phaser.Math.Clamp((pointerX - stem.touchX) * 0.16, -width * 0.012, width * 0.012);
     spawnLotusWaterlineWake(self, 
-      layers.waterFx,
+      water.effects,
       stem.x + nudgeX,
       stem.y,
       width / GAME_WIDTH,
@@ -465,7 +370,7 @@ export function animateDongHoIllustration(self: MenuScene,
     );
     if (pointer.isDown && self.time.now - lastLotusRippleAt >= 260) {
       lastLotusRippleAt = self.time.now;
-      spawnDongHoRipple(self, layers.waterFx, stem.x + nudgeX, stem.y, width / GAME_WIDTH * 0.8);
+      spawnDongHoRipple(self, water.effects, stem.x + nudgeX, stem.y, width / GAME_WIDTH * 0.8);
     }
   };
   const bendLotus = (pointer: Phaser.Input.Pointer, localX: number, localY: number): void => {
@@ -523,7 +428,7 @@ export function animateDongHoIllustration(self: MenuScene,
       self.lotusIdleWaveTimer = undefined;
       const lead = lotusStemAnchors[Phaser.Math.Between(0, lotusStemAnchors.length - 1)];
       spawnLotusIdleWave(self, 
-        layers.waterFx,
+        water.effects,
         lead.x + Phaser.Math.FloatBetween(-width * 0.024, width * 0.024),
         lead.y + Phaser.Math.FloatBetween(-height * 0.005, height * 0.007),
         width / GAME_WIDTH,
@@ -536,7 +441,7 @@ export function animateDongHoIllustration(self: MenuScene,
       const echo = lotusStemAnchors.find((candidate) => candidate.id !== lead.id);
       if (echo && getGraphicsQuality() !== 'low' && Phaser.Math.FloatBetween(0, 1) < 0.38) {
         spawnLotusIdleWave(self, 
-          layers.waterFx,
+          water.effects,
           echo.x + Phaser.Math.FloatBetween(-width * 0.018, width * 0.018),
           echo.y,
           width / GAME_WIDTH,
@@ -549,6 +454,7 @@ export function animateDongHoIllustration(self: MenuScene,
     });
   };
   scheduleLotusIdleWave(true);
+  water.draw();
 }
 
 /** One touch answer, gone before it can become another permanent object in the composition. */

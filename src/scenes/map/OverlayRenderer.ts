@@ -13,7 +13,7 @@ import type { GameState, Land } from '../../state/types';
 import type { MapRenderer } from '../../ui/MapRenderer';
 import { fitBakeScale } from '../../ui/ink/textureLimits';
 import { placeStamp, stamp } from '../../ui/ink/stamp';
-import { ChunkedMapLayer } from './ChunkedMapLayer';
+import { ChunkedMapLayer, type ConcealRegion } from './ChunkedMapLayer';
 
 type WorldTransform = (value: number) => number;
 type OwnerColorLookup = (ownerId: string) => number;
@@ -34,8 +34,41 @@ export class OverlayRenderer {
   /** The lighter veil over ground the realm can see but does not hold. See `repaintForeignHaze`. */
   private foreignHazeGraphics!: Phaser.GameObjects.Graphics;
   private fogBakeRT?: Phaser.GameObjects.RenderTexture;
-  concealPending(): void { this.fogChunks?.conceal(); }
+  /**
+   * Paper over ground that has just dropped out of sight, until its fog is back — see
+   * `ChunkedMapLayer.conceal`. Named by rectangle: what used to be raised here was a cover over
+   * the whole world, which is the blank map a slow phone showed on every hostile sighting.
+   */
+  concealPending(regions?: readonly ConcealRegion[]): void { this.fogChunks?.conceal(regions); }
+  /** The refresh that raised a conceal found the fog unchanged; nothing is left to hide. */
+  concealSettled(): void { this.fogChunks?.concealSettled(); }
+  /** Whether paper is standing over any ground, so the scene can hurry the repaint under it. */
+  concealing(): boolean { return (this.fogChunks?.concealedCount() ?? 0) > 0; }
   chunkStats() { return this.fogChunks?.stats(); }
+
+  /**
+   * The ground a land's fog is drawn over: its merged outline — the same loops the fog itself is
+   * painted from — and the bounds of it, padded past the cloud edge the fog renderers feather.
+   */
+  landConcealRegion(
+    state: GameState,
+    hexTileMap: Map<string, HexTile>,
+    wx: WorldTransform,
+    wy: WorldTransform,
+    landId: string,
+  ): ConcealRegion | undefined {
+    const loops = traceLandBoundaryLoops(state, hexTileMap, wx, wy, this.landBoundaryLoops, landId);
+    let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+    for (const loop of loops) {
+      for (const point of loop) {
+        left = Math.min(left, point.x); right = Math.max(right, point.x);
+        top = Math.min(top, point.y); bottom = Math.max(bottom, point.y);
+      }
+    }
+    if (!Number.isFinite(left) || !Number.isFinite(top)) return undefined;
+    const pad = 24;
+    return { x: left - pad, y: top - pad, width: right - left + pad * 2, height: bottom - top + pad * 2, loops };
+  }
   private fogChunks?: ChunkedMapLayer;
   private armyHighlightGraphics?: Phaser.GameObjects.Graphics;
 
@@ -174,7 +207,7 @@ export class OverlayRenderer {
   bakeFog(worldWidth: number, worldHeight: number, extra: Phaser.GameObjects.Graphics[] = [], scale = 1): void {
     if (!/[?&]wholebake=1\b/.test(window.location.search)) {
       const initial = !this.fogChunks;
-      this.fogChunks ??= new ChunkedMapLayer(this.scene, 77.5, true);
+      this.fogChunks ??= new ChunkedMapLayer(this.scene, 77.5);
       const sources = [this.fogGraphics, ...extra];
       this.fogChunks.invalidate(sources, worldWidth, worldHeight, scale);
       for (const source of sources) source.setVisible(false);

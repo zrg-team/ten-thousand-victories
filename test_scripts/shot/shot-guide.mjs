@@ -1,6 +1,6 @@
 // The manual, the front-page tour, and the bare glyph pair on the action bar.
 //
-// Three things that shipped together and are checked together: How to Play (four tabs, both
+// Three things that shipped together and are checked together: How to Play (two chapters, both
 // languages, at the shortest sheet the design surface allows), the five tour cards a first-time
 // player is shown, and the Pause/Menu marks now that nothing is printed round them.
 //
@@ -10,12 +10,36 @@
 import { chromium } from 'playwright';
 
 const BASE = process.env.DEV_URL ?? process.env.PLAYTEST_URL ?? 'http://127.0.0.1:5179';
-const SIDE = 12;
-const TABS = ['start', 'run', 'screens', 'after'];
+const TABS = ['conquest', 'battle'];
 const browser = await chromium.launch();
 let failures = 0;
 
 const fail = (message) => { failures += 1; console.log(`FAIL ${message}`); };
+
+// The chapter buttons sit below the copilot launchers, so their position follows the localized
+// header's measured height. Resolve the real hit target instead of repeating layout coordinates.
+const guideTabAt = (page, tab) => page.evaluate((tab) => {
+  const scene = window.__phaserGame.scene.getScene('GuideScene');
+  const find = (children) => {
+    for (const child of children ?? []) {
+      if (child.getData?.('guideTab') === tab) return child;
+      const nested = find(child.list);
+      if (nested) return nested;
+    }
+    return null;
+  };
+  const button = find(scene.children.list);
+  const hit = button?.list?.find(child => child.input?.enabled);
+  if (!hit) return null;
+  const world = button.getWorldTransformMatrix().transformPoint(hit.x, hit.y);
+  const camera = scene.cameras.main;
+  const origin = camera.getWorldPoint(0, 0), unit = camera.getWorldPoint(1, 1);
+  const canvas = scene.game.canvas.getBoundingClientRect();
+  return {
+    x: canvas.x + ((world.x - origin.x) / (unit.x - origin.x)) / scene.scale.width * canvas.width,
+    y: canvas.y + ((world.y - origin.y) / (unit.y - origin.y)) / scene.scale.height * canvas.height,
+  };
+}, tab);
 
 for (const [lang, h] of [['en', 844], ['vi', 844], ['vi', 620]]) {
   const page = await browser.newPage({ viewport: { width: 390, height: h }, deviceScaleFactor: 2 });
@@ -57,9 +81,12 @@ for (const [lang, h] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     .catch(() => fail(`${lang} h=${h}: pressing How to Play did not open the page`));
   await page.waitForTimeout(700);
 
-  const tabWidth = Math.floor((390 - SIDE * 2 - 3 * 4) / 4);
-  for (const [index, tab] of TABS.entries()) {
-    await page.mouse.click(SIDE + index * (tabWidth + 4) + tabWidth / 2, 84);
+  for (const tab of TABS) {
+    const target = await guideTabAt(page, tab);
+    if (!target) { fail(`${lang} h=${h}: no ${tab} chapter button`); continue; }
+    await page.mouse.click(target.x, target.y);
+    await page.waitForFunction(tab => window.__phaserGame.scene.getScene('GuideScene').guideState().tab === tab, tab)
+      .catch(() => fail(`${lang} h=${h}: pressing ${tab} did not select the chapter`));
     await page.waitForTimeout(450);
     await page.screenshot({ path: `test_scripts/shots/guide-${tab}-${lang}-${h}.png` });
     // Scrolled to the foot as well: every tab runs past one screen in at least one language, and

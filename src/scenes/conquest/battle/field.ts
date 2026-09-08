@@ -23,7 +23,7 @@ import { keepForegroundOnTop } from './ground';
 import { buildBattleClouds } from './clouds';
 import { buildBattleInsects } from './meadow';
 import { createPlayerLandFlag } from '../../../ui/playerFlag';
-import { GROUND_SCALE } from '../../../ui/ink/proportion';
+import { GROUND_SCALE, PX_PER_M } from '../../../ui/ink/proportion';
 import type { Army, AscentBattle } from '../../../state/types';
 import { battleFieldBox, hostSize, type BattleMarker } from '../constants';
 import { clearLayer, killTweensDeep } from '../layers';
@@ -154,7 +154,7 @@ export function buildBattleField(self: ConquestUIScene, battle: AscentBattle): v
      * the same way read as one army's baggage train strung across the field.
      */
     const campScale = battleScaleAt(self, campY);
-    const ourCamp = self.battleCamp(leftX + 4, campY, PIGMENT.muc, 5, campScale);
+    const ourCamp = self.battleCamp(leftX + 4, campY, PIGMENT.muc, 5, campScale, false);
     ourCamp.setScale(-1, 1);
     field.add(ourCamp);
     field.add(self.battleCamp(rightX - 4, campY, rivalColor, 23, campScale));
@@ -182,12 +182,12 @@ export function buildBattleField(self: ConquestUIScene, battle: AscentBattle): v
   const rearScale = battleScaleAt(self, battleRearY(self));
   const flagScale = 0.37 * (battleBaseScale(self) / GROUND_SCALE)
     * (ui.sceneryHidden ? 0.62 : rearScale / battleBaseScale(self));
-  const plant = (x: number, y: number, seed: number, enemy: boolean): void => {
+  const plant = (x: number, y: number, seed: number, enemy: boolean, scale = flagScale): void => {
     const flag = createPlayerLandFlag(self, false, seed, enemy);
     // `createPlayerLandFlag` carries its own foot offset (pole base at +8, ground ellipse at +10),
     // so the correction puts the foot on whatever line it is standing on.
-    flag.setPosition(x, y - 10 * flagScale);
-    flag.setScale(flagScale);
+    flag.setPosition(x, y - 10 * scale);
+    flag.setScale(scale);
     field.add(flag);
   };
   const rivalSeed = Math.max(0, self.state.kingdoms.findIndex((k) => k.id === battle.kingdomId));
@@ -204,15 +204,11 @@ export function buildBattleField(self: ConquestUIScene, battle: AscentBattle): v
     plant(leftX - 18, footY, self.state.mapConfig.seed, false);
     plant(rightX + 6, footY, rivalSeed, true);
   } else {
-    // Over our own camp, the way theirs flies over theirs. It used to hang off the citadel's gate
-    // — `citadelStandardAnchor` — and there is no citadel on this field any more.
-    //
-    // The realm's own standard rather than the camp's đại kỳ: the camp draws its banner in ink,
-    // and the one mark on this screen that says *whose* army this is is the flag the player's
-    // provinces fly. Planted on the camp's own ground so it reads as standing in it — a pole
-    // floating a hand's breadth above the tents is the thing this offset is for.
+    // Replace the camp's generic đại kỳ at its gate, at the same metre scale as its tents.
+    // Keep the standard outside the mirrored camp so the player's motif is never reversed.
     const homeY = battleRearY(self);
-    plant(leftX + 6, homeY - 4 * rearScale, self.state.mapConfig.seed, false);
+    const metre = PX_PER_M * rearScale;
+    plant(leftX + 4, homeY - 1.1 * metre, self.state.mapConfig.seed, false, 0.1 * metre);
     // Theirs is the camp's own đại kỳ (`battleCamp` draws it over the gate), so nothing is planted
     // for them at all — a second enemy standard beside it was the duplicate nobody asked for.
   }
@@ -338,6 +334,8 @@ export function slideMarkers(self: ConquestUIScene,
     // the runner got forty pixels and never faded, because the rout and the formation were both
     // writing the same `x` and the formation won.
     if (entry.routed) continue;
+    // And one still walking onto the field is not on the line yet; its own tween lands it there.
+    if (entry.arriving) continue;
     const size = sizes.get(hostId);
     if (count?.active && size !== undefined) count.setText(compactNumber(size));
     // The ranks thin. One figure stands for `MEN_PER_MARK` men, so this fires about once per

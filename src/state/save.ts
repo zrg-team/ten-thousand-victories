@@ -26,8 +26,48 @@ export interface SaveSnapshot {
   state: GameState;
 }
 
+// Session flags are deliberately not serialized into either save slot.
+const closedRuns = new WeakSet<GameState>();
+const finishedRuns = new WeakSet<GameState>();
+
+export function canAutosave(state: GameState): boolean {
+  return !state.ascent?.arena && !state.victory && !state.isDefeated && !closedRuns.has(state);
+}
+
+/** Terminal campaign results cannot be resumed, even from a later background event. */
+export function clearFinishedRunSaves(state: GameState): boolean {
+  if (state.ascent?.arena || (!state.victory && !state.isDefeated)) return false;
+  if (!finishedRuns.has(state)) {
+    finishedRuns.add(state);
+    closedRuns.add(state);
+    removeSlot(SAVE_SNAPSHOT_KEY);
+    clearAutosave();
+    clearLiveReign();
+  }
+  return true;
+}
+
+/** Consume recovery only once the resumed/new campaign has actually rendered. */
+export function resumeSaveSession(state: GameState): void {
+  if (state.ascent?.arena || clearFinishedRunSaves(state)) return;
+  closedRuns.delete(state);
+  clearAutosave();
+}
+
+/** Call before scene shutdown or a native quit can emit blur/pagehide. */
+export function endSaveSession(state: GameState): void {
+  closedRuns.add(state);
+  if (state.ascent?.arena || clearFinishedRunSaves(state)) return;
+  clearAutosave();
+  clearLiveReign();
+}
+
 export function saveSnapshot(state: GameState): SaveSnapshot | undefined {
-  return writeSnapshot(state, SAVE_SNAPSHOT_KEY);
+  if (clearFinishedRunSaves(state) || !canAutosave(state)) return undefined;
+  const snapshot = writeSnapshot(state, SAVE_SNAPSHOT_KEY);
+  // A failed manual write must retain the last recoverable progress.
+  if (snapshot) clearAutosave();
+  return snapshot;
 }
 
 /**
@@ -35,9 +75,10 @@ export function saveSnapshot(state: GameState): SaveSnapshot | undefined {
  *
  * Returns undefined when the write could not happen at all — a full or refused quota, which is
  * a real state on a phone and not an error worth taking the run down over. The caller reports
- * it; nothing retries, because the next time the player leaves the screen is the retry.
+ * it; a later lifecycle event can retry.
  */
 export function autosaveSnapshot(state: GameState): SaveSnapshot | undefined {
+  if (clearFinishedRunSaves(state) || !canAutosave(state)) return undefined;
   return writeSnapshot(state, AUTOSAVE_SNAPSHOT_KEY);
 }
 
@@ -63,20 +104,20 @@ function writeSnapshot(state: GameState, key: string): SaveSnapshot | undefined 
 /**
  * Forgets the automatic slot.
  *
- * Called when the player leaves a run deliberately. The automatic save exists to answer "the
- * device took my run away"; a run the player walked out of has already been answered, by them,
- * and leaving it behind would let Continue offer back the thing they just declined to save.
+ * Called after a successful save, resume, or deliberate exit. This removes only the recovery
+ * snapshot; the active dynasty line remains until endSaveSession ends the run deliberately.
  */
 export function clearAutosave(): void {
+  removeSlot(AUTOSAVE_SNAPSHOT_KEY);
+}
+
+function removeSlot(key: string): void {
   if (!canUseLocalStorage()) return;
   try {
-    localStorage.removeItem(AUTOSAVE_SNAPSHOT_KEY);
+    localStorage.removeItem(key);
   } catch {
     // A refused write is not worth taking the exit down over.
   }
-  // A run walked out of on purpose is not being written any more: the house's live line goes
-  // with the slot, or the home page would keep showing a reign the player has already left.
-  clearLiveReign();
 }
 
 /**
@@ -111,14 +152,16 @@ function readSlot(key: string): SaveSnapshot | undefined {
     return undefined;
   }
 
-  const raw = localStorage.getItem(key);
-  if (!raw) {
-    return undefined;
-  }
-
   try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return undefined;
     const parsed = JSON.parse(raw) as SaveSnapshot;
     if (!isValidSnapshot(parsed) || Number.isNaN(Date.parse(parsed.savedAt))) {
+      return undefined;
+    }
+    // Discard terminal/arena snapshots left by older versions as well.
+    if (parsed.state.ascent?.arena || parsed.state.victory || parsed.state.isDefeated) {
+      removeSlot(key);
       return undefined;
     }
     parsed.state = normalizeSnapshotState(parsed.state);

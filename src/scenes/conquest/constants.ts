@@ -229,6 +229,12 @@ export interface BattleMarker {
    * fifty, so the constant alone put the enemy's front rank behind our own back rank.
    */
   halfWidth?: number;
+  /**
+   * The host is walking onto the field (`marchIn`, battle/relief.ts). The line leaves it alone
+   * until the walk lands: `slideMarkers` would kill the entrance and stand it on the line, and a
+   * shape redraw would rebuild it mid-stride wherever it happened to be.
+   */
+  arriving?: boolean;
 }
 
 /** Men still standing in a host. */

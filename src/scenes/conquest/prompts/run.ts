@@ -17,7 +17,8 @@ import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import { chronicleTally } from '../../../systems/story/StorySystem';
 import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap } from '../../../ui/InkUI';
 import { arrivalPreview } from '../../../data/heroArrivals';
-import { sawtoothBand, seal } from '../../../ui/ink/devices';
+import { sawtoothBand } from '../../../ui/ink/devices';
+import { drawHouseSeal, houseBanner } from '../../../ui/ascent/houseBanner';
 import { THRONE_HALL_HEIGHT, throneHallDiorama } from '../../../ui/ascent/throneHall';
 import { CARD_STACK_PEEK, CardStack } from '../../../ui/ascent/CardStack';
 import { drawCardIcon, iconForOption } from '../../../ui/CardIcons';
@@ -426,10 +427,9 @@ ${fall}` : fall,
 
   // Pressed, not printed: the seal rides the corner and overhangs the rule, because that is what
   // a seal does to a document and it is the one mark on the page that says somebody signed this.
-  const stamp = self.add.graphics();
+  const stamp = drawHouseSeal(self, houseBanner(), 46)
+    .setPosition(content.x + content.width - 32, content.y + plateH - 32);
   self.modalLayer.add(stamp);
-  seal(stamp, content.x + content.width - 32, content.y + plateH - 32, 46,
-    beatBest ? 'star' : 'lotus');
 
   // ── The ledger: what the reign spent and what it took ───────────────────
   const gridY = content.y + plateH + 10 + air;

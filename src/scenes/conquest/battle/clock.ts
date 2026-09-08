@@ -24,6 +24,7 @@ import { battleFrame, battleLines, battleRailsSignature } from './geometry';
 import { clearLayer } from '../layers';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 import { startBattleMusic, updateBattleMusic } from './music';
+import { announceRelief, hostsJoined } from './relief';
 
 /**
  * Takes the input off a container and everything under it, leaving the picture alone.
@@ -62,8 +63,13 @@ export function updateBattle(self: ConquestUIScene): void {
   // The bed follows the field: as men fall the music thins with them.
   updateBattleMusic(self, battle);
 
-  if (self.battleFieldSignature(battle) !== ui.fieldSignature) {
+  const fieldSignature = self.battleFieldSignature(battle);
+  if (fieldSignature !== ui.fieldSignature) {
+    // Who is new on the field, read before the rebuild forgets. Nothing on the opening build —
+    // the fight has not said anything yet — and nothing on a field the ground bake has reset.
+    const joined = ui.fieldSignature ? hostsJoined(ui.fieldSignature, fieldSignature) : undefined;
     self.buildBattleField(battle);
+    if (joined) announceRelief(self, battle, joined);
   } else {
     // The shove is what contact looks like: once the lines meet they press into each other
     // instead of gliding, so the picture reads as a fight rather than a chart.
@@ -115,7 +121,7 @@ export function updateBattle(self: ConquestUIScene): void {
   const theirsShape = self.battleOpeningSealed ? '?' : battle.theirFormation;
   const redrawSide = (entries: typeof ui.ourMarkers): void => {
     entries.forEach((entry) => {
-      if (entry.routed) return;
+      if (entry.routed || entry.arriving) return;
       const host = self.state.armies.find((army) => army.id === entry.hostId);
       if (host) self.redrawHostBlock(entry, hostSize(host));
     });
@@ -253,7 +259,11 @@ function reactToBeat(self: ConquestUIScene, beat: BattleBeat): void {
 /** Holds the beat clock for a moment without losing its cadence afterwards. */
 export function holdBattleClock(self: ConquestUIScene, ms: number): void {
   const clock = self.battleClock;
-  if (!clock || clock.paused) return;
+  if (!clock) return;
+  // Remembered for the re-arm in `startBattleClock`, which is the only thing that can hold a beat
+  // asked for from inside the beat itself.
+  self.battleHoldUntil = Math.max(self.battleHoldUntil ?? 0, self.time.now + ms);
+  if (clock.paused || clock.hasDispatched) return;
   clock.paused = true;
   self.time.delayedCall(ms, () => {
     if (self.battleClock === clock) clock.paused = false;
@@ -366,7 +376,12 @@ export function startBattleClock(self: ConquestUIScene): void {
     // beat showed the late-arriving burst up to 875 ms after it existed. Checking again quickly
     // costs a timer; the still frame it prevents was the visible hitch.
     const wait = hadBeat ? battleTickMs() * hurry : battleTickMs() * 0.3;
-    self.battleClock = self.time.delayedCall(Math.round(wait), tick);
+    // A hold asked for during this very beat — contact, a break, relief — lands on the re-arm.
+    // The timer that asked is the one executing, and pausing a one-shot that has already fired
+    // does nothing: `holdBattleClock` paused the fired timer, the re-arm ran at full cadence, and
+    // the hit-stop the screen was credited with never held a frame.
+    const hold = Math.max(0, (self.battleHoldUntil ?? 0) - self.time.now);
+    self.battleClock = self.time.delayedCall(Math.round(wait + hold), tick);
   };
   self.battleClock = self.time.delayedCall(battleTickMs(), tick);
 }

@@ -611,7 +611,7 @@ export function preloadConquestMapArt(scene: Phaser.Scene, baseUrl: string, fami
       scene.load.image(asset.textureKey!, `${baseUrl}${asset.path}`);
     }
   };
-  scene.load.on('loaderror', failed);
+  if (pages.size > 0) scene.load.on('loaderror', failed);
   // Phaser emits loaderror for transport failures, but an HTTP 200 image that cannot
   // decode goes directly through File.onProcessError. Queue the same originals
   // before that path completes the loader, so scene.create still waits for them.
@@ -619,7 +619,7 @@ export function preloadConquestMapArt(scene: Phaser.Scene, baseUrl: string, fami
     const processError = file.onProcessError;
     file.onProcessError = function () { failed(this); processError.call(this); };
   }
-  scene.load.once('complete', () => scene.load.off('loaderror', failed));
+  if (pages.size > 0) scene.load.once('complete', () => scene.load.off('loaderror', failed));
   if (walks) for (const sheet of CONQUEST_WALK_SHEETS) {
     if (!scene.textures.exists(sheet.textureKey)) scene.load.spritesheet(sheet.textureKey, `${baseUrl}${sheet.path}`, {
       frameWidth: sheet.frameWidth, frameHeight: sheet.frameHeight, endFrame: 3,

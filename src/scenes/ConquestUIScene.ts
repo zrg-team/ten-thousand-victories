@@ -360,6 +360,9 @@ export class ConquestUIScene extends Phaser.Scene {
 
   battleClock?: Phaser.Time.TimerEvent;
 
+  /** Scene time until which the beat clock is held — see `holdBattleClock` and the re-arm in `startBattleClock`. */
+  battleHoldUntil?: number;
+
   /**
    * The live battle screen's three layers, kept apart so each can be refreshed on its own
    * schedule: the field only when the hosts on it change, the readout every beat, the standing
@@ -473,6 +476,13 @@ export class ConquestUIScene extends Phaser.Scene {
      * check below reads "no bubble" as "needs one".
      */
     bubbleFaded: { ours: boolean; theirs: boolean };
+    /**
+     * A shout standing in one bubble in place of its caption — relief arriving — and when it is
+     * due to end. Set by `callOut` (battle/relief.ts); `updateBattleBubbles` reads it and drops it.
+     */
+    bubbleCall?: { side: 'ours' | 'theirs'; text: string; until: number };
+    /** The shout each side's bubble is currently showing, so the caption's return is not a pop. */
+    bubbleCalled: { ours?: string; theirs?: string };
     /** The fight's one red line, in the header band. Written in place, never rebuilt. */
     notice: Phaser.GameObjects.Text;
     /** The newest line of `battle.log`, repeated in the header where it can actually be read. */
@@ -508,6 +518,12 @@ export class ConquestUIScene extends Phaser.Scene {
      */
     relief: Phaser.GameObjects.Container;
     reliefKey: string;
+    /**
+     * Proclamations over the field — relief arriving — each of which takes itself down. Its own
+     * layer above the relief plate and below the dials, so a ribbon can cross the whole field
+     * without ever covering a control.
+     */
+    fanfare: Phaser.GameObjects.Container;
     rivalColor: number;
     /** Identity of the hosts drawn on the field, so relief and routs trigger a redraw. */
     fieldSignature: string;
@@ -922,6 +938,8 @@ export class ConquestUIScene extends Phaser.Scene {
       reserveRight?: number;
       /** Glyph drawn in a left gutter. Resolved from the option id by `iconForOption`. */
       icon?: CardIconId;
+      /** Use generated Đông Hồ assets for complex story motifs. */
+      iconArt?: 'story';
       accent: number;
       /**
        * Tints the whole card face with the accent at this alpha. Rarity's second voice: the
@@ -1102,7 +1120,7 @@ export class ConquestUIScene extends Phaser.Scene {
 
   /* --------------------------------------------------------------- battle camp */
 
-  battleCamp(x: number, y: number, color: number, seed = 7, s = 1): Phaser.GameObjects.Container { return battleCamp.battleCamp(this, x, y, color, seed, s); }
+  battleCamp(x: number, y: number, color: number, seed = 7, s = 1, withStandard = true): Phaser.GameObjects.Container { return battleCamp.battleCamp(this, x, y, color, seed, s, withStandard); }
 
   /* -------------------------------------------------------------- battle clock */
 

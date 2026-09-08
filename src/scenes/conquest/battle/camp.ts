@@ -38,7 +38,7 @@ import type { ConquestUIScene } from '../../ConquestUIScene';
  * under; the numbers now say that, and the camp reads at about two thirds of the village, which
  * is what the two things actually are.
  */
-export function battleCamp(self: ConquestUIScene, x: number, y: number, color: number, seed = 7, s = 1): Phaser.GameObjects.Container {
+export function battleCamp(self: ConquestUIScene, x: number, y: number, color: number, seed = 7, s = 1, withStandard = true): Phaser.GameObjects.Container {
   const camp = self.add.container(x, y);
   const g = self.add.graphics();
   // One metre, in pixels, at this scale. Every number below is metres.
@@ -181,7 +181,7 @@ export function battleCamp(self: ConquestUIScene, x: number, y: number, color: n
   );
 
   // ── the đại kỳ over the gate ───────────────────────────────────────────
-  battleStandard(g, 0, fenceY - 2.8 * m, color, seed + 71, m);
+  if (withStandard) battleStandard(g, 0, fenceY - 2.8 * m, color, seed + 71, m);
 
   camp.add(g);
   return camp;

@@ -19,7 +19,7 @@ import type { HeroLook, HeroLookPart } from '../faces/heroLook';
 import { t, getLanguage } from '../../i18n';
 import { ROYAL_WARDROBE, royalItemFits, royalWardrobeItem } from '../../data/royalWardrobe';
 import { getLegacy, ownsDynastySign, purchaseDynastySign, purchaseRoyalWardrobe } from '../../state/legacy';
-import { SIGN_COSTS, type DynastySign } from '../../data/dynastySigns';
+import { SIGN_COSTS, randomDynastySign, type DynastySign } from '../../data/dynastySigns';
 import { royalField } from '../faces/royalWardrobe';
 import type { HeroEra } from '../../state/types';
 import { soundDirector } from '../sound/SoundDirector';
@@ -457,7 +457,14 @@ export class CoronationSheet {
     previewBody.add(this.host.ui.label(textX, 84, t(`coronation.motif.${emblem}`), 'caption', {
       fontSize: '10px', wordWrap: { width: textWidth },
     }));
-    let y = 164;
+    body.add(this.host.ui.button({ x: 0, y: 164, width, height: 34 }, t('coronation.sign.random'), () => {
+      this.banner = { ...this.banner, emblem: randomDynastySign(
+        BANNER_EMBLEMS.filter(id => !emblemLocked(id)), Math.random, this.banner.emblem) };
+      this.signPreview = undefined;
+      this.signMessage = '';
+      this.host.redraw(true);
+    }, { variant: 'ghost', fontSize: '11px' }).setData('signRandom', true));
+    let y = 208;
     const store = getLegacy(), lockedPreview = !ownsDynastySign(emblem, store);
     body.add(this.host.ui.label(0, y, t('coronation.sign.balance', { points: store.points }), 'label', { fontSize: '11px' }));
     y += 22;

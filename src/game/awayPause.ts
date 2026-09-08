@@ -1,4 +1,4 @@
-import { autosaveSnapshot } from '../state/save';
+import { autosaveSnapshot, canAutosave, clearAutosave } from '../state/save';
 import { noteLiveReign } from '../systems/ascent/Inheritance';
 import type { GameState } from '../state/types';
 
@@ -26,17 +26,6 @@ import type { GameState } from '../state/types';
  * shutdown is where the listeners come off; ConquestScene inherits both.
  */
 
-/**
- * Floor between two automatic writes.
- *
- * Leaving the screen raises `blur` and `visibilitychange` together, and on the way out of a page
- * `pagehide` lands on top of both. Serialising a mid-run world is not free — a wide realm is a
- * megabyte or so of JSON — so the second and third of those would spend it again for a state
- * that has not advanced a tick between them. Short enough that a genuine second departure a few
- * seconds later still writes.
- */
-const AUTOSAVE_MIN_GAP_MS = 3000;
-
 export interface AwayPauseHandle {
   /** Removes every listener. Safe to call twice. */
   dispose(): void;
@@ -57,14 +46,16 @@ function pageIsHidden(): boolean {
  */
 export function installAwayPause(state: GameState, onChange?: () => void): AwayPauseHandle {
   let saves = 0;
-  let lastSaveAt = 0;
+  let savedWhileAway = false;
+  let pageLeaving = false;
   let disposed = false;
 
   const store = (): void => {
-    const now = Date.now();
-    if (now - lastSaveAt < AUTOSAVE_MIN_GAP_MS) return;
-    lastSaveAt = now;
-    if (autosaveSnapshot(state)) saves += 1;
+    // Blur, visibilitychange and pagehide can describe one departure. Deduplicate that
+    // departure only; a quick return-and-leave must write fresh recovery progress.
+    if (savedWhileAway || !canAutosave(state)) return;
+    savedWhileAway = Boolean(autosaveSnapshot(state));
+    if (savedWhileAway) saves += 1;
     // And the house's own line for this reign, so the home page can show the run it just left.
     try { noteLiveReign(state); } catch { /* a store that refuses must not take the leave down */ }
   };
@@ -88,19 +79,27 @@ export function installAwayPause(state: GameState, onChange?: () => void): AwayP
    * which is the one case worth guarding, a background tab regaining window focus.
    */
   const arrive = (): void => {
+    // A trailing focus/visibility event from a document being unloaded is not a resume.
+    // Only pageshow can bring a pagehide'd document back from the back-forward cache.
+    if (pageLeaving) return;
     if (pageIsHidden()) return;
     if (!state.isAwayPause) return;
     state.isAwayPause = false;
+    // A second departure must save again even if it follows this resume immediately.
+    savedWhileAway = false;
+    if (canAutosave(state)) clearAutosave();
     onChange?.();
   };
 
   const onVisibility = (): void => (pageIsHidden() ? leave() : arrive());
   // The last line the page is guaranteed to run. Deliberately not `unload`, which no longer
   // fires reliably and disqualifies the page from the back/forward cache.
-  const onPageHide = (): void => leave();
+  const onPageHide = (): void => { pageLeaving = true; leave(); };
+  const onPageShow = (): void => { pageLeaving = false; arrive(); };
 
   document.addEventListener('visibilitychange', onVisibility);
   window.addEventListener('pagehide', onPageHide);
+  window.addEventListener('pageshow', onPageShow);
   window.addEventListener('blur', leave);
   window.addEventListener('focus', arrive);
 
@@ -111,6 +110,7 @@ export function installAwayPause(state: GameState, onChange?: () => void): AwayP
       disposed = true;
       document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('pagehide', onPageHide);
+      window.removeEventListener('pageshow', onPageShow);
       window.removeEventListener('blur', leave);
       window.removeEventListener('focus', arrive);
       // A scene handing the run over to another screen must not leave the world halted behind it.

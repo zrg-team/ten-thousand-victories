@@ -47,7 +47,14 @@ for (const [lang, h] of [['vi', 844], ['vi', 620], ['en', 844]]) {
   const TABS = ['dynasties', 'figures', 'stories', 'army', 'terms'];
   const tabWidth = Math.floor((390 - SIDE * 2 - 4 * 4) / 5);
   for (const [index, tab] of TABS.entries()) {
-    await page.mouse.click(SIDE + index * (tabWidth + 4) + tabWidth / 2, 84);
+    const at = await page.evaluate(tab => {
+      const scene=window.__phaserGame.scene.getScene('HistoryScene');
+      const button=scene.children.list.find(o=>o.getData('historyTab')===tab);
+      const label=button.list.find(o=>o.type==='Text');
+      const m=label.getWorldTransformMatrix();
+      return {x:m.tx,y:m.ty};
+    },tab);
+    await page.mouse.click(at.x,at.y);
     await page.waitForTimeout(500);
     await page.screenshot({ path: `test_scripts/shots/history-${tab}-${lang}-${h}.png` });
     if (tab === 'army') continue;

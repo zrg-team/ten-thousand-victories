@@ -3,16 +3,23 @@ import { PIGMENT } from './ink/palette';
 import { inkPath } from './ink/stroke';
 import type { UIBounds } from './InkUI';
 import cardPrintAssets from './storyPrintAssets.json';
+import settingAssets from './storySettingAssets.json';
 
 /** Symbolic Đông Hồ scenes, not reconstructions of a named person or dynasty. */
-export type StoryPrint = 'harvest' | 'muster' | 'petition' | keyof typeof cardPrintAssets;
+export type StoryPrint = 'harvest' | 'muster' | 'petition' | keyof typeof cardPrintAssets | keyof typeof settingAssets;
 const printFiles: Record<StoryPrint, string> = {
-  harvest: 'harvest-v1.webp', muster: 'muster-v1.webp', petition: 'petition-v1.webp', ...cardPrintAssets,
+  harvest: 'harvest-v1.webp', muster: 'muster-v1.webp', petition: 'petition-v1.webp', ...cardPrintAssets, ...settingAssets,
 };
-export const STORY_PRINTS = Object.keys(printFiles) as readonly StoryPrint[];
+/** Cards are shared by History/Cabinet; setting prints load only with the playable map. */
+export const STORY_PRINTS = Object.keys(printFiles).filter(key => !key.startsWith('setting-')) as readonly StoryPrint[];
+export const STORY_SETTING_PRINTS = Object.keys(settingAssets) as readonly (keyof typeof settingAssets)[];
 
 export function preloadStoryPrints(scene: Phaser.Scene, base: string): void {
   for (const kind of STORY_PRINTS) if (!scene.textures.exists(`story-print:${kind}`)) scene.load.image(`story-print:${kind}`, `${base}art/story-prints/${printFiles[kind]}`);
+}
+
+export function preloadStorySettings(scene: Phaser.Scene, base: string): void {
+  for (const kind of STORY_SETTING_PRINTS) if (!scene.textures.exists(`story-print:${kind}`)) scene.load.image(`story-print:${kind}`, `${base}art/story-prints/${printFiles[kind]}`);
 }
 
 export function powerStoryPrint(id: string): StoryPrint {

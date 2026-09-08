@@ -24,6 +24,13 @@ const check = (label, ok, detail = '') => {
 };
 
 const openMenu = async (page, theme = 'dong-ho') => {
+  await page.routeWebSocket(/.*/, client => {
+    const server = client.connectToServer();
+    server.onMessage(message => {
+      if (typeof message === 'string' && /"type":"(?:update|full-reload)"/.test(message)) return;
+      client.send(message);
+    });
+  });
   await page.goto(`${BASE}/?capture=1`, { waitUntil: 'domcontentloaded' });
   await page.evaluate((t) => localStorage.setItem('mandate:map-theme:v1', t), theme);
   await page.reload({ waitUntil: 'domcontentloaded' });
@@ -52,6 +59,7 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 390, height: 664 }
       && c.getData?.('menuArtworkLayer') === 'mountain-mist');
     const waterLayer = art?.list?.find((c) => c.type === 'Container'
       && c.getData?.('menuArtworkLayer') === 'river-fx');
+    const waterEffects = waterLayer?.list?.find(c => c.getData?.('menuWaterEffects')) ?? waterLayer;
     const bambooWind = art?.list?.filter((c) => c.getData?.('menuBambooWindPart')) ?? [];
     const ground = layers.find((c) => c.getData('menuArtworkLayer') === 'ground');
     const bamboo = layers.find((c) => c.getData('menuArtworkLayer') === 'bamboo');
@@ -92,8 +100,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 390, height: 664 }
         bambooPixels = { minX, maxX, minY, maxY, opaque, corners, width: canvas.width, height: canvas.height };
       }
     }
-    const interaction = scene.children.list.find((c) => c.getData?.('menuLandscapeInteraction') === 'river-ripple');
-    const lotusInteraction = scene.children.list.find((c) => c.getData?.('menuLandscapeInteraction') === 'lotus-sway');
+    const interaction = art.list.find((c) => c.getData?.('menuLandscapeInteraction') === 'river-ripple');
+    const lotusInteraction = art.list.find((c) => c.getData?.('menuLandscapeInteraction') === 'lotus-sway');
     interaction?.emit('pointerdown', null, interaction.displayWidth * 0.28, interaction.displayHeight * 0.66);
     interaction?.emit('pointermove', { isDown: true }, interaction.displayWidth * 0.31, interaction.displayHeight * 0.72);
     lotusInteraction?.emit('pointerover', { isDown: false }, lotusInteraction.displayWidth * 0.35, lotusInteraction.displayHeight * 0.45);
@@ -174,54 +182,54 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 390, height: 664 }
       interaction: interaction?.getData?.('menuLandscapeInteraction') ?? null,
       gestures: interaction?.getData?.('menuRiverGestures') ?? [],
       lotusGestures: lotusInteraction?.getData?.('menuLotusGestures') ?? [],
-      ripple: waterLayer?.list?.filter((c) => c.getData?.('menuRipple')).length ?? 0,
-      wakes: waterLayer?.list?.filter((c) => c.getData?.('menuWaterWake')).length ?? 0,
-      currents: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current').length ?? 0,
-      riverPulses: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-pulse').length ?? 0,
-      riverPulsesAnimated: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-pulse')
+      ripple: waterEffects?.list?.filter((c) => c.getData?.('menuRipple')).length ?? 0,
+      wakes: waterEffects?.list?.filter((c) => c.getData?.('menuWaterWake')).length ?? 0,
+      currents: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current').length ?? 0,
+      riverPulses: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-pulse').length ?? 0,
+      riverPulsesAnimated: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-pulse')
         .every((c) => scene.tweens.getTweensOf(c).some((t) => t.isPlaying())) ?? false,
-      riverPulseLanes: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-pulse')
+      riverPulseLanes: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-pulse')
         .map((c) => c.getData?.('menuRiverPulseLane')) ?? [],
-      riverMotes: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-flow-mote').length ?? 0,
-      riverMotesAnimated: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-flow-mote')
+      riverMotes: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-flow-mote').length ?? 0,
+      riverMotesAnimated: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-flow-mote')
         .every((c) => scene.tweens.getTweensOf(c.getData?.('menuRiverMoteProxy')).some((t) => t.isPlaying())) ?? false,
-      riverMoteDurations: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-flow-mote')
+      riverMoteDurations: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-flow-mote')
         .map((c) => c.getData?.('menuRiverMoteDuration')) ?? [],
-      riverMoteLanes: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-flow-mote')
+      riverMoteLanes: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-flow-mote')
         .map((c) => c.getData?.('menuRiverMoteLane')) ?? [],
-      riverMotePositions: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-flow-mote')
+      riverMotePositions: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-flow-mote')
         .map((c) => ({ x: c.x, y: c.y, alpha: c.alpha })) ?? [],
-      currentDurations: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
+      currentDurations: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
         .map((c) => c.getData?.('menuCurrentDuration')) ?? [],
-      currentInterpolations: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
+      currentInterpolations: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
         .map((c) => c.getData?.('menuCurrentInterpolation')) ?? [],
-      currentMotions: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
+      currentMotions: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
         .map((c) => c.getData?.('menuCurrentMotion')) ?? [],
-      currentAnchors: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
+      currentAnchors: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
         .map((c) => c.getData?.('menuCurrentAnchor')) ?? [],
-      currentLanes: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
+      currentLanes: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
         .map((c) => c.getData?.('menuCurrentLane')) ?? [],
-      currentVisibilities: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
+      currentVisibilities: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
         .map((c) => c.getData?.('menuCurrentVisibility')) ?? [],
-      currentGraphics: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
+      currentGraphics: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
         .map((c) => c.getData?.('menuCurrentGraphic')) ?? [],
-      currentTravelLimits: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
+      currentTravelLimits: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
         .map((c) => c.getData?.('menuCurrentTravel')) ?? [],
-      currentMaxAlpha: Math.max(0, ...(waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
+      currentMaxAlpha: Math.max(0, ...(waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
         .map((c) => c.alpha) ?? [])),
-      currentPositions: waterLayer?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
+      currentPositions: waterEffects?.list?.filter((c) => c.getData?.('menuAmbient') === 'river-current')
         .map((c) => ({ x: c.x, y: c.y })) ?? [],
-      lotusWakes: waterLayer?.list?.filter((c) => c.getData?.('menuWakeSource') === 'lotus').length ?? 0,
-      lotusWakeDetails: waterLayer?.list?.filter((c) => c.getData?.('menuWakeSource') === 'lotus')
+      lotusWakes: waterEffects?.list?.filter((c) => c.getData?.('menuWakeSource') === 'lotus').length ?? 0,
+      lotusWakeDetails: waterEffects?.list?.filter((c) => c.getData?.('menuWakeSource') === 'lotus')
         .map((c) => ({
           origin: c.getData?.('menuWakeOrigin') ?? null,
           stem: c.getData?.('menuWakeStem') ?? null,
           base: c.getData?.('menuWakeBase') ?? null,
           animated: scene.tweens.getTweensOf(c).some((t) => t.isPlaying()),
         })) ?? [],
-      waterVeilBands: waterLayer?.list?.find((c) => c.getData?.('menuWaterTreatment') === 'soft-paper-glaze')
+      waterVeilBands: waterEffects?.list?.find((c) => c.getData?.('menuWaterTreatment') === 'soft-paper-glaze')
         ?.getData?.('menuRiverVeilBands') ?? 0,
-      waterGraphic: waterLayer?.list?.find((c) => c.getData?.('menuWaterTreatment') === 'soft-paper-glaze')
+      waterGraphic: waterEffects?.list?.find((c) => c.getData?.('menuWaterTreatment') === 'soft-paper-glaze')
         ?.getData?.('menuWaterGraphic') ?? null,
       grazing: scene.children.list.filter((c) => c.getData?.('grazing')).length,
       military: scene.children.list.filter((c) => c.type === 'Container' && c.depth === -7).length,
@@ -294,8 +302,9 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 390, height: 664 }
     const scene = window.__phaserGame.scene.getScene('MenuScene');
     const art = scene.children.list.find((c) => c.type === 'Container'
       && c.getData?.('menuLandscapeRole') === 'illustration');
-    const water = art?.list?.find((c) => c.type === 'Container'
+    let water = art?.list?.find((c) => c.type === 'Container'
       && c.getData?.('menuArtworkLayer') === 'river-fx');
+    water = water?.list?.find(c => c.getData?.('menuWaterEffects')) ?? water;
     const mist = art?.list?.find((c) => c.type === 'Container'
       && c.getData?.('menuArtworkLayer') === 'mountain-mist');
     const lotus = art?.list?.find((c) => c.getData?.('menuArtworkLayer') === 'lotus');
@@ -356,28 +365,12 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 390, height: 664 }
     && ['upper-culms', 'leaf-canopy'].every((part) => menu.art.bambooWind.parts.includes(part))
     && movingBambooWind === 2,
   `${movingBambooWind}/2 wind layers moved over 900ms: ${JSON.stringify(menu.art.bambooWind)}`);
-  check(`${label}: water has readable, one-way watercolour surface flow`, menu.interaction === 'river-ripple'
-    && menu.ripple > 0 && menu.wakes > 0 && menu.currents >= 6
+  check(`${label}: water keeps its waves and interactions without bubble highlights`, menu.interaction === 'river-ripple'
+    && menu.ripple > 0 && menu.wakes > 0 && menu.currents === 0 && menu.riverMotes === 0
     && menu.riverPulses >= 5 && menu.riverPulsesAnimated
-    && menu.riverMotes >= 6 && menu.riverMotesAnimated
-    && Math.min(...menu.currentLanes) <= -0.58 && Math.max(...menu.currentLanes) >= 0.65
-    && Math.min(...menu.riverPulseLanes) <= -0.6 && Math.max(...menu.riverPulseLanes) >= 0.55
-    && Math.min(...menu.riverMoteLanes) <= -0.7 && Math.max(...menu.riverMoteLanes) >= 0.68
-    && menu.riverMoteDurations.every((duration) => duration >= 108_000 && duration <= 172_000)
-    && movingRiverMotes >= 5 && riverMoteTravel.every((distance) => distance < 8)
     && menu.waterVeilBands === 3 && menu.waterGraphic === 'two-tone-reflection-wash'
-    && menu.currentMaxAlpha >= 0.26 && movingCurrents >= 5
-    && Math.min(...menu.currentAnchors) <= 0.2 && Math.max(...menu.currentAnchors) >= 0.94
-    && menu.currentDurations.every((duration) => duration >= 8_500 && duration <= 11_500)
-    && menu.currentInterpolations.every((mode) => mode === 'forward-fade-loop')
-    && menu.currentMotions.every((mode) => mode === 'forward-surface-flow')
-    && menu.currentVisibilities.every((mode) => mode === 'phone-readable')
-    && menu.currentGraphics.every((mode) => mode === 'layered-watercolour-ripples')
-    && menu.currentTravelLimits.every((distance) => distance >= 12 && distance <= 16)
-    && Math.max(...currentTravel) >= 0.8
-    && currentTravel.every((distance) => distance < 3)
     && ['tap', 'drag', 'hover-wake'].every((gesture) => menu.gestures.includes(gesture)),
-  `${menu.currents} drifting pools (${movingCurrents} moving, max ${Math.max(...currentTravel).toFixed(2)}px/900ms), ${menu.riverPulses} pulse rings, ${movingRiverMotes}/${menu.riverMotes} downstream flecks moving (max ${Math.max(...riverMoteTravel).toFixed(2)}px/900ms), alpha ${menu.currentMaxAlpha.toFixed(2)}, ${menu.ripple} touch ripple(s), ${menu.wakes} wake(s), ${menu.tweens} tweens playing`);
+  `${menu.riverPulses} wave rings, ${menu.ripple} touch ripple(s), ${menu.wakes} wake(s), no filled oval highlights`);
   const lotusWake = menu.lotusWakeDetails?.[0];
   const lotusWakeNormalized = lotusWake?.base ? {
     x: (lotusWake.base.x - (menu.art.x - menu.art.width / 2)) / menu.art.width,
@@ -422,7 +415,8 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 390, height: 664 }
     const scene = window.__phaserGame.scene.getScene('MenuScene');
     const art = scene.children.list.find((c) => c.type === 'Container'
       && c.getData?.('menuLandscapeRole') === 'illustration');
-    const water = art?.list?.find((c) => c.getData?.('menuArtworkLayer') === 'river-fx');
+    let water = art?.list?.find((c) => c.getData?.('menuArtworkLayer') === 'river-fx');
+    water = water?.list?.find(c => c.getData?.('menuWaterEffects')) ?? water;
     const lotus = art?.list?.find((c) => c.getData?.('menuArtworkLayer') === 'lotus');
     const log = lotus?.getData?.('menuLotusIdleWaveLog') ?? [];
     // A Container has no measurable size of its own; the ground plate is the illustration's frame.

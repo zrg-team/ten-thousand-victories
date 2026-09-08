@@ -90,9 +90,13 @@ export function updateBattleBubbles(self: ConquestUIScene, battle: AscentBattle)
    */
   const shouting = self.time.now - ui.bubbleShoutAt < 420;
   const opening = ui.bubbleSaid.ours === '' && ui.bubbleSaid.theirs === '';
+  // A shout stands in for the caption while it lasts — relief arriving, see `callOut` — and the
+  // caption's return afterwards is not a new sentence being shouted.
+  if (ui.bubbleCall && self.time.now >= ui.bubbleCall.until) ui.bubbleCall = undefined;
+  const call = ui.bubbleCall;
   const sides = [
-    { side: 'ours' as const, text: ours, at: lines.ourX },
-    { side: 'theirs' as const, text: theirs, at: lines.theirX },
+    { side: 'ours' as const, text: call?.side === 'ours' ? call.text : ours, at: lines.ourX },
+    { side: 'theirs' as const, text: call?.side === 'theirs' ? call.text : theirs, at: lines.theirX },
   ];
   // The difficulty's clock on the words. Infinity keeps them; 0 never draws them; anything
   // between fades the bubble and leaves the drawn formation to carry the reading.
@@ -102,15 +106,21 @@ export function updateBattleBubbles(self: ConquestUIScene, battle: AscentBattle)
     const walked = Math.abs(at - ui.bubbleAt[side]) > 10;
     if (!spoke && ui.bubbleFaded[side]) continue;
     if (!spoke && (shouting || !walked) && ui.bubbleOf[side]?.active) continue;
+    const calling = call?.side === side;
+    // The caption coming back after a shout: a change of sentence, but nobody is shouting it.
+    const returning = spoke && ui.bubbleCalled[side] !== undefined && ui.bubbleSaid[side] === ui.bubbleCalled[side];
     ui.bubbleSaid[side] = text;
     ui.bubbleAt[side] = at;
     ui.bubbleFaded[side] = false;
+    ui.bubbleCalled[side] = calling ? text : undefined;
     const previous = ui.bubbleOf[side];
     if (previous) {
       killTweensDeep(self, previous);
       previous.destroy();
     }
-    if (linger <= 0) {
+    // A shout is drawn on every difficulty: what nightmare withholds is the telegraph, and our own
+    // relief is not one.
+    if (linger <= 0 && !calling) {
       // Nightmare: the sentence is recorded so the side is not re-announced every beat, and
       // nothing is drawn. The men are the telegraph.
       ui.bubbleOf[side] = undefined;
@@ -118,7 +128,7 @@ export function updateBattleBubbles(self: ConquestUIScene, battle: AscentBattle)
       continue;
     }
     const made = battleBubble(self, 
-      at, side, text, spoke && !opening,
+      at, side, text, spoke && !opening && !returning,
       // No glyph for them while sealed: the little grid or hedge beside the words is the shape
       // spelled out in one mark, and hiding the sentence while keeping the picture hides nothing.
       side === 'ours' ? ourShape : (self.battleOpeningSealed ? undefined : theirShape),

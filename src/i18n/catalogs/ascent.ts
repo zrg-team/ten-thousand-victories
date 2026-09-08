@@ -910,6 +910,12 @@ export const enAscent = {
   "ascent.banner.survivedOne": "First invasion outlived",
   "ascent.hud.live": "INVASION {wave} · LIVE",
   "ascent.battle.reliefArrived": "Relief reaches the field — {n} more host(s) join us!",
+  "ascent.battle.reliefCall": "Reinforcements! {name} is with us — forward!",
+  "ascent.battle.enemyReliefCall": "Our reinforcements are here! Close in!",
+  "ascent.battle.reliefTitle": "REINFORCEMENTS",
+  "ascent.battle.enemyReliefTitle": "ENEMY REINFORCEMENTS",
+  "ascent.battle.reliefSub": "{name} · +{men} men join the line",
+  "ascent.battle.reliefHosts": "{n} hosts",
   "ascent.aftermath.chronicle.won": "Year {year}: at {land}, {leader} turned back {kingdom}. {dead} of ours did not come home.",
   "ascent.aftermath.chronicle.lost": "Year {year}: at {land}, {kingdom} broke through. {dead} of ours did not come home.",
   "ascent.aftermath.chronicle.took": "Year {year}: {leader} carried {land} from {kingdom}. {dead} of ours did not come home.",
@@ -2002,7 +2008,7 @@ export const enAscent = {
 
   // ── Dynasty Deck — the Dynasty Deck (Phase 3) ─────────────────────────
   "ascent.draft.recipeHint": "Forged pair: with {partner} → {result}",
-  "ascent.draft.fanHint": "Slide across the hand to browse · double-tap, flick up, or press the button to take",
+  "ascent.draft.fanHint": "↑ Swipe up to select\nSlide to browse · Double-tap also selects",
   "ascent.draft.nextLevel": "Lv{level}: {text}",
   "ascent.fan.take": "Take this",
   "ascent.cabinet.rubbingEarned": "Wave {wave} held — a draw joins the Dynasty Deck.",
@@ -3047,6 +3053,12 @@ export const viAscent = {
   "ascent.banner.survivedOne": "Vượt qua cuộc xâm lược đầu tiên",
   "ascent.hud.live": "XÂM LƯỢC {wave} · ĐANG DIỄN RA",
   "ascent.battle.reliefArrived": "Viện binh tới nơi — thêm {n} cánh quân nhập trận!",
+  "ascent.battle.reliefCall": "Viện binh! {name} đã tới — xông lên!",
+  "ascent.battle.enemyReliefCall": "Viện binh của ta đã tới! Siết chặt vòng vây!",
+  "ascent.battle.reliefTitle": "VIỆN BINH ĐẾN",
+  "ascent.battle.enemyReliefTitle": "ĐỊCH CÓ VIỆN BINH",
+  "ascent.battle.reliefSub": "{name} · thêm {men} quân nhập trận",
+  "ascent.battle.reliefHosts": "{n} cánh quân",
   "ascent.aftermath.chronicle.won": "Năm {year}: tại {land}, {leader} đánh lui {kingdom}. {dead} quân ta không trở về.",
   "ascent.aftermath.chronicle.lost": "Năm {year}: tại {land}, {kingdom} phá được phòng tuyến. {dead} quân ta không trở về.",
   "ascent.aftermath.chronicle.took": "Năm {year}: {leader} hạ {land} của {kingdom}. {dead} quân ta không trở về.",
@@ -4110,7 +4122,7 @@ export const viAscent = {
 
   // ── bộ bài triều đại (Giai đoạn 3) ────────────────────────────────────────────
   "ascent.draft.recipeHint": "Cặp đã rèn: cùng {partner} → {result}",
-  "ascent.draft.fanHint": "Lướt ngang tay bài để xem · chạm đúp, hất lên, hoặc bấm nút để lấy",
+  "ascent.draft.fanHint": "↑ Vuốt lên để chọn\nLướt ngang để xem · Chạm đúp cũng chọn",
   "ascent.draft.nextLevel": "Cấp {level}: {text}",
   "ascent.fan.take": "Lấy lá này",
   "ascent.cabinet.rubbingEarned": "Giữ vững đợt {wave} — thêm một lượt rút bài cho triều đại.",

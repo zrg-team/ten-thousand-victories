@@ -1,9 +1,11 @@
 import { preloadConquestMapArt } from '../ui/conquestMapArt';
+import { showPageLoading } from '../ui/pageLoading';
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_KINGDOM_ID } from '../game/constants';
 import { sheetSpan } from '../game/cameraLayout';
 import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
 import { createAscentGameState } from '../state/GameState';
+import { requestGuidedRun } from '../state/tour';
 import { beginBattle } from '../systems/ascent/BattleSystem';
 import {
   ENEMY_WARDROBES, VIET_WARDROBES,
@@ -121,11 +123,15 @@ export class BattleArenaScene extends Phaser.Scene {
   private fightStartedAt = 0;
   private lastDurationMs = 0;
 
+  /** Kept on setup until a fight starts, so leaving setup cannot coach an unrelated run. */
+  private guidedCopilot = false;
+
   constructor() {
     super('BattleArenaScene');
   }
 
-  init(data?: { result?: AscentBattleRecord }): void {
+  init(data?: { result?: AscentBattleRecord; guidedCopilot?: boolean }): void {
+    this.guidedCopilot = data?.guidedCopilot === true;
     if (data?.result) {
       this.last = data.result;
       this.resultPending = true;
@@ -136,6 +142,7 @@ export class BattleArenaScene extends Phaser.Scene {
   }
 
   preload(): void {
+    showPageLoading(this);
     preloadConquestMapArt(this, import.meta.env.BASE_URL);
   }
 
@@ -1076,6 +1083,10 @@ export class BattleArenaScene extends Phaser.Scene {
     this.fightStartedAt = Date.now();
     const state = this.buildArenaState();
     if (state.ascent) state.ascent.arenaBubbleMs = this.bubbleChoice;
+    if (this.guidedCopilot) {
+      requestGuidedRun();
+      this.guidedCopilot = false;
+    }
     this.scene.start('ConquestScene', { state });
   }
 

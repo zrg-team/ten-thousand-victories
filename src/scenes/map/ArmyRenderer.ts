@@ -19,6 +19,7 @@ import type { Army, GameState, Land } from '../../state/types';
 import { hostKitFor, setHostStepping } from '../../ui/ink/devices';
 import { setConquestArmyStepping } from '../../ui/ink/figureStamps';
 import type { MapItemRenderer } from '../../ui/MapItemRenderer';
+import { houseBanner } from '../../ui/ascent/houseBanner';
 
 type WorldTransform = (value: number) => number;
 type SettlementAnchor = (land: Land) => { x: number; y: number };
@@ -313,6 +314,7 @@ export class ArmyRenderer {
     this.redraw = () => this.drawArmies(state, wx, wy, getAnchor, roadAnchor, tickPhase, onArmyPointerDown);
 
     const activeIds = new Set<string>();
+    const playerSignKey = JSON.stringify(houseBanner());
 
     for (const army of state.armies) {
       const land = findLand(state, army.landId);
@@ -427,7 +429,7 @@ export class ArmyRenderer {
       // The kit is part of what the marker *is*, so it belongs in the signature that decides
       // whether to redraw one. Without it an era turning, or a host being re-equipped, would
       // leave the old wardrobe on the map until the headcount happened to change.
-      const sig = `${total}|${isPlayer ? 1 : 0}|${kingdomColor ?? 0}|${flagSeed}`
+      const sig = `${total}|${isPlayer ? playerSignKey : 0}|${kingdomColor ?? 0}|${flagSeed}`
         + `|${kit.theme ?? kit.era}|${kit.tier}|${Math.round((kit.units?.archers ?? 0) / Math.max(1, total) * 8)}`
         + `|${Math.round((kit.units?.heavyInfantry ?? 0) / Math.max(1, total) * 8)}`
         // Turning to face the road and turning back each redraw the host exactly once — twice a

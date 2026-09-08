@@ -79,11 +79,18 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
   // of them pointing at a neighbour: the harness clicked Army, counted its objects, and reported
   // them as a shortfall in Stories. A test that lies about which screen it is on is worse than no
   // test. SIDE and the tab width come straight from HistoryScene's own arithmetic.
-  const SIDE = 12;
-  const tabWidth = Math.floor((390 - SIDE * 2 - (TABS.length - 1) * 4) / TABS.length);
-  const tabX = TABS.map((_, i) => SIDE + i * (tabWidth + 4) + tabWidth / 2);
+  const pressTab = async tab => {
+    const point = await page.evaluate(tab => {
+      const s = window.__phaserGame.scene.getScene('HistoryScene');
+      const button = s.children.list.find(o => o.getData('historyTab') === tab);
+      const label = button.list.find(o => o.type === 'Text');
+      const m = label.getWorldTransformMatrix();
+      return { x: m.tx, y: m.ty };
+    }, tab);
+    await page.mouse.click(point.x, point.y);
+  };
   for (const [index, tab] of TABS.entries()) {
-    await page.mouse.click(tabX[index], 84);
+    await pressTab(tab);
     await page.waitForTimeout(450);
     if (!ACCORDION.includes(tab)) {
       // The wardrobe: pressing a dynasty chip has to redraw the plate. The chip is **found**, not
@@ -94,6 +101,7 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
         const scene = window.__phaserGame.scene.getScene('HistoryScene');
         return `${scene.armyTheme}/${scene.armyTier}/${scene.armyArm}`;
       });
+      await page.evaluate(() => window.__phaserGame.scene.getScene('HistoryScene').showContents());
       const chip = await page.evaluate(() => {
         const scene = window.__phaserGame.scene.getScene('HistoryScene');
         let found = null;
@@ -150,7 +158,15 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     // The first heading is the one each tab opens on and the list starts at the top, so it is the
     // one heading guaranteed to be on screen. Press it and the section shuts; press it again and
     // it comes back.
-    const first = sections[0];
+    // Contents now opens with every section collapsed. Open the first before testing its fold.
+    const first = await page.evaluate(key => {
+      const s = window.__phaserGame.scene.getScene('HistoryScene');
+      s.applyToggle(key, true);
+      const h = s.scroll.content.list.find(o => o.getData('sectionKey') === key);
+      const m = h.getWorldTransformMatrix();
+      return { key, x: m.tx, y: m.ty };
+    }, sections[0].key);
+    await page.waitForTimeout(450);
     const before = await listState();
     await page.mouse.click(first.x + 60, first.y + 12);
     // Caught mid-fold. Shutting a section animates the rows that are already drawn and only
@@ -168,7 +184,13 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     const shut = await listState();
     if (shut.open !== '') fail(`${tag}  ${tab}: pressing the open heading did not shut it (${shut.open})`);
     if (shut.rows >= before.rows) fail(`${tag}  ${tab}: shutting a section still drew ${shut.rows} rows`);
-    await page.mouse.click(first.x + 60, first.y + 12);
+    const reopening = await page.evaluate(key => {
+      const scene = window.__phaserGame.scene.getScene('HistoryScene');
+      const header = scene.scroll.content.list.find(o => o.getData('sectionKey') === key);
+      const m = header.getWorldTransformMatrix();
+      return {x:m.tx, y:m.ty};
+    }, first.key);
+    await page.mouse.click(reopening.x + 60, reopening.y + 12);
     await page.waitForTimeout(420);
     const reopened = await listState();
     if (reopened.open !== first.key) fail(`${tag}  ${tab}: the heading did not reopen (${reopened.open})`);
@@ -213,6 +235,8 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
       const scene = window.__phaserGame.scene.getScene('HistoryScene');
       const card = (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o])).find((o) => o.getData?.('rowKey') != null);
       if (!card) return null;
+      const before = card.getWorldTransformMatrix();
+      scene.scroll.setScroll(scene.scroll.offset + before.ty - scene.listTop - 20);
       const m = card.getWorldTransformMatrix();
       return { key: card.getData('rowKey'), x: m.tx, y: m.ty };
     });
@@ -238,7 +262,14 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
 
   // Back to the first tab, then the gesture pair: a drag must scroll and must NOT open a row; a
   // tap must open one. Getting this backwards is the classic scrolling-list defect.
-  await page.mouse.click(tabX[0], 84);
+  await pressTab('dynasties');
+  await page.evaluate(() => {
+    const scene=window.__phaserGame.scene.getScene('HistoryScene');
+    scene.expanded=undefined;
+    scene.render();
+    const card=scene.scroll.content.list.find(o=>o.getData('rowKey'));
+    if(card)scene.scroll.setScroll(card.y-12);
+  });
   await page.waitForTimeout(400);
   await page.mouse.move(195, Math.min(500, height - 120));
   await page.mouse.down();
@@ -256,17 +287,19 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
   // whatever is at y=300 depends on how tall the heading above it wrapped to.
   const target = await page.evaluate(() => {
     const scene = window.__phaserGame.scene.getScene('HistoryScene');
-    const top = 108;
+    const top = scene.listTop;
     const bottom = top + scene.listHeight();
     for (const o of (scene.scroll?.content.list ?? []).flatMap((o) => (o.getData?.('virtualKey') != null ? o.list : [o]))) {
       if (o.getData?.('rowKey') == null) continue;
       const m = o.getWorldTransformMatrix();
-      if (m.ty > top + 8 && m.ty < bottom - 30) return { x: m.tx, y: m.ty };
+      const y = Math.max(top + 16, m.ty + 16);
+      const rowBottom = m.ty + (o.getData('cardHeight') ?? 0);
+      if (y < bottom - 12 && y < rowBottom - 8) return { x: m.tx, y };
     }
     return null;
   });
   if (!target) fail(`${tag}  no row left in the window after the drag`);
-  await page.mouse.click(target ? target.x + 60 : 195, target ? target.y + 16 : 300);
+  await page.mouse.click(target ? target.x + 60 : 195, target ? target.y : 300);
   await page.waitForTimeout(400);
   const afterTap = await page.evaluate(() => {
     const scene = window.__phaserGame.scene.getScene('HistoryScene');
@@ -290,7 +323,7 @@ for (const [lang, height] of [['en', 844], ['vi', 844], ['vi', 620]]) {
     const scene = window.__phaserGame.scene.getScene('HistoryScene');
     const hit = (node) => {
       const label = node.list?.find?.((k) => k.type === 'Text');
-      if (label && /Quay lại|Back/.test(label.text)) {
+      if (label && node.getData('historyBack')) {
         const m = label.getWorldTransformMatrix();
         return { x: m.tx, y: m.ty };
       }

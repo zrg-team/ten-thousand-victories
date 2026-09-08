@@ -1,0 +1,125 @@
+{
+  "mode": "built-in ImageGen",
+  "references": [
+    "public/art/story-prints/petition-v1.webp",
+    "public/art/story-prints/harvest-v1.webp"
+  ],
+  "transparencyRepair": {
+    "ids": [
+      "person",
+      "purse",
+      "scales",
+      "wall"
+    ],
+    "targets": {
+      "person": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-8deeb1f2-9d92-443c-b994-b6482dfff0f8.png",
+      "purse": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-e917047f-01d9-456d-b5f5-dfffd84d55f1.png",
+      "scales": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-e222815e-87b9-40eb-bcfb-83c545f29067.png",
+      "wall": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-19d02a8a-7001-4fd0-92c4-5dec04b1f3a7.png"
+    }
+  },
+  "transparencyRepairRetry": {
+    "ids": [
+      "person",
+      "scales",
+      "scroll",
+      "hammer",
+      "blade",
+      "hut"
+    ],
+    "prompt": "Remove the background from this icon and deliver a transparent PNG cutout. Keep the icon itself unchanged.",
+    "targets": {
+      "person": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-f77a110a-0a35-4f41-8f52-82e758c9db1d.png",
+      "scales": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-e40f5be9-4f67-48d5-8765-54963c06e00b.png",
+      "scroll": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-1c8643e5-342c-460e-bc8b-d9a2bf6f0808.png",
+      "hammer": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-b661947c-6d73-49a3-9a9b-c296f023c67b.png",
+      "blade": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-9906b4cc-5b80-4425-8b10-0e2a3f77dfc8.png",
+      "hut": "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-cadcc6a3-40cb-4c70-96e7-0a27ab055d1f.png"
+    }
+  },
+  "finalCorrections": [
+    {
+      "id": "scales",
+      "prompt": "A small balance scales icon, Vietnamese Đông Hồ folk woodcut illustration, with thick warm black carved outlines and flat ochre, vermilion and muted green pigment. Simple bold silhouette readable at 36 pixels, two red weighing pans hanging symmetrically from a wooden beam. Single complete isolated icon centered with generous empty margins. Transparent background."
+    },
+    {
+      "id": "blade",
+      "prompt": "Extract just the sword as an isolated cutout on a transparent background. Keep the complete sword, its colours and illustration style.",
+      "refs": [
+        "C:\\Users\\zerg\\.codex\\generated_images\\01a080cf-9b2a-7ac3-971b-a5e4671e819c\\exec-9906b4cc-5b80-4425-8b10-0e2a3f77dfc8.png"
+      ]
+    }
+  ],
+  "jobs": [
+    {
+      "id": "person",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A dignified Vietnamese court messenger's bust, front three-quarter view: a simple dark cloth headwrap, pale ochre face with two clear almond eyes and a small calm mouth, indigo crossed-collar tunic. Only head and upper shoulders, broad solid shapes. Not a named person, no full figure, no background.",
+      "output": "output/story-choice-icons/parts/person.png"
+    },
+    {
+      "id": "crown",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A symbolic premodern Vietnamese royal headpiece: a low vermilion cloth cap with a broad ochre front band and restrained upright central crest, short symmetrical side wings. Warm-black outline, simple clearly readable silhouette. No European pointed crown, no jewels or tiny ornament, no face.",
+      "output": "output/story-choice-icons/parts/crown.png"
+    },
+    {
+      "id": "grain",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A tied sheaf of ripe rice: three broad bowed ochre seed heads, two green leaves, short vermilion binding. Few large grain lobes, bold black silhouette, no individual hairline stems or surrounding scenery.",
+      "output": "output/story-choice-icons/parts/grain.png"
+    },
+    {
+      "id": "purse",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A plump ochre cloth treasury pouch tied with a short vermilion cord, one large flat indigo fold and two chunky cord ends. Three-quarter shape, no coins spilling out, no currency symbol or writing.",
+      "output": "output/story-choice-icons/parts/purse.png"
+    },
+    {
+      "id": "scales",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A simple balanced wooden beam scale: warm-black central upright, broad ochre crossbeam, two matching suspended vermilion pans, compact ochre base. Symmetrical clear shape with only two suspension lines per pan. No numbers, tiny chains, hands or people.",
+      "output": "output/story-choice-icons/parts/scales.png"
+    },
+    {
+      "id": "wall",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A compact Vietnamese palisade gate emblem: three broad dark ochre sharpened timber posts on each side of a vermilion double gate with a small green tiled roof. Frontal silhouette, one clear central doorway, no masonry castle, people or landscape.",
+      "output": "output/story-choice-icons/parts/wall.png"
+    },
+    {
+      "id": "scroll",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: One partially unfurled ivory proclamation scroll with two ochre wooden rollers and a small vermilion ribbon on the left. Broad empty paper face, indigo reverse edge. Absolutely blank, no lettering, no ink marks.",
+      "output": "output/story-choice-icons/parts/scroll.png"
+    },
+    {
+      "id": "hammer",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A Vietnamese craftworker's simple woodworking mallet and a short chisel crossed diagonally. Ochre wooden mallet head and handle, indigo chisel blade with vermilion grip. Two clear tools, thick outlines, not crossed weapons or a modern claw hammer.",
+      "output": "output/story-choice-icons/parts/hammer.png"
+    },
+    {
+      "id": "shield",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A round premodern wooden shield in warm ochre with a central vermilion boss, broad indigo rim and two simple curved black carved divisions. One large complete circular shield, no heraldic text, no metallic highlights.",
+      "output": "output/story-choice-icons/parts/shield.png"
+    },
+    {
+      "id": "blade",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A single premodern Vietnamese straight iron sword angled diagonally, with broad flat indigo blade, small simple ochre crossguard and vermilion wrapped grip. Strong complete silhouette and one light carved blade stripe. No blood, flame, jewels or fantasy ornament.",
+      "output": "output/story-choice-icons/parts/blade.png"
+    },
+    {
+      "id": "banner",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A plain vermilion Vietnamese military standard on a short warm-black pole with a small ochre spear finial. The cloth has a broad rectangular body and two simple streaming tails, one indigo inner fold. No emblem, text, dragon or tiny decoration.",
+      "output": "output/story-choice-icons/parts/banner.png"
+    },
+    {
+      "id": "spark",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A single stylized Đông Hồ flame: three bold upward vermilion tongues surrounding one ochre teardrop core, warm-black outline. Compact expressive silhouette, no realistic light, smoke, brazier or background.",
+      "output": "output/story-choice-icons/parts/spark.png"
+    },
+    {
+      "id": "herd",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A gentle Vietnamese water buffalo head seen front three-quarter: broad indigo-black forehead, two large curved ochre horns, small pale eyes, ochre muzzle. Only the head, no human, no body, no landscape. Clear calm face, not a European cow.",
+      "output": "output/story-choice-icons/parts/herd.png"
+    },
+    {
+      "id": "hut",
+      "prompt": "Use case: illustration-story. Create ONE small game icon in the same Vietnamese Đông Hồ woodblock art style as the supplied petition and harvest reference images. References are ONLY for pigment, carved contour, and drawing style; do not reproduce their scene.\nThis is a production bitmap ICON, not a scene or card. Square image, one centered large isolated motif with a strong recognizable silhouette and 10% transparent margin. It must remain readable when displayed at 36 pixels: bold warm-black contours, only 3–5 large flat pigment shapes, minimal carved accents, no tiny texture marks or complex detail.\nFlat vermilion, warm ochre, muted leaf green and indigo, no gradients, shadows, gloss, metallic reflections or 3D. Respect premodern Vietnamese visual vocabulary, no European fantasy designs. Clean organic hand-cut line edges. Complete motif fits inside the square, no clipping.\nBACKGROUND: real transparent alpha, completely empty outside the motif. Absolutely NO paper rectangle, scenery, ground, checkerboard pattern, decorative circle, frame, text, characters, numerals, writing, watermark or UI. Solid flat pigments inside the motif, real transparent background outside it.\nMotif: A small premodern Vietnamese thatched village house seen front three-quarter: broad ochre thatched roof, vermilion timber wall, one large indigo doorway and two short stilts. Strong simple asymmetrical silhouette, no people, trees, ground or fence.",
+      "output": "output/story-choice-icons/parts/hut.png"
+    }
+  ]
+}

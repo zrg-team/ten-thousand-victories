@@ -9,6 +9,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../../game/constants';
 import { t } from '../../i18n';
 import { PIGMENT } from '../../ui/ink/palette';
+import { createPlayerLandFlag } from '../../ui/playerFlag';
 import { brushStroke, inkOutline, shade, washFill, waveLine } from '../../ui/inkTheme';
 import { inkPath, mulberry32, washFill as washInk, type Pt } from '../../ui/ink/stroke';
 import { house, karstRange, softRidge } from '../../ui/ink/props';
@@ -552,7 +553,7 @@ export function drawArmies(self: MenuScene): void {
     drawSoldiers(self, g, cx, cy, self.mapRenderer.palette.mapObjects.rival, cols, rows);
     const totalW = (cols - 1) * 11;
     const totalH = (rows - 1) * 11;
-    const flag = self.mapItems.createPlayerLandFlag(false, enemySeed);
+    const flag = createPlayerLandFlag(self, false, enemySeed, true);
     flag.setPosition(cx - totalW / 2 - 14, cy + totalH / 2 + 4);
   }
 }

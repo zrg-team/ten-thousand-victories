@@ -75,7 +75,7 @@ await page.waitForFunction(() => window.__phaserGame.scene.isActive('GuideScene'
 await page.waitForTimeout(700);
 
 // ── The guided-run button, on the tab the reader lands on ───────────────────
-const play = await buttonAt('GuideScene', 'Play a guided run');
+const play = await buttonAt('GuideScene', 'Conquest copilot');
 check('the manual offers a guided run on the tab it opens', Boolean(play));
 if (!play) { await browser.close(); process.exit(1); }
 
@@ -285,7 +285,7 @@ const overCard = await page.evaluate(() => {
 });
 check('no map-or-bar stage fires while a card owns the screen', overCard === false);
 
-// ── The walkthrough opens on the very first card, not after it ──────────────
+// ── The walkthrough opens on the first gameplay decision ───────────────────
 //
 // The whole complaint that produced this stage: a new player's first screen is the throne card,
 // asking a permanent question about three options they have never seen, and the coach used to wait
@@ -298,8 +298,18 @@ first.on('pageerror', (e) => firstErrors.push(e.message));
 first.on('console', (m) => { if (m.type() === 'error') firstErrors.push(m.text()); });
 await first.goto(`${BASE}/?capture=1&tour=1`, { waitUntil: 'domcontentloaded' });
 await first.waitForFunction(() => typeof window.__startBenchGame === 'function', null, { timeout: 30000 });
+// Let Boot finish its art preload before the bench starts a scene using the same atlas.
+await first.waitForFunction(() => window.__phaserGame.scene.isActive('MenuScene'), null, { timeout: 30000 });
 await first.evaluate(() => window.__startBenchGame(1337, 'ascent'));
 await first.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'), null, { timeout: 30000 });
+// A new dynasty now opens its optional customizer and an inheritance summary before decisions.
+for (let setup = 0; setup < 2; setup += 1) {
+  await first.evaluate(() => {
+    const scene = window.__phaserGame.scene.getScene('ConquestUIScene');
+    if (['coronation', 'inheritance'].includes(scene.state.pendingAscentPrompt?.kind)) scene.choose('skip');
+  });
+  await first.waitForTimeout(150);
+}
 await first.waitForTimeout(1800);
 
 const onFirstCard = await first.evaluate(() => {
@@ -311,7 +321,7 @@ const onFirstCard = await first.evaluate(() => {
     stages: scene.tourStages().map((s) => s.id),
   };
 });
-check('the very first thing on screen is a decision card',
+check('the first gameplay screen is a decision card',
   onFirstCard.promptKey.startsWith('mandate'), onFirstCard.promptKey);
 check('the coach is already up over it, with nothing to wait for',
   onFirstCard.tourUp && onFirstCard.shown.includes('mandate'), JSON.stringify(onFirstCard));

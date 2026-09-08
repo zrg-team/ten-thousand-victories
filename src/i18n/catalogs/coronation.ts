@@ -28,6 +28,7 @@ export const enCoronation = {
   'coronation.back.name': 'Back — the name',
   'coronation.back.banner': 'Back — the sign',
   'coronation.roll': 'Roll another king',
+  'coronation.sign.random': 'Random sign',
   'coronation.skip': 'Let the chroniclers decide',
   'coronation.confirm': 'Take the throne',
 
@@ -222,6 +223,7 @@ export const viCoronation: Record<keyof typeof enCoronation, string> = {
   'coronation.back.name': 'Lui — danh hiệu',
   'coronation.back.banner': 'Lui — dấu hiệu',
   'coronation.roll': 'Gieo một vị vua khác',
+  'coronation.sign.random': 'Dấu hiệu ngẫu nhiên',
   'coronation.skip': 'Để sử quan định liệu',
   'coronation.confirm': 'Lên ngôi',
 

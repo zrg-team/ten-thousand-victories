@@ -73,6 +73,8 @@ const isOptional = (rel) => rel.startsWith('faces/')
   || /^art\/conquest-dongho(?:-v\d+)?\//.test(rel)
   // Card illustrations retain icon/band fallbacks when optional art is unavailable.
   || rel.startsWith('art/story-prints/')
+  // Optional generated choice motifs fall back to the local glyph when unavailable.
+  || rel.startsWith('art/story-choice-icons/')
   // The throne hall retains its procedural fallback if the print is unavailable.
   || rel.startsWith('art/ascent/');
 
