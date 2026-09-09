@@ -14,7 +14,9 @@
 
 <br>
 
-[![Play the full game, free](https://img.shields.io/badge/▶%20%20PLAY%20THE%20FULL%20GAME-free%20·%20no%20ads-b33a26?style=for-the-badge&labelColor=7d2417)](https://zrg-team.github.io/ten-thousand-victories/)
+<a href="https://zrg-team.github.io/ten-thousand-victories/"><img src="docs/readme/play-badge.png" alt="Play the full game, free — no ads" width="470"></a>
+
+<sub>Install it from the browser — add to home screen, and it plays offline, full screen, with no store and no account.</sub>
 
 <sub>Or support the developer — the same game on the stores, 50,000₫ (≈ US$2), once.</sub>
 

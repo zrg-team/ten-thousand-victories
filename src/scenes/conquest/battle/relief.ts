@@ -24,7 +24,8 @@
 import Phaser from 'phaser';
 import { BATTLE_TICK_MS } from '../../../game/ascentConfig';
 import { INK_UI } from '../../../ui/InkUI';
-import { sawtoothBand, seal } from '../../../ui/ink/devices';
+import { sawtoothBand } from '../../../ui/ink/devices';
+import { drawHouseSign, houseBanner } from '../../../ui/ascent/houseBanner';
 import { inkPath, washFill, type Pt } from '../../../ui/ink/stroke';
 import { setConquestArmyStepping } from '../../../ui/ink/figureStamps';
 import { TITLE_FONT, UI_FONT } from '../../../ui/fonts';
@@ -316,22 +317,35 @@ function proclaim(self: ConquestUIScene, side: ReliefSide, name: string, men: nu
   sawtoothBand(band, -half + 8, h / 2 - 9, w - 16, 3.5, ours ? 0.55 : 0.7, rule);
   ribbon.add(band);
 
-  // The seal at the head of ours: stamped down, the rays swept once and gone.
-  // Clear of the swallow tail, whose notch reaches 16 units in at the banner's waist: at 30 the
-  // chop's paper slip poked out through the cut.
-  const sealX = -half + 36;
+  /**
+   * The seal at the head of ours: stamped down, the rays swept once and gone.
+   *
+   * **46, not 36.** The swallow tail's notch reaches 16 units in at the banner's waist, which is
+   * exactly the height the 36-unit slip is widest at: at 36 the slip's left edge stood at
+   * `-half + 18` against a paper edge at `-half + 16`, and two units of margin photographs as the
+   * chop sitting on the cut. Twelve is the clearance now, and the notch reads as a notch.
+   */
+  const sealX = -half + 46;
   const textLeft = ours ? sealX + 26 : -half + 14;
   const textWidth = half - 14 - textLeft;
   const centreX = textLeft + textWidth / 2;
   if (ours) {
-    // The chop is stamped on paper, so it is given paper: a cinnabar chop laid straight on a
-    // cinnabar banner is a white motif floating on red, which is not what a seal looks like.
-    const slip = self.add.graphics();
-    slip.fillStyle(INK_UI.parchment, 0.96);
-    slip.fillRoundedRect(sealX - 18, -18, 36, 36, 3);
-    slip.lineStyle(1.2, INK_UI.brush, 0.7);
-    slip.strokeRoundedRect(sealX - 18, -18, 36, 36, 3);
-    ribbon.add(slip);
+    /**
+     * No paper slip under it — the sign is pressed straight into the cloth.
+     *
+     * It had one: a 36-unit parchment square, on the argument that a chop is stamped on paper. On
+     * a banner it read as a *label pinned to* the proclamation rather than as the proclamation's
+     * own seal, and it put a second rectangle inside a shape whose whole point is that it is not a
+     * rectangle. Asked for plainly: *can we remove the box?*
+     *
+     * What the paper was really doing was giving the mark an edge against cinnabar, and a ring of
+     * ink does that in one line: the sign's disc is already ringed in the house's trim, and this
+     * seats it on the red without boxing it.
+     */
+    const seat = self.add.graphics();
+    seat.fillStyle(INK_UI.brush, 0.22);
+    seat.fillCircle(sealX, 1.5, 17);
+    ribbon.add(seat);
     const rays = self.add.graphics();
     for (let index = 0; index < 10; index += 1) {
       const angle = (index / 10) * Math.PI * 2 + 0.2;
@@ -340,9 +354,32 @@ function proclaim(self: ConquestUIScene, side: ReliefSide, name: string, men: nu
     }
     rays.setPosition(sealX, 0).setAlpha(0).setScale(0.5);
     ribbon.add(rays);
-    const chop = self.add.graphics();
-    seal(chop, 0, 0, 26, 'star');
-    chop.setPosition(sealX, 0).setScale(2.4).setAlpha(0);
+    /**
+     * The house's own sign — the round chop, not its standard.
+     *
+     * Two corrections, one after the other. It was `seal(..., 'star')` first: the shared cinnabar
+     * device, the same mark for every dynasty anybody has ever played, while the fight screen's
+     * own header stamps the house two inches away. Asked directly — *does it use the correct sign
+     * of the dynasty?* — it did not.
+     *
+     * The first answer was `drawHouseSeal`, the square field the menu's scroll carries, and that
+     * was wrong for a different reason: a house whose emblem is `banner` has a command standard
+     * drawn inside it, so a square plaque with a flag on it reads as a *flag nailed to the
+     * proclamation*. Answered as *use the sign, not the flag*. `drawHouseSign` is the round
+     * identity chop — the same emblem, field and trim, in the shape of a thing that is stamped.
+     * Whatever device a house carries, a disc reads as a seal and a square standard does not.
+     *
+     * Still on its paper slip: the chop paints the house's own field, and most of those fields are
+     * red, which on a cinnabar banner is a mark that is not there.
+     *
+     * A column an ally sent counts as ours here (`hostsJoined` reads our side of the field). The
+     * seal on a proclamation is the authority making it, not the livery of the men marching in,
+     * so the realm's own mark is the right one either way.
+     */
+    const SIGN = 30;
+    const chop = self.add.container(sealX, 0);
+    chop.add(drawHouseSign(self, houseBanner(), SIGN, SIGN).setPosition(-SIGN / 2, -SIGN / 2));
+    chop.setScale(2.4).setAlpha(0);
     ribbon.add(chop);
     self.tweens.chain({
       tweens: [

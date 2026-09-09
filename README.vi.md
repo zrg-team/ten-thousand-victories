@@ -14,7 +14,9 @@
 
 <br>
 
-[![Chơi trọn game, miễn phí](https://img.shields.io/badge/▶%20%20CH%C6%A0I%20TR%E1%BB%8CN%20GAME-mi%E1%BB%85n%20ph%C3%AD%20·%20kh%C3%B4ng%20qu%E1%BA%A3ng%20c%C3%A1o-b33a26?style=for-the-badge&labelColor=7d2417)](https://zrg-team.github.io/ten-thousand-victories/)
+<a href="https://zrg-team.github.io/ten-thousand-victories/"><img src="docs/readme/play-badge-vi.png" alt="Chơi trọn game, miễn phí — không quảng cáo" width="489"></a>
+
+<sub>Cài từ trình duyệt — thêm vào màn hình chính là chơi được ngoại tuyến, toàn màn hình, không cần cửa hàng hay tài khoản.</sub>
 
 <sub>Hoặc ủng hộ tác giả — vẫn game ấy, trên hai chợ app, 50.000₫ (≈ 2$), trả một lần.</sub>
 
