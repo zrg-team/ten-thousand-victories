@@ -1,0 +1,52 @@
+{
+  "mode": "built-in ImageGen",
+  "revision": "User-approved soldier formations: consistent uniforms, forward-facing loose line, richer fight print",
+  "uniformReference": "C:/Users/zerg/Projects/personal/grand-rts-game/output/conquest-ui-v3/masters/spears.png",
+  "preserved": [
+    "spears",
+    "supplies"
+  ],
+  "jobs": [
+    {
+      "id": "horse",
+      "meaning": "Xung phong / charge",
+      "prompt": "Use case: precise-object-edit. Asset: one transparent raster formation icon for a Vietnamese historical strategy game, at 30px. Image 1 is the EDIT TARGET; image 2 is the APPROVED clothing and print-style reference. Standardize every soldier to image 2: the exact same plain indigo-blue short cross-collar tunic, vermilion red waist sash, dark brown knee-length trousers, bare ochre lower legs, plain dark low shoes, and simple low ochre conical bamboo hat with NO decorative marks. Warm dark brown carved outlines, flat natural pigment shapes, sparse Đông Hồ folk woodblock grain, minimal facial features. Preserve the target's weapon type, number of soldiers and formation meaning. Uniform colors must match image 2; no red tunics or blue sashes, no leg bindings, armor, ornament, badges or detailed faces. Output the complete compact motif centered with transparent padding, true transparent alpha background and open gaps. No background, paper, checkerboard, shadow, glow, lettering or labels. Keep the target's exact three-soldier charging wedge and forward-leaning strides, all facing RIGHT with spears thrust right. Change only the uniforms, hats and associated pigment colors to the reference. Keep the energetic tight composition.",
+      "refs": [
+        "C:/Users/zerg/Projects/personal/grand-rts-game/output/conquest-ui-v3/masters/horse.png",
+        "C:/Users/zerg/Projects/personal/grand-rts-game/output/conquest-ui-v3/masters/spears.png"
+      ]
+    },
+    {
+      "id": "skirmish",
+      "meaning": "Tản ra / loose formation",
+      "prompt": "Use case: precise-object-edit. Asset: one transparent raster formation icon for a Vietnamese historical strategy game, at 30px. Image 1 is the EDIT TARGET; image 2 is the APPROVED clothing and print-style reference. Standardize every soldier to image 2: the exact same plain indigo-blue short cross-collar tunic, vermilion red waist sash, dark brown knee-length trousers, bare ochre lower legs, plain dark low shoes, and simple low ochre conical bamboo hat with NO decorative marks. Warm dark brown carved outlines, flat natural pigment shapes, sparse Đông Hồ folk woodblock grain, minimal facial features. Preserve the target's weapon type, number of soldiers and formation meaning. Uniform colors must match image 2; no red tunics or blue sashes, no leg bindings, armor, ornament, badges or detailed faces. Output the complete compact motif centered with transparent padding, true transparent alpha background and open gaps. No background, paper, checkerboard, shadow, glow, lettering or labels. Rearrange the target into a coherent LOOSE STAGGERED LINE: three standing spearmen separated by clear gaps of roughly one shoulder-width, all facing the SAME direction, RIGHT, all spears parallel and angled forward toward upper right. Left soldier slightly lower, middle soldier slightly higher, right soldier level with the left. Feet in relaxed ready stances, bodies upright and alert, not running or crouching. Keep figures equally sized; no overlaps between bodies. This is a military line opening its spacing while still facing the enemy. No radial fan, no outward-facing men, no encircling arrangement, no arrows. Each soldier wears exactly the reference uniform.",
+      "refs": [
+        "C:/Users/zerg/Projects/personal/grand-rts-game/output/conquest-ui-v3/masters/skirmish.png",
+        "C:/Users/zerg/Projects/personal/grand-rts-game/output/conquest-ui-v3/masters/spears.png"
+      ]
+    },
+    {
+      "id": "tortoise",
+      "meaning": "Giương khiên / shield wall",
+      "prompt": "Use case: precise-object-edit. Asset: one transparent raster formation icon for a Vietnamese historical strategy game, at 30px. Image 1 is the EDIT TARGET; image 2 is the APPROVED clothing and print-style reference. Standardize every soldier to image 2: the exact same plain indigo-blue short cross-collar tunic, vermilion red waist sash, dark brown knee-length trousers, bare ochre lower legs, plain dark low shoes, and simple low ochre conical bamboo hat with NO decorative marks. Warm dark brown carved outlines, flat natural pigment shapes, sparse Đông Hồ folk woodblock grain, minimal facial features. Preserve the target's weapon type, number of soldiers and formation meaning. Uniform colors must match image 2; no red tunics or blue sashes, no leg bindings, armor, ornament, badges or detailed faces. Output the complete compact motif centered with transparent padding, true transparent alpha background and open gaps. No background, paper, checkerboard, shadow, glow, lettering or labels. Keep the target's exact compact three-soldier shield wall, three overlapping round ochre shields and upright spears. Change only the visible uniforms, hats and shoes to the reference: remove hat rib decoration and lower-leg ties. All visible shoulders and tunic hems indigo, sashes red, trousers dark brown. Keep existing shields unchanged.",
+      "refs": [
+        "C:/Users/zerg/Projects/personal/grand-rts-game/output/conquest-ui-v3/masters/tortoise.png",
+        "C:/Users/zerg/Projects/personal/grand-rts-game/output/conquest-ui-v3/masters/spears.png"
+      ]
+    },
+    {
+      "id": "bows",
+      "meaning": "Bắn / shoot",
+      "prompt": "Use case: precise-object-edit. Asset: one transparent raster formation icon for a Vietnamese historical strategy game, at 30px. Image 1 is the EDIT TARGET; image 2 is the APPROVED clothing and print-style reference. Standardize every soldier to image 2: the exact same plain indigo-blue short cross-collar tunic, vermilion red waist sash, dark brown knee-length trousers, bare ochre lower legs, plain dark low shoes, and simple low ochre conical bamboo hat with NO decorative marks. Warm dark brown carved outlines, flat natural pigment shapes, sparse Đông Hồ folk woodblock grain, minimal facial features. Preserve the target's weapon type, number of soldiers and formation meaning. Uniform colors must match image 2; no red tunics or blue sashes, no leg bindings, armor, ornament, badges or detailed faces. Output the complete compact motif centered with transparent padding, true transparent alpha background and open gaps. No background, paper, checkerboard, shadow, glow, lettering or labels. Keep the target's exact two crossbowmen, one standing and one kneeling, aiming together to the RIGHT. Change only clothing, hats, shoes and associated pigment colors to the reference. Ensure both wear indigo cross-collar tunics, red waist sashes and brown knee-length trousers, bare ochre lower legs and plain ochre hats without ribs. Keep the crossbows and poses unchanged.",
+      "refs": [
+        "C:/Users/zerg/Projects/personal/grand-rts-game/output/conquest-ui-v3/masters/bows.png",
+        "C:/Users/zerg/Projects/personal/grand-rts-game/output/conquest-ui-v3/masters/spears.png"
+      ]
+    },
+    {
+      "id": "crossed-weapons",
+      "meaning": "Battle / fight contact marker",
+      "prompt": "Use case: stylized-concept. Generate one beautiful Vietnamese Đông Hồ folk woodblock FIGHT emblem for a historical strategy game. Two finely shaped traditional Vietnamese gươm sabres crossing in a clear compact X, tips upper left and upper right, short hilts below. Graceful slightly curved single-edged steel blades, substantial warm soot-black hand-carved contours, ivory shell-white flat pigment faces with one indigo carved edge on each blade. Plain small ochre metal collars, compact dark wooden grips wrapped in muted vermilion, modest rounded pommels; no long European cruciform crossguards. The beauty comes from the confident hand-cut flowing silhouette, broad natural pigment blocks and restrained tactile woodgrain, not decoration. At the crossing show one tiny ochre chip of light carved from the ink. Strong legibility at 26–40 pixels, but artful at larger size. Rich authentic Đông Hồ print feeling, flat ink and pigment, slight imperfect registration contained within the forms, just a few essential interior cuts. Isolated complete emblem fills 82% of a square canvas with true transparent alpha and clear open spaces. No background paper, colored disk, halo, checkerboard, frames, text, soldiers, flags, tassels, dragons, flowers, flourishes, ornamental engravings, glow, gradients, shadows or 3D rendering."
+    }
+  ]
+}

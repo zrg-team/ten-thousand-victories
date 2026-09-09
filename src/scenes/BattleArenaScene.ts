@@ -13,12 +13,14 @@ import {
   type Land, type TerrainSummary,
 } from '../state/types';
 import {
-  BACK_BAR_WIDTH, InkUI, INK_UI, scrollGestureConsumedTap, type InkScrollArea,
+  BACK_BAR_WIDTH, InkUI, INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type InkScrollArea,
 } from '../ui/InkUI';
 import { createLabel } from '../ui/theme';
 import { createMapRenderer, type MapRenderer } from '../ui/MapRenderer';
 import { bucketFor, faceStampedFigure, figureStamp } from '../ui/ink/figureStamps';
 import { placeStamp } from '../ui/ink/stamp';
+import { royalScroll } from '../ui/ink/royalScroll';
+import { seal } from '../ui/ink/devices';
 import { PIGMENT } from '../ui/ink/palette';
 import { BATTLE_HOST_SCALE } from '../game/ascentConfig';
 import type { FigureArm } from '../ui/ink/devices';
@@ -27,8 +29,10 @@ import { applyRenderScale } from '../game/graphicsQuality';
 import { qualityLadder } from '../game/qualityLadder';
 import { drawFormationRing } from '../ui/ascent/formationCounters';
 import {
-  BATTLE_DIFFICULTIES, BATTLE_SPEEDS, getBattleDifficulty, getBattleSpeed,
-  setBattleDifficulty, setBattleSpeed, type BattleDifficulty, type BattleSpeed,
+  BATTLE_DIFFICULTIES, BATTLE_HINTS, BATTLE_SPEEDS,
+  getBattleDifficulty, getBattleHints, getBattleSpeed,
+  setBattleDifficulty, setBattleHints, setBattleSpeed,
+  type BattleDifficulty, type BattleSpeed,
 } from '../game/battleOptions';
 
 /**
@@ -60,6 +64,7 @@ import {
  * clear of a 28-point row of tiles and well over any touch floor at this width.
  */
 const FIGHT_BUTTON = 32;
+const ROYAL_COMMENDATION = 'battle-royal-commendation-v1';
 
 /** A step on one of the arena's dials. `value` is what the state gets; `label` is what you tap. */
 interface Choice<T> {
@@ -144,6 +149,9 @@ export class BattleArenaScene extends Phaser.Scene {
   preload(): void {
     showPageLoading(this);
     preloadConquestMapArt(this, import.meta.env.BASE_URL);
+    if (!this.textures.exists(ROYAL_COMMENDATION)) {
+      this.load.image(ROYAL_COMMENDATION, `${import.meta.env.BASE_URL}art/battle-royal-commendation-v1.webp`);
+    }
   }
 
   create(): void {
@@ -207,24 +215,6 @@ export class BattleArenaScene extends Phaser.Scene {
     return { stars, score: Math.min(100, score) };
   }
 
-  /** One drawn star, filled or hollow. Five strokes, because there are five of them. */
-  private star(x: number, y: number, r: number, filled: boolean): Phaser.GameObjects.Graphics {
-    const g = this.add.graphics({ x, y });
-    const points: Phaser.Math.Vector2[] = [];
-    for (let i = 0; i < 10; i += 1) {
-      const radius = i % 2 === 0 ? r : r * 0.44;
-      const angle = -Math.PI / 2 + (i * Math.PI) / 5;
-      points.push(new Phaser.Math.Vector2(Math.cos(angle) * radius, Math.sin(angle) * radius));
-    }
-    if (filled) {
-      g.fillStyle(INK_UI.gold, 1);
-      g.fillPoints(points, true);
-    }
-    g.lineStyle(1.5, filled ? INK_UI.gold : INK_UI.softBrush, filled ? 1 : 0.7);
-    g.strokePoints(points, true, true);
-    return g;
-  }
-
   /**
    * The report itself: what happened, how it went, and the two things to do next.
    *
@@ -234,7 +224,7 @@ export class BattleArenaScene extends Phaser.Scene {
    * fight, read, fight again.
    */
   private showResult(record: AscentBattleRecord): void {
-    this.resultLayer?.destroy(true);
+    this.dismissResult();
     const layer = this.add.container(0, 0);
     this.resultLayer = layer;
 
@@ -252,58 +242,100 @@ export class BattleArenaScene extends Phaser.Scene {
 
     const cardW = GAME_WIDTH - 44;
     const cardX = 22;
-    const cardH = 372;
-    const cardY = Math.max(40, (GAME_HEIGHT - cardH) / 2);
+    /**
+     * Tall enough for the paper's own furniture.
+     *
+     * `royalScroll` prints a rule across the sheet at 130 and another at `height - 110` — the
+     * masthead and the foot of a sắc phong. They are baked into the stamp, so the report is laid
+     * out around them rather than over them: the kicker and the headline live above the first,
+     * the grade and the six figures between the two, and the pair of buttons below the second.
+     * At the 372 the rounded card used, the fifth figure printed straight through the foot rule.
+     */
+    const cardH = 540;
+    const HEAD_RULE = 130;
+    const FOOT_RULE = cardH - 110;
+    /** The ornamental register runs to 20 units in from each edge; the reading field starts after it. */
+    const INSET = 28;
+    /**
+     * The report stands on the menu's own paper.
+     *
+     * It used to be an `InkUI.panel` — a rounded rectangle with a coloured rule around it, which
+     * is the shape every ordinary card in the mode wears. This one is the end of a battle, the
+     * one sheet in the run the player stops to read, and a rounded card is what the game says
+     * about a build row. `royalScroll` is the sắc phong paper the front page is printed on:
+     * decorated margins, cloud corners and rolled ends, baked once per size. The generated royal
+     * dragon below the headline replaces the menu's lotus device on this sheet.
+     *
+     * Room is left for the rolls: the stamp reaches nineteen units past the paper at the head and
+     * foot, so the card sits clear of both edges of the sheet rather than at 40.
+     */
+    const cardY = Math.max(24, Math.round((GAME_HEIGHT - cardH) / 2));
     const accent = won ? INK_UI.jade : drew ? INK_UI.gold : INK_UI.cinnabar;
-    layer.add(this.ui.panel(
-      { x: cardX, y: cardY, width: cardW, height: cardH },
-      { border: accent, borderWidth: 2, radius: 8 },
-    ));
+    layer.add(royalScroll(this, cardX, cardY, cardW, cardH, false));
+    // The outcome colours the sheet by overdrawing the masthead rule the paper already carries,
+    // rather than by ringing the whole card: on decorated paper a coloured border reads as a
+    // sticker stuck over the print. Won, drawn and lost each close the head band in their own ink.
+    const outcomeRule = this.add.graphics();
+    outcomeRule.lineStyle(1.4, accent, won ? 0.9 : 0.75);
+    outcomeRule.lineBetween(cardX + 30, cardY + HEAD_RULE, cardX + cardW - 30, cardY + HEAD_RULE);
+    layer.add(outcomeRule);
 
-    let y = cardY + 18;
+    let y = cardY + 44;
     const kicker = createLabel(this, GAME_WIDTH / 2, y, t('arena.report.kicker'), 'caption', {
       fontSize: '9.5px', align: 'center',
     }).setOrigin(0.5, 0);
     layer.add(kicker);
-    y += kicker.height + 4;
+    y += kicker.height + 6;
 
     const headline = createLabel(
       this, GAME_WIDTH / 2, y,
       t(won ? 'arena.report.won' : drew ? 'arena.report.drew' : 'arena.report.lost'),
       'title',
-      { fontSize: '24px', align: 'center', color: `#${accent.toString(16).padStart(6, '0')}`, wordWrap: { width: cardW - 28 } },
+      { fontSize: '24px', align: 'center', color: `#${accent.toString(16).padStart(6, '0')}`, wordWrap: { width: cardW - INSET * 2 } },
     ).setOrigin(0.5, 0);
     layer.add(headline);
-    y += headline.height + 10;
 
-    // ── the grade ────────────────────────────────────────────────────────
-    const starR = 15;
-    const gap = 8;
-    const totalW = 5 * starR * 2 + 4 * gap;
-    const drawn: Phaser.GameObjects.Graphics[] = [];
-    for (let i = 0; i < 5; i += 1) {
-      const filled = i < stars;
-      const mark = this.star(
-        GAME_WIDTH / 2 - totalW / 2 + starR + i * (starR * 2 + gap), y + starR, starR, filled,
-      );
-      layer.add(mark);
-      drawn.push(mark);
-      // Each earned star lands in turn, so the grade reads as a count rather than as a picture.
-      if (filled) {
-        mark.setScale(0);
-        this.tweens.add({
-          targets: mark, scale: 1, ease: 'Back.easeOut', duration: 260, delay: 140 + i * 130,
-        });
-      } else {
-        mark.setAlpha(0.35);
-      }
+    // Below the masthead rule, whatever the head band did with its own room: a two-line
+    // Vietnamese headline pushes the words, not the grade.
+    y = cardY + HEAD_RULE + 10;
+
+    // One ceremonial print and a named commendation take the place of the five-star rating.
+    // A lost or unfinished field carries a dispatch, rather than claiming a royal reward.
+    const honor = this.add.container(GAME_WIDTH / 2, y + 48).setName('royal-commendation');
+    honor.setData({ grade: stars, awarded: won });
+    if (this.textures.exists(ROYAL_COMMENDATION)) {
+      honor.add(this.add.image(-77, 0, ROYAL_COMMENDATION).setDisplaySize(104, 104));
+    } else {
+      const fallback = this.add.graphics();
+      seal(fallback, -77, 0, 36, 'lotus');
+      honor.add(fallback);
     }
-    y += starR * 2 + 12;
+    const awardX = 52;
+    const issuer = createLabel(this, awardX, -30,
+      t(won ? 'arena.report.royal.issuer' : 'arena.report.royal.dispatch'), 'caption',
+      { fontSize: '9px', color: INK_UI.mutedText, align: 'center' }).setOrigin(0.5, 0);
+    const titleKey = won ? `arena.report.royal.honor${stars}`
+      : drew ? 'arena.report.royal.regroup' : 'arena.report.royal.resolve';
+    const honorTitle = createLabel(this, awardX, -12,
+      t(titleKey as Parameters<typeof t>[0]), 'title',
+      { fontSize: '20px', color: won ? INK_UI_HEX.cinnabarDeep : INK_UI.mutedText,
+        align: 'center', wordWrap: { width: 146 } }).setOrigin(0.5, 0);
+    const rank = createLabel(this, awardX, honorTitle.y + honorTitle.height + 6,
+      t('arena.report.royal.rank', { n: ['I', 'II', 'III', 'IV', 'V'][stars - 1] }), 'caption',
+      { fontSize: '9px', align: 'center' }).setOrigin(0.5, 0);
+    honor.add([issuer, honorTitle, rank]);
+    layer.add(honor);
+    if (won) {
+      honor.setAlpha(0).setScale(0.9);
+      this.tweens.add({ targets: honor, alpha: 1, scale: 1,
+        ease: 'Cubic.easeOut', duration: 420, delay: 140 });
+    }
+    y += 106;
 
     const verdict = createLabel(
       this, GAME_WIDTH / 2, y,
       t(`arena.report.grade${stars}` as Parameters<typeof t>[0]), 'caption',
-      { fontSize: '11px', align: 'center', wordWrap: { width: cardW - 28 } },
+      { fontSize: '11px', align: 'center', wordWrap: { width: cardW - INSET * 2 } },
     ).setOrigin(0.5, 0);
     layer.add(verdict);
     y += verdict.height + 12;
@@ -319,25 +351,29 @@ export class BattleArenaScene extends Phaser.Scene {
         ? t('arena.report.durationValue', { n: Math.max(1, Math.round(this.lastDurationMs / 1000)) })
         : '—'],
     ];
+    // The block is hung off the foot rule rather than off whatever the verdict wrapped to, so
+    // six figures always end the same distance above it and the paper never has to stretch.
+    y = Math.max(y, cardY + FOOT_RULE - 14 - rows.length * 19);
     for (const [label, value] of rows) {
-      layer.add(createLabel(this, cardX + 16, y, label, 'caption', { fontSize: '11px' }).setOrigin(0, 0));
-      layer.add(createLabel(this, cardX + cardW - 16, y, value, 'label', {
+      layer.add(createLabel(this, cardX + INSET, y, label, 'caption', { fontSize: '11px' }).setOrigin(0, 0));
+      layer.add(createLabel(this, cardX + cardW - INSET, y, value, 'label', {
         fontSize: '12px', align: 'right',
       }).setOrigin(1, 0));
       y += 19;
     }
 
     // ── and the two ways on ──────────────────────────────────────────────
-    const btnY = cardY + cardH - 60;
-    const half = (cardW - 28 - 8) / 2;
+    // In the foot band, between the paper's lower rule and its bottom roll.
+    const btnY = cardY + FOOT_RULE + 26;
+    const half = (cardW - INSET * 2 - 10) / 2;
     layer.add(this.ui.button(
-      { x: cardX + 14, y: btnY, width: half, height: 46 },
+      { x: cardX + INSET, y: btnY, width: half, height: 46 },
       t('arena.report.again'),
       () => { this.dismissResult(); this.startFight(); },
       { variant: 'primary', fontSize: '15px' },
     ));
     layer.add(this.ui.button(
-      { x: cardX + 14 + half + 8, y: btnY, width: half, height: 46 },
+      { x: cardX + INSET + half + 10, y: btnY, width: half, height: 46 },
       t('arena.report.back'),
       () => this.dismissResult(),
       { variant: 'secondary', fontSize: '15px' },
@@ -390,7 +426,24 @@ export class BattleArenaScene extends Phaser.Scene {
     this.resultLayer = undefined;
     if (!layer) return;
     this.tweens.killTweensOf(layer);
+    layer.each((child: Phaser.GameObjects.GameObject) => this.tweens.killTweensOf(child));
     layer.destroy(true);
+  }
+
+  /** The visible report, exposed to the existing screenshot/text playtest hook. */
+  resultState(): Record<string, unknown> {
+    const honor = this.resultLayer?.getByName('royal-commendation');
+    return {
+      mode: this.resultLayer ? 'arena-result' : 'arena-setup',
+      coordinateSystem: 'origin top-left; x right, y down',
+      result: this.resultLayer && this.last ? {
+        outcome: this.last.outcome, grade: honor?.getData('grade'),
+        royalCommendation: honor?.getData('awarded'),
+        ourStart: this.last.ourStart, ourEnd: this.last.ourEnd,
+        theirStart: this.last.theirStart, theirEnd: this.last.theirEnd,
+      } : undefined,
+      actions: this.resultLayer ? ['fight-again', 'back'] : ['take-command', 'back'],
+    };
   }
 
   // ── the dials ─────────────────────────────────────────────────────────────
@@ -573,6 +626,13 @@ export class BattleArenaScene extends Phaser.Scene {
       by = this.row(body, by, t('arena.bubbles'), this.bubbleChoices(),
         (c) => c.value === this.bubbleChoice,
         (c) => { this.bubbleChoice = c.value; this.render(); });
+      // The crib sheet, on the screen built for practising without one.
+      by = this.row(body, by, t('arena.hints'),
+        BATTLE_HINTS.map((value) => ({
+          value, label: t(`menu.battleHints.${value}` as 'menu.battleHints.show'),
+        })),
+        (c) => c.value === getBattleHints(),
+        (c) => { setBattleHints(c.value); this.render(); });
     }
 
     /**

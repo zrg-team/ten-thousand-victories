@@ -69,6 +69,52 @@ for (const mode of ['empire', 'ascent']) {
       layout.rowBottom <= layout.bands.bottom.y,
       `row bottom ${layout.rowBottom.toFixed(1)} vs frieze start ${layout.bands.bottom.y}`);
 
+    /**
+     * The four store glyphs read as one size.
+     *
+     * Every frame in the atlas is fitted to its own box, but the drawing inside is not the same
+     * shape — a coin fills its square, two people fill two thirds of theirs — so four icons set
+     * to one display size print visibly different amounts of ink, which is what made food, goods
+     * and gold look a size bigger than population. Measured off the real atlas alpha and the real
+     * display sizes, so it fails if either the art or `OPTICAL_FIT` drifts.
+     */
+    if (mode === 'ascent' && lang === 'en') {
+      const optical = await page.evaluate((uiKey) => {
+        const scene = window.__phaserGame.scene.getScene(uiKey);
+        const bar = scene.children.list.find((c) => c.type === 'Container' && c.depth === 80);
+        const icons = bar.list.filter((c) => (c.name ?? '').startsWith('conquest-icon:'));
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        return icons.map((icon) => {
+          const frame = icon.frame;
+          const source = frame.source.image ?? frame.texture.getSourceImage();
+          const { cutX, cutY, cutWidth, cutHeight } = frame;
+          canvas.width = cutWidth; canvas.height = cutHeight;
+          ctx.clearRect(0, 0, cutWidth, cutHeight);
+          ctx.drawImage(source, cutX, cutY, cutWidth, cutHeight, 0, 0, cutWidth, cutHeight);
+          const data = ctx.getImageData(0, 0, cutWidth, cutHeight).data;
+          let x0 = cutWidth, y0 = cutHeight, x1 = -1, y1 = -1;
+          for (let y = 0; y < cutHeight; y += 1) {
+            for (let x = 0; x < cutWidth; x += 1) {
+              if (data[(y * cutWidth + x) * 4 + 3] <= 16) continue;
+              if (x < x0) x0 = x;
+              if (x > x1) x1 = x;
+              if (y < y0) y0 = y;
+              if (y > y1) y1 = y;
+            }
+          }
+          const inkW = ((x1 - x0 + 1) / cutWidth) * icon.displayWidth;
+          const inkH = ((y1 - y0 + 1) / cutHeight) * icon.displayHeight;
+          return { id: icon.getData('conquestUiIcon').id, optical: +Math.sqrt(inkW * inkH).toFixed(2) };
+        });
+      }, 'ConquestUIScene');
+      const sizes = optical.map((o) => o.optical);
+      const spread = sizes.length ? (Math.max(...sizes) - Math.min(...sizes)) / (Math.min(...sizes) || 1) : 1;
+      check(`${label}: the four stores print the same amount of ink`,
+        optical.length === 4 && spread <= 0.08,
+        optical.map((o) => `${o.id} ${o.optical}`).join(', ') + ` — spread ${(spread * 100).toFixed(1)}%`);
+    }
+
     if (mode === 'ascent') {
       const hud = await page.evaluate(async () => {
         const { ASCENT_HUD_HEIGHT } = await import('/src/ui/ascent/AscentHud.ts');

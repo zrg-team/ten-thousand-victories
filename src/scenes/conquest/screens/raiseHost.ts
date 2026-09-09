@@ -29,6 +29,7 @@ import {
 import { RECRUIT_HUMAN_RESERVE } from '../../../game/ascentConfig';
 import { INK_UI } from '../../../ui/InkUI';
 import { heroName, t } from '../../../i18n';
+import { drawCostChips, resourceChips, seasonsChip } from '../../../ui/costChips';
 import type { ArmyComposition, ArmyOrders } from '../../../state/types';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 
@@ -41,6 +42,9 @@ import type { ConquestUIScene } from '../../ConquestUIScene';
  * will run. The Muster button carries the plan whole; the autopilot's own one-tap path still
  * exists for the autopilot.
  */
+/** Panel height for the size dial: a line of words, a line of chips, and the rail under both. */
+const SOLDIER_SLIDER_HEIGHT = 80;
+
 export function showRaiseHostForm(self: ConquestUIScene): void {
   const state = self.state;
   const draft = (self.musterDraft ??= defaultMusterPlan(state));
@@ -79,6 +83,7 @@ export function showRaiseHostForm(self: ConquestUIScene): void {
           : t('ascent.raise.commanderBody'),
         border: commander ? INK_UI.gold : INK_UI.cinnabar,
         portrait: commander,
+        vacantFace: !commander,
       },
       () => self.showHeroPicker({
         title: t('ascent.pick.title.newHost'),
@@ -94,25 +99,43 @@ export function showRaiseHostForm(self: ConquestUIScene): void {
 
     // ── Soldiers ──
     addHeading(t('ascent.raise.soldiers'), t('ascent.raise.reserve', { n: RECRUIT_HUMAN_RESERVE }));
+    // **The one line on this page that could not be read.**
+    //
+    // It carried the headcount, the muster time, the gold *and* the supplies as one unwrapped
+    // 11px sentence in a fixed panel — and a four-figure host ran it off the right edge, so the
+    // last thing a player saw while dragging the slider was "vật tư trang" and then nothing. The
+    // words that ran over are the two the glyphs already say, so they moved to a chip strip on
+    // its own line and the slider dropped to make room.
     const soldierSlider = (holder: Phaser.GameObjects.Container, width: number) => {
-      holder.add(self.ui.panel({ x: 0, y: 0, width, height: 64 }, { border: INK_UI.brush, borderWidth: 1.2, borderAlpha: 0.52 }));
+      holder.add(self.ui.panel({ x: 0, y: 0, width, height: SOLDIER_SLIDER_HEIGHT }, { border: INK_UI.brush, borderWidth: 1.2, borderAlpha: 0.52 }));
       const line = (n: number) => {
         const est = getMusterEstimate(state, n);
-        return t('ascent.raise.soldiersLine', {
-          n, ticks: est.ticks, gold: est.goldCost, supplies: est.suppliesCost,
-        });
+        return t('ascent.raise.soldiersHead', { n, ticks: est.ticks });
       };
-      const label = self.ui.label(14, 10, line(draft.soldiers), 'caption', { fontSize: '11px' });
+      const label = self.ui.label(14, 8, line(draft.soldiers), 'caption', { fontSize: '11px' });
       holder.add(label);
+      // Redrawn on every preview frame, because the price is what the drag is about.
+      let priceStrip: Phaser.GameObjects.Container | undefined;
+      const paintPrice = (n: number) => {
+        const est = getMusterEstimate(state, n);
+        priceStrip?.destroy();
+        priceStrip = drawCostChips(self, resourceChips({ gold: est.goldCost, supplies: est.suppliesCost }),
+          { x: 14, y: 24, width: width - 28 });
+        holder.add(priceStrip);
+      };
+      paintPrice(draft.soldiers);
       const span = Math.max(1, limits.maxSoldiers - limits.minSoldiers);
       const toValue = (n: number) => (n - limits.minSoldiers) / span;
       const fromValue = (v: number) => Math.round((limits.minSoldiers + v * span) / 10) * 10;
       holder.add(self.ui.slider(
-        { x: 10, y: 30, width: width - 20, height: 22 },
+        { x: 10, y: 46, width: width - 20, height: 22 },
         {
           value: toValue(Math.min(limits.maxSoldiers, Math.max(limits.minSoldiers, draft.soldiers))),
           color: INK_UI.jade,
-          onPreview: (v) => label.setText(line(fromValue(v))),
+          onPreview: (v) => {
+            label.setText(line(fromValue(v)));
+            paintPrice(fromValue(v));
+          },
           onChange: (v) => {
             draft.soldiers = Math.min(limits.maxSoldiers, Math.max(limits.minSoldiers, fromValue(v)));
             // Baggage follows the size unless the player has trimmed it below a full train.
@@ -124,7 +147,7 @@ export function showRaiseHostForm(self: ConquestUIScene): void {
         },
       ));
     };
-    addWidget(64, soldierSlider);
+    addWidget(SOLDIER_SLIDER_HEIGHT, soldierSlider);
 
     // ── Baggage ──
     addHeading(t('ascent.raise.baggage'));
@@ -237,16 +260,23 @@ export function showRaiseHostForm(self: ConquestUIScene): void {
     }
 
     // ── The bill ──
+    // The title says what the row *is*; the figures are the chips under it. It used to be the
+    // figures themselves — five numbers and four units run together in 15px bold, which is a
+    // headline nobody reads as a headline and a price nobody can weigh against the treasury.
     addRow({
-      title: blocked ?? t('ascent.raise.cost', {
-        humans: draft.soldiers,
-        gold: estimate.goldCost,
+      title: blocked ?? t('ascent.raise.billTitle'),
+      costs: [
+        { icon: 'humans' as const, value: String(draft.soldiers), label: t('resource.humans'),
+          tone: blocked ? INK_UI.cinnabar : undefined },
         // The baggage the plan carries plus the muster's own rations — the same sum
         // `queueRecruitment` will charge, so the quote and the bill cannot disagree.
-        food: draft.rations + estimate.foodCost,
-        supplies: estimate.suppliesCost + draft.provisions,
-        ticks: estimate.ticks,
-      }),
+        ...resourceChips({
+          gold: estimate.goldCost,
+          food: draft.rations + estimate.foodCost,
+          supplies: estimate.suppliesCost + draft.provisions,
+        }, blocked ? INK_UI.cinnabar : undefined),
+        seasonsChip(estimate.ticks, blocked ? INK_UI.cinnabar : undefined),
+      ],
       // Said in words as well as in numbers: the price per man rises with the size of the host, and
       // a player watching one figure move cannot see a curve in it.
       subtitle: blocked

@@ -100,7 +100,7 @@ export async function buildRiverIcons({ out, mobile = false, check = false }) {
     ['icon-512.png', 'regular', 512],
     ['icon-maskable-192.png', 'maskable', 192],
     ['icon-maskable-512.png', 'maskable', 512],
-    ['app-emblem.png', 'emblem', 256],
+    ['app-emblem.webp', 'emblem', 256],
   ];
   const outputs = new Map();
   const browser = await chromium.launch({ args: ['--force-color-profile=srgb'] });

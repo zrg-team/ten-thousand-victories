@@ -1,8 +1,9 @@
+import { addConquestUiIcon, type ConquestUiIconId } from '../conquestUiIcons';
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, surfaceWidth } from '../../game/constants';
 import { INK_UI } from '../InkUI';
 import { PIGMENT, shadePigment } from '../ink/palette';
-import { clearPlate, heron, sawtoothBand } from '../ink/devices';
+import { clearPlate, sawtoothBand } from '../ink/devices';
 import { inkPath } from '../ink/stroke';
 import { TITLE_FONT, UI_FONT } from '../fonts';
 import { formatNumber } from '../../utils/format';
@@ -42,12 +43,7 @@ const SKIP_HINT_DELAY = 600;
 
 /** Side margin the title is squeezed to fit inside. */
 const PAD_X = 22;
-/**
- * The medallion's radius.
- *
- * 21 puts it at 42 across, which is the smallest a twelve-ray sun survives at: at 34 the rays
- * close up into a filled disc on a 2× phone screen and the three devices stop being three.
- */
+/** A 42px paper medallion keeps the military symbol clear on a compact phone. */
 const EMBLEM_RADIUS = 21;
 /**
  * Paper above the title, and below the last line. The răng cưa lives inside both.
@@ -119,168 +115,22 @@ interface Outcome {
   emblem: EmblemKind;
 }
 
-/**
- * The four faces of the medallion, and each one is a **statement about the war**, not a decoration.
- *
- * The first cut put the drum sun on a win and the same sun cracked on a loss, which is a pretty
- * pairing that says nothing: the sun is the register's signature, so it read as "this is a Dong Son
- * banner" rather than as "you won". A badge whose whole job is to be understood before the words
- * are read has to carry the *event*.
- *
- *   - `march` - a sword crossed with a spear. War is about to begin. Dong Son drum warriors carry
- *     exactly these two arms, so the pairing is the period's own and not a heraldic import.
- *   - `triumph` - **chim Lac in flight**, the long-billed water bird that circles the sun on the
- *     Ngoc Lu tympanum. It is the Lac Viet's own emblem, and a bird put back into the air is what
- *     the end of a war looks like in this vocabulary - the same reading a dove carries elsewhere,
- *     in the register the rest of the game is drawn in.
- *   - `held` - the lotus. Bloodied but standing: the flower that comes up clean out of the mud, and
- *     the plainest thing in Vietnamese imagery for surviving what you were put through.
- *   - `overrun` - a citadel breached, its wall opened and its rubble spilling into the gap. The
- *     empire, thrown down.
- *
- * All four are read at 42px across on a phone, so each is a silhouette and a count of strokes.
- * Nothing is written on any of them: the game ships in English and quoc ngu, and a Han glyph would
- * be decoration pretending to be information.
+/** Invasion, victory, survival and defeat use direct military symbols at phone size.
+ * The victory standard, intact round shield and broken shield describe the outcome;
+ * the player's decorative dynasty sign remains on their flags and seals.
  */
 type EmblemKind = 'march' | 'triumph' | 'held' | 'overrun';
 
-/**
- * The medallion pinned to the head of the proclamation - **the badge that says what this was**.
- *
- * The banner already says "INVASION 7 BROKEN" in 25px gold, and that is a *sentence*: it has to be
- * read before it means anything. A win and a loss looked, at a glance across a phone held at arm's
- * length, like the same object in two colours. This is the half-second version - a shape the eye
- * takes in before the words resolve, and the thing that makes the plate read as something awarded
- * rather than something announced.
- *
- * Drawn here rather than in `ink/devices.ts` because it is one device with one caller and its
- * geometry is tuned to this plate's head. It borrows the register wholesale: a lacquer ground, a
- * cream device, and a cream keyline set in from the rim.
- */
-function emblem(g: Phaser.GameObjects.Graphics, radius: number, accent: number, kind: EmblemKind): void {
-  const cream = 0xfbf2df;
-  /** The box every device is drawn inside. Anything outside it collides with the keyline. */
-  const box = radius * 0.7;
-  const stroke = (width: number, alpha = 0.95): void => { g.lineStyle(width, cream, alpha); };
-
-  // The wreath first, behind the disc: two sprigs climbing the sides and closing over the top,
-  // six leaves each. It is the one piece of this that is pure ceremony, so only a win gets it -
-  // and it climbs *upward* rather than fanning below, because the medallion hangs off the top edge
-  // of the sheet and everything under it is buried in paper. Fanned downward, as the first cut had
-  // it, the whole wreath read as a row of five dots stuck to the plate's rule.
-  if (kind === 'triumph' || kind === 'held') {
-    for (const side of [-1, 1]) {
-      for (let leaf = 0; leaf < 6; leaf += 1) {
-        const along = leaf / 5;
-        // From just above the horizontal round to nearly the crown, on each side.
-        const angle = Math.PI * (side < 0 ? 1.02 + along * 0.4 : 1.98 - along * 0.4);
-        const cx = Math.cos(angle) * radius * 1.3;
-        const cy = Math.sin(angle) * radius * 1.3;
-        // Each leaf lies along the wreath rather than across it, and they shorten toward the crown
-        // the way a real sprig tapers.
-        const lean = angle + Math.PI / 2 - side * 0.34;
-        const long = radius * (0.5 - along * 0.15);
-        const wide = radius * (0.21 - along * 0.06);
-        const tip = { x: Math.cos(lean) * long, y: Math.sin(lean) * long };
-        const across = { x: Math.cos(lean + Math.PI / 2) * wide, y: Math.sin(lean + Math.PI / 2) * wide };
-        g.fillStyle(accent, 0.74 - along * 0.17);
-        g.fillPoints([
-          { x: cx - tip.x * 0.5, y: cy - tip.y * 0.5 },
-          { x: cx + across.x, y: cy + across.y },
-          { x: cx + tip.x * 0.7, y: cy + tip.y * 0.7 },
-          { x: cx - across.x, y: cy - across.y },
-        ], true);
-      }
-    }
-  }
-
-  // A citadel thrown down breaks the disc it is stamped on: the two halves are drawn apart along a
-  // diagonal, which is half the read at a glance and costs no second colour to say.
-  const split = kind === 'overrun' ? 2.4 : 0;
-
-  g.fillStyle(accent, 0.94);
-  if (split > 0) {
-    g.fillCircle(-split, -split, radius);
-    g.fillCircle(split, split, radius);
-  } else {
-    g.fillCircle(0, 0, radius);
-  }
-  g.lineStyle(1.2, cream, 0.45);
-  g.strokeCircle(-split, -split, radius - 3.5);
-
-  if (kind === 'march') {
-    // A sword crossed with a spear. Two *different* arms rather than two of the same, because a
-    // pair of identical sticks at this size is a saltire, not a weapon.
-    //
-    // The spear runs bottom-right to top-left: a thin shaft and a leaf head. The sword runs the
-    // other way: a broad blade, a crossguard and a pommel - the three marks `CardIcons.blade`
-    // found were the minimum before it read as a tick.
-    const d = box * 0.72;
-
-    stroke(1.9);
-    g.lineBetween(d, d, -d * 0.72, -d * 0.72);
-    g.fillStyle(cream, 0.95);
-    g.fillPoints([
-      { x: -d * 1.12, y: -d * 1.12 },
-      { x: -d * 0.5, y: -d * 0.92 },
-      { x: -d * 0.92, y: -d * 0.5 },
-    ], true);
-
-    stroke(3.1);
-    g.lineBetween(-d * 0.86, d * 0.86, d * 0.98, -d * 0.98);
-    stroke(2.1);
-    g.lineBetween(-d * 1.04, d * 0.44, -d * 0.32, d * 1.04);
-    g.fillStyle(cream, 0.95);
-    g.fillCircle(-d * 1.04, d * 1.04, 1.9);
-  } else if (kind === 'triumph') {
-    // Chim Lac, in the air. `heron` is the same bird the wave meter inks in, drawn at a scale that
-    // fits the disc: it spans about 21 units at s = 1, so the disc's own width sets s.
-    heron(g, 0, -box * 0.04, (box * 2.2) / 21, true, cream);
-  } else if (kind === 'held') {
-    // A lotus: five petals off a common foot.
-    const unit = box * 0.78;
-    stroke(Math.max(1.2, radius * 0.09));
-    for (let petal = -2; petal <= 2; petal += 1) {
-      const angle = -Math.PI / 2 + petal * 0.5;
-      g.strokePoints([
-        { x: 0, y: unit * 0.95 },
-        { x: Math.cos(angle) * unit * 1.15, y: Math.sin(angle) * unit * 0.95 },
-        { x: Math.cos(angle) * unit * 0.62, y: -unit * 0.95 },
-      ], false, false);
-    }
-  } else {
-    // A citadel breached. Two standing stubs of crenellated wall, the middle carried away, and the
-    // rubble of it fallen into the gap. Solid fills rather than outlines: at 42px an outlined wall
-    // with a hole in it is a scribble, while the silhouette survives being squinted at.
-    const w = box * 1.06;
-    const merlon = w * 0.26;
-    g.fillStyle(cream, 0.95);
-    // Two stubs of wall, each keeping its own pair of merlons, with a full third of the device
-    // empty between them. The gap is the whole point and the first cut lost it: the rubble was
-    // drawn tall enough to close the breach, so the badge read as one solid block with two notches
-    // filed in the top.
-    for (const side of [-1, 1]) {
-      const outer = side * w;
-      const inner = side * w * 0.54;
-      const left = Math.min(outer, inner);
-      const span = Math.abs(outer - inner);
-      g.fillRect(left, -box * 0.04, span, box * 0.78);
-      g.fillRect(left, -box * 0.48, merlon, box * 0.46);
-      g.fillRect(left + span - merlon, -box * 0.48, merlon, box * 0.46);
-    }
-    // The rubble of the carried-away middle, spilled low across the gap: a broken edge, not a gate.
-    g.fillPoints([
-      { x: -w * 0.54, y: box * 0.74 },
-      { x: -w * 0.54, y: box * 0.34 },
-      { x: -w * 0.2, y: box * 0.56 },
-      { x: w * 0.08, y: box * 0.3 },
-      { x: w * 0.54, y: box * 0.74 },
-    ], true);
-    // One block thrown clear of it.
-    g.fillRect(w * 0.16, box * 0.06, merlon * 0.66, merlon * 0.6);
-  }
+/** The announcement's printed device, with a contrasting paper ground and outcome-colored rim. */
+function emblem(scene: Phaser.Scene, radius: number, accent: number, kind: EmblemKind): Phaser.GameObjects.Container {
+  const art: Record<EmblemKind, ConquestUiIconId> = {
+    march: 'crossed-weapons', triumph: 'victory', held: 'shield', overrun: 'broken-shield',
+  };
+  const plate = scene.add.graphics().fillStyle(0xfbf2df, 0.98).fillCircle(0, 0, radius);
+  plate.lineStyle(1.6, accent, 0.95).strokeCircle(0, 0, radius);
+  return scene.add.container(0, 0, [plate, addConquestUiIcon(scene, art[kind], radius * 1.85)])
+    .setData('waveEmblem', kind);
 }
-
 /**
  * The one place a cue is turned into words and a colour.
  *
@@ -583,7 +433,7 @@ export function playWaveBanner(
   //
   // Every result gets one, a loss included. A win and a loss used to differ only in the colour of
   // the type, which at arm's length is not a difference at all.
-  const chop = scene.add.graphics();
+  const chop = emblem(scene, EMBLEM_RADIUS, outcome.accent, outcome.emblem);
   const rays = scene.add.graphics();
   const chopX = halfW;
   const chopY = centre - halfH + 3;
@@ -600,7 +450,7 @@ export function playWaveBanner(
     stage.add(rays);
   }
 
-  emblem(chop, EMBLEM_RADIUS, outcome.accent, outcome.emblem);
+
   chop.setPosition(chopX, chopY).setScale(2.4).setAlpha(0);
   stage.add(chop);
 

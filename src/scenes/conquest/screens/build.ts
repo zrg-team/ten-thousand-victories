@@ -40,7 +40,8 @@ import { compactNumber } from '../../../utils/format';
 import { isMarked, openingFor, takeOpening } from '../../../systems/story/StorySystem';
 import { storyText } from '../../../i18n/story';
 import { INK_UI } from '../../../ui/InkUI';
-import { buildingLabel, formatResourceList, heroName, resourceLabel, t } from '../../../i18n';
+import { buildingLabel, heroName, resourceLabel, t } from '../../../i18n';
+import { RESOURCE_ICON, resourceChips, seasonsChip } from '../../../ui/costChips';
 import type { AscentLane, AscentLedgerLine } from '../../../state/types';
 import { heroStatLine } from '../constants';
 import { clearLanePage } from '../layers';
@@ -272,13 +273,14 @@ function showClaimDetail(self: ConquestUIScene, landId: string): void {
   );
 
   const refund = getClaimRefund(state, order);
-  const refundText = formatResourceList(refund);
+  const refundChips = resourceChips(refund);
   addRow(
     {
       title: t('ascent.claim.cancel'),
-      subtitle: refundText
-        ? t('ascent.claim.cancelRefund', { refund: refundText })
+      subtitle: refundChips.length > 0
+        ? t('ascent.claim.cancelRefundChips')
         : t('ascent.claim.cancelNothing'),
+      costs: refundChips,
       border: INK_UI.cinnabar,
     },
     () => {
@@ -307,9 +309,10 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
     // The mark. One glyph, and the only signal a story ever gives about a subject: something
     // has taken an interest here. It says nothing at all about what that something wants.
     land.id === state.ascent?.capitalLandId ? t('ascent.build.capital', { land: land.name })
-      : isMarked(state, 'land', land.id) ? `${land.name} ◈` : land.name,
+      : land.name,
     t('ascent.screen.slots', { used: land.buildings.length, cap: land.buildingCapacity, defense: land.defense }),
-    { back: () => self.replaceLanePage(() => showBuildScreen(self)) },
+    { back: () => self.replaceLanePage(() => showBuildScreen(self)),
+      titleIcon: isMarked(state, 'land', land.id) ? 'scroll' : undefined },
   );
 
   // Closing re-runs `refresh`, which repaints the resource bar and the bar's status dots
@@ -376,17 +379,21 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
   addRow({
     title: t('land.status.people', { people: Math.round(land.population), growth }),
     subtitle: [
-      t('land.status.yield', {
-        food: Math.round(outputs?.food ?? 0),
-        supplies: Math.round(outputs?.supplies ?? 0),
-        gold: Math.round(outputs?.gold ?? 0),
-      }),
       t('land.status.hold', {
         defense: Math.round(land.defense),
         loyalty: Math.round(land.loyalty),
       }),
       ...notes,
     ].join('\n'),
+    // What the province pays, per season, in the header strip's own glyphs — three figures the
+    // player weighs against the treasury and against the province they read a moment ago, which
+    // is exactly what a sentence is bad for.
+    costsLabel: t('land.status.yieldLabel'),
+    costs: resourceChips({
+      food: Math.round(outputs?.food ?? 0),
+      supplies: Math.round(outputs?.supplies ?? 0),
+      gold: Math.round(outputs?.gold ?? 0),
+    }),
     border: INK_UI.jade,
   });
 
@@ -416,8 +423,13 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
     {
       title: governor ? t('focus.governor', { hero: heroName(governor) }) : t('gov.none'),
       subtitle: governor ? heroStatLine(governor) : t('gov.noneHint'),
-      border: governor ? INK_UI.gold : INK_UI.softBrush,
+      border: governor ? INK_UI.gold : candidates.length > 0 ? INK_UI.cinnabar : INK_UI.softBrush,
       muted: !governor && candidates.length === 0,
+      // The seat is drawn either way: a face when it is held, a dashed frame with the person
+      // glyph when it is not. Vacant, this row is the page's one open post, and it used to be
+      // the flattest card on it.
+      portrait: governor,
+      vacantFace: !governor,
     },
     candidates.length > 0 ? () => showGovernorPicker(self, land.id) : undefined,
   );
@@ -429,7 +441,16 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
         title: row.isBest ? `${row.title}  ·  ${t('focus.best')}` : row.title,
         // The martial focuses pay outside the resource bag, so their tilt line alone reads as a
         // pure loss; `extra` is what they actually buy, and is empty for the economic focuses.
-        subtitle: `${row.effect}${row.extra ? `\n${row.extra}` : ''}\n${row.suitLine}`,
+        subtitle: `${row.extra ? `${row.extra}\n` : ''}${row.suitLine}`,
+        // The tilt, in glyphs and in the colour of its direction: six focuses each printed the
+        // same three resource names, so a column of them was eighteen words to read before three
+        // numbers could be found. Above one is green, below one red.
+        costs: (['food', 'supplies', 'gold'] as const).map((key) => ({
+          icon: RESOURCE_ICON[key],
+          value: `×${row.mult[key].toFixed(2)}`,
+          label: resourceLabel(key),
+          tone: row.mult[key] > 1.005 ? INK_UI.jade : row.mult[key] < 0.995 ? INK_UI.cinnabar : INK_UI.softBrush,
+        })),
         border: row.isCurrent
           ? INK_UI.gold
           : row.suitability === 'high' ? INK_UI.jade : INK_UI.softBrush,
@@ -444,9 +465,13 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
     addRow(
       {
         title: option.label,
-        subtitle: option.canBuild
-          ? `${formatResourceList(option.cost)}  ·  ${t('ascent.conquer.ticks', { n: option.ticks })}`
-          : option.reason ?? '',
+        // The price is chips, not prose — and a barred row keeps its price, in the refusal's
+        // own ink, so the player can see what it would have cost as well as why it cannot.
+        subtitle: option.canBuild ? '' : option.reason ?? '',
+        costs: [
+          ...resourceChips(option.cost, option.canBuild ? undefined : INK_UI.cinnabar),
+          ...(option.ticks > 0 ? [seasonsChip(option.ticks, option.canBuild ? undefined : INK_UI.cinnabar)] : []),
+        ],
         border: option.canBuild ? INK_UI.jade : INK_UI.softBrush,
         muted: !option.canBuild,
       },
@@ -458,9 +483,11 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
     addRow(
       {
         title: t('ascent.screen.upgrade', { building: buildingLabel(option.type), level: option.level + 1 }),
-        subtitle: option.canUpgrade
-          ? `${formatResourceList(option.cost)}  ·  ${t('ascent.conquer.ticks', { n: option.ticks })}`
-          : option.reason ?? '',
+        subtitle: option.canUpgrade ? '' : option.reason ?? '',
+        costs: [
+          ...resourceChips(option.cost, option.canUpgrade ? undefined : INK_UI.cinnabar),
+          ...(option.ticks > 0 ? [seasonsChip(option.ticks, option.canUpgrade ? undefined : INK_UI.cinnabar)] : []),
+        ],
         border: option.canUpgrade ? INK_UI.gold : INK_UI.softBrush,
         muted: !option.canUpgrade,
       },
@@ -621,6 +648,9 @@ export function showLedgerScreen(self: ConquestUIScene): void {
       // `resourceLabel` is written for mid-sentence use and comes back lowercase; at the head of
       // a tile it is a name.
       title: `${resourceLabel(key).charAt(0).toLocaleUpperCase()}${resourceLabel(key).slice(1)}  ${net >= 0 ? `+${net}` : net}`,
+      // The same glyph the header strip spends on this resource, so the tile and the running
+      // total above it are visibly the same thing.
+      icon: RESOURCE_ICON[key],
       note: t('ascent.ledger.line', {
         gross: gross >= 0 ? `+${gross}` : `${gross}`,
         demand: `−${Math.abs(demand)}`,

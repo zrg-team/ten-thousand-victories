@@ -7,6 +7,7 @@ import { PIGMENT } from './ink/palette';
 import { applyStamp, placeStamp, stampDesign } from './ink/stamp';
 import { inkPath, type Pt } from './ink/stroke';
 import { soundDirector } from './sound/SoundDirector';
+import { addConquestUiIcon } from './conquestUiIcons';
 
 export type GameplayControlIcon = 'zoom-in' | 'zoom-out' | 'territory' | 'terrain' | 'play' | 'pause' | 'menu';
 
@@ -32,7 +33,7 @@ export function gameplayControl(scene: Phaser.Scene, options: ControlOptions): P
     .setData('label', label).setData('active', active);
   const states = ['rest', 'hover', 'pressed'] as const;
   const stamps = states.map((state) => stampDesign(scene,
-    `ui:gameplay-control:v3:${treatment}:${icon}:${width}:${height}:${active}:${state}`,
+    `ui:gameplay-control:v4:${treatment}:${width}:${height}:${active}:${state}`,
     { left: -width / 2 - 2, right: width / 2 + 3, top: -height / 2 - 2, bottom: height / 2 + 4 },
     (g, ax, ay) => {
       g.translateCanvas(ax, ay + (state === 'pressed' ? 1 : 0));
@@ -53,7 +54,6 @@ export function gameplayControl(scene: Phaser.Scene, options: ControlOptions): P
         }
         inkPath(g, paper, 719, { width: 0.8, alpha: hot ? 0.7 : 0.42,
           colour: active ? PIGMENT.sonDeep : PIGMENT.mucSoft, wobble: 0.12, step: 16, bleed: 0, closed: true });
-        drawIcon(g, icon, active ? PIGMENT.sonDeep : PIGMENT.muc);
         g.translateCanvas(-ax, -ay - (state === 'pressed' ? 1 : 0));
         return;
       }
@@ -75,13 +75,22 @@ export function gameplayControl(scene: Phaser.Scene, options: ControlOptions): P
       g.lineBetween(-w + 4, -h + 4, -w + 9, -h + 4);
       g.lineBetween(w - 9, h - 4, w - 4, h - 4);
       g.lineBetween(w - 4, h - 4, w - 4, h - 9);
-      drawIcon(g, icon, active || hot ? PIGMENT.sonDeep : PIGMENT.muc);
       g.translateCanvas(-ax, -ay - (state === 'pressed' ? 1 : 0));
     }, { pool: 'ui' }));
   const surface = placeStamp(scene, stamps[0], 0, 0);
+  const artwork = addConquestUiIcon(scene, icon, Math.min(26, width - 6, height - 6));
+  const fallback = artwork.visible ? undefined : cachedText(scene, 0, 0,
+    { 'zoom-in': '+', 'zoom-out': '−', territory: 'Map', terrain: 'Land', play: '▶', pause: 'Ⅱ', menu: '☰' }[icon],
+    { fontFamily: UI_FONT, fontSize: '12px', color: '#332a1e' }).setOrigin(0.5);
+  const setState = (index: number): void => {
+    applyStamp(surface, stamps[index]);
+    artwork.setY(index === 2 ? 1 : 0);
+    fallback?.setY(index === 2 ? 1 : 0);
+  };
   const hit = scene.add.rectangle(0, 0, hitWidth, 44, 0xffffff, 0.001)
     .setInteractive({ useHandCursor: true }).setName('control-hit');
-  root.add([surface, hit]);
+  root.add([surface, artwork, hit]);
+  if (fallback) root.addAt(fallback, 2);
   markControlBorn(hit);
 
   let hovered = false;
@@ -106,13 +115,13 @@ export function gameplayControl(scene: Phaser.Scene, options: ControlOptions): P
   hit.on('pointerover', (p: Phaser.Input.Pointer) => {
     if (p.wasTouch || p.isDown) return;
     hovered = true;
-    applyStamp(surface, stamps[1]);
+    setState(1);
     hintDelay = scene.time.delayedCall(350, showHint);
   });
   hit.on('pointerout', () => {
     hovered = false;
     hideHint();
-    applyStamp(surface, stamps[0]);
+    setState(0);
   });
   hit.on('pointerdown', (p: Phaser.Input.Pointer, _lx: number, _ly: number, e: Phaser.Types.Input.EventData) => {
     e.stopPropagation();
@@ -120,7 +129,7 @@ export function gameplayControl(scene: Phaser.Scene, options: ControlOptions): P
     const now = p.downTime || performance.now();
     if (now - firedAt < 120 || pressIsEchoOnto(hit, p)) return;
     firedAt = now;
-    applyStamp(surface, stamps[2]);
+    setState(2);
     noteControlFired(p);
     soundDirector.tap();
     onClick();
@@ -128,7 +137,7 @@ export function gameplayControl(scene: Phaser.Scene, options: ControlOptions): P
   // Chrome acts once on the press. A release or a drag onto a control cannot trigger another action.
   hit.on('pointerup', (p: Phaser.Input.Pointer, _lx: number, _ly: number, e: Phaser.Types.Input.EventData) => {
     e.stopPropagation();
-    applyStamp(surface, stamps[hovered && !p.wasTouch ? 1 : 0]);
+    setState(hovered && !p.wasTouch ? 1 : 0);
   });
   root.once('destroy', hideHint);
   return root;
@@ -137,41 +146,4 @@ export function gameplayControl(scene: Phaser.Scene, options: ControlOptions): P
 export function mapControlLabel(icon: 'zoom-in' | 'zoom-out' | 'mode', terrain: boolean): string {
   return t(icon === 'zoom-in' ? 'action.zoomIn' : icon === 'zoom-out' ? 'action.zoomOut'
     : terrain ? 'action.showTerritories' : 'action.showTerrain');
-}
-
-function drawIcon(g: Phaser.GameObjects.Graphics, icon: GameplayControlIcon, ink: number): void {
-  g.lineStyle(1.8, ink, 0.94);
-  g.fillStyle(ink, 0.94);
-  if (icon === 'zoom-in' || icon === 'zoom-out') {
-    g.lineBetween(-7, 0, 7, 0);
-    if (icon === 'zoom-in') g.lineBetween(0, -7, 0, 7);
-  } else if (icon === 'play') {
-    g.fillTriangle(-4.5, -7, 7, 0, -4.5, 7);
-  } else if (icon === 'pause') {
-    g.fillRect(-6, -7, 3.5, 14);
-    g.fillRect(2.5, -7, 3.5, 14);
-  } else if (icon === 'menu') {
-    g.lineBetween(-7, -5, 7, -5);
-    g.lineBetween(-7, 0, 7, 0);
-    g.lineBetween(-7, 5, 7, 5);
-  } else if (icon === 'territory') {
-    const panels = [
-      [{ x: -9, y: -6 }, { x: -3, y: -8 }, { x: -3, y: 6 }, { x: -9, y: 8 }],
-      [{ x: -3, y: -8 }, { x: 3, y: -6 }, { x: 3, y: 8 }, { x: -3, y: 6 }],
-      [{ x: 3, y: -6 }, { x: 9, y: -8 }, { x: 9, y: 6 }, { x: 3, y: 8 }],
-    ];
-    panels.forEach((panel, i) => {
-      g.fillStyle([PIGMENT.tram, PIGMENT.diepDeep, PIGMENT.sonPale][i], 0.68);
-      g.fillPoints(panel, true);
-      g.lineStyle(1, ink, 0.85);
-      g.strokePoints(panel, true);
-    });
-  } else {
-    g.fillStyle(PIGMENT.tram, 0.45);
-    g.fillTriangle(-9, 5, -2, -7, 5, 5);
-    g.strokePoints([{ x: -9, y: 5 }, { x: -2, y: -7 }, { x: 5, y: 5 }]);
-    g.strokePoints([{ x: 2, y: 0 }, { x: 5, y: -4 }, { x: 10, y: 5 }]);
-    g.lineStyle(1.2, PIGMENT.cham, 0.9);
-    g.lineBetween(-8, 8, 8, 8);
-  }
 }

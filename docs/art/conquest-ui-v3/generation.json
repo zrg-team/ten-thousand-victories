@@ -1,0 +1,89 @@
+{
+  "mode": "built-in ImageGen",
+  "assets": [
+    {
+      "id": "supplies",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-848bfbee-5332-4408-a681-75c948ea78b0.png",
+      "master": "output/conquest-ui-v3/masters/supplies.png",
+      "sha256": "1e65ea799d3ab22763e601b426ba42f4fb16d0aeaf1a86be83f1a521844e83ba",
+      "crop": [
+        21,
+        91,
+        1238,
+        1114
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v3-prompts.json#supplies"
+    },
+    {
+      "id": "spears",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-1bd177ea-6381-4ee3-936a-0ab4a5b7718f.png",
+      "master": "output/conquest-ui-v3/masters/spears.png",
+      "sha256": "e7528d14da7c2ed9e950752aea528497e5c78ce2e00640f99f932872b435ae3b",
+      "crop": [
+        82,
+        177,
+        1241,
+        1088
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v3-prompts.json#spears"
+    },
+    {
+      "id": "horse",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-31ad2ed7-5ac4-4faa-b087-b35ce0ebf7a3.png",
+      "master": "output/conquest-ui-v3/masters/horse.png",
+      "sha256": "485f77f2da88ea37ca66afb65284c32958b99fd3faaa6e5e7dde2a2f6631b376",
+      "crop": [
+        73,
+        206,
+        1222,
+        1064
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v3-prompts.json#horse"
+    },
+    {
+      "id": "skirmish",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-0e48c11e-3d22-4794-9093-e4cbc4abbc80.png",
+      "master": "output/conquest-ui-v3/masters/skirmish.png",
+      "sha256": "88936dca2d0c036b580480fab7894e38da34a236362e9f86c6e6e7db05e669ee",
+      "crop": [
+        26,
+        96,
+        1233,
+        1157
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v3-prompts.json#skirmish"
+    },
+    {
+      "id": "tortoise",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-c1b72ab6-eaa4-40f0-acaa-f5f380dbcd53.png",
+      "master": "output/conquest-ui-v3/masters/tortoise.png",
+      "sha256": "ddd89454c087af9b6064adb175f037168208c71ce05a05da3704fd6a08dd1caf",
+      "crop": [
+        90,
+        93,
+        1175,
+        1181
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v3-prompts.json#tortoise"
+    },
+    {
+      "id": "bows",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-b5db1e07-7295-4377-a10f-7db352092ea5.png",
+      "master": "output/conquest-ui-v3/masters/bows.png",
+      "sha256": "bd894ec281625881825c9d1fd60306f3964b7aa6db7e11e72e06edbc12608ae4",
+      "crop": [
+        38,
+        133,
+        1245,
+        1137
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v3-prompts.json#bows"
+    }
+  ]
+}

@@ -30,7 +30,8 @@ import {
 import { storyText, storyTitle } from '../../../i18n/story';
 import { INK_UI, INK_UI_HEX } from '../../../ui/InkUI';
 import { UI_FONT } from '../../../ui/fonts';
-import { formatResourceList, heroName, t } from '../../../i18n';
+import { heroName, t } from '../../../i18n';
+import { resourceChips } from '../../../ui/costChips';
 import type { Historicity } from '../../../state/types';
 import {
   LANE_CLOSE_BUTTON_HEIGHT,
@@ -286,7 +287,8 @@ export function showStoryPage(self: ConquestUIScene, storyId: string): void {
             icon: iconForOption(option.id),
             iconArt: 'story',
             body: storyText(key(`${option.id}.d`), held.params),
-            note: option.cost ? formatResourceList(option.cost) : undefined,
+            costs: resourceChips(option.cost, option.affordable ? undefined : INK_UI.cinnabar),
+            note: option.affordable ? undefined : t('ascent.response.cantAfford'),
             noteColor: option.affordable ? undefined : cssHex(INK_UI.cinnabar),
             accent: INK_UI.cinnabar,
             disabled: !option.affordable,
@@ -318,7 +320,8 @@ export function showStoryPage(self: ConquestUIScene, storyId: string): void {
       {
         title: storyText(opening.actionKey, opening.params),
         body: storyText(opening.textKey, opening.params),
-        note: view.cost ? formatResourceList(view.cost) : undefined,
+        costs: resourceChips(view.cost, view.affordable ? undefined : INK_UI.cinnabar),
+        note: view.affordable ? undefined : t('ascent.response.cantAfford'),
         noteColor: view.affordable ? undefined : cssHex(INK_UI.cinnabar),
         accent: INK_UI.gold,
         disabled: !view.affordable,

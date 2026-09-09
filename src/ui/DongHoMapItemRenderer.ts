@@ -1,10 +1,11 @@
+import { addConquestUiIcon } from './conquestUiIcons';
 import Phaser from 'phaser';
 import { InkMapItemRenderer } from './InkMapItemRenderer';
 import type { ProgressBadgeVariant } from './MapItemRenderer';
 import type { LandBuildingType } from '../state/types';
 import { UI_FONT } from './fonts';
 import { PIGMENT } from './ink/palette';
-import { armyAnchor, armyFootprint, armyShape, clashDevice, compositionFor, drawArmy, figure, marchInPlace, marchOf, seal, HOST_STEP_KEY, type HostKit } from './ink/devices';
+import { armyAnchor, armyFootprint, armyShape, compositionFor, drawArmy, figure, marchInPlace, marchOf, seal, HOST_STEP_KEY, type HostKit } from './ink/devices';
 import { drawFieldPlot } from './ink/settlements';
 import { citadel, drawnEra, GroundSpacer, hamlet, village } from './ink/settlements';
 import { hatchPoly, inkPath, mulberry32, printedShape, thickPath, washFill, type Pt } from './ink/stroke';
@@ -992,89 +993,6 @@ export class DongHoMapItemRenderer extends InkMapItemRenderer {
   }
 
   /**
-   * The mark above the scrap: **what this district is busy with**, read before the numbers.
-   *
-   * Four of the five had no glyph at all - a build, a purchase and a muster were the same blank
-   * scrap with different figures on it, so the map could tell you that something was 9/100 done
-   * without telling you what. Each is a silhouette at roughly twenty units, drawn in the pigment
-   * the thing itself would be: hoa hoe for coin, nau for timber, soi son for the player's own
-   * standard. The two fights keep the lacquer burst, because a fight is the one of the five that
-   * is urgent.
-   */
-  private orderGlyph(g: Phaser.GameObjects.Graphics, variant: ProgressBadgeVariant, y: number): void {
-    if (variant === 'acquisition') {
-      // A cash coin: round, with the square hole every Vietnamese coin was strung by.
-      g.fillStyle(PIGMENT.hoe, 0.95);
-      g.fillCircle(0, y, 10);
-      g.fillStyle(PIGMENT.diepHi, 1);
-      g.fillRect(-3.4, y - 3.4, 6.8, 6.8);
-      g.lineStyle(1.4, PIGMENT.muc, 0.85);
-      g.strokeCircle(0, y, 10);
-      g.strokeRect(-3.4, y - 3.4, 6.8, 6.8);
-      return;
-    }
-    if (variant === 'build') {
-      // A hammer, head-on: an iron head across the top of a timber haft. The shape it replaced was
-      // a mallet drawn at an angle - a brown wedge on a brown stick, which at twenty units read as
-      // a flag that had fallen over.
-      //
-      // Just the tool, with nothing under it. A beam was drawn beneath it at first, on the theory
-      // that a hammer wants something to hit; at this size it was a bar of dark pigment the width
-      // of the glyph, which reads as an underline rather than as timber - and the hammer swings
-      // while it stays put, so the eye takes it for a rule the icon is sitting on. None of the
-      // other four stand on anything either.
-      //
-      // Head and haft in different pigments on purpose. Both in nau made one silhouette, and the
-      // whole reading of a hammer is that the heavy part is not made of the same thing as the
-      // handle: muc for the iron, nau for the wood.
-      g.fillStyle(PIGMENT.nau, 0.95);
-      g.fillRect(-1.8, y - 5, 3.6, 13);
-      g.fillStyle(PIGMENT.muc, 0.92);
-      // The head: a square face on the left, tapering to a peen on the right.
-      g.fillPoints([
-        { x: -8.5, y: y - 10 }, { x: 3.5, y: y - 10 },
-        { x: 8.5, y: y - 7.6 }, { x: 8.5, y: y - 6 },
-        { x: 3.5, y: y - 4 }, { x: -8.5, y: y - 4 },
-      ], true);
-      g.lineStyle(1.1, PIGMENT.diepHi, 0.5);
-      g.strokePoints([{ x: -6.4, y: y - 8.4 }, { x: -6.4, y: y - 5.6 }], false, false);
-      return;
-    }
-    if (variant === 'recruit') {
-      // A muster standard. Soi son, because the men being raised are the player's own.
-      g.lineStyle(2, PIGMENT.muc, 0.9);
-      g.lineBetween(-5, y - 10, -5, y + 9);
-      g.fillStyle(PIGMENT.son, 0.95);
-      g.fillPoints([
-        { x: -5, y: y - 10 }, { x: 9, y: y - 6 }, { x: -5, y: y - 1 },
-      ], true);
-      g.lineStyle(1.2, PIGMENT.muc, 0.8);
-      g.strokePoints([
-        { x: -5, y: y - 10 }, { x: 9, y: y - 6 }, { x: -5, y: y - 1 },
-      ], true, true);
-      g.fillStyle(PIGMENT.muc, 0.75);
-      g.fillRect(-9, y + 8, 8, 2.4);
-      return;
-    }
-
-    // Both fights carry the battle screen's own clash mark. A siege adds the wall it is being
-    // pressed against, which is the whole difference between the two.
-    if (variant === 'siege') {
-      // Dropped clear of the blades and given taller teeth. Tucked directly under the hilts the
-      // crenellation filled its own gaps and the wall read as one brown bar - which is to say, as
-      // nothing, and the siege and the field battle became the same picture.
-      g.fillStyle(PIGMENT.mucSoft, 0.9);
-      g.fillRect(-14, y + 12, 28, 5);
-      for (let merlon = -14; merlon < 14; merlon += 7) {
-        g.fillRect(merlon, y + 5, 4, 7.5);
-      }
-      clashDevice(g, 0, y - 4, 0.85);
-      return;
-    }
-    clashDevice(g, 0, y, 0.85);
-  }
-
-  /**
    * A small, slow life for each order glyph — what the district is *doing*, not merely what it is.
    *
    * One motion each, and each one is the verb: the fights breathe, the coin turns on its string,
@@ -1137,11 +1055,9 @@ export class DongHoMapItemRenderer extends InkMapItemRenderer {
     });
     const mark = generated
       ? placeStamp(scene, generated, -17, 0).setOrigin(0.5)
-      : scene.add.graphics().setPosition(-17, 0);
-    if (mark instanceof Phaser.GameObjects.Graphics) {
-      this.orderGlyph(mark, variant, 0);
-      mark.setScale(variant === 'siege' || variant === 'battle' ? 0.55 : 0.82);
-    }
+      : addConquestUiIcon(scene, {
+        acquisition: 'coin', build: 'hammer', recruit: 'banner', siege: 'ladder', battle: 'crossed-weapons',
+      }[variant] as 'coin' | 'hammer' | 'banner' | 'ladder' | 'crossed-weapons', 22).setPosition(-17, 0);
     container.add(g);
     container.add(bar);
     container.add(mark);

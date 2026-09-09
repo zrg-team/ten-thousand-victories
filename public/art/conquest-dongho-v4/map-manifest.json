@@ -9,7 +9,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree/spring.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree/spring.webp",
       "sourceSheet": "flora-spring"
     },
     {
@@ -17,7 +17,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-jackfruit/spring.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-jackfruit/spring.webp",
       "sourceSheet": "flora-spring"
     },
     {
@@ -25,7 +25,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-lychee/spring.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-lychee/spring.webp",
       "sourceSheet": "flora-spring"
     },
     {
@@ -33,7 +33,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-pomelo/spring.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-pomelo/spring.webp",
       "sourceSheet": "flora-spring"
     },
     {
@@ -41,7 +41,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-silk-cotton/spring.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-silk-cotton/spring.webp",
       "sourceSheet": "flora-spring"
     },
     {
@@ -49,7 +49,7 @@
       "width": 112,
       "height": 84,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/grass/spring.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/grass/spring.webp",
       "sourceSheet": "flora-spring"
     },
     {
@@ -57,7 +57,7 @@
       "width": 94,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/bamboo/spring.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/bamboo/spring.webp",
       "sourceSheet": "flora-spring"
     },
     {
@@ -65,7 +65,7 @@
       "width": 112,
       "height": 99,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/banana/spring.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/banana/spring.webp",
       "sourceSheet": "flora-spring"
     },
     {
@@ -73,7 +73,7 @@
       "width": 100,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/areca/spring.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/areca/spring.webp",
       "sourceSheet": "flora-spring"
     },
     {
@@ -81,7 +81,7 @@
       "width": 144,
       "height": 96,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/banyan/spring.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/banyan/spring.webp",
       "sourceSheet": "flora-spring"
     },
     {
@@ -89,7 +89,7 @@
       "width": 160,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-range.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-range.webp",
       "sourceSheet": "mountains"
     },
     {
@@ -97,7 +97,7 @@
       "width": 160,
       "height": 129,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/soft-ridge.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/soft-ridge.webp",
       "sourceSheet": "mountains"
     },
     {
@@ -105,7 +105,7 @@
       "width": 240,
       "height": 160,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-classic.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-classic.webp",
       "sourceSheet": "mountains"
     },
     {
@@ -113,7 +113,7 @@
       "width": 240,
       "height": 160,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-three-spire.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-three-spire.webp",
       "sourceSheet": "mountains"
     },
     {
@@ -121,7 +121,7 @@
       "width": 240,
       "height": 160,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-seven-spire.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-seven-spire.webp",
       "sourceSheet": "mountains"
     },
     {
@@ -129,7 +129,7 @@
       "width": 240,
       "height": 160,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-stepped.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-stepped.webp",
       "sourceSheet": "mountains"
     },
     {
@@ -137,7 +137,7 @@
       "width": 240,
       "height": 160,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-tower.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/karst-tower.webp",
       "sourceSheet": "mountains"
     },
     {
@@ -145,7 +145,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree/summer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree/summer.webp",
       "sourceSheet": "flora-summer"
     },
     {
@@ -153,7 +153,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-jackfruit/summer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-jackfruit/summer.webp",
       "sourceSheet": "flora-summer"
     },
     {
@@ -161,7 +161,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-lychee/summer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-lychee/summer.webp",
       "sourceSheet": "flora-summer"
     },
     {
@@ -169,7 +169,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-pomelo/summer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-pomelo/summer.webp",
       "sourceSheet": "flora-summer"
     },
     {
@@ -177,7 +177,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-silk-cotton/summer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-silk-cotton/summer.webp",
       "sourceSheet": "flora-summer"
     },
     {
@@ -185,7 +185,7 @@
       "width": 112,
       "height": 92,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/grass/summer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/grass/summer.webp",
       "sourceSheet": "flora-summer"
     },
     {
@@ -193,7 +193,7 @@
       "width": 94,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/bamboo/summer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/bamboo/summer.webp",
       "sourceSheet": "flora-summer"
     },
     {
@@ -201,7 +201,7 @@
       "width": 104,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/banana/summer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/banana/summer.webp",
       "sourceSheet": "flora-summer"
     },
     {
@@ -209,7 +209,7 @@
       "width": 91,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/areca/summer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/areca/summer.webp",
       "sourceSheet": "flora-summer"
     },
     {
@@ -217,7 +217,7 @@
       "width": 144,
       "height": 125,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/banyan/summer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/banyan/summer.webp",
       "sourceSheet": "flora-summer"
     },
     {
@@ -225,7 +225,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree/autumn.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree/autumn.webp",
       "sourceSheet": "flora-autumn"
     },
     {
@@ -233,7 +233,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-jackfruit/autumn.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-jackfruit/autumn.webp",
       "sourceSheet": "flora-autumn"
     },
     {
@@ -241,7 +241,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-lychee/autumn.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-lychee/autumn.webp",
       "sourceSheet": "flora-autumn"
     },
     {
@@ -249,7 +249,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-pomelo/autumn.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-pomelo/autumn.webp",
       "sourceSheet": "flora-autumn"
     },
     {
@@ -257,7 +257,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-silk-cotton/autumn.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-silk-cotton/autumn.webp",
       "sourceSheet": "flora-autumn"
     },
     {
@@ -265,7 +265,7 @@
       "width": 112,
       "height": 101,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/grass/autumn.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/grass/autumn.webp",
       "sourceSheet": "flora-autumn"
     },
     {
@@ -273,7 +273,7 @@
       "width": 90,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/bamboo/autumn.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/bamboo/autumn.webp",
       "sourceSheet": "flora-autumn"
     },
     {
@@ -281,7 +281,7 @@
       "width": 104,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/banana/autumn.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/banana/autumn.webp",
       "sourceSheet": "flora-autumn"
     },
     {
@@ -289,7 +289,7 @@
       "width": 98,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/areca/autumn.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/areca/autumn.webp",
       "sourceSheet": "flora-autumn"
     },
     {
@@ -297,7 +297,7 @@
       "width": 144,
       "height": 129,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/banyan/autumn.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/banyan/autumn.webp",
       "sourceSheet": "flora-autumn"
     },
     {
@@ -305,7 +305,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree/winter.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree/winter.webp",
       "sourceSheet": "flora-winter"
     },
     {
@@ -313,7 +313,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-jackfruit/winter.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-jackfruit/winter.webp",
       "sourceSheet": "flora-winter"
     },
     {
@@ -321,7 +321,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-lychee/winter.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-lychee/winter.webp",
       "sourceSheet": "flora-winter"
     },
     {
@@ -329,7 +329,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-pomelo/winter.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-pomelo/winter.webp",
       "sourceSheet": "flora-winter"
     },
     {
@@ -337,7 +337,7 @@
       "width": 144,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-silk-cotton/winter.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/tree-silk-cotton/winter.webp",
       "sourceSheet": "flora-winter"
     },
     {
@@ -345,7 +345,7 @@
       "width": 112,
       "height": 100,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/grass/winter.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/grass/winter.webp",
       "sourceSheet": "flora-winter"
     },
     {
@@ -353,7 +353,7 @@
       "width": 89,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/bamboo/winter.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/bamboo/winter.webp",
       "sourceSheet": "flora-winter"
     },
     {
@@ -361,7 +361,7 @@
       "width": 112,
       "height": 111,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/banana/winter.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/banana/winter.webp",
       "sourceSheet": "flora-winter"
     },
     {
@@ -369,7 +369,7 @@
       "width": 92,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/areca/winter.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/areca/winter.webp",
       "sourceSheet": "flora-winter"
     },
     {
@@ -377,7 +377,7 @@
       "width": 144,
       "height": 121,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/flora/banyan/winter.png",
+      "runtimePath": "public/art/conquest-dongho-v4/flora/banyan/winter.webp",
       "sourceSheet": "flora-winter"
     },
     {
@@ -385,7 +385,7 @@
       "width": 768,
       "height": 384,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/paddy-system-flooded.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/paddy-system-flooded.webp",
       "sourceSheet": "fields-bridge"
     },
     {
@@ -393,7 +393,7 @@
       "width": 768,
       "height": 384,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/paddy-system-fallow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/paddy-system-fallow.webp",
       "sourceSheet": "fields-bridge"
     },
     {
@@ -401,7 +401,7 @@
       "width": 768,
       "height": 384,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/paddy-system-transplanted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/paddy-system-transplanted.webp",
       "sourceSheet": "fields-bridge"
     },
     {
@@ -409,7 +409,7 @@
       "width": 768,
       "height": 384,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/paddy-system-ripe.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/paddy-system-ripe.webp",
       "sourceSheet": "fields-bridge"
     },
     {
@@ -417,7 +417,7 @@
       "width": 768,
       "height": 384,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/paddy-system-nursery.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/paddy-system-nursery.webp",
       "sourceSheet": "fields-bridge"
     },
     {
@@ -425,7 +425,7 @@
       "width": 232,
       "height": 384,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/terrain/timber-bridge.png",
+      "runtimePath": "public/art/conquest-dongho-v4/terrain/timber-bridge.webp",
       "sourceSheet": "fields-bridge"
     },
     {
@@ -433,7 +433,7 @@
       "width": 93,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/farmer.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/farmer.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -441,7 +441,7 @@
       "width": 115,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/traveler.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/traveler.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -449,7 +449,7 @@
       "width": 144,
       "height": 101,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/buffalo.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/buffalo.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -457,7 +457,7 @@
       "width": 126,
       "height": 144,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/buffalo-rider.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/buffalo-rider.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -465,7 +465,7 @@
       "width": 144,
       "height": 114,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/calf.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/calf.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -473,7 +473,7 @@
       "width": 144,
       "height": 117,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/ox-cart.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/ox-cart.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -481,7 +481,7 @@
       "width": 256,
       "height": 160,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/egret-up.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/egret-up.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -489,7 +489,7 @@
       "width": 256,
       "height": 160,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/egret-down.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/egret-down.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -497,7 +497,7 @@
       "width": 72,
       "height": 61,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/spring-petal.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/spring-petal.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -505,7 +505,7 @@
       "width": 72,
       "height": 56,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/autumn-leaf.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/autumn-leaf.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -513,7 +513,7 @@
       "width": 70,
       "height": 72,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/winter-snow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/winter-snow.webp",
       "sourceSheet": "village-life"
     },
     {
@@ -538,7 +538,7 @@
         ]
       },
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/farmer-walk.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/farmer-walk.webp",
       "sourceSheet": "walk-farmer"
     },
     {
@@ -563,7 +563,7 @@
         ]
       },
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/life/traveler-walk.png",
+      "runtimePath": "public/art/conquest-dongho-v4/life/traveler-walk.webp",
       "sourceSheet": "walk-traveler"
     },
     {
@@ -621,7 +621,7 @@
       "width": 62,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-yellow-seal.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-yellow-seal.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -629,7 +629,7 @@
       "width": 64,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-red-moon.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-red-moon.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -637,7 +637,7 @@
       "width": 66,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-layered-square.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-layered-square.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -645,7 +645,7 @@
       "width": 66,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-red-fringe-yellow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-red-fringe-yellow.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -653,7 +653,7 @@
       "width": 63,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-yellow-medallion.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-yellow-medallion.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -661,7 +661,7 @@
       "width": 73,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-ngu-sac.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/flag-ngu-sac.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -669,7 +669,7 @@
       "width": 63,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-yellow-seal.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-yellow-seal.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -677,7 +677,7 @@
       "width": 64,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-red-moon.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-red-moon.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -685,7 +685,7 @@
       "width": 67,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-layered-square.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-layered-square.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -693,7 +693,7 @@
       "width": 65,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-red-fringe-yellow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-red-fringe-yellow.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -701,7 +701,7 @@
       "width": 63,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-yellow-medallion.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-yellow-medallion.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -709,7 +709,7 @@
       "width": 71,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-ngu-sac.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/rival-flag-ngu-sac.webp",
       "sourceSheet": "markers-1"
     },
     {
@@ -717,7 +717,7 @@
       "width": 67,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/capital-standard.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/capital-standard.webp",
       "sourceSheet": "markers-2"
     },
     {
@@ -725,7 +725,7 @@
       "width": 71,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/destination-standard.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/destination-standard.webp",
       "sourceSheet": "markers-2"
     },
     {
@@ -733,7 +733,7 @@
       "width": 108,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/selection-seal.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/selection-seal.webp",
       "sourceSheet": "markers-2"
     },
     {
@@ -741,7 +741,7 @@
       "width": 112,
       "height": 106,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/capital-highlight.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/capital-highlight.webp",
       "sourceSheet": "markers-2"
     },
     {
@@ -749,7 +749,7 @@
       "width": 108,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/acquisition.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/acquisition.webp",
       "sourceSheet": "markers-2"
     },
     {
@@ -757,7 +757,7 @@
       "width": 109,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/build.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/build.webp",
       "sourceSheet": "markers-2"
     },
     {
@@ -765,7 +765,7 @@
       "width": 107,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/recruit.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/recruit.webp",
       "sourceSheet": "markers-2"
     },
     {
@@ -773,7 +773,7 @@
       "width": 108,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/siege.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/siege.webp",
       "sourceSheet": "markers-2"
     },
     {
@@ -781,7 +781,7 @@
       "width": 109,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/battle.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/battle.webp",
       "sourceSheet": "markers-2"
     },
     {
@@ -789,7 +789,7 @@
       "width": 112,
       "height": 102,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/march-dust.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/march-dust.webp",
       "sourceSheet": "markers-2"
     },
     {
@@ -797,7 +797,7 @@
       "width": 108,
       "height": 112,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/marker/route-brush.png",
+      "runtimePath": "public/art/conquest-dongho-v4/marker/route-brush.webp",
       "sourceSheet": "markers-2"
     }
   ]

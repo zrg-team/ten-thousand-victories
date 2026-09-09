@@ -11,11 +11,12 @@
  * real tap targets at 620, the shortest screen `GAME_HEIGHT` clamps to.
  */
 import Phaser from 'phaser';
+import { t } from '../../i18n';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { hudSheetWidth } from '../../game/cameraLayout';
 import { INK_UI, type UIBounds } from '../../ui/InkUI';
 import { type BattleFormation } from '../../data/ascent/formations';
-import { CARD_ICON_SIZE, type CardIconId } from '../../ui/CardIcons';
+import { type CardIconId } from '../../ui/CardIcons';
 import type { StoryOutcome, Army, AscentPrompt, AscentRarity, GameState, Hero } from '../../state/types';
 
 
@@ -278,9 +279,6 @@ export function formatOutcomeAmount(entry: StoryOutcome): string {
   return `${entry.amount > 0 ? '+' : entry.amount < 0 ? '−' : ''}${size}`;
 }
 
-/** Left gutter a card icon occupies, glyph plus breathing room. */
-export const ICON_GUTTER = CARD_ICON_SIZE + 12;
-
 /** Width kept clear on a badged card's title line, covering the longest badge label. */
 export const BADGE_CLEARANCE = 86;
 
@@ -327,5 +325,5 @@ export function promptSignature(prompt: AscentPrompt): string {
 
 export function heroStatLine(hero: Hero): string {
   const stats = hero.stats;
-  return `⚔ ${stats.martial}   ⚙ ${stats.logistics}   ◈ ${stats.administration}`;
+  return `${t('stat.martial')} ${stats.martial} · ${t('stat.logistics')} ${stats.logistics} · ${t('stat.administration')} ${stats.administration}`;
 }

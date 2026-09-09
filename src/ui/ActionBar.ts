@@ -116,12 +116,12 @@ const SYSTEM_CLUSTER_GAP = 10;
  */
 const LANE_ICONS: Record<string, CardIconId> = {
   build: 'hammer',
-  heroes: 'person',
+  heroes: 'hero',
   court: 'crown',
-  army: 'spears',
-  affairs: 'globe',
+  army: 'crossed-weapons',
+  affairs: 'diplomacy',
   directives: 'banner',
-  chronicle: 'scroll',
+  chronicle: 'book',
   battle: 'blade',
   pause: 'hourglass',
 };
@@ -136,7 +136,7 @@ const LANE_ICONS: Record<string, CardIconId> = {
  * thirteen units where two were twenty-six — and a glyph sized for the crisis was left sitting in
  * the middle of it. The mark carries the identification now, so it takes the space.
  */
-const LANE_ICON_SCALE = 0.68;
+const LANE_ICON_SCALE = 0.76;
 /**
  * And the glyph the *crowded* row gets instead.
  *
@@ -146,7 +146,7 @@ const LANE_ICON_SCALE = 0.68;
  * half units below the foot of the screen. The row that has to wrap gets the small mark back, and
  * every other row keeps the large one.
  */
-const LANE_ICON_SCALE_WRAPPED = 0.42;
+const LANE_ICON_SCALE_WRAPPED = 0.5;
 /** Air above the glyph, and between the glyph and the word under it. */
 const ICON_TOP_PAD = 1;
 const ICON_TEXT_GAP = 1;

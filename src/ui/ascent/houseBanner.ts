@@ -2,9 +2,30 @@ import Phaser from 'phaser';
 import { INK_UI } from '../InkUI';
 import { getDynasty, type DynastyBanner } from '../../state/dynasty';
 import { ROYAL_HOUSES } from '../faces/kingLook';
-import { BANNER_EMBLEM_SIZE, drawBannerEmblem } from './bannerEmblems';
+import { BANNER_EMBLEM_SIZE, drawBannerEmblem, emblemFitScale } from './bannerEmblems';
 import { renderScaleNow } from '../../game/graphicsQuality';
 import { registerGpuBake } from '../../game/gpuBakes';
+
+/**
+ * How far into the disc a sign's ink may reach, as a fraction of its radius.
+ *
+ * The seal draws a hairline seam at 0.91 radii; a device that crosses it reads as a sticker laid
+ * over the rule rather than as a mark struck inside it, so the ink stops short of the seam with a
+ * little air left between them.
+ */
+const SIGN_INK_RADIUS = 0.78;
+
+/**
+ * How much of the seal's width the motif's print is drawn across.
+ *
+ * **0.62, down from 0.75.** The prints carry almost no margin of their own — measured on the
+ * drawn object (2026-09-10), the ink of the blade, the drum and the star all span 0.90 of the box
+ * they are scaled into — so at 0.75 the device covered 0.675 of the seal and left about two
+ * points of paper each side of a 24-unit chop, with the seal's own gold rule inset 1.5 of them.
+ * A chop reads as a chop because there is field around the device; at that spacing the sword sat
+ * on the rule. At 0.62 the ink spans 0.56 of the seal and the border has room to be a border.
+ */
+const SEAL_EMBLEM_SPAN = 0.62;
 
 /** The same designed motif pressed as a square seal on the menu's royal document. */
 export function drawHouseSeal(scene: Phaser.Scene, sign: DynastyBanner, size: number): Phaser.GameObjects.Container {
@@ -16,7 +37,7 @@ export function drawHouseSeal(scene: Phaser.Scene, sign: DynastyBanner, size: nu
   root.add(g);
   root.add(drawBannerEmblem(scene, sign.emblem, sign.trim,
     luma(sign.trim) > 140 ? INK_UI.brush : 0xf3e6c4, sign.field)
-    .setScale(size * 0.75 / BANNER_EMBLEM_SIZE));
+    .setScale(size * SEAL_EMBLEM_SPAN / BANNER_EMBLEM_SIZE));
   return root;
 }
 
@@ -158,9 +179,13 @@ export function drawHouseSign(
     .strokeCircle(x, y, radius * 0.91);
   root.add(g);
   const colour = sign.trim;
+  // The motif is fitted to the ring, not stretched to a fixed fraction of it. Every motif used to
+  // be drawn 1.5 radii wide whatever shape it was, so the ones that use their corners — the
+  // blade, the phoenix — put ink 0.92 radii out, over the inner seam at 0.91 and onto the ring,
+  // while the round ones sat small inside it. `emblemFitScale` reads each motif's own reach.
   root.add(drawBannerEmblem(scene, sign.emblem, colour,
     luma(colour) > 140 ? INK_UI.brush : 0xf3e6c4, sign.field)
-    .setPosition(x, y).setScale(radius * 1.5 / BANNER_EMBLEM_SIZE));
+    .setPosition(x, y).setScale(emblemFitScale(sign.emblem, radius * SIGN_INK_RADIUS)));
   return root;
 }
 

@@ -1,0 +1,60 @@
+{
+  "mode": "built-in ImageGen",
+  "revision": "Three shooters; normalized troop scale; bold Dong Ho fight print",
+  "targetUnitHeight": 60,
+  "measurement": "Mean visible hat-tip-to-sole troop height in source pixels; charging stance has a 0.9 vertical pose factor. Scale the complete generated artwork uniformly, without cropping weapons or changing anatomy.",
+  "jobs": [
+    {
+      "id": "spears",
+      "meaning": "Dựng giáo",
+      "source": "output/conquest-ui-v3/masters/spears.png",
+      "reuse": true,
+      "sizing": {
+        "unitHeight": 685
+      }
+    },
+    {
+      "id": "horse",
+      "meaning": "Xung phong",
+      "source": "output/conquest-ui-v4/masters/horse.png",
+      "reuse": true,
+      "sizing": {
+        "unitHeight": 616,
+        "poseHeightFactor": 0.9
+      }
+    },
+    {
+      "id": "skirmish",
+      "meaning": "Tản ra",
+      "prompt": "Use case: historical-scene. ONE compact square transparent raster formation icon in the same simple Vietnamese Đông Hồ folk woodblock army style. Exactly THREE equally sized adult Vietnamese infantrymen. Every soldier wears an identical short indigo-blue cross-collar tunic (#35547b), vermilion-red waist sash (#bf4c35), dark brown knee-length trousers (#382216), bare ochre lower legs, plain dark low shoes, and plain low ochre conical bamboo hat (#e5ad4d). No hat ribs, decorative patterns, armor or elaborate faces. Stout warm dark brown hand-carved contours, flat matte natural pigment blocks with sparse tactile print grain, a few essential interior cuts, no gradients or 3D. These are 30-pixel UI icons: broad simple limb shapes and three clearly countable matching hats are essential. The three hats have the same brim width, each roughly one fifth of the complete motif width. All figures have the same anatomical scale. Center a complete compact group inside a square canvas with transparent margin on every edge. Actual transparent PNG alpha background, including open gaps. No paper, checkerboard, background, shadow, glow, label, text, frame, scenery or decorative flourishes. Three SPEARMEN stand in a loose staggered line, all facing RIGHT with three slim wooden spears held parallel and inclined upper right. Left and right men a little lower, middle man a little higher, all upright in the same ready stance. Give bodies clear moderate gaps, roughly half one soldier's shoulder width. Keep the figures LARGE within the overall motif; avoid vast empty spaces. Slightly overlapping weapon extents are fine, but no body overlaps. The formation has opened its spacing and still faces one enemy. NO outward-facing soldiers, no radial fan, no arrows, no tassels or ribbons on spears.",
+      "sizing": {
+        "unitHeight": 692
+      },
+      "source": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-b6e0ee5e-619b-4ba6-895a-bc4b55bfb096.png"
+    },
+    {
+      "id": "tortoise",
+      "meaning": "Giương khiên",
+      "source": "output/conquest-ui-v4/masters/tortoise.png",
+      "reuse": true,
+      "sizing": {
+        "unitHeight": 815
+      }
+    },
+    {
+      "id": "bows",
+      "meaning": "Bắn",
+      "prompt": "Use case: historical-scene. ONE compact square transparent raster formation icon in the same simple Vietnamese Đông Hồ folk woodblock army style. Exactly THREE equally sized adult Vietnamese infantrymen. Every soldier wears an identical short indigo-blue cross-collar tunic (#35547b), vermilion-red waist sash (#bf4c35), dark brown knee-length trousers (#382216), bare ochre lower legs, plain dark low shoes, and plain low ochre conical bamboo hat (#e5ad4d). No hat ribs, decorative patterns, armor or elaborate faces. Stout warm dark brown hand-carved contours, flat matte natural pigment blocks with sparse tactile print grain, a few essential interior cuts, no gradients or 3D. These are 30-pixel UI icons: broad simple limb shapes and three clearly countable matching hats are essential. The three hats have the same brim width, each roughly one fifth of the complete motif width. All figures have the same anatomical scale. Center a complete compact group inside a square canvas with transparent margin on every edge. Actual transparent PNG alpha background, including open gaps. No paper, checkerboard, background, shadow, glow, label, text, frame, scenery or decorative flourishes. Three CROSSBOWMEN stand in a compact staggered firing rank, all aiming wooden crossbows to the RIGHT. Exactly three full soldiers, three conical hats and three crossbows. One man at lower right, a second slightly behind toward middle left, a third slightly higher behind toward upper left. All three STAND with planted feet, alert aiming poses, level crossbows. Keep all heads, bodies and hats equal in size; no giant foreground figure. The rank can overlap modestly like a compact unit, but each of the three men must be clearly countable. Simple brown wooden crossbow stocks, curved transverse bows with taut strings and tiny bolts, no rifle-like mechanisms. Do not make an archer or omit the third man.",
+      "sizing": {
+        "unitHeight": 740
+      },
+      "source": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-1978648c-0c50-4ae1-8696-5ad48e35b928.png"
+    },
+    {
+      "id": "crossed-weapons",
+      "meaning": "Fight",
+      "prompt": "Create one beautiful FIGHT icon as a bold authentic Vietnamese ĐÔNG HỒ folk woodblock PRINT, isolated on a truly transparent background. A compact powerful X of TWO historical Vietnamese gươm sabres clashing. Give them short robust subtly curved blades and confident slightly asymmetric hand-carved profiles: fuller steel bodies, small plain brass collars instead of European crossguards, stubby dark wooden grips with two broad vermilion cloth wraps and plain ochre pommels. One blade is a broad matte indigo pigment block with a generous shell-white carved cutting edge; the other is warm shell-white with a broad black carved spine and a small ochre pigment plane near its base. Their intersection carries THREE SMALL irregular vermilion ink chips communicating the impact. Make this feel printed from a carved wooden block: substantial warm soot-black outer contour, blunt and tapered carved cuts, rich ochre/vermilion/indigo natural color blocks, lively modest ink misregistration within the contours, tactile uneven pigment and sparse wood grain. Flat, graphic folk storytelling. The beauty must come from bold rhythm, balanced color and the carved shape; keep it simple enough to read at 26–40 pixels. A strong broad silhouette, not a delicate thin-line crossed-swords logo. No filigree, floral patterns, dragons, ribbons, tassels, background medallion, frames, scenery, soldiers, flags or text. No gradients, glossy metal, realistic lighting, glow or shadows. Complete centered icon fills about 82 percent of a square with genuine transparent alpha around and between the weapons. No background paper or checkerboard.",
+      "source": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-42d8f674-39e2-42cd-affe-6d6344909392.png"
+    }
+  ]
+}

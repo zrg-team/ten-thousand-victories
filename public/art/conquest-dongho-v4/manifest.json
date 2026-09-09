@@ -20,7 +20,7 @@
       "clearFraction": 0.8198699951171875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/levy/spear.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -40,7 +40,7 @@
       "clearFraction": 0.8013687133789062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/levy/sword.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -60,7 +60,7 @@
       "clearFraction": 0.8278961181640625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/levy/skirmish.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -81,7 +81,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.dinh.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/levy/bow.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -101,7 +101,7 @@
       "clearFraction": 0.7234573364257812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/levy/mounted.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -121,7 +121,7 @@
       "clearFraction": 0.8196182250976562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/trained/spear.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -141,7 +141,7 @@
       "clearFraction": 0.8039703369140625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/trained/sword.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -161,7 +161,7 @@
       "clearFraction": 0.8245162963867188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/trained/skirmish.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -182,7 +182,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.dinh.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/trained/bow.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -202,7 +202,7 @@
       "clearFraction": 0.7190628051757812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/trained/mounted.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -222,7 +222,7 @@
       "clearFraction": 0.7959823608398438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/royal/spear.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -242,7 +242,7 @@
       "clearFraction": 0.7932205200195312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/royal/sword.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -262,7 +262,7 @@
       "clearFraction": 0.8148117065429688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/royal/skirmish.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -283,7 +283,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.dinh.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/royal/bow.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -303,7 +303,7 @@
       "clearFraction": 0.7084808349609375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/dinh/royal/mounted.webp",
       "sourceSheet": "army-dinh"
     },
     {
@@ -323,7 +323,7 @@
       "clearFraction": 0.5465316772460938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/citadel-dinh.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/citadel-dinh.webp",
       "sourceSheet": "settlements-citadels"
     },
     {
@@ -343,7 +343,7 @@
       "clearFraction": 0.5857353210449219,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/citadel-ly.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/citadel-ly.webp",
       "sourceSheet": "settlements-citadels"
     },
     {
@@ -363,7 +363,7 @@
       "clearFraction": 0.6569938659667969,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/citadel-tran.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/citadel-tran.webp",
       "sourceSheet": "settlements-citadels"
     },
     {
@@ -383,7 +383,7 @@
       "clearFraction": 0.5351371765136719,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/citadel-le.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/citadel-le.webp",
       "sourceSheet": "settlements-citadels"
     },
     {
@@ -403,7 +403,7 @@
       "clearFraction": 0.70697021484375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/citadel-nguyen.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/citadel-nguyen.webp",
       "sourceSheet": "settlements-citadels"
     },
     {
@@ -423,7 +423,7 @@
       "clearFraction": 0.7997589111328125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/levy/spear.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -443,7 +443,7 @@
       "clearFraction": 0.7853927612304688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/levy/sword.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -463,7 +463,7 @@
       "clearFraction": 0.8039398193359375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/levy/skirmish.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -484,7 +484,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.ly.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/levy/bow.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -504,7 +504,7 @@
       "clearFraction": 0.6979446411132812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/levy/mounted.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -524,7 +524,7 @@
       "clearFraction": 0.8063812255859375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/trained/spear.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -544,7 +544,7 @@
       "clearFraction": 0.7821273803710938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/trained/sword.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -564,7 +564,7 @@
       "clearFraction": 0.8037185668945312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/trained/skirmish.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -585,7 +585,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.ly.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/trained/bow.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -605,7 +605,7 @@
       "clearFraction": 0.70367431640625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/trained/mounted.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -625,7 +625,7 @@
       "clearFraction": 0.8018417358398438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/royal/spear.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -645,7 +645,7 @@
       "clearFraction": 0.7892532348632812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/royal/sword.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -665,7 +665,7 @@
       "clearFraction": 0.7864913940429688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/royal/skirmish.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -686,7 +686,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.ly.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/royal/bow.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -706,7 +706,7 @@
       "clearFraction": 0.6929244995117188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ly/royal/mounted.webp",
       "sourceSheet": "army-ly"
     },
     {
@@ -726,7 +726,7 @@
       "clearFraction": 0.8251190185546875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/levy/spear.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -746,7 +746,7 @@
       "clearFraction": 0.81072998046875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/levy/sword.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -766,7 +766,7 @@
       "clearFraction": 0.8252792358398438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/levy/skirmish.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -787,7 +787,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.tran.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/levy/bow.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -807,7 +807,7 @@
       "clearFraction": 0.7428665161132812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/levy/mounted.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -827,7 +827,7 @@
       "clearFraction": 0.8232574462890625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/trained/spear.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -847,7 +847,7 @@
       "clearFraction": 0.8005752563476562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/trained/sword.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -867,7 +867,7 @@
       "clearFraction": 0.82342529296875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/trained/skirmish.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -888,7 +888,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.tran.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/trained/bow.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -908,7 +908,7 @@
       "clearFraction": 0.7413253784179688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/trained/mounted.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -928,7 +928,7 @@
       "clearFraction": 0.8084335327148438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/royal/spear.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -948,7 +948,7 @@
       "clearFraction": 0.8020477294921875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/royal/sword.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -968,7 +968,7 @@
       "clearFraction": 0.8203353881835938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/royal/skirmish.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -989,7 +989,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.tran.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/royal/bow.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -1009,7 +1009,7 @@
       "clearFraction": 0.7322616577148438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tran/royal/mounted.webp",
       "sourceSheet": "army-tran"
     },
     {
@@ -1029,7 +1029,7 @@
       "clearFraction": 0.7471580505371094,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/hamlet.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/hamlet.webp",
       "sourceSheet": "settlements-rural"
     },
     {
@@ -1049,7 +1049,7 @@
       "clearFraction": 0.7339706420898438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/village.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/village.webp",
       "sourceSheet": "settlements-rural"
     },
     {
@@ -1069,7 +1069,7 @@
       "clearFraction": 0.6780433654785156,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/market-town.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/market-town.webp",
       "sourceSheet": "settlements-rural"
     },
     {
@@ -1089,7 +1089,7 @@
       "clearFraction": 0.7504615783691406,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/shrine-village.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/shrine-village.webp",
       "sourceSheet": "settlements-rural"
     },
     {
@@ -1109,7 +1109,7 @@
       "clearFraction": 0.7958183288574219,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/farmstead.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/farmstead.webp",
       "sourceSheet": "settlements-rural"
     },
     {
@@ -1129,7 +1129,7 @@
       "clearFraction": 0.7196846008300781,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/settlement/mine-camp.png",
+      "runtimePath": "public/art/conquest-dongho-v4/settlement/mine-camp.webp",
       "sourceSheet": "settlements-rural"
     },
     {
@@ -1149,7 +1149,7 @@
       "clearFraction": 0.8216171264648438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/levy/spear.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1169,7 +1169,7 @@
       "clearFraction": 0.7915878295898438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/levy/sword.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1189,7 +1189,7 @@
       "clearFraction": 0.8304519653320312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/levy/skirmish.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1210,7 +1210,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.le.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/levy/bow.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1230,7 +1230,7 @@
       "clearFraction": 0.737091064453125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/levy/mounted.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1250,7 +1250,7 @@
       "clearFraction": 0.816619873046875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/trained/spear.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1270,7 +1270,7 @@
       "clearFraction": 0.7865982055664062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/trained/sword.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1290,7 +1290,7 @@
       "clearFraction": 0.821014404296875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/trained/skirmish.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1311,7 +1311,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.le.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/trained/bow.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1331,7 +1331,7 @@
       "clearFraction": 0.730712890625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/trained/mounted.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1351,7 +1351,7 @@
       "clearFraction": 0.801666259765625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/royal/spear.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1371,7 +1371,7 @@
       "clearFraction": 0.7827835083007812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/royal/sword.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1391,7 +1391,7 @@
       "clearFraction": 0.8069305419921875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/royal/skirmish.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1412,7 +1412,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.le.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/royal/bow.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1432,7 +1432,7 @@
       "clearFraction": 0.7072219848632812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/le/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/le/royal/mounted.webp",
       "sourceSheet": "army-le"
     },
     {
@@ -1452,7 +1452,7 @@
       "clearFraction": 0.5424957275390625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/thatched-house.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/thatched-house.webp",
       "sourceSheet": "buildings-1"
     },
     {
@@ -1472,7 +1472,7 @@
       "clearFraction": 0.6066131591796875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/tiled-house.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/tiled-house.webp",
       "sourceSheet": "buildings-1"
     },
     {
@@ -1492,7 +1492,7 @@
       "clearFraction": 0.5904159545898438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/communal-hall.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/communal-hall.webp",
       "sourceSheet": "buildings-1"
     },
     {
@@ -1512,7 +1512,7 @@
       "clearFraction": 0.863372802734375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/pagoda-tower.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/pagoda-tower.webp",
       "sourceSheet": "buildings-1"
     },
     {
@@ -1532,7 +1532,7 @@
       "clearFraction": 0.854522705078125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/swept-yard.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/swept-yard.webp",
       "sourceSheet": "buildings-1"
     },
     {
@@ -1552,7 +1552,7 @@
       "clearFraction": 0.7672576904296875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/village-pond.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/village-pond.webp",
       "sourceSheet": "buildings-1"
     },
     {
@@ -1572,7 +1572,7 @@
       "clearFraction": 0.895721435546875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/bamboo-hedge.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/bamboo-hedge.webp",
       "sourceSheet": "buildings-1"
     },
     {
@@ -1592,7 +1592,7 @@
       "clearFraction": 0.5982437133789062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/kitchen.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/kitchen.webp",
       "sourceSheet": "buildings-1"
     },
     {
@@ -1612,7 +1612,7 @@
       "clearFraction": 0.5685348510742188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/buffalo-byre.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/buffalo-byre.webp",
       "sourceSheet": "buildings-1"
     },
     {
@@ -1632,7 +1632,7 @@
       "clearFraction": 0.6805496215820312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/grain-bin.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/grain-bin.webp",
       "sourceSheet": "buildings-1"
     },
     {
@@ -1652,7 +1652,7 @@
       "clearFraction": 0.7045364379882812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/well.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/well.webp",
       "sourceSheet": "buildings-2"
     },
     {
@@ -1672,7 +1672,7 @@
       "clearFraction": 0.684234619140625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/haystack.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/haystack.webp",
       "sourceSheet": "buildings-2"
     },
     {
@@ -1692,7 +1692,7 @@
       "clearFraction": 0.5851058959960938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/mine-bank.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/mine-bank.webp",
       "sourceSheet": "buildings-2"
     },
     {
@@ -1712,7 +1712,7 @@
       "clearFraction": 0.6092681884765625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/mine-adit.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/mine-adit.webp",
       "sourceSheet": "buildings-2"
     },
     {
@@ -1732,7 +1732,7 @@
       "clearFraction": 0.6800308227539062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/mine-timbers.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/mine-timbers.webp",
       "sourceSheet": "buildings-2"
     },
     {
@@ -1752,7 +1752,7 @@
       "clearFraction": 0.6501846313476562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/spoil-heap.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/spoil-heap.webp",
       "sourceSheet": "buildings-2"
     },
     {
@@ -1772,7 +1772,7 @@
       "clearFraction": 0.736724853515625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/baskets.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/baskets.webp",
       "sourceSheet": "buildings-2"
     },
     {
@@ -1792,7 +1792,7 @@
       "clearFraction": 0.7152328491210938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-farm.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-farm.webp",
       "sourceSheet": "buildings-2"
     },
     {
@@ -1812,7 +1812,7 @@
       "clearFraction": 0.6144790649414062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-mine.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-mine.webp",
       "sourceSheet": "buildings-2"
     },
     {
@@ -1832,7 +1832,7 @@
       "clearFraction": 0.5045013427734375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-market.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-market.webp",
       "sourceSheet": "buildings-2"
     },
     {
@@ -1852,7 +1852,7 @@
       "clearFraction": 0.6793670654296875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-wall.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-wall.webp",
       "sourceSheet": "buildings-3"
     },
     {
@@ -1872,7 +1872,7 @@
       "clearFraction": 0.6599197387695312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-tower.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-tower.webp",
       "sourceSheet": "buildings-3"
     },
     {
@@ -1892,7 +1892,7 @@
       "clearFraction": 0.5168991088867188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-barracks.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-barracks.webp",
       "sourceSheet": "buildings-3"
     },
     {
@@ -1912,7 +1912,7 @@
       "clearFraction": 0.44004058837890625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-communal-hall.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-communal-hall.webp",
       "sourceSheet": "buildings-3"
     },
     {
@@ -1932,7 +1932,7 @@
       "clearFraction": 0.6296768188476562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-harbor.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-harbor.webp",
       "sourceSheet": "buildings-3"
     },
     {
@@ -1952,7 +1952,7 @@
       "clearFraction": 0.43361663818359375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-workshop.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-workshop.webp",
       "sourceSheet": "buildings-3"
     },
     {
@@ -1972,7 +1972,7 @@
       "clearFraction": 0.45318603515625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-guild.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-guild.webp",
       "sourceSheet": "buildings-3"
     },
     {
@@ -1992,7 +1992,7 @@
       "clearFraction": 0.46311187744140625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-university.png",
+      "runtimePath": "public/art/conquest-dongho-v4/building/improvement-university.webp",
       "sourceSheet": "buildings-3"
     },
     {
@@ -2012,7 +2012,7 @@
       "clearFraction": 0.8376541137695312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/levy/spear.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2032,7 +2032,7 @@
       "clearFraction": 0.8236007690429688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/levy/sword.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2052,7 +2052,7 @@
       "clearFraction": 0.8386611938476562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/levy/skirmish.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2073,7 +2073,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.trinh.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/levy/bow.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2093,7 +2093,7 @@
       "clearFraction": 0.7591934204101562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/levy/mounted.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2113,7 +2113,7 @@
       "clearFraction": 0.8261032104492188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/trained/spear.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2133,7 +2133,7 @@
       "clearFraction": 0.8013992309570312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/trained/sword.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2153,7 +2153,7 @@
       "clearFraction": 0.8247604370117188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/trained/skirmish.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2174,7 +2174,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.trinh.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/trained/bow.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2194,7 +2194,7 @@
       "clearFraction": 0.7460250854492188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/trained/mounted.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2214,7 +2214,7 @@
       "clearFraction": 0.8158950805664062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/royal/spear.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2234,7 +2234,7 @@
       "clearFraction": 0.792694091796875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/royal/sword.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2254,7 +2254,7 @@
       "clearFraction": 0.8208770751953125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/royal/skirmish.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2275,7 +2275,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.trinh.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/royal/bow.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2295,7 +2295,7 @@
       "clearFraction": 0.72772216796875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/trinh/royal/mounted.webp",
       "sourceSheet": "army-trinh"
     },
     {
@@ -2315,7 +2315,7 @@
       "clearFraction": 0.8100204467773438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/levy/spear.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2335,7 +2335,7 @@
       "clearFraction": 0.7913818359375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/levy/sword.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2355,7 +2355,7 @@
       "clearFraction": 0.8264617919921875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/levy/skirmish.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2376,7 +2376,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.nguyenLord.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/levy/bow.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2396,7 +2396,7 @@
       "clearFraction": 0.7287139892578125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/levy/mounted.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2416,7 +2416,7 @@
       "clearFraction": 0.8081817626953125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/trained/spear.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2436,7 +2436,7 @@
       "clearFraction": 0.78533935546875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/trained/sword.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2456,7 +2456,7 @@
       "clearFraction": 0.8235092163085938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/trained/skirmish.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2477,7 +2477,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.nguyenLord.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/trained/bow.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2497,7 +2497,7 @@
       "clearFraction": 0.738250732421875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/trained/mounted.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2517,7 +2517,7 @@
       "clearFraction": 0.792694091796875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/royal/spear.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2537,7 +2537,7 @@
       "clearFraction": 0.7725296020507812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/royal/sword.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2557,7 +2557,7 @@
       "clearFraction": 0.7998504638671875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/royal/skirmish.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2578,7 +2578,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.nguyenLord.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/royal/bow.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2598,7 +2598,7 @@
       "clearFraction": 0.7164993286132812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyenLord/royal/mounted.webp",
       "sourceSheet": "army-nguyenLord"
     },
     {
@@ -2618,7 +2618,7 @@
       "clearFraction": 0.8262863159179688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/levy/spear.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2638,7 +2638,7 @@
       "clearFraction": 0.8186721801757812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/levy/sword.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2658,7 +2658,7 @@
       "clearFraction": 0.8380279541015625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/levy/skirmish.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2679,7 +2679,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.tayson.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/levy/bow.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2699,7 +2699,7 @@
       "clearFraction": 0.7451553344726562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/levy/mounted.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2719,7 +2719,7 @@
       "clearFraction": 0.818817138671875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/trained/spear.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2739,7 +2739,7 @@
       "clearFraction": 0.7996673583984375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/trained/sword.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2759,7 +2759,7 @@
       "clearFraction": 0.821929931640625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/trained/skirmish.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2780,7 +2780,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.tayson.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/trained/bow.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2800,7 +2800,7 @@
       "clearFraction": 0.730987548828125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/trained/mounted.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2820,7 +2820,7 @@
       "clearFraction": 0.7982940673828125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/royal/spear.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2840,7 +2840,7 @@
       "clearFraction": 0.787078857421875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/royal/sword.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2860,7 +2860,7 @@
       "clearFraction": 0.8116226196289062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/royal/skirmish.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2881,7 +2881,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.tayson.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/royal/bow.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2901,7 +2901,7 @@
       "clearFraction": 0.7217636108398438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/tayson/royal/mounted.webp",
       "sourceSheet": "army-tayson"
     },
     {
@@ -2921,7 +2921,7 @@
       "clearFraction": 0.8358230590820312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/levy/spear.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -2941,7 +2941,7 @@
       "clearFraction": 0.8158340454101562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/levy/sword.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -2961,7 +2961,7 @@
       "clearFraction": 0.8403244018554688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/levy/skirmish.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -2982,7 +2982,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.nguyen.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/levy/bow.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3002,7 +3002,7 @@
       "clearFraction": 0.7493667602539062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/levy/mounted.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3022,7 +3022,7 @@
       "clearFraction": 0.8318862915039062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/trained/spear.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3042,7 +3042,7 @@
       "clearFraction": 0.8127059936523438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/trained/sword.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3062,7 +3062,7 @@
       "clearFraction": 0.8389739990234375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/trained/skirmish.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3083,7 +3083,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.nguyen.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/trained/bow.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3103,7 +3103,7 @@
       "clearFraction": 0.7486038208007812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/trained/mounted.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3123,7 +3123,7 @@
       "clearFraction": 0.8152618408203125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/royal/spear.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3143,7 +3143,7 @@
       "clearFraction": 0.7991790771484375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/royal/sword.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3163,7 +3163,7 @@
       "clearFraction": 0.8203811645507812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/royal/skirmish.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3184,7 +3184,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.nguyen.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/royal/bow.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3204,7 +3204,7 @@
       "clearFraction": 0.7415924072265625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/nguyen/royal/mounted.webp",
       "sourceSheet": "army-nguyen"
     },
     {
@@ -3224,7 +3224,7 @@
       "clearFraction": 0.7972640991210938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/levy/spear.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3244,7 +3244,7 @@
       "clearFraction": 0.7798080444335938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/levy/sword.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3264,7 +3264,7 @@
       "clearFraction": 0.7965774536132812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/levy/skirmish.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3285,7 +3285,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.song.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/levy/bow.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3305,7 +3305,7 @@
       "clearFraction": 0.71240234375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/levy/mounted.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3325,7 +3325,7 @@
       "clearFraction": 0.7813720703125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/trained/spear.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3345,7 +3345,7 @@
       "clearFraction": 0.7534408569335938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/trained/sword.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3365,7 +3365,7 @@
       "clearFraction": 0.7756423950195312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/trained/skirmish.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3386,7 +3386,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.song.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/trained/bow.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3406,7 +3406,7 @@
       "clearFraction": 0.7046051025390625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/trained/mounted.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3426,7 +3426,7 @@
       "clearFraction": 0.7544479370117188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/royal/spear.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3446,7 +3446,7 @@
       "clearFraction": 0.73309326171875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/royal/sword.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3466,7 +3466,7 @@
       "clearFraction": 0.7557830810546875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/royal/skirmish.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3487,7 +3487,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.song.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/royal/bow.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3507,7 +3507,7 @@
       "clearFraction": 0.6816177368164062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/song/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/song/royal/mounted.webp",
       "sourceSheet": "army-song"
     },
     {
@@ -3527,7 +3527,7 @@
       "clearFraction": 0.7902755737304688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/levy/spear.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3547,7 +3547,7 @@
       "clearFraction": 0.7665939331054688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/levy/sword.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3567,7 +3567,7 @@
       "clearFraction": 0.7930526733398438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/levy/skirmish.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3588,7 +3588,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.yuan.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/levy/bow.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3608,7 +3608,7 @@
       "clearFraction": 0.7099609375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/levy/mounted.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3628,7 +3628,7 @@
       "clearFraction": 0.7860946655273438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/trained/spear.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3648,7 +3648,7 @@
       "clearFraction": 0.7553558349609375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/trained/sword.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3668,7 +3668,7 @@
       "clearFraction": 0.7857742309570312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/trained/skirmish.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3689,7 +3689,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.yuan.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/trained/bow.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3709,7 +3709,7 @@
       "clearFraction": 0.7075576782226562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/trained/mounted.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3729,7 +3729,7 @@
       "clearFraction": 0.7592697143554688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/royal/spear.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3749,7 +3749,7 @@
       "clearFraction": 0.7344818115234375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/royal/sword.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3769,7 +3769,7 @@
       "clearFraction": 0.7560501098632812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/royal/skirmish.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3790,7 +3790,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.yuan.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/royal/bow.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3810,7 +3810,7 @@
       "clearFraction": 0.6884231567382812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/yuan/royal/mounted.webp",
       "sourceSheet": "army-yuan"
     },
     {
@@ -3830,7 +3830,7 @@
       "clearFraction": 0.8341751098632812,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/levy/spear.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -3850,7 +3850,7 @@
       "clearFraction": 0.8182144165039062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/levy/sword.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -3870,7 +3870,7 @@
       "clearFraction": 0.8397445678710938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/levy/skirmish.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -3891,7 +3891,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.ming.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/levy/bow.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -3911,7 +3911,7 @@
       "clearFraction": 0.7612838745117188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/levy/mounted.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -3931,7 +3931,7 @@
       "clearFraction": 0.8149566650390625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/trained/spear.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -3951,7 +3951,7 @@
       "clearFraction": 0.7980499267578125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/trained/sword.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -3971,7 +3971,7 @@
       "clearFraction": 0.820220947265625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/trained/skirmish.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -3992,7 +3992,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.ming.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/trained/bow.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -4012,7 +4012,7 @@
       "clearFraction": 0.7429275512695312,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/trained/mounted.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -4032,7 +4032,7 @@
       "clearFraction": 0.790008544921875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/royal/spear.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -4052,7 +4052,7 @@
       "clearFraction": 0.7712783813476562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/royal/sword.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -4072,7 +4072,7 @@
       "clearFraction": 0.7992477416992188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/royal/skirmish.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -4093,7 +4093,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.ming.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/royal/bow.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -4113,7 +4113,7 @@
       "clearFraction": 0.73272705078125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/ming/royal/mounted.webp",
       "sourceSheet": "army-ming"
     },
     {
@@ -4133,7 +4133,7 @@
       "clearFraction": 0.81982421875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/levy/spear.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4153,7 +4153,7 @@
       "clearFraction": 0.7978134155273438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/levy/sword.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4173,7 +4173,7 @@
       "clearFraction": 0.8308486938476562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/levy/skirmish.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4194,7 +4194,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.qing.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/levy/bow.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4214,7 +4214,7 @@
       "clearFraction": 0.7381744384765625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/levy/mounted.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4234,7 +4234,7 @@
       "clearFraction": 0.8166275024414062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/trained/spear.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4254,7 +4254,7 @@
       "clearFraction": 0.7892074584960938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/trained/sword.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4274,7 +4274,7 @@
       "clearFraction": 0.8215789794921875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/trained/skirmish.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4295,7 +4295,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.qing.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/trained/bow.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4315,7 +4315,7 @@
       "clearFraction": 0.7397689819335938,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/trained/mounted.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4335,7 +4335,7 @@
       "clearFraction": 0.789520263671875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/royal/spear.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4355,7 +4355,7 @@
       "clearFraction": 0.7677764892578125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/royal/sword.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4375,7 +4375,7 @@
       "clearFraction": 0.801910400390625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/royal/skirmish.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4396,7 +4396,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.qing.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/royal/bow.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4416,7 +4416,7 @@
       "clearFraction": 0.7173995971679688,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/qing/royal/mounted.webp",
       "sourceSheet": "army-qing"
     },
     {
@@ -4436,7 +4436,7 @@
       "clearFraction": 0.8323211669921875,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/levy/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/levy/spear.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4456,7 +4456,7 @@
       "clearFraction": 0.8140869140625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/levy/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/levy/sword.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4476,7 +4476,7 @@
       "clearFraction": 0.8344879150390625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/levy/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/levy/skirmish.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4497,7 +4497,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.champa.levy.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/levy/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/levy/bow.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4517,7 +4517,7 @@
       "clearFraction": 0.7446670532226562,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/levy/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/levy/mounted.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4537,7 +4537,7 @@
       "clearFraction": 0.8171157836914062,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/trained/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/trained/spear.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4557,7 +4557,7 @@
       "clearFraction": 0.8020553588867188,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/trained/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/trained/sword.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4577,7 +4577,7 @@
       "clearFraction": 0.8239288330078125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/trained/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/trained/skirmish.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4598,7 +4598,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.champa.trained.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/trained/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/trained/bow.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4618,7 +4618,7 @@
       "clearFraction": 0.740020751953125,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/trained/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/trained/mounted.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4638,7 +4638,7 @@
       "clearFraction": 0.7946929931640625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/royal/spear.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/royal/spear.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4658,7 +4658,7 @@
       "clearFraction": 0.7852935791015625,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/royal/sword.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/royal/sword.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4678,7 +4678,7 @@
       "clearFraction": 0.797454833984375,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/royal/skirmish.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/royal/skirmish.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4699,7 +4699,7 @@
       "sourceEdgePixels": 0,
       "approved": true,
       "derivedFrom": "figure.champa.royal.skirmish",
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/royal/bow.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/royal/bow.webp",
       "sourceSheet": "army-champa"
     },
     {
@@ -4719,7 +4719,7 @@
       "clearFraction": 0.7130966186523438,
       "sourceEdgePixels": 0,
       "approved": true,
-      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/royal/mounted.png",
+      "runtimePath": "public/art/conquest-dongho-v4/figure/champa/royal/mounted.webp",
       "sourceSheet": "army-champa"
     }
   ]

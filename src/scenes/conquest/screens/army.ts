@@ -45,7 +45,8 @@ import {
 } from '../../../game/ascentConfig';
 import { INK_UI, INK_UI_HEX } from '../../../ui/InkUI';
 import { UI_FONT } from '../../../ui/fonts';
-import { formatResourceList, heroName, t } from '../../../i18n';
+import { heroName, t } from '../../../i18n';
+import { resourceChips } from '../../../ui/costChips';
 import { formatNumber } from '../../../utils/format';
 import type { ArmyOrders, InvasionRecord } from '../../../state/types';
 import { ARMY_RATION_USE_PER_100 } from '../../../game/gameplayConfig';
@@ -155,11 +156,12 @@ export function showArmyScreen(self: ConquestUIScene): void {
     const commanded = field.landId === commandedLand;
     addRow(
       {
-        title: (commanded ? '▸ ' : '') + t('ascent.war.battleRow', {
+        title: t('ascent.war.battleRow', {
           land: field.landName,
           round: field.round,
           total: field.totalRounds,
         }),
+        icon: commanded ? 'banner' : undefined,
         subtitle: t(commanded ? 'ascent.war.battleBody' : 'ascent.war.battleBodyHeld', {
           ours: Math.round(field.ourNow),
           theirs: Math.round(field.theirNow),
@@ -397,6 +399,10 @@ export function showArmyScreen(self: ConquestUIScene): void {
           morale: Math.round(army.morale),
           supply: Math.round(army.supply),
         })}\n${statusLine}`,
+        // A host is its commander before it is its numbers: the face is what tells two hosts
+        // apart in a list, and a host without one wears the empty-post mark instead of nothing.
+        portrait: general,
+        vacantFace: !general,
 
         // Gold is the page's "worth your attention" ink and it now says two things on this row:
         // work under way, and a host worth the work. Trouble still outranks both — a starving
@@ -535,6 +541,7 @@ export function showArmyDetail(self: ConquestUIScene, armyId: string): void {
       border: locked ? INK_UI.softBrush : general ? INK_UI.gold : INK_UI.cinnabar,
       muted: locked,
       portrait: general,
+      vacantFace: !general,
     },
     locked ? undefined : () => self.showCommanderPicker(armyId),
   );
@@ -715,14 +722,14 @@ export function showArmyDetail(self: ConquestUIScene, armyId: string): void {
   const upgrades = getArmyUpgradeOptions(state, armyId).map((option) => ({
     title: t(`ascent.army.${option.kind}` as Parameters<typeof t>[0]),
     note: option.available
-      ? `${
-          option.kind === 'equip'
-            ? t('ascent.army.equipBody', { tier: option.gain })
-            : option.kind === 'reinforce'
-              ? t('ascent.army.reinforceTile', { n: option.gain, ticks: reinforcementTicks(option.gain) })
-              : t('ascent.army.drillBody', { level: option.gain })
-        }\n${formatResourceList(option.cost)}`
+      ? (option.kind === 'equip'
+          ? t('ascent.army.equipBody', { tier: option.gain })
+          : option.kind === 'reinforce'
+            ? t('ascent.army.reinforceTile', { n: option.gain, ticks: reinforcementTicks(option.gain) })
+            : t('ascent.army.drillBody', { level: option.gain }))
       : option.reason ?? '',
+    // The refit's price, in glyphs, under what it buys.
+    costs: option.available ? resourceChips(option.cost) : [],
     border: option.available ? INK_UI.gold : INK_UI.softBrush,
     muted: !option.available,
     // Reinforce is the one of the three with a *number* in it, so it asks for the number. The

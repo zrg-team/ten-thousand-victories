@@ -21,7 +21,7 @@ import { sawtoothBand } from '../../../ui/ink/devices';
 import { drawHouseSeal, houseBanner } from '../../../ui/ascent/houseBanner';
 import { THRONE_HALL_HEIGHT, throneHallDiorama } from '../../../ui/ascent/throneHall';
 import { CARD_STACK_PEEK, CardStack } from '../../../ui/ascent/CardStack';
-import { drawCardIcon, iconForOption } from '../../../ui/CardIcons';
+import { CARD_ICON_SIZE, drawCardIcon, iconForOption } from '../../../ui/CardIcons';
 import { addStoryPrint, powerStoryPrint } from '../../../ui/storyPrint';
 import { staggerIn } from '../../../ui/animations';
 import { captureScreen } from '../../../ui/captureScreen';
@@ -278,15 +278,15 @@ export function heroDeckPrompt(self: ConquestUIScene, opts: {
 
   // The arrows stay, for the mouse and for the player who has not tried the flick yet.
   if (opts.heroes.length > 1) {
-    const arrow = (x: number, glyph: string, step: number): void => {
-      const hit = self.add.text(x, stripY + 12, glyph, {
-        color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '20px',
-      }).setOrigin(0.5, 0).setInteractive({ useHandCursor: true });
+    const arrow = (x: number, step: number): void => {
+      const glyph = drawCardIcon(self, 'retreat').setPosition(x, stripY + 23).setScale(20 / CARD_ICON_SIZE);
+      if (step > 0) glyph.setScale(-20 / CARD_ICON_SIZE, 20 / CARD_ICON_SIZE);
+      const hit = self.add.zone(x, stripY + 23, 32, 40).setInteractive({ useHandCursor: true });
       hit.on('pointerup', () => stack.browse(step));
-      self.modalLayer.add(hit);
+      self.modalLayer.add([glyph, hit]);
     };
-    arrow(content.x + 10, '◀', -1);
-    arrow(content.x + content.width - 10, '▶', 1);
+    arrow(content.x + 10, -1);
+    arrow(content.x + content.width - 10, 1);
   }
 
   const footerY = GAME_HEIGHT - PROMPT_FOOTER_HEIGHT + 8;

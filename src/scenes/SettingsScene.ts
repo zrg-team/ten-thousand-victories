@@ -6,10 +6,13 @@ import { applyUpdate, buildStamp, checkForUpdate, getUpdateStatus, subscribeUpda
 import { BACK_BAR_BAND, BACK_BAR_HEIGHT, InkUI, INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type InkScrollArea } from '../ui/InkUI';
 import {
   BATTLE_DIFFICULTIES,
+  BATTLE_HINTS,
   BATTLE_SPEEDS,
   getBattleDifficulty,
+  getBattleHints,
   getBattleSpeed,
   setBattleDifficulty,
+  setBattleHints,
   setBattleSpeed,
 } from '../game/battleOptions';
 import { TITLE_FONT, UI_FONT } from '../ui/fonts';
@@ -303,6 +306,16 @@ export class SettingsScene extends Phaser.Scene {
         options: BATTLE_SPEEDS.map((id) => ({ id, label: t(`arena.speed.${id}` as 'arena.speed.slow') })),
         current: getBattleSpeed(),
         pick: (id) => { setBattleSpeed(id as typeof BATTLE_SPEEDS[number]); this.render(true); },
+      },
+      // Whether the dock answers the question for you. Hidden, the fight still says you are
+      // losing — the loss numbers never go away — and finding the shape that fixes it is the
+      // player's job. A run hides them from wave 30 whatever this says, and hard and nightmare
+      // never had them; see `battleRimsShown`.
+      {
+        name: t('menu.battleHints'),
+        options: BATTLE_HINTS.map((id) => ({ id, label: t(`menu.battleHints.${id}` as 'menu.battleHints.show') })),
+        current: getBattleHints(),
+        pick: (id) => { setBattleHints(id as typeof BATTLE_HINTS[number]); this.render(true); },
       },
     ];
     const sound: Row[] = [

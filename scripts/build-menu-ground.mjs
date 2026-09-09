@@ -18,7 +18,7 @@
  *
  *   node scripts/build-menu-ground.mjs
  *
- * Reads `public/art/menu-layer-ground-v5.png` and writes `menu-layer-ground-v6.png` beside it.
+ * Reads `public/art/menu-layer-ground-v5.png` and writes `menu-layer-ground-v6.webp` beside it.
  * Nothing below the horizon is touched: the near bank and the plate's own margins are part of
  * the drawing, not background.
  */
@@ -26,7 +26,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 
 const SOURCE = 'public/art/menu-layer-ground-v5.png';
-const TARGET = 'public/art/menu-layer-ground-v6.png';
+const TARGET = 'public/art/menu-layer-ground-v6.webp';
 
 const browser = await chromium.launch();
 try {

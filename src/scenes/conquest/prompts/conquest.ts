@@ -26,6 +26,7 @@ import { iconForOption } from '../../../ui/CardIcons';
 import { staggerIn } from '../../../ui/animations';
 import { motionMs } from '../../../game/lifeSettings';
 import { formatResourceList, heroName, t } from '../../../i18n';
+import { resourceChips, seasonsChip, type CostChip } from '../../../ui/costChips';
 import type { AscentPrompt, ConquestMethodOption, ConquestTarget } from '../../../state/types';
 import { PROMPT_FOOTER_HEIGHT, RARITY_COLOR } from '../constants';
 import { promptFoot } from './frame';
@@ -315,6 +316,10 @@ export function showConquerTarget(self: ConquestUIScene, prompt: Extract<AscentP
  * The price tag on a method card, on one line: cost, duration, resulting loyalty, and the
  * odds. Kept to a single line deliberately — it sits in the card's fixed-height note slot,
  * and a second line would be clipped by the card edge.
+ *
+ * Still the whole tag in words for the confirm page, which is a paragraph and has no chips.
+ * The sheet itself splits it: `methodPriceChips` draws what it costs and how long it takes,
+ * `methodOutcomeTag` writes what it leaves behind.
  */
 function methodPriceTag(option: ConquestMethodOption): string {
   const parts: string[] = [
@@ -323,9 +328,24 @@ function methodPriceTag(option: ConquestMethodOption): string {
       : t('ascent.conquer.free'),
   ];
   if (option.ticks > 0) parts.push(t('ascent.conquer.ticks', { n: option.ticks }));
-  parts.push(t('ascent.conquer.loyalty', { n: option.loyalty }));
-  parts.push(option.chance >= 100 ? t('ascent.conquer.certain') : t('ascent.conquer.chance', { pct: option.chance }));
+  parts.push(methodOutcomeTag(option));
   return parts.join('  ·  ');
+}
+
+/** What the method costs and how many seasons it eats — glyphs, not words. */
+function methodPriceChips(option: ConquestMethodOption): CostChip[] {
+  return [
+    ...resourceChips(option.cost),
+    ...(option.ticks > 0 ? [seasonsChip(option.ticks)] : []),
+  ];
+}
+
+/** What the province is like afterwards: the loyalty it lands on, and the odds of getting it. */
+function methodOutcomeTag(option: ConquestMethodOption): string {
+  return [
+    t('ascent.conquer.loyalty', { n: option.loyalty }),
+    option.chance >= 100 ? t('ascent.conquer.certain') : t('ascent.conquer.chance', { pct: option.chance }),
+  ].join('  ·  ');
 }
 
 /**
@@ -378,7 +398,11 @@ export function showConquerMethod(self: ConquestUIScene, target: ConquestTarget,
         badge: blocked ? undefined : t('ascent.conquer.settleBadge', {
           pct: Math.round((0.6 + 0.4 * (option.loyalty / 100)) * 100),
         }),
-        note: option.blockedReason ?? methodPriceTag(option),
+        costs: blocked ? [] : methodPriceChips(option),
+        note: option.blockedReason
+          ?? (methodPriceChips(option).length === 0
+            ? `${t('ascent.conquer.free')}  ·  ${methodOutcomeTag(option)}`
+            : methodOutcomeTag(option)),
         noteColor: blocked ? '#6f6250' : undefined,
         accent: blocked ? INK_UI.softBrush : option.chance >= 60 ? INK_UI.jade : INK_UI.gold,
         disabled: blocked,

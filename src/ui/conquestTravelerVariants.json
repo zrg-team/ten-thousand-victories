@@ -1,7 +1,7 @@
 {
   "life.traveler-basket": {
-    "stillPath": "art/conquest-travelers-v1/life/traveler-basket.png",
-    "path": "art/conquest-travelers-v1/life/traveler-basket-walk.png",
+    "stillPath": "art/conquest-travelers-v1/life/traveler-basket.webp",
+    "path": "art/conquest-travelers-v1/life/traveler-basket-walk.webp",
     "frameWidth": 627,
     "frameHeight": 627,
     "contentHeight": 550,
@@ -19,8 +19,8 @@
     ]
   },
   "life.traveler-fisher": {
-    "stillPath": "art/conquest-travelers-v1/life/traveler-fisher.png",
-    "path": "art/conquest-travelers-v1/life/traveler-fisher-walk.png",
+    "stillPath": "art/conquest-travelers-v1/life/traveler-fisher.webp",
+    "path": "art/conquest-travelers-v1/life/traveler-fisher-walk.webp",
     "frameWidth": 627,
     "frameHeight": 627,
     "contentHeight": 550,
@@ -38,8 +38,8 @@
     ]
   },
   "life.traveler-merchant": {
-    "stillPath": "art/conquest-travelers-v1/life/traveler-merchant.png",
-    "path": "art/conquest-travelers-v1/life/traveler-merchant-walk.png",
+    "stillPath": "art/conquest-travelers-v1/life/traveler-merchant.webp",
+    "path": "art/conquest-travelers-v1/life/traveler-merchant-walk.webp",
     "frameWidth": 627,
     "frameHeight": 627,
     "contentHeight": 550,
@@ -57,8 +57,8 @@
     ]
   },
   "life.traveler-pilgrim": {
-    "stillPath": "art/conquest-travelers-v1/life/traveler-pilgrim.png",
-    "path": "art/conquest-travelers-v1/life/traveler-pilgrim-walk.png",
+    "stillPath": "art/conquest-travelers-v1/life/traveler-pilgrim.webp",
+    "path": "art/conquest-travelers-v1/life/traveler-pilgrim-walk.webp",
     "frameWidth": 627,
     "frameHeight": 627,
     "contentHeight": 550,
@@ -76,8 +76,8 @@
     ]
   },
   "life.traveler-woodcutter": {
-    "stillPath": "art/conquest-travelers-v1/life/traveler-woodcutter.png",
-    "path": "art/conquest-travelers-v1/life/traveler-woodcutter-walk.png",
+    "stillPath": "art/conquest-travelers-v1/life/traveler-woodcutter.webp",
+    "path": "art/conquest-travelers-v1/life/traveler-woodcutter-walk.webp",
     "frameWidth": 627,
     "frameHeight": 627,
     "contentHeight": 550,

@@ -14,7 +14,8 @@ import { storyText } from '../../../i18n/story';
 import { INK_UI, INK_UI_HEX } from '../../../ui/InkUI';
 import { iconForOption } from '../../../ui/CardIcons';
 import { UI_FONT } from '../../../ui/fonts';
-import { formatResourceList, heroName, t } from '../../../i18n';
+import { heroName, t } from '../../../i18n';
+import { resourceChips } from '../../../ui/costChips';
 import type { AscentPrompt } from '../../../state/types';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 
@@ -77,8 +78,9 @@ export function showStoryBeat(self: ConquestUIScene, prompt: Extract<AscentPromp
         iconArt: 'story',
         title: storyText(key(option.id), prompt.params),
         body: storyText(key(`${option.id}.d`), prompt.params),
+        costs: resourceChips(option.cost, option.affordable ? undefined : INK_UI.cinnabar),
         note: option.cost
-          ? (option.affordable ? formatResourceList(option.cost) : t('ascent.response.cantAfford'))
+          ? (option.affordable ? undefined : t('ascent.response.cantAfford'))
           : (!option.affordable && option.blockedKey
             ? storyText(key(option.blockedKey), prompt.params)
             : undefined),

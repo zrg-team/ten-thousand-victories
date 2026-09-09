@@ -1,3 +1,4 @@
+import { addConquestUiIcon } from './conquestUiIcons';
 import Phaser from 'phaser';
 import type { LandBuildingType } from '../state/types';
 import { compactNumber } from '../utils/format';
@@ -188,9 +189,8 @@ export class AtlasMapItemRenderer implements MapItemRenderer {
     wedge.fillStyle(accent, 0.9);
     wedge.slice(0, 0, 12, Phaser.Math.DegToRad(-90), Phaser.Math.DegToRad(-90 + ratio * 360), false);
     wedge.fillPath();
-    const glyph = this.scene.add.text(0, -1, variant === 'build' ? '⌁' : variant === 'siege' ? '⚔' : variant === 'recruit' ? '⚑' : '●', {
-      color: '#2f261d', fontSize: '13px', fontStyle: '700',
-    }).setOrigin(0.5);
+    const icon = { build: 'hammer', siege: 'ladder', battle: 'crossed-weapons', recruit: 'banner', acquisition: 'coin' } as const;
+    const glyph = addConquestUiIcon(this.scene, icon[variant], 24).setY(-1);
     const text = this.scene.add.text(0, 22, `${Math.round(progress)}/${Math.round(required)}`, {
       color: '#f8f0d7', fontSize: '9px', fontStyle: '700', backgroundColor: '#4a3b2b', padding: { x: 3, y: 1 },
     }).setOrigin(0.5);

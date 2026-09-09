@@ -46,7 +46,7 @@ for (const [name, appearance] of [['icon.png', undefined], ['icon-tinted.png', '
 writeFileSync(join(iosSet, 'Contents.json'), JSON.stringify({ images: iosImages, info: { version: 1, author: 'xcode' } }, null, 2) + '\n');
 cpSync(iosSet, join(out, 'ios/AppIcon.appiconset'), { recursive: true });
 for (const name of ['icon.png', 'icon-tinted.png', 'adaptive-icon.png', 'monochrome-icon.png', 'splash.png']) copy(join(assets, name), join(out, 'expo', name));
-for (const name of ['favicon.ico', 'favicon-16.png', 'favicon-32.png', 'favicon-48.png', 'favicon-96.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'icon.svg', 'icon-maskable.svg', 'favicon.svg', 'manifest.webmanifest', 'app-emblem.png']) copy(join(root, 'public', name), join(out, 'web', name));
+for (const name of ['favicon.ico', 'favicon-16.png', 'favicon-32.png', 'favicon-48.png', 'favicon-96.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'icon.svg', 'icon-maskable.svg', 'favicon.svg', 'manifest.webmanifest', 'app-emblem.webp']) copy(join(root, 'public', name), join(out, 'web', name));
 copy(join(root, 'apps/mobile/store/ios/icon/app-store-icon-1024.png'), join(out, 'ios/app-store-icon-1024.png'));
 for (const name of ['favicon-river-v9.ico', ...[16, 32, 48, 96].map(size => `favicon-river-v9-${size}.png`)]) copy(join(root, 'public', name), join(out, 'web', name));
 copy(join(root, 'apps/mobile/store/android/icon/play-store-icon-512.png'), join(out, 'android/play-store-icon-512.png'));

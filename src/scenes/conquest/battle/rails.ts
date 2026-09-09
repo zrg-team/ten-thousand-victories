@@ -103,8 +103,8 @@ export function buildBattleRails(self: ConquestUIScene, battle: AscentBattle): v
 
   // The same two pictograms on each side label what the bars measure.
   for (const x of [ui.railsGeom.ourX, ui.railsGeom.theirX]) {
-    readout.add(drawCardIcon(self, 'person', PIGMENT.muc).setPosition(x + 5, readoutY + 31).setScale(12 / CARD_ICON_SIZE));
-    readout.add(drawCardIcon(self, 'heart', PIGMENT.nau).setPosition(x + 5, readoutY + 44).setScale(10 / CARD_ICON_SIZE));
+    readout.add(drawCardIcon(self, 'person', PIGMENT.muc).setPosition(x + 5, readoutY + 31).setScale(14 / CARD_ICON_SIZE));
+    readout.add(drawCardIcon(self, 'heart', PIGMENT.nau).setPosition(x + 5, readoutY + 44).setScale(12 / CARD_ICON_SIZE));
   }
 
   // One graphics for all four measured lines, cleared and re-inked on the beat. Four containers

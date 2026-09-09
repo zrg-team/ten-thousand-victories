@@ -22,6 +22,7 @@ import { heroTitleLine } from '../../../ui/heroPickerRows';
 import { eraLabel } from '../../../systems/empire/MandateSystem';
 import { INK_UI } from '../../../ui/InkUI';
 import { arrivalPreview } from '../../../data/heroArrivals';
+import { resourceChips } from '../../../ui/costChips';
 import { staggerIn } from '../../../ui/animations';
 import {
   formatResourceList,
@@ -368,7 +369,8 @@ export function showParliament(self: ConquestUIScene, prompt: Extract<AscentProm
       {
         title: politicsChoiceLabel(choice),
         body: politicsChoiceDescription(choice),
-        note: cost.length > 0 ? formatResourceList(costBag) : undefined,
+        costs: resourceChips(costBag, affordable ? undefined : INK_UI.cinnabar),
+        note: affordable ? undefined : t('ascent.response.cantAfford'),
         noteColor: affordable ? undefined : '#a4402c',
         accent: affordable ? INK_UI.jade : INK_UI.softBrush,
         disabled: !affordable,

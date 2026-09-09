@@ -158,6 +158,26 @@ window.__fpsProbe = (seconds = 3) => new Promise((resolve) => {
   requestAnimationFrame(tick);
 });
 
+/**
+ * The one house mark on the menu, wherever it is stamped.
+ *
+ * It hung under the wordmark on the desktop title page and was a top-level child; it is pressed
+ * on the Triều đại tablet now, which is a container, and a flat `children.list.find` reported no
+ * sign at all — a hook that quietly returns `undefined` is a harness that quietly passes.
+ */
+function findKingdomSign(objects: Phaser.GameObjects.GameObject[]): unknown {
+  for (const object of objects) {
+    const mark = object.getData?.('menuKingdomSign');
+    if (mark) return mark;
+    const nested = (object as Phaser.GameObjects.Container).list;
+    if (Array.isArray(nested)) {
+      const found = findKingdomSign(nested);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
 window.render_game_to_text = () => {
   const loading = pageLoadingState();
   if (loading) return JSON.stringify(loading);
@@ -167,11 +187,19 @@ window.render_game_to_text = () => {
   if (window.__phaserGame?.scene.isActive('GuideScene')) {
     return JSON.stringify((window.__phaserGame.scene.getScene('GuideScene') as GuideScene).guideState());
   }
+  if (window.__phaserGame?.scene.isActive('BattleArenaScene')) {
+    const arena = window.__phaserGame.scene.getScene('BattleArenaScene') as Phaser.Scene & {
+      resultState(): Record<string, unknown>;
+    };
+    return JSON.stringify(arena.resultState());
+  }
   if (window.__phaserGame?.scene.isActive('MenuScene')) {
     const menu = window.__phaserGame.scene.getScene('MenuScene') as Phaser.Scene & { templeSheet?: CoronationSheet };
     return JSON.stringify({
       mode: 'menu',
-      kingdomSign: menu.children.list.find(o => o.getData('menuKingdomSign'))?.getData('menuKingdomSign'),
+      // The mark is stamped inside the Triều đại tablet now, so the search walks containers
+      // rather than reading the scene's top level.
+      kingdomSign: findKingdomSign(menu.children.list),
       bannerEditor: menu.templeSheet?.bannerState(),
       wardrobe: menu.templeSheet?.wardrobeState(),
       language: getLanguage(),
@@ -217,6 +245,14 @@ window.render_game_to_text = () => {
     if (object instanceof Phaser.GameObjects.Container) object.list.forEach(readIllustration);
   };
   if (ascentUi?.modalLayer) readIllustration(ascentUi.modalLayer);
+  const generatedUiIcons = new Set<string>();
+  const readUiIcons = (object: Phaser.GameObjects.GameObject): void => {
+    if ('visible' in object && !object.visible) return;
+    const art = object.getData('conquestUiIcon') as { id: string; source: string } | undefined;
+    if (art?.source === 'generated') generatedUiIcons.add(art.id);
+    if (object instanceof Phaser.GameObjects.Container) object.list.forEach(readUiIcons);
+  };
+  ascentUi?.children.list.forEach(readUiIcons);
 
   return JSON.stringify({
     coordinateSystem: 'Phaser canvas pixels, origin top-left, x right, y down',
@@ -337,6 +373,7 @@ window.render_game_to_text = () => {
             screen: ascentUi?.openPromptKey || 'map',
             storyIllustration,
             storyChoiceIcons: storyChoiceIcons.length ? storyChoiceIcons : undefined,
+            generatedUiIcons: [...generatedUiIcons].sort(),
             bannerEditor: state.pendingAscentPrompt?.kind === 'coronation' ? ascentUi?.coronationSheet?.bannerState() : undefined,
             wardrobe: state.pendingAscentPrompt?.kind === 'coronation' ? ascentUi?.coronationSheet?.wardrobeState() : undefined,
             chronicleTab: ascentUi?.openPromptKey === 'lane:chronicle'

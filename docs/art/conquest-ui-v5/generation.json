@@ -1,0 +1,139 @@
+{
+  "mode": "built-in ImageGen",
+  "assets": [
+    {
+      "id": "spears",
+      "generatedSource": "output/conquest-ui-v3/masters/spears.png",
+      "master": "output/conquest-ui-v5/masters/spears.png",
+      "sha256": "e7528d14da7c2ed9e950752aea528497e5c78ce2e00640f99f932872b435ae3b",
+      "crop": [
+        82,
+        177,
+        1241,
+        1088
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v5-prompts.json#spears",
+      "troopFraming": {
+        "sourceUnitHeight": 685,
+        "targetUnitHeight": 60,
+        "poseHeightFactor": 1,
+        "scale": 0.08759124087591241,
+        "fittedSize": [
+          102,
+          80
+        ]
+      }
+    },
+    {
+      "id": "horse",
+      "generatedSource": "output/conquest-ui-v4/masters/horse.png",
+      "master": "output/conquest-ui-v5/masters/horse.png",
+      "sha256": "94b689e9c8380dad2ada3d10102f82a10f9ac2a61e46676813e4dd999d8fba4f",
+      "crop": [
+        20,
+        184,
+        1249,
+        1106
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v5-prompts.json#horse",
+      "troopFraming": {
+        "sourceUnitHeight": 616,
+        "targetUnitHeight": 54.0,
+        "poseHeightFactor": 0.9,
+        "scale": 0.08766233766233766,
+        "fittedSize": [
+          108,
+          81
+        ]
+      }
+    },
+    {
+      "id": "skirmish",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-b6e0ee5e-619b-4ba6-895a-bc4b55bfb096.png",
+      "master": "output/conquest-ui-v5/masters/skirmish.png",
+      "sha256": "433377291f582f1526703d16c8b6bc69798cdf2a29fed3bc59b1a4b40bed4c98",
+      "crop": [
+        37,
+        157,
+        1247,
+        1140
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v5-prompts.json#skirmish",
+      "troopFraming": {
+        "sourceUnitHeight": 692,
+        "targetUnitHeight": 60,
+        "poseHeightFactor": 1,
+        "scale": 0.08670520231213873,
+        "fittedSize": [
+          105,
+          85
+        ]
+      }
+    },
+    {
+      "id": "tortoise",
+      "generatedSource": "output/conquest-ui-v4/masters/tortoise.png",
+      "master": "output/conquest-ui-v5/masters/tortoise.png",
+      "sha256": "04f6bca884cd7e58088a4ed80e13d07b9ef9bd0d3176062283d6509bddc8b1ae",
+      "crop": [
+        190,
+        78,
+        1057,
+        1170
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v5-prompts.json#tortoise",
+      "troopFraming": {
+        "sourceUnitHeight": 815,
+        "targetUnitHeight": 60,
+        "poseHeightFactor": 1,
+        "scale": 0.0736196319018405,
+        "fittedSize": [
+          64,
+          80
+        ]
+      }
+    },
+    {
+      "id": "bows",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-1978648c-0c50-4ae1-8696-5ad48e35b928.png",
+      "master": "output/conquest-ui-v5/masters/bows.png",
+      "sha256": "43b43d56b5bd8e3eb833ac86a0bfd1169a6135c1c9fad0e82e45341fb6f4a176",
+      "crop": [
+        87,
+        125,
+        1194,
+        1222
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v5-prompts.json#bows",
+      "troopFraming": {
+        "sourceUnitHeight": 740,
+        "targetUnitHeight": 60,
+        "poseHeightFactor": 1,
+        "scale": 0.08108108108108109,
+        "fittedSize": [
+          90,
+          89
+        ]
+      }
+    },
+    {
+      "id": "crossed-weapons",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-42d8f674-39e2-42cd-affe-6d6344909392.png",
+      "master": "output/conquest-ui-v5/masters/crossed-weapons.png",
+      "sha256": "30c1dfbdc6bf4dc32e934dda5b45eda8f6f5ed50f8cdf2c55d9c1966f093a523",
+      "crop": [
+        49,
+        48,
+        1206,
+        1199
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v5-prompts.json#crossed-weapons"
+    }
+  ]
+}

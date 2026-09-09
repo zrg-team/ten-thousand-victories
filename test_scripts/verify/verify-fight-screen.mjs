@@ -40,7 +40,8 @@ const openFight = async (lang, where) => {
   });
   await page.addInitScript((code) => localStorage.setItem('mandate:language:v1', code), lang);
   await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => typeof window.__startBenchGame === 'function', null, { timeout: 30000 });
+  await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
+    && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 60000 });
   await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await page.evaluate(() => window.__splashDone?.());

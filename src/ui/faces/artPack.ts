@@ -7,11 +7,11 @@ export const HERO_FACE_ART_PACKS = {
   legacy: { id: 'legacy', texture: 'face:atlas', image: 'faces/atlas.svg', atlas: 'faces/atlas.json' },
   'dongho-v1': {
     id: 'dongho-v1', texture: 'face:atlas:dongho-v1',
-    image: 'faces-dongho-v1/atlas.png', atlas: 'faces-dongho-v1/atlas.json',
+    image: 'faces-dongho-v1/atlas.webp', atlas: 'faces-dongho-v1/atlas.json',
   },
   'dongho-v2': {
     id: 'dongho-v2', texture: 'face:atlas:dongho-v2',
-    image: 'faces-dongho-v2/atlas.png', atlas: 'faces-dongho-v2/atlas.json',
+    image: 'faces-dongho-v2/atlas.webp', atlas: 'faces-dongho-v2/atlas.json',
   },
 } as const;
 

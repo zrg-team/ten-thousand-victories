@@ -54,19 +54,32 @@ const visits = await menu.evaluate(async () => {
     signs.push(JSON.parse(window.render_game_to_text()).kingdomSign);
   }
   const panel = m.content.find(o => o.getData('desktopMenuPanel'));
-  const mark = m.content.find(o => o.getData('menuKingdomSign'));
+  // The sign is stamped inside the Trieu dai tablet now, not under the wordmark, so both the
+  // count and the position are read through the container rather than off the scene's top level.
+  const walk = (list, out = []) => {
+    for (const o of list) {
+      if (o.getData?.('menuKingdomSign')) out.push(o);
+      if (Array.isArray(o.list)) walk(o.list, out);
+    }
+    return out;
+  };
+  const tablet = m.content.find(o => o.getData('menuTablet') === 'dynasty');
+  const box = tablet?.getData('tabletBox');
+  const mark = tablet ? walk(tablet.list)[0] : undefined;
   return { signs, unchanged: before === localStorage.getItem('mandate:dynasty:v1')
     && legacy === localStorage.getItem('mandate:legacy:v1'), saved: getDynasty().founder.banner,
-    centred: Math.abs(mark.x - panel.x - panel.getData('desktopMenuPanel').width / 2) < 0.01,
-    y: mark.y - panel.y, noInput: !mark.input,
-    marks: m.children.list.filter(o => o.getData('menuKingdomSign')).length,
+    onTablet: Boolean(mark),
+    // At the head of the row and on its centre line.
+    atHead: mark ? mark.x > 0 && mark.x < box.width * 0.2 && Math.abs(mark.y - box.height / 2) <= 1 : false,
+    noInput: !mark?.input,
+    marks: walk(m.children.list).length,
     plainPaper: panel.texture.key.includes(':plain') };
 });
 check(visits.signs.every(s => s.emblem === 'blade' && s.field === 0x26313c && s.trim === 0xf3e6c4 && s.source === 'dynasty'),
   '40 menu visits keep the saved sword and both chosen colours');
 check(visits.unchanged && visits.saved.emblem === 'blade', 'rendering never alters saved design, ownership or currency');
-check(visits.centred && visits.y === 130 && visits.noInput && visits.marks === 1 && visits.plainPaper,
-  'one shared sign replaces the baked lotus at the original seal position', visits);
+check(visits.onTablet && visits.atHead && visits.noInput && visits.marks === 1 && visits.plainPaper,
+  'one shared sign, pressed at the head of the dynasty row', visits);
 await menu.screenshot({ path: `${out}/desktop-menu.png` });
 writeFileSync(`${out}/menu-state.json`, await menu.evaluate(() => window.render_game_to_text()));
 const lastVisit = visits.signs.at(-1);

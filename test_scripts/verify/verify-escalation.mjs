@@ -38,6 +38,23 @@ const out = await page.evaluate(async () => {
   O.setBattleEscalationWave(20);  // nightmare floor — no bubbles, never a beat of rest
   r.w20 = { react: O.battleReactDelay(), bubble: O.battleBubbleMs(), answersEven: O.battleAnswersEven() };
 
+  // ── The counter marks ──
+  //
+  // Three separate ways for them to go, and each has to work on its own: the player asking in
+  // Settings, the tier the invader is playing at, and the wave the run has reached.
+  O.setBattleDifficulty('easy');
+  O.setBattleEscalationWave(0);
+  O.setBattleHints('hide');
+  r.hintsOffByChoice = O.battleRimsShown();
+  O.setBattleHints('show');
+  r.hintsBackOn = O.battleRimsShown();
+  // Wave 30 takes them whatever the player set, and on the gentlest enemy there is.
+  O.setBattleEscalationWave(30);
+  r.hintsGoneLate = O.battleRimsShown();
+  O.setBattleEscalationWave(0);
+  // Outside a run — the arena, a classic siege — the wave is 0 and the choice is the player's.
+  r.hintsHomeAgain = O.battleRimsShown();
+
   // A player already at the top: the ladder has nothing to add, at any wave.
   O.setBattleDifficulty('nightmare');
   O.setBattleSpeed('fast');
@@ -73,6 +90,7 @@ const out = await page.evaluate(async () => {
   O.setBattleEscalationWave(0);
   O.setBattleDifficulty('medium');
   O.setBattleSpeed('normal');
+  O.setBattleHints('show');
   return r;
 });
 
@@ -94,6 +112,10 @@ report([
   ['strength above threshold is answered, monotonically', out.curve.above > 1
     && out.curve.higher > out.curve.above, JSON.stringify(out.curve)],
   ['the answer is capped', out.curve.capped === out.curve.cap, `${out.curve.capped} vs cap ${out.curve.cap}`],
+  ['the marks go out when the player asks', out.hintsOffByChoice === false, ''],
+  ['and come back when they ask again', out.hintsBackOn === true, ''],
+  ['wave 30 takes the marks on the gentlest setting there is', out.hintsGoneLate === false, ''],
+  ['outside a run the choice belongs to the player again', out.hintsHomeAgain === true, ''],
   ['the Skirmish pin beats profile and wave caps', out.pinBeatsCaps === 6000, `got ${out.pinBeatsCaps}`],
   ['pin -1 keeps the words forever', out.pinAlways === Infinity, `got ${out.pinAlways}`],
   ['pin 0 silences the field', out.pinNone === 0, `got ${out.pinNone}`],

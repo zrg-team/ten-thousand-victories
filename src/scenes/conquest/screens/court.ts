@@ -74,6 +74,22 @@ export function showHeroesScreen(self: ConquestUIScene): void {
 ${t('ascent.screen.payroll', { gold: heroPayroll(state) })}`,
   );
 
+  // **A page with nothing on it says nothing.**
+  //
+  // A run opens with no champions at all, and this screen opened as a title, a paragraph and
+  // half a screen of empty paper — no card, no mark, nothing to tell the player that the list
+  // is empty on purpose or where champions come from. The empty seat now looks like the empty
+  // seats everywhere else in the mode: the dashed portrait frame, and a line saying who fills it.
+  if (champions.length === 0) {
+    addRow({
+      title: t('ascent.screen.noChampions'),
+      subtitle: t('ascent.screen.noChampionsBody'),
+      border: INK_UI.softBrush,
+      vacantFace: true,
+      muted: true,
+    });
+  }
+
   // Unposted first: the most common reason to open this screen.
   const ordered = [...champions].sort(
     (a, b) => Number(Boolean(a.assignedTo)) - Number(Boolean(b.assignedTo)),
@@ -427,6 +443,10 @@ export function showCourtScreen(self: ConquestUIScene): void {
     const hero = state.heroes.find((candidate) => candidate.id === state.court.seats[seat]);
     return {
       title: getCourtPositionLabel(seat),
+      // Held, vacant, shut — three states, three glyphs, before a word is read. A vacancy is the
+      // one the player can do something about today, so it carries the same person mark the
+      // province sheet's empty post now does.
+      icon: hero ? 'person' : unlocked ? 'person' : 'hourglass',
       note: hero
         ? `${heroName(hero)} — ${seatedEffectSummary(state, seat) ?? ''}`
         : unlocked ? t('ascent.lane.seatEmpty') : t('ascent.lane.seatLocked'),

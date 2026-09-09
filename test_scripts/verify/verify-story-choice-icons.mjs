@@ -5,8 +5,8 @@ const out = 'output/story-choice-icons/verification';
 mkdirSync(out, { recursive: true });
 const checks = [], errors = [];
 const check = (ok, name, detail) => { checks.push({ ok: !!ok, name, detail }); console.log(`${ok ? 'PASS' : 'FAIL'} ${name}`); };
-const atlas = JSON.parse(readFileSync('public/art/story-choice-icons/icons-v1.json', 'utf8'));
-check(Object.keys(atlas.frames).length === 14, 'fourteen generated motifs packed in one atlas');
+const atlas = JSON.parse(readFileSync('public/art/conquest-ui-icons/icons-v5.json', 'utf8'));
+check(Object.keys(atlas.frames).length === 57, 'story motifs share the complete generated UI atlas');
 const browser = await chromium.launch();
 for (const [width, height, language] of [[390, 844, 'vi'], [390, 620, 'en'], [1440, 900, 'vi']]) {
   const tag = `${language}-${width}-${height}`;
@@ -20,7 +20,7 @@ for (const [width, height, language] of [[390, 844, 'vi'], [390, 620, 'en'], [14
   }, language);
   await page.goto(`${process.env.DEV_URL ?? 'http://127.0.0.1:5183'}/?capture=1&noladder=1&layout=${width > 700 ? 'desktop' : 'phone'}`);
   await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 60000 });
-  check(await page.evaluate(() => !window.__phaserGame.textures.exists('story-choice-icons:v1')), `${tag}: menu does not download the choice atlas`);
+  check(await page.evaluate(() => window.__phaserGame.textures.exists('conquest-ui-icons:v5')), `${tag}: shared UI atlas is ready before gameplay`);
   await page.evaluate(() => window.__startBenchGame(20260908, 'ascent'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'));
   await page.evaluate(() => {
@@ -38,19 +38,19 @@ for (const [width, height, language] of [[390, 844, 'vi'], [390, 620, 'en'], [14
     const { storyText } = await import('/src/i18n/story/index.ts');
     const ui = window.__phaserGame.scene.getScene('ConquestUIScene');
     const invalid = [], samples = {}, pixels = [];
-    const tx = ui.textures.get('story-choice-icons:v1');
+    const tx = ui.textures.get('conquest-ui-icons:v5');
     const cv = document.createElement('canvas');
-    cv.width = 160; cv.height = 160;
+    cv.width = 120; cv.height = 120;
     const ctx = cv.getContext('2d', { willReadFrequently: true });
     for (const id of STORY_CHOICE_ICON_IDS) {
       const f = tx.get(id);
-      ctx.clearRect(0, 0, 160, 160);
-      ctx.drawImage(tx.getSourceImage(), f.cutX, f.cutY, f.cutWidth, f.cutHeight, 0, 0, 160, 160);
-      const data = ctx.getImageData(0, 0, 160, 160).data;
+      ctx.clearRect(0, 0, 120, 120);
+      ctx.drawImage(tx.getSourceImage(), f.cutX, f.cutY, f.cutWidth, f.cutHeight, 0, 0, 120, 120);
+      const data = ctx.getImageData(0, 0, 120, 120).data;
       let opaque = 0, transparent = 0, edge = 0;
-      for (let i = 0; i < 160 * 160; i++) {
+      for (let i = 0; i < 120 * 120; i++) {
         const a = data[i * 4 + 3]; if (a > 240) opaque++; if (!a) transparent++;
-        if ((i % 160 === 0 || i % 160 === 159 || i < 160 || i >= 160 * 159) && a) edge++;
+        if ((i % 120 === 0 || i % 120 === 119 || i < 120 || i >= 120 * 119) && a) edge++;
       }
       pixels.push({ id, opaque, transparent, edge });
     }
@@ -76,12 +76,12 @@ for (const [width, height, language] of [[390, 844, 'vi'], [390, 620, 'en'], [14
       card.destroy();
     }
     const utility = drawCardIcon(ui, 'retreat', 0x9c6b3f);
-    const simpleUtility = utility.type === 'Container'; utility.destroy();
+    const simpleUtility = utility.type === 'Container' && utility.list[0]?.type === 'Image' && utility.getData('conquestUiIcon')?.source === 'generated'; utility.destroy();
     return { choices, invalid, samples: Object.values(samples), pixels, simpleUtility };
   });
   check(coverage.choices > 100 && !coverage.invalid.length, `${tag}: all ${coverage.choices} complex story choices use generated images`, coverage.invalid);
   check(coverage.pixels.every(p => p.opaque > 500 && p.transparent > 1500 && p.edge === 0), `${tag}: every frame has real alpha and complete margins`, coverage.pixels);
-  check(coverage.simpleUtility, `${tag}: simple navigation symbols retain their existing renderer`);
+  check(coverage.simpleUtility, `${tag}: navigation symbols use generated art too`);
 
   await page.evaluate(async () => {
     const { storyTemplate } = await import('/src/data/stories/index.ts');
@@ -157,12 +157,12 @@ for (const [width, height, language] of [[390, 844, 'vi'], [390, 620, 'en'], [14
   await page.waitForTimeout(80);
   await page.screenshot({ path: `${out}/${tag}-held.png` });
   await page.evaluate(() => {
-    window.__phaserGame.textures.renameTexture('story-choice-icons:v1', 'icon-review:hidden');
+    window.__phaserGame.textures.renameTexture('conquest-ui-icons:v5', 'icon-review:hidden');
     window.__choiceFixture();
   });
   const fallback = await page.evaluate(() => window.__choiceRead());
-  check(fallback.length === 3 && fallback.every(i => i.type === 'Container' && i.source === 'procedural-fallback' && i.clear), `${tag}: missing atlas keeps readable controls in the same gutter`, fallback);
-  await page.evaluate(() => window.__phaserGame.textures.renameTexture('icon-review:hidden', 'story-choice-icons:v1'));
+  check(fallback.length === 3 && fallback.every(i => i.type === 'Container' && i.source === 'unavailable' && i.clear), `${tag}: missing atlas keeps readable controls in the same gutter`, fallback);
+  await page.evaluate(() => window.__phaserGame.textures.renameTexture('icon-review:hidden', 'conquest-ui-icons:v5'));
   await page.evaluate(() => window.__choiceFixture());
   await page.waitForTimeout(250);
   const centre = await page.evaluate(() => {

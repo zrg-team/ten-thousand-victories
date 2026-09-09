@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { nextTip } from '../data/tips';
 import { t } from '../i18n';
+import { INK_UI_HEX } from './InkUI';
 import { UI_FONT } from './fonts';
 
 type LoadingState = { mode: 'loading'; scene: string; progress: number };
@@ -62,7 +63,7 @@ function showLoading(scene: Phaser.Scene): { finish: () => void; cancel: () => v
   // prints, so the two loading screens read as one thing wearing different paper.
   const lead = document.createElement('b');
   lead.textContent = t('tips.label');
-  lead.style.cssText = 'color:#8a2a1b;font-weight:700;';
+  lead.style.cssText = `color:${INK_UI_HEX.cinnabarDeep};font-weight:700;`;
   tip.append(lead, document.createTextNode(` · ${nextTip()}`));
   overlay.append(label, progress, tip);
   document.body.append(overlay);

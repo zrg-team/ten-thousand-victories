@@ -51,23 +51,46 @@ export const DONGHO_HAT_CONTACTS: Record<string, [number, number, number]> = {
   'hat-fur': [-34, 34, -36.3],
 };
 
+// Measured band contacts in the generated royal PNGs, in their part coordinates.
+// Wings and a wrap's side knot are decoration, not part of the head opening.
+export const ROYAL_HAT_CONTACTS: Record<string, [number, number, number]> = {
+  'royal-dinh-hat-1': [-30, 30, -35], 'royal-dinh-hat-2': [-29, 20, -35],
+  'royal-dinh-hat-3': [-29, 29, -35],
+  'royal-ly-hat-1': [-28, 28, -35], 'royal-ly-hat-2': [-30, 30, -35],
+  'royal-ly-hat-3': [-28, 28, -35],
+  'royal-tran-hat-1': [-30, 30, -35], 'royal-tran-hat-2': [-30, 30, -35],
+  'royal-tran-hat-3': [-29, 29, -35],
+  'royal-le-hat-1': [-30, 30, -35], 'royal-le-hat-2': [-23, 23, -35],
+  'royal-le-hat-3': [-24, 24, -35],
+  'royal-tayson-hat-1': [-29, 29, -35], 'royal-tayson-hat-2': [-31, 28, -35],
+  'royal-tayson-hat-3': [-28, 28, -35],
+  'royal-nguyen-hat-1': [-30, 30, -35], 'royal-nguyen-hat-2': [-23, 23, -35],
+  'royal-nguyen-hat-3': [-28, 28, -35],
+};
+
 /** Pure presentation geometry shared by the live creator, baked portraits and QA. */
 export function fitDonghoPart(def: FacePartDef, head?: FacePartDef): FittedFacePart[] {
   if (!head || !FOREHEAD[head.key]) return [{ ...def }];
   const [left, right] = FOREHEAD[head.key], center = (left + right) / 2;
   if (def.key.startsWith('royal-') && def.key.includes('-hat-')) {
-    const sx = (right - left + 4) / 60;
-    // Crown height encloses tall, narrow heads. Independently fit the wing slices
-    // so broad heads do not push court-cap wings outside the cartouche.
-    const sy = Math.max(sx, (-35 - (head.cy - head.h / 2) + 1) / 30);
-    const fit = { ...def, cx: center + def.cx * sx, cy: -35 + (def.cy + 35) * sy, w: def.w * sx, h: def.h * sy };
+    const [l, r, front] = ROYAL_HAT_CONTACTS[def.key] ?? [-30, 30, -35];
+    const bandCenter = (l + r) / 2;
+    const sx = (right - left + 4) / (r - l);
+    const crownHeight = front - (def.cy - def.h / 2);
+    const browY = -35;
+    // Keep the actual crown above the scalp, without stretching tall crowns out
+    // of the portrait. The band attaches just above the brows on every head.
+    const sy = Math.min((browY + 84) / crownHeight, Math.max(sx, (browY - (head.cy - head.h / 2) + 1) / crownHeight));
+    const fit = { ...def, cx: center + (def.cx - bandCenter) * sx,
+      cy: browY + (def.cy - front) * sy, w: def.w * sx, h: def.h * sy };
     const winged = /royal-(ly-hat-1|le-hat-[23]|nguyen-hat-2)$/.test(def.key);
     if (!winged) return [fit];
-    const a = (64 - 30) / 128, b = (64 + 30) / 128;
-    return [{ ...fit, crop: { left: a, right: b } }, ...([-1, 1] as const).map(side => {
-      const edge = center + side * 30 * sx, scale = Math.min(sx, (63 - Math.abs(edge)) / 34);
-      return { ...fit, cx: edge - side * 30 * scale, w: def.w * scale,
-        crop: { left: side < 0 ? 0 : b, right: side < 0 ? a : 1 } };
+    const x0 = def.cx - def.w / 2, a = (l - x0) / def.w, b = (r - x0) / def.w;
+    return [{ ...fit, crop: { left: a, right: b } }, ...([[0, a, l], [b, 1, r]]).map(([start, end, anchor]) => {
+      const edge = center + (anchor - bandCenter) * sx;
+      const scale = Math.min(sx, (63 - Math.abs(edge)) / ((end - start) * def.w));
+      return { ...fit, cx: edge + (def.cx - anchor) * scale, w: def.w * scale,
+        crop: { left: start, right: end } };
     })];
   }
   if (def.key.startsWith('beard-') && !def.key.startsWith('beard-moustache')) {

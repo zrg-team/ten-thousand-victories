@@ -2169,6 +2169,16 @@ export interface AscentBattleEscalationStep {
   enemyFloor?: 'easy' | 'medium' | 'hard' | 'nightmare';
   /** Longest the field's speech bubbles may linger, ms. 0 = the words leave the field entirely. */
   bubbleCapMs?: number;
+  /**
+   * From here on the dock stops marking which shapes beat the invader's, whatever the player
+   * set and whatever the difficulty profile says.
+   *
+   * The enemy floors already imply it — `hard` arrives at wave 16 and neither hard nor nightmare
+   * rims the chips — but *implying* it is the problem: a later retune of the floors would take
+   * the late game's hardest lesson out with them, silently. By this point in a run the player has
+   * fought the ring a hundred times, and the last thing it has left to teach is the table itself.
+   */
+  hideHints?: true;
 }
 
 export const ASCENT_BATTLE_ESCALATION: AscentBattleEscalationStep[] = [
@@ -2178,6 +2188,7 @@ export const ASCENT_BATTLE_ESCALATION: AscentBattleEscalationStep[] = [
   { wave: 13, paceFloor: 'fast', bubbleCapMs: 1800 },
   { wave: 16, enemyFloor: 'hard', bubbleCapMs: 900 },
   { wave: 20, enemyFloor: 'nightmare', bubbleCapMs: 0 },
+  { wave: 30, hideHints: true },
 ];
 
 /**

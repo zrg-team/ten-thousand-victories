@@ -189,7 +189,8 @@ export function showWarBoard(self: ConquestUIScene): void {
       const fight = battleAt(state, front.landId);
       addRow(
         {
-          title: front.commanded ? `▸ ${front.landName}` : front.landName,
+          title: front.landName,
+          icon: front.commanded ? 'banner' : undefined,
           subtitle: t('ascent.war.liveLine', {
             kingdom: front.kingdomName,
             ours: Math.round(front.ourMen),

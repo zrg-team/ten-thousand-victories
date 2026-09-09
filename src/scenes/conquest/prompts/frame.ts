@@ -20,6 +20,7 @@ import { ASCENT_HUD_HEIGHT } from '../../../ui/ascent/AscentHud';
 import { TITLE_FONT, UI_FONT } from '../../../ui/fonts';
 import { PROMPT_FOOTER_HEIGHT, PROMPT_HINT_ROOM, footerSplit } from '../constants';
 import type { ConquestUIScene } from '../../ConquestUIScene';
+import { CARD_ICON_SIZE, drawCardIcon, type CardIconId } from '../../../ui/CardIcons';
 
 
 /**
@@ -34,6 +35,7 @@ export function promptFrame(
   title: string,
   subtitle: string,
   opts: {
+    titleIcon?: CardIconId;
     /**
      * Take the run's readout band as well — for a **lane**, never for a decision card.
      *
@@ -75,9 +77,14 @@ export function promptFrame(
     fontStyle: '700',
     align: 'center',
     lineSpacing: 2,
-    wordWrap: { width: GAME_WIDTH - 48 },
+    wordWrap: { width: GAME_WIDTH - (opts.titleIcon ? 88 : 48) },
   }).setOrigin(0.5, 0);
   self.modalLayer.add(titleText);
+  if (opts.titleIcon) {
+    titleText.setX(GAME_WIDTH / 2 + 16);
+    self.modalLayer.add(drawCardIcon(self, opts.titleIcon).setScale(26 / CARD_ICON_SIZE)
+      .setPosition(titleText.x - titleText.width / 2 - 20, cursor + titleText.height / 2));
+  }
   cursor += titleText.height + 6;
 
   const subtitleText = self.add.text(GAME_WIDTH / 2, cursor, subtitle, {
