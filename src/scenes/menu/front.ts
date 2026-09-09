@@ -17,7 +17,6 @@ import { Copilot, type CopilotStep } from '../../ui/Copilot';
 import { TITLE_FONT, UI_FONT } from '../../ui/fonts';
 import { dongHoWordmark } from '../../ui/ink/dongHoWordmark';
 import { royalScroll } from '../../ui/ink/royalScroll';
-import { drawHouseSeal, houseBanner } from '../../ui/ascent/houseBanner';
 import { isDesktopPlatform } from '../../platform/layout';
 import { canQuitShell, quitShell } from '../../platform/shell';
 import { QUIT_ROW_HEIGHT, SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
@@ -110,23 +109,24 @@ function renderDesktopMain(self: MenuScene): void {
   // The scroll grows by the Exit row rather than squeezing it in: the column, the language line
   // and the footer are already packed against each other in here, and 28 units is what stood
   // between the language line and the support sentence.
-  const panelHeight = (saved ? 596 : 544) + (canQuitShell() ? QUIT_ROW_HEIGHT : 0);
+  // The masthead lost the house seal that used to hang under the subtitle — it is pressed on the
+  // Triều đại row now, beside the words that say whose house it is — so the whole column starts
+  // sixteen units higher and the paper is sixteen units shorter. The footer is measured back off
+  // the panel's own foot, so it travels up with it and keeps the air it had.
+  const panelHeight = (saved ? 580 : 528) + (canQuitShell() ? QUIT_ROW_HEIGHT : 0);
   const panelX = (GAME_WIDTH - panelWidth) / 2;
   const panelTop = Math.round((GAME_HEIGHT - panelHeight) / 2);
   const margin = surfaceWidth() < 1000 ? 28 : 56;
   const offsetX = surfaceWidth() - margin - panelWidth - pageColumnX() - panelX;
   self.content.push(royalScroll(self, panelX, panelTop, panelWidth, panelHeight, false).setDepth(-4)
     .setData('desktopMenuPanel', { width: panelWidth, height: panelHeight }));
-  const sign = houseBanner();
-  self.content.push(drawHouseSeal(self, sign, 24).setPosition(GAME_WIDTH / 2, panelTop + 130)
-    .setData('menuKingdomSign', { ...sign, source: 'dynasty' }));
   const title = dongHoWordmark(self, GAME_WIDTH / 2, panelTop + 62, 248);
   self.content.push(title, self.ui.label(GAME_WIDTH / 2, panelTop + 107, 'TEN THOUSAND VICTORIES', 'caption', {
     fontFamily: UI_FONT, fontSize: '9px', color: '#5a4c39',
   }).setOrigin(0.5, 0).setLetterSpacing(1.4));
 
   const x = 44, width = 302;
-  let cursor = panelTop + 152;
+  let cursor = panelTop + 136;
   if (snapshot) {
     const note = self.reloadNote ?? t('time.yearSeason', {
       year: snapshot.state.year, season: seasonLabel(snapshot.state.season),

@@ -29,6 +29,38 @@ export function preloadConquestUiIcons(scene: Phaser.Scene, base: string): void 
     `${base}art/conquest-ui-icons/signs-v1.webp`, `${base}art/conquest-ui-icons/signs-v1.json`);
 }
 
+/**
+ * How much ink each store glyph actually puts inside its frame, so four of them read as one size.
+ *
+ * Every frame in `icons-v5.png` is fitted to 0.9 of its own width, but the drawing inside is not
+ * the same shape: `gold` is a full coin at 0.900 x 0.900 of the frame, `food` a leaf at 0.883 x
+ * 0.900, `supplies` a sheaf at 0.900 x 0.758 — and `humans` two figures side by side at 0.900 x
+ * 0.633. Set to one display size the round ones print half again as much ink as the people do,
+ * which is exactly what made the header strip's food, goods and gold look a size bigger than its
+ * population. Each glyph is scaled by the geometric mean of its own measured extent against the
+ * people's, so the four carry the same optical weight; `humans` is the reference and keeps 1.
+ *
+ * Measured off the alpha of the atlas at a 16/255 threshold, the same way the house sign's
+ * `emblemFitScale` is. Only the four stores are listed: this is a set that gets printed in a row,
+ * and a glyph nobody sees beside another one is better left at the size its frame gives it.
+ */
+const OPTICAL_FIT: Partial<Record<ConquestUiIconId, number>> = {
+  food: 0.847,
+  supplies: 0.914,
+  gold: 0.839,
+  humans: 1,
+};
+
+/**
+ * The display size a glyph should be drawn at to sit level with the rest of its row.
+ *
+ * Callers keep laying out on the size they asked for — the slot, the gap and the number do not
+ * move — and only the picture inside it shrinks, so a row of chips still lines up.
+ */
+export function opticalIconSize(id: ConquestUiIconId, size: number): number {
+  return size * (OPTICAL_FIT[id] ?? 1);
+}
+
 /** Original pigments stay intact. Labels, rims and alpha communicate control state. */
 export function addConquestUiIcon(
   scene: Phaser.Scene, id: ConquestUiIconId, size = 26,

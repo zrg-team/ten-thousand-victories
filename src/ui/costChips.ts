@@ -18,7 +18,7 @@
  * `chipText` asks whether the frame is really there and falls back to the label when it is not.
  */
 import Phaser from 'phaser';
-import { CONQUEST_UI_TEXTURE, addConquestUiIcon, type ConquestUiIconId } from './conquestUiIcons';
+import { CONQUEST_UI_TEXTURE, addConquestUiIcon, opticalIconSize, type ConquestUiIconId } from './conquestUiIcons';
 import { PIGMENT } from './ink/palette';
 import { UI_FONT } from './fonts';
 import { measureInkTextWidth } from './InkVirtualList';
@@ -164,7 +164,7 @@ export function drawCostChips(
     for (const { chip, x } of line) {
       const hasGlyph = iconAvailable(scene, chip.icon);
       if (hasGlyph) {
-        holder.add(addConquestUiIcon(scene, chip.icon, ICON_SIZE)
+        holder.add(addConquestUiIcon(scene, chip.icon, opticalIconSize(chip.icon, ICON_SIZE))
           .setPosition(x + ICON_SIZE / 2, top + LINE_HEIGHT / 2 - 1)
           .setAlpha(alpha));
       }

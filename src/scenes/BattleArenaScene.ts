@@ -13,13 +13,14 @@ import {
   type Land, type TerrainSummary,
 } from '../state/types';
 import {
-  BACK_BAR_WIDTH, InkUI, INK_UI, scrollGestureConsumedTap, type InkScrollArea,
+  BACK_BAR_WIDTH, InkUI, INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type InkScrollArea,
 } from '../ui/InkUI';
 import { createLabel } from '../ui/theme';
 import { createMapRenderer, type MapRenderer } from '../ui/MapRenderer';
 import { bucketFor, faceStampedFigure, figureStamp } from '../ui/ink/figureStamps';
 import { placeStamp } from '../ui/ink/stamp';
 import { royalScroll } from '../ui/ink/royalScroll';
+import { seal } from '../ui/ink/devices';
 import { PIGMENT } from '../ui/ink/palette';
 import { BATTLE_HOST_SCALE } from '../game/ascentConfig';
 import type { FigureArm } from '../ui/ink/devices';
@@ -63,6 +64,7 @@ import {
  * clear of a 28-point row of tiles and well over any touch floor at this width.
  */
 const FIGHT_BUTTON = 32;
+const ROYAL_COMMENDATION = 'battle-royal-commendation-v1';
 
 /** A step on one of the arena's dials. `value` is what the state gets; `label` is what you tap. */
 interface Choice<T> {
@@ -147,6 +149,9 @@ export class BattleArenaScene extends Phaser.Scene {
   preload(): void {
     showPageLoading(this);
     preloadConquestMapArt(this, import.meta.env.BASE_URL);
+    if (!this.textures.exists(ROYAL_COMMENDATION)) {
+      this.load.image(ROYAL_COMMENDATION, `${import.meta.env.BASE_URL}art/battle-royal-commendation-v1.webp`);
+    }
   }
 
   create(): void {
@@ -210,24 +215,6 @@ export class BattleArenaScene extends Phaser.Scene {
     return { stars, score: Math.min(100, score) };
   }
 
-  /** One drawn star, filled or hollow. Five strokes, because there are five of them. */
-  private star(x: number, y: number, r: number, filled: boolean): Phaser.GameObjects.Graphics {
-    const g = this.add.graphics({ x, y });
-    const points: Phaser.Math.Vector2[] = [];
-    for (let i = 0; i < 10; i += 1) {
-      const radius = i % 2 === 0 ? r : r * 0.44;
-      const angle = -Math.PI / 2 + (i * Math.PI) / 5;
-      points.push(new Phaser.Math.Vector2(Math.cos(angle) * radius, Math.sin(angle) * radius));
-    }
-    if (filled) {
-      g.fillStyle(INK_UI.gold, 1);
-      g.fillPoints(points, true);
-    }
-    g.lineStyle(1.5, filled ? INK_UI.gold : INK_UI.softBrush, filled ? 1 : 0.7);
-    g.strokePoints(points, true, true);
-    return g;
-  }
-
   /**
    * The report itself: what happened, how it went, and the two things to do next.
    *
@@ -237,7 +224,7 @@ export class BattleArenaScene extends Phaser.Scene {
    * fight, read, fight again.
    */
   private showResult(record: AscentBattleRecord): void {
-    this.resultLayer?.destroy(true);
+    this.dismissResult();
     const layer = this.add.container(0, 0);
     this.resultLayer = layer;
 
@@ -264,7 +251,7 @@ export class BattleArenaScene extends Phaser.Scene {
      * the grade and the six figures between the two, and the pair of buttons below the second.
      * At the 372 the rounded card used, the fifth figure printed straight through the foot rule.
      */
-    const cardH = 456;
+    const cardH = 540;
     const HEAD_RULE = 130;
     const FOOT_RULE = cardH - 110;
     /** The ornamental register runs to 20 units in from each edge; the reading field starts after it. */
@@ -276,8 +263,8 @@ export class BattleArenaScene extends Phaser.Scene {
      * is the shape every ordinary card in the mode wears. This one is the end of a battle, the
      * one sheet in the run the player stops to read, and a rounded card is what the game says
      * about a build row. `royalScroll` is the sắc phong paper the front page is printed on:
-     * decorated margins, cloud corners and rolled ends, baked once per size. Without the seal —
-     * the vermilion lotus is the menu's own device and this document is not issued by it.
+     * decorated margins, cloud corners and rolled ends, baked once per size. The generated royal
+     * dragon below the headline replaces the menu's lotus device on this sheet.
      *
      * Room is left for the rolls: the stamp reaches nineteen units past the paper at the head and
      * foot, so the card sits clear of both edges of the sheet rather than at 40.
@@ -310,31 +297,40 @@ export class BattleArenaScene extends Phaser.Scene {
 
     // Below the masthead rule, whatever the head band did with its own room: a two-line
     // Vietnamese headline pushes the words, not the grade.
-    y = cardY + HEAD_RULE + 16;
+    y = cardY + HEAD_RULE + 10;
 
-    // ── the grade ────────────────────────────────────────────────────────
-    const starR = 15;
-    const gap = 8;
-    const totalW = 5 * starR * 2 + 4 * gap;
-    const drawn: Phaser.GameObjects.Graphics[] = [];
-    for (let i = 0; i < 5; i += 1) {
-      const filled = i < stars;
-      const mark = this.star(
-        GAME_WIDTH / 2 - totalW / 2 + starR + i * (starR * 2 + gap), y + starR, starR, filled,
-      );
-      layer.add(mark);
-      drawn.push(mark);
-      // Each earned star lands in turn, so the grade reads as a count rather than as a picture.
-      if (filled) {
-        mark.setScale(0);
-        this.tweens.add({
-          targets: mark, scale: 1, ease: 'Back.easeOut', duration: 260, delay: 140 + i * 130,
-        });
-      } else {
-        mark.setAlpha(0.35);
-      }
+    // One ceremonial print and a named commendation take the place of the five-star rating.
+    // A lost or unfinished field carries a dispatch, rather than claiming a royal reward.
+    const honor = this.add.container(GAME_WIDTH / 2, y + 48).setName('royal-commendation');
+    honor.setData({ grade: stars, awarded: won });
+    if (this.textures.exists(ROYAL_COMMENDATION)) {
+      honor.add(this.add.image(-77, 0, ROYAL_COMMENDATION).setDisplaySize(104, 104));
+    } else {
+      const fallback = this.add.graphics();
+      seal(fallback, -77, 0, 36, 'lotus');
+      honor.add(fallback);
     }
-    y += starR * 2 + 12;
+    const awardX = 52;
+    const issuer = createLabel(this, awardX, -30,
+      t(won ? 'arena.report.royal.issuer' : 'arena.report.royal.dispatch'), 'caption',
+      { fontSize: '9px', color: INK_UI.mutedText, align: 'center' }).setOrigin(0.5, 0);
+    const titleKey = won ? `arena.report.royal.honor${stars}`
+      : drew ? 'arena.report.royal.regroup' : 'arena.report.royal.resolve';
+    const honorTitle = createLabel(this, awardX, -12,
+      t(titleKey as Parameters<typeof t>[0]), 'title',
+      { fontSize: '20px', color: won ? INK_UI_HEX.cinnabarDeep : INK_UI.mutedText,
+        align: 'center', wordWrap: { width: 146 } }).setOrigin(0.5, 0);
+    const rank = createLabel(this, awardX, honorTitle.y + honorTitle.height + 6,
+      t('arena.report.royal.rank', { n: ['I', 'II', 'III', 'IV', 'V'][stars - 1] }), 'caption',
+      { fontSize: '9px', align: 'center' }).setOrigin(0.5, 0);
+    honor.add([issuer, honorTitle, rank]);
+    layer.add(honor);
+    if (won) {
+      honor.setAlpha(0).setScale(0.9);
+      this.tweens.add({ targets: honor, alpha: 1, scale: 1,
+        ease: 'Cubic.easeOut', duration: 420, delay: 140 });
+    }
+    y += 106;
 
     const verdict = createLabel(
       this, GAME_WIDTH / 2, y,
@@ -430,7 +426,24 @@ export class BattleArenaScene extends Phaser.Scene {
     this.resultLayer = undefined;
     if (!layer) return;
     this.tweens.killTweensOf(layer);
+    layer.each((child: Phaser.GameObjects.GameObject) => this.tweens.killTweensOf(child));
     layer.destroy(true);
+  }
+
+  /** The visible report, exposed to the existing screenshot/text playtest hook. */
+  resultState(): Record<string, unknown> {
+    const honor = this.resultLayer?.getByName('royal-commendation');
+    return {
+      mode: this.resultLayer ? 'arena-result' : 'arena-setup',
+      coordinateSystem: 'origin top-left; x right, y down',
+      result: this.resultLayer && this.last ? {
+        outcome: this.last.outcome, grade: honor?.getData('grade'),
+        royalCommendation: honor?.getData('awarded'),
+        ourStart: this.last.ourStart, ourEnd: this.last.ourEnd,
+        theirStart: this.last.theirStart, theirEnd: this.last.theirEnd,
+      } : undefined,
+      actions: this.resultLayer ? ['fight-again', 'back'] : ['take-command', 'back'],
+    };
   }
 
   // ── the dials ─────────────────────────────────────────────────────────────

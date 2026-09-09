@@ -136,6 +136,17 @@ export function renderDynastyTablet(self: MenuScene, x: number, y: number, width
    */
   const PORTRAIT = Math.min(46, height - 20);
   /**
+   * The house seal, at the head of the row, on every board.
+   *
+   * It used to be pressed under the wordmark on the desktop title page — a mark hanging below the
+   * game's name, belonging to nothing on the page. The player designs it in the temple as *their
+   * house's* sign, so it belongs on the row that says whose house it is, where it also gives the
+   * Triều đại tablet the one thing it lacked: something to recognise it by at a glance, on the
+   * phone and the desktop alike.
+   */
+  const SEAL = merged ? 20 : 24;
+  const SEAL_GUTTER = 9;
+  /**
    * The right column is measured off the seal's own words, not off a constant.
    *
    * The seal's caption is right-aligned at `width - 14`, and 52 units were reserved for it —
@@ -151,34 +162,49 @@ export function renderDynastyTablet(self: MenuScene, x: number, y: number, width
     probe.destroy();
     return measured;
   })();
-  const rightReserve = owed ? (merged ? 34 : Math.max(52, Math.round(waitingWidth) + 20)) : 20;
+  // Twelve units wider than the caption asks for, because the chevron now stands at the right
+  // edge on an owed board too and the caption has to end clear of it.
+  const rightReserve = owed ? (merged ? 34 : Math.max(58, Math.round(waitingWidth) + 32)) : 20;
   const columnFor = (withPortrait: boolean): number =>
-    width - (14 + (withPortrait ? PORTRAIT + 11 : 0)) - rightReserve;
+    width - (14 + SEAL + SEAL_GUTTER + (withPortrait ? PORTRAIT + 11 : 0)) - rightReserve;
   /**
    * With a seal *and* a face on the board there is not room for both and a readable line, so the
    * face gives way — the same rule the merged board already follows, applied one size up. A
    * portrait plus a wide seal leaves the words about 105 units, and the reign line only reaches
    * that by shrinking under four fifths of its size; without the portrait it prints whole.
    */
-  const MIN_TEXT_COLUMN = 118;
+  // Raised from 118 when the house seal took the head of the row: a seal, a face and an owed
+  // caption leave the desktop board 120 units of column, which the reign line only reaches by
+  // shrinking to four fifths and then ends a hair from the caption. The face gives way first.
+  const MIN_TEXT_COLUMN = 132;
   const wanted = opened && !merged ? dynastyFounderHero(store) : undefined;
   const founder = wanted && columnFor(true) >= MIN_TEXT_COLUMN ? wanted : undefined;
-  const textX = 14 + (founder ? PORTRAIT + 11 : 0);
+  const sealX = 14;
+  const portraitX = sealX + SEAL + SEAL_GUTTER;
+  const textX = portraitX + (founder ? PORTRAIT + 11 : 0);
   const textWidth = columnFor(Boolean(founder));
+
+  // Read by `render_game_to_text` and by the sign harness: exactly one mark on the front page,
+  // and this is it.
+  const sign = houseBanner();
+  const seal = drawHouseSeal(self, sign, SEAL)
+    .setPosition(sealX + SEAL / 2, Math.round(height / 2))
+    .setData('menuKingdomSign', { ...sign, source: 'dynasty' });
+  tablet.add(seal);
 
   if (founder) {
     // A ruled recess, so the face sits *in* the tablet rather than on it.
     const top = Math.round((height - PORTRAIT) / 2);
     const recess = self.add.graphics();
     recess.fillStyle(INK_UI.parchmentShade, 0.8);
-    recess.fillRect(14, top, PORTRAIT, PORTRAIT);
+    recess.fillRect(portraitX, top, PORTRAIT, PORTRAIT);
     recess.lineStyle(0.8, INK_UI.brush, 0.5);
-    recess.strokeRect(14, top, PORTRAIT, PORTRAIT);
+    recess.strokeRect(portraitX, top, PORTRAIT, PORTRAIT);
     tablet.add(recess);
     // Inset by two: `renderHeroFaceInBox` fits the face's own extent, and a topknot pin drawn at
     // the very top of it lands on the recess rule rather than inside the frame.
     tablet.add(renderHeroFaceInBox(self, founder,
-      { x: 16, y: top + 2, width: PORTRAIT - 4, height: PORTRAIT - 4 }));
+      { x: portraitX + 2, y: top + 2, width: PORTRAIT - 4, height: PORTRAIT - 4 }));
   }
 
   // The words. The name of the feature leads in both states — a player who has never opened it
@@ -352,16 +378,15 @@ export function renderDynastyTablet(self: MenuScene, x: number, y: number, width
      * only motion in the column, so it reads as *this one thing wants you* rather than as a page
      * that fidgets. Killed in `clearContent`: a repeating tween left running against a destroyed
      * graphic either throws or lands an alpha on a recycled object.
+     *
+     * It is the row's own seal that breathes, not a second one stamped in the corner. While the
+     * mark lived under the wordmark there were two houses' worth of seal on the front page and
+     * the corner one was the only one that meant anything; now the mark and the summons are the
+     * same object, and the caption beside it says how many choices are waiting.
      */
-    // Top corner, the way a seal is pressed onto a document — and clear of the line beneath it,
-    // which is where the first pass put the two on top of each other.
-    // Centred on a compact board — at 15 it was pressed into the top rule and clipped by it.
-    const stamp = drawHouseSeal(self, houseBanner(), merged ? 20 : tight ? 22 : 24)
-      .setPosition(width - 26, merged ? Math.round(height / 2) : tight ? 19 : 21);
-    tablet.add(stamp);
     self.dynastyPulse?.remove();
     self.dynastyPulse = self.tweens.add({
-      targets: stamp,
+      targets: seal,
       alpha: { from: 1, to: 0.42 },
       duration: 1100,
       yoyo: true,
@@ -370,14 +395,15 @@ export function renderDynastyTablet(self: MenuScene, x: number, y: number, width
     });
     // On the compact board the seal says it alone — a chip beside it would sit under it.
     if (!merged) {
-      tablet.add(self.ui.label(width - 14, statsY, waitingText, 'caption',
+      tablet.add(self.ui.label(width - 26, statsY, waitingText, 'caption',
         { fontSize: '9px', color: ink(INK_UI.cinnabar), align: 'right' }).setOrigin(1, 0));
     }
-  } else {
-    // The way in, at the edge the eye leaves by. Replaced by the seal when one is pressed.
-    tablet.add(self.ui.label(width - 15, Math.round(height / 2) - 9, '›', 'label',
-      { fontSize: '16px', color: ink(accent) }).setOrigin(0.5, 0));
   }
+  // The way in, at the edge the eye leaves by. It stays on an owed board too: the seal that used
+  // to stand here moved to the head of the row, and without the chevron the tablet lost the one
+  // thing that said it opens.
+  tablet.add(self.ui.label(width - 15, Math.round(height / 2) - 9, '›', 'label',
+    { fontSize: '16px', color: ink(accent) }).setOrigin(0.5, 0));
 
   const hit = self.add.rectangle(width / 2, height / 2, width, Math.max(height, 44), 0xffffff, 0.001)
     .setInteractive({ useHandCursor: true });
@@ -386,4 +412,6 @@ export function renderDynastyTablet(self: MenuScene, x: number, y: number, width
   // Not `menuSecondary`: that key means a stamped plate of the secondary tier, and
   // `verify-menu-icons-flags` measures everything wearing it against that tier's rules.
   tablet.setData('menuTablet', 'dynasty');
+  // A container reports no size of its own, and the sign harness measures the seal against the board.
+  tablet.setData('tabletBox', { width, height });
 }

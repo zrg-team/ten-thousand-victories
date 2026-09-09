@@ -6,7 +6,7 @@ import { compactNumber } from '../utils/format';
 import { realmPopulationCapacity } from '../systems/ResourceSystem';
 import { seasonLabel, t } from '../i18n';
 import { InkUI, INK_UI, INK_UI_HEX } from './InkUI';
-import { addConquestUiIcon } from './conquestUiIcons';
+import { addConquestUiIcon, opticalIconSize } from './conquestUiIcons';
 import { sawtoothBand } from './ink/devices';
 import { PIGMENT } from './ink/palette';
 import { placeStamp, stampDesign } from './ink/stamp';
@@ -108,8 +108,11 @@ export class ResourceBar extends Phaser.GameObjects.Container {
         .rectangle(x - 4, ROW_Y, itemWidth - 6, 17, INK_UI.cinnabar, 0.9)
         .setOrigin(0, 0.5)
         .setVisible(false);
-      const icon = addConquestUiIcon(scene, resource, ICON_DISPLAY_SIZE)
-        .setPosition(x, ROW_Y).setOrigin(0, 0.5);
+      // Centred in the slot rather than hung off its left edge: the four glyphs are drawn at their
+      // own optical sizes now, and the smaller ones would otherwise sit against the number they
+      // belong to with a widening gap in front of them.
+      const icon = addConquestUiIcon(scene, resource, opticalIconSize(resource, ICON_DISPLAY_SIZE))
+        .setPosition(x + ICON_DISPLAY_SIZE / 2, ROW_Y).setOrigin(0.5, 0.5);
       const text = ui.label(x + ICON_DISPLAY_SIZE + 4, ROW_Y, '', 'subtitle', {
         fontSize: '12px',
       }).setOrigin(0, 0.5);
@@ -160,7 +163,7 @@ export class ResourceBar extends Phaser.GameObjects.Container {
       for (const resource of RESOURCE_ORDER) {
         const text = this.resourceTexts[resource];
         const width = ICON_DISPLAY_SIZE + 4 + text.width;
-        this.resourceIcons[resource].setPosition(x, ROW_Y);
+        this.resourceIcons[resource].setPosition(x + ICON_DISPLAY_SIZE / 2, ROW_Y);
         text.setPosition(x + ICON_DISPLAY_SIZE + 4, ROW_Y);
         this.alertChips[resource].setPosition(x - 4, ROW_Y).setSize(width + 6, 17);
         x += width + Math.max(6, gap);
