@@ -94,6 +94,7 @@ export function renderMain(self: MenuScene): void {
   renderFooterPair(self, utilityTop);
   self.renderLanguageSwitch(utilityTop + 34 + SETTINGS_BLOCK_GAP);
   self.renderSupportRow();
+  renderQuitCorner(self);
   self.renderVersionLine();
 }
 
@@ -155,6 +156,7 @@ function renderDesktopMain(self: MenuScene): void {
     part.y += panelTop + panelHeight - 88 - (SUPPORT_TOP + SUPPORT_ROW_HEIGHT / 2);
   }
   const versionStart = self.content.length;
+  renderQuitCorner(self);
   self.renderVersionLine();
   for (const object of self.content.slice(versionStart)) {
     const part = object as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform;
@@ -382,23 +384,16 @@ function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
     { id: 'history', label: t('history.menu.button'), icon: 'book', onPress: () => self.scene.start('HistoryScene') },
     { id: 'settings', label: t('menu.settings'), icon: 'gear', onPress: () => self.scene.start('SettingsScene') },
   ];
-  // The way out, in a cabinet that has one. A tab does not, and the row was three doors for as
-  // long as the game only ran in one — which is why a desktop player had nothing but the window's
-  // own ✕ and Alt+F4 to close it with. It goes last because it is the only one that ends the
-  // session, and it goes *here*, with the other chrome, rather than in the column above: a
-  // full-width Exit under "Dragon Ascent" would weigh the same as starting a run.
-  if (canQuitShell()) {
-    doors.push({ id: 'quit', label: t('menu.quit'), icon: 'door', onPress: () => confirmQuit(self) });
-  }
-
-  // Measured, then divided — because four fixed cells do not fit and three did only by luck.
+  // Measured, then divided, rather than three fixed cells.
   //
   // Every cell used to be 90 wide, which put "How to Play" (66 units of type) in the same box as
-  // "History" (45) and left the air between the words uneven; with a fourth door the row ran 360
-  // wide in a 390 column and printed straight through the desktop scroll's ruled border. So the
-  // ink is measured first — glyph, gap and label, the button's own numbers — and the slack in the
-  // band is shared out equally instead. Every door then gets the room its words need and the gaps
-  // between them are the same, which is what made the row read as one tier in the first place.
+  // "History" (45) and left more air between two neighbouring words than inside either control.
+  // The ink is measured instead — glyph, gap and label, the button's own numbers — and the
+  // slack in the band is shared out equally, so the gaps between the three come out the same.
+  //
+  // Exit is deliberately **not** here, though it was for one round. These three are *places* —
+  // the manual, the record, the settings — and the way out of the game is not a place. See
+  // `renderQuitCorner`.
   const GLYPH = CARD_ICON_SIZE * 0.62 + 7;
   const ink = doors.map((door) => {
     const probe = self.ui.label(-999, -999, door.label, 'button', { fontSize: '11px' });
@@ -446,8 +441,47 @@ function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
 }
 
 /**
+ * The way out, in the corner where a desktop game keeps one.
+ *
+ * Reported: *button exit game in desktop look wrong place, usually it should be bottom right on
+ * top of version.* It had been a fourth door in the footer row, which was the wrong tier as well
+ * as the wrong corner — so it sits where the convention puts it now: hard against the column's
+ * right edge, on the line above the colophon.
+ *
+ * **Drawn immediately before the version stamp, and that is load-bearing.** `renderDesktopMain`
+ * moves the whole slice from `renderVersionLine` down to the foot of the scroll; anything that
+ * wants to travel with the stamp has to be inside that slice.
+ *
+ * Sixteen tall, not the footer row's thirty-four, because sixteen is what there is. Measured on
+ * the phone sheet: the support sentence ends at 806 and the stamp begins at 827, and this stands
+ * at 808 with three units under it. The hit padding gives back the touch height the box does not
+ * have.
+ */
+function renderQuitCorner(self: MenuScene): void {
+  if (!canQuitShell()) return;
+  const HEIGHT = 16;
+  // The stamp's own top: 9px caption type, 11 units tall, sitting on the sheet's bottom edge.
+  const versionTop = GAME_HEIGHT - VERSION_EDGE - 11;
+  const probe = self.ui.label(-999, -999, t('menu.quit'), 'button', { fontSize: '11px' });
+  const width = Math.round(CARD_ICON_SIZE * 0.62 + 7 + probe.width) + 8;
+  probe.destroy();
+  // The column's right edge, not the sheet's: on the desktop sheet the page is a scroll with a
+  // ruled border, and the footer band it shares is 44..346. See `renderFooterPair`.
+  const right = isDesktopSheet() ? 346 : GAME_WIDTH - 12;
+  self.content.push(self.ui.button(
+    { x: right - width, y: versionTop - 3 - HEIGHT, width, height: HEIGHT },
+    t('menu.quit'),
+    () => confirmQuit(self),
+    { variant: 'ghost', frameless: true, icon: 'door', fontSize: '11px', extraHitPadding: 8 },
+  )
+    .setData('menuUtility', 'quit')
+    .setData('utilityIcon', 'door')
+    .setData('ghostWithIcon', true));
+}
+
+/**
  * Asked before the game closes, and asked on the front page of all places — where nothing is at
- * stake — because the control that raises it is a 90-unit ghost button sitting next to Settings.
+ * stake — because the control that raises it is a small ghost button in the sheet's corner.
  * The run menu's own Exit needs no such thing: it writes the reign down first, and a player who
  * opened a menu called ☰ during a run went looking for the way out. A thumb that missed Settings
  * did not.
