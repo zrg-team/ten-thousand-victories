@@ -1216,6 +1216,8 @@ export class ConquestUIScene extends Phaser.Scene {
   resumeBattleForOrder(): void { battleShell.resumeBattleForOrder(this); }
 
   showBattle(): void { battleShell.showBattle(this); }
+
+  openBattleAt(landId: string): void { battleShell.openBattleAt(this, landId); }
   /** The fronts board on its own — the Battle lane's other half. See `warBoard`. */
   showWarBoard(): void { warBoard.showWarBoard(this); }
 

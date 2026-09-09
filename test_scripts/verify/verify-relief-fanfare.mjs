@@ -114,6 +114,33 @@ const readUi = () => page.evaluate(async () => {
     spare: entry(u.ourMarkers, 'spare-host'),
     foe: entry(u.theirMarkers, 'late-column'),
     held: Boolean(ui.battleClock?.paused),
+    /**
+     * The rising count, and the shout it must not be printed behind.
+     *
+     * It used to start 54 above the line of battle and rise to 98 — which is exactly where the
+     * bubble hangs (78 over the line, two or three lines tall), so the one number the moment is
+     * about was drawn *inside* the sentence announcing it. Both bands are read here so the check
+     * below is about the pixels rather than about the constants.
+     */
+    count: (() => {
+      const found = (u.floaters?.list ?? []).find((o) => o.type === 'Text' && /^\+/.test(o.text ?? ''));
+      if (!found) return null;
+      const m = found.getWorldTransformMatrix();
+      return { text: found.text, top: m.ty - found.displayHeight / 2, bottom: m.ty + found.displayHeight / 2 };
+    })(),
+    groundY: Math.round(u.geometry?.groundY ?? 0),
+    bubble: (() => {
+      const boxes = [];
+      const walk = (o) => {
+        if (o.type === 'Text' && /Viện binh|Reinforcements|relief/i.test(o.text ?? '')) {
+          const m = o.getWorldTransformMatrix();
+          boxes.push({ top: m.ty - o.displayHeight, bottom: m.ty + o.displayHeight });
+        }
+        if (Array.isArray(o.list)) o.list.forEach(walk);
+      };
+      walk(u.bubbles ?? { list: [] });
+      return boxes[0] ?? null;
+    })(),
     // The relief line is pushed at the top of the beat that seats the column, and the same tick's
     // later beats bury it — which is the whole reason the bubble carries it now.
     log: b.log.slice(-8).find((line) => /Viện binh|Relief|relief/i.test(line)) ?? b.log[b.log.length - 1],
@@ -156,6 +183,24 @@ check(moment.call?.side === 'ours' && /Viện binh|Reinforcements|relief/i.test(
 check(/Viện binh|Reinforcements|relief/i.test(moment.said?.ours ?? ''), 'and the bubble over the men says it', moment.said?.ours);
 check(moment.spare?.arriving === true && moment.spare.x < moment.ourX - 20,
   'the column marches in from our edge rather than appearing in the line', JSON.stringify({ spare: moment.spare, ourX: moment.ourX }));
+/**
+ * The count and the shout are the two things the moment says, and they must not be said on top of
+ * each other.
+ *
+ * Asserted on where the number *starts* rather than on where it happens to be in this one frame,
+ * and that distinction is the whole check: the old number began 54 above the line of battle and
+ * rose to 98, so it was clear at the instant this samples and buried inside the bubble a
+ * half-second later. Starting below the line is the property that makes its whole rise safe —
+ * the bubble hangs 78 over the line and is never drawn under it.
+ *
+ * Skipped when the number is not on screen at the instant sampled; it lives 1.7 s and this is one
+ * frame of it.
+ */
+if (moment.count && moment.groundY > 0) {
+  check(moment.count.top > moment.groundY - 6,
+    'the men it brings rise off the ground, not out of the shout over their heads',
+    JSON.stringify({ count: moment.count, groundY: moment.groundY, bubble: moment.bubble }));
+}
 check(moment.held, 'the beat clock holds for the moment');
 check(/Viện binh|Relief|relief/i.test(moment.log ?? ''), 'the log line records it', moment.log);
 

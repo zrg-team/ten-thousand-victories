@@ -12,14 +12,15 @@ import { hasSnapshot, loadSnapshot, snapshotLabel } from '../../state/save';
 import { hasSeenClassicTour, markClassicTourSeen } from '../../state/tour';
 import { seasonLabel, t } from '../../i18n';
 import { INK_UI } from '../../ui/InkUI';
-import { type CardIconId } from '../../ui/CardIcons';
+import { CARD_ICON_SIZE, type CardIconId } from '../../ui/CardIcons';
 import { Copilot, type CopilotStep } from '../../ui/Copilot';
 import { TITLE_FONT, UI_FONT } from '../../ui/fonts';
 import { dongHoWordmark } from '../../ui/ink/dongHoWordmark';
 import { royalScroll } from '../../ui/ink/royalScroll';
 import { drawHouseSeal, houseBanner } from '../../ui/ascent/houseBanner';
 import { isDesktopPlatform } from '../../platform/layout';
-import { SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
+import { canQuitShell, quitShell } from '../../platform/shell';
+import { QUIT_ROW_HEIGHT, SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
 import { pageFloor, renderPageHead } from './helpers';
 import type { MenuScene } from '../MenuScene';
 
@@ -57,6 +58,10 @@ export function renderMain(self: MenuScene): void {
   let cursor = artFloor;
 
   self.tourTargets.play = { x: 54, y: cursor, width: 282, height: playHeight };
+  // What the tip badge leans over. On this page the play button is the only way into a run and
+  // the illustration above it is the one place on the sheet a card can stand without covering a
+  // control.
+  self.tipAnchor = self.tourTargets.play;
   self.content.push(self.ui.button(self.tourTargets.play, t('ascent.menu.title'), () => {
     startAscentRun(self);
   }, { variant: 'primary', fontSize: '17px' }).setData('menuPrimary', true));
@@ -102,7 +107,10 @@ function renderDesktopMain(self: MenuScene): void {
   const saved = Boolean(snapshot);
   const first = self.content.length;
   const panelWidth = 358;
-  const panelHeight = saved ? 596 : 544;
+  // The scroll grows by the Exit row rather than squeezing it in: the column, the language line
+  // and the footer are already packed against each other in here, and 28 units is what stood
+  // between the language line and the support sentence.
+  const panelHeight = (saved ? 596 : 544) + (canQuitShell() ? QUIT_ROW_HEIGHT : 0);
   const panelX = (GAME_WIDTH - panelWidth) / 2;
   const panelTop = Math.round((GAME_HEIGHT - panelHeight) / 2);
   const margin = surfaceWidth() < 1000 ? 28 : 56;
@@ -128,10 +136,14 @@ function renderDesktopMain(self: MenuScene): void {
       if (current) self.startGame(current.state);
     }, { variant: 'primary', fontSize: '18px', subLabel: note })
       .setData('menuPrimary', true).setData('menuLink', 'continue'));
+    // The badge leans over the topmost button that starts a game, and here that is Continue.
+    // Anchored to the row below it, the card would stand *on* this one.
+    self.tipAnchor = { x, y: cursor, width, height: 56 };
     cursor += 64;
   }
   const playHeight = saved ? 44 : 56;
   self.tourTargets.play = { x, y: cursor, width, height: playHeight };
+  if (!saved) self.tipAnchor = self.tourTargets.play;
   self.content.push(self.ui.button(self.tourTargets.play, saved ? t('menu.newRun') : t('ascent.menu.title'),
     () => startAscentRun(self), { variant: saved ? 'secondary' : 'primary', fontSize: saved ? '13px' : '18px' })
     .setData('menuPrimary', !saved).setData('menuNewRun', true));
@@ -147,7 +159,10 @@ function renderDesktopMain(self: MenuScene): void {
   renderFooterPair(self, cursor);
   self.renderLanguageSwitch(cursor + 44);
 
+  // Inside the support slice on purpose: that slice is what carries the footer down to the foot
+  // of the scroll, and the Exit row has to travel with the sentence it sits above.
   const supportStart = self.content.length;
+  renderQuitButton(self, SUPPORT_TOP - QUIT_ROW_HEIGHT + 4);
   self.renderSupportRow();
   for (const object of self.content.slice(supportStart)) {
     const part = object as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform;
@@ -167,6 +182,9 @@ function renderDesktopMain(self: MenuScene): void {
     const bounds = self.tourTargets[key];
     if (bounds) bounds.x += offsetX;
   }
+  // `tipAnchor` is the play target's own object when there is no save, and shifting it twice
+  // would put the badge a column to the right of the button it points at.
+  if (self.tipAnchor && self.tipAnchor !== self.tourTargets.play) self.tipAnchor.x += offsetX;
 }
 /**
  * Both hand-played modes, stacked by flow rather than at fixed heights.
@@ -373,15 +391,6 @@ export function renderConfirmNew(self: MenuScene): void {
  * between neighbouring words than inside each control, so the three links looked unrelated.
  */
 function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
-  const WIDTH = 90;
-  const GAP = 0;
-  const left = Math.round((GAME_WIDTH - (WIDTH * 3 + GAP * 2)) / 2);
-  const height = self.vh(34);
-  // Remembered as one rectangle rather than three: the tour's card is about the footer as a
-  // tier — the manual, the record and the settings — and framing one of the three would say the
-  // other two were something else.
-  self.tourTargets.footer = { x: left, y: top, width: WIDTH * 3 + GAP * 2, height };
-
   // 12px, not 13. "How to Play" is three words where the other two are two and one, and at 13 it
   // wraps to a second line inside a 34-unit button — which centres the pair of lines and leaves
   // the row looking like one button broke.
@@ -390,9 +399,44 @@ function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
     { id: 'history', label: t('history.menu.button'), icon: 'book', onPress: () => self.scene.start('HistoryScene') },
     { id: 'settings', label: t('menu.settings'), icon: 'gear', onPress: () => self.scene.start('SettingsScene') },
   ];
+  // Measured, then divided, rather than three fixed cells.
+  //
+  // Every cell used to be 90 wide, which put "How to Play" (66 units of type) in the same box as
+  // "History" (45) and left more air between two neighbouring words than inside either control.
+  // The ink is measured instead — glyph, gap and label, the button's own numbers — and the
+  // slack in the band is shared out equally, so the gaps between the three come out the same.
+  //
+  // Exit is deliberately **not** here, though it was for one round. These three are *places* —
+  // the manual, the record, the settings — and the way out of the game is not a place. See
+  // `renderQuitCorner`.
+  const GLYPH = CARD_ICON_SIZE * 0.62 + 7;
+  const ink = doors.map((door) => {
+    const probe = self.ui.label(-999, -999, door.label, 'button', { fontSize: '11px' });
+    const width = GLYPH + probe.width;
+    probe.destroy();
+    return width;
+  });
+  // The band is the column's, not the sheet's: on the desktop sheet the page is a 358-unit scroll
+  // with a ruled border inside it, and a row centred on `GAME_WIDTH` overhangs both rules.
+  const band = isDesktopSheet() ? { x: 44, width: 302 } : { x: 12, width: GAME_WIDTH - 24 };
+  const inkTotal = ink.reduce((sum, width) => sum + width, 0);
+  // 24 is the air the three-door row had; 4 is the floor, below which a fourth door would be
+  // better left out than crammed in. Both ends matter: too much padding and the row spreads to
+  // the sheet's edges, too little and the words touch.
+  const pad = Math.max(4, Math.min(24, (band.width - inkTotal) / doors.length));
+  const widths = ink.map((width) => width + pad);
+  const span = widths.reduce((sum, width) => sum + width, 0);
+  const left = Math.round(band.x + (band.width - span) / 2);
+  const height = self.vh(34);
+  // Remembered as one rectangle rather than three: the tour's card is about the footer as a
+  // tier — the manual, the record and the settings — and framing one of the three would say the
+  // other two were something else.
+  self.tourTargets.footer = { x: left, y: top, width: span, height };
+
+  let cursor = left;
   doors.forEach((door, index) => {
     const button = self.ui.button(
-      { x: left + index * (WIDTH + GAP), y: top, width: WIDTH, height },
+      { x: cursor, y: top, width: widths[index], height },
       door.label,
       door.onPress,
       {
@@ -407,5 +451,75 @@ function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
       .setData('utilityIcon', door.icon)
       .setData('ghostWithIcon', true);
     self.content.push(button);
+    cursor += widths[index];
   });
+}
+
+/**
+ * The way out: a menu button, centred, in its own row above the colophon.
+ *
+ * Two rounds to get here, and both corrections were the same correction. It went in first as a
+ * fourth door in the footer row beside How to Play and Settings — the wrong *tier*, because
+ * those three are places and the way out of a game is not a place. It went in second as a small
+ * ghost link pinned to the bottom-right corner over the version stamp, which was the wrong
+ * *shape*: *"make simple follow other game menu button exit in center of panel and right bottom
+ * version"*. A main menu's Exit is a button in the column, where every other game puts it.
+ *
+ * So it is a button, 150 wide and centred in the scroll — ghost rather than framed, because it
+ * still must not weigh what "Dragon Ascent" weighs.
+ *
+ * **The desktop page only, and deliberately.** `canQuitShell()` alone is the wrong gate: it is true
+ * of the cabinet whatever shape its window is, so a player who pins the phone column in Settings
+ * got an Exit button crammed into a footer that has 21 units to spare between the support sentence
+ * and the stamp. Asked for in exactly those terms — *"why phone have exit button? i only said
+ * desktop"* — and it is the right call anyway: this is the layout the cabinet actually runs, and
+ * the phone column is a page laid out for a page that has no window to close. The run menu's own
+ * Exit is still there in every layout, which is the way out that never depended on this.
+ */
+function renderQuitButton(self: MenuScene, top: number): void {
+  if (!canQuitShell()) return;
+  const width = 150;
+  const height = 30;
+  self.content.push(self.ui.button(
+    { x: Math.round(44 + (302 - width) / 2), y: top, width, height },
+    t('menu.quit'),
+    () => confirmQuit(self),
+    { variant: 'ghost', icon: 'door', fontSize: '12px', extraHitPadding: 4 },
+  )
+    .setData('menuUtility', 'quit')
+    .setData('utilityIcon', 'door')
+    .setData('ghostWithIcon', true));
+}
+
+/**
+ * Asked before the game closes, and asked on the front page of all places — where nothing is at
+ * stake — because the control that raises it is a small ghost button in the sheet's corner.
+ * The run menu's own Exit needs no such thing: it writes the reign down first, and a player who
+ * opened a menu called ☰ during a run went looking for the way out. A thumb that missed Settings
+ * did not.
+ *
+ * The sheet says what is *not* lost rather than warning about what is, because a saved reign
+ * genuinely survives — this is the one place the game can reassure instead of alarm.
+ */
+function confirmQuit(self: MenuScene): void {
+  self.closeModal();
+  const modal = self.ui.modal({
+    title: t('menu.quitConfirm'),
+    subtitle: t('menu.quitConfirmBody'),
+    onClose: () => self.closeModal(),
+    // 104 of header, the modal's own 14 of content inset, one 46-unit row, and 14 under it. The
+    // sheet is cut to what it holds rather than to `contentBounds`, which is always measured back
+    // off a 66-unit footer band — reserving that band for a sheet with no footer leaves a third of
+    // the paper empty under the only button on it.
+    height: 104 + 14 + 46 + 14,
+  });
+  self.modalObjects.push(...modal.objects);
+  const { contentBounds } = modal;
+  self.modalObjects.push(self.ui.button(
+    { x: contentBounds.x, y: contentBounds.y + 4, width: contentBounds.width, height: 46 },
+    t('menu.quitConfirmYes'),
+    () => quitShell(),
+    { variant: 'danger', fontSize: '14px' },
+  ));
+  self.adoptModal();
 }

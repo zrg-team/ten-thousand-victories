@@ -5,6 +5,7 @@ import { RUNGS, RUNG_STORAGE_KEY, rungForTier, type Rung, type RungId } from './
 import { activePaperSheets } from '../ui/ink/paperSheet';
 import { cachedLaunchProfile, percentile, recommendNextLaunch, type AutoProfile } from './launchGraphics';
 import { FramePacer } from './framePacer';
+import { softwareRenderer } from './renderProfile';
 
 let fullRefresh: boolean | undefined;
 export function fullRefreshEnabled(): boolean { if (fullRefresh !== undefined) return fullRefresh; try { return fullRefresh = localStorage.getItem('mandate:graphics:refresh:v1') === 'display'; } catch { return fullRefresh = false; } }
@@ -29,6 +30,17 @@ export class QualityLadder {
     try { localStorage.removeItem(RUNG_STORAGE_KEY); } catch { /* obsolete automatic rungs */ }
     const chosen = this.pinned ? rungForTier(getGraphicsQuality()).id : cachedLaunchProfile() ?? 'medium';
     this.rung = RUNGS.find(r => r.id === chosen)!;
+    // A software rasteriser is not a signal about the device, it is a failure to get a GPU at all:
+    // the whole game is drawn on the CPU and no tier saves it. Pin the cheapest rung and say so.
+    // Checked here rather than in `calibrateGraphics`, which only runs on Auto and only when no
+    // profile is cached — a player who pinned a tier, or who has played before, is never probed.
+    const software = this.enabled ? softwareRenderer(game) : undefined;
+    if (software) {
+      this.rung = RUNGS.find(r => r.id === 'low-30') ?? this.rung;
+      this.pinned = true;
+      window.__softwareRenderer = software;
+      console.warn(`[graphics] software renderer (${software}) — pinned to ${this.rung.id}`);
+    }
     this.apply(this.rung);
     const installPacing = () => queueMicrotask(() => {
       const callback = game.loop.callback;

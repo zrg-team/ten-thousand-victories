@@ -14,7 +14,9 @@
 
 <br>
 
-[![Play the full game, free](https://img.shields.io/badge/▶%20%20PLAY%20THE%20FULL%20GAME-free%20·%20no%20ads-b33a26?style=for-the-badge&labelColor=7d2417)](https://zrg-team.github.io/ten-thousand-victories/)
+<a href="https://zrg-team.github.io/ten-thousand-victories/"><img src="docs/readme/play-badge.png" alt="Play the full game, free — no ads" width="470"></a>
+
+<sub>Install it from the browser — add to home screen, and it plays offline, full screen, with no store and no account.</sub>
 
 <sub>Or support the developer — the same game on the stores, 50,000₫ (≈ US$2), once.</sub>
 
@@ -49,6 +51,7 @@
 - [📜 The Chronicle — the stories are the engine](#-the-chronicle--the-stories-are-the-engine)
 - [🏮 The real history, one tap deep](#-the-real-history-one-tap-deep)
 - [🖌️ A graphic perspective](#️-a-graphic-perspective)
+  - [The cards — fifty prints, one behind every power](#the-cards--fifty-prints-one-behind-every-power)
   - [The heroes](#the-heroes)
   - [The armies of the kingdoms](#the-armies-of-the-kingdoms)
   - [Đông Hồ](#đông-hồ)
@@ -73,7 +76,7 @@ You are a small lord with one citadel on a map of forty-two provinces, generated
 
 - **Waves.** Every year and a half an invading host arrives, bigger than the last; every fourth is a boss, telegraphed a season ahead. Survive as many as you can — there is no win, only how far you got.
 - **Ambition is the dial.** Every province you take, every card you draft, every host you raise, raises the heat of what comes back at you. Expansion is never free.
-- **Power draft.** Level up and choose one of four cards — bronze, silver, gold, jade — that stack permanently. Two cards you have maxed can *evolve* into something neither was.
+- **Power draft.** Level up and choose one of four cards — bronze, silver, gold, jade — that stack permanently. Two cards you have maxed can *evolve* into something neither was. There are fifty-two, and [each carries its own woodblock print](#the-cards--fifty-prints-one-behind-every-power).
 - **Doctrine.** Once an era, tell your ministers what kind of realm this is — *Fortify, Expand, Enrich, Arm* — and the autopilot builds towards it until you say otherwise.
 - **The end of a run banks Legacy**, which buys permanent perks for the next.
 
@@ -156,7 +159,7 @@ The stories are not cutscenes. They are **forty-nine templates** that bind thems
 
 <table>
   <tr>
-    <td width="40%"><img src="docs/readme/chronicle.webp" alt="A story card in play: a beat from the Chronicle, each answer carrying a real cost" width="100%"></td>
+    <td width="40%"><img src="docs/readme/chronicle.webp" alt="A story card in play: Nỏ Thần, the divine crossbow, under its own woodblock print — two answers, each carrying a real cost" width="100%"></td>
     <td valign="top">
 
 **A few of the pages**
@@ -173,7 +176,7 @@ The stories are not cutscenes. They are **forty-nine templates** that bind thems
 - *Hồ Gươm* · The Lake of the Returned Sword
 - *Yết Kiêu* · The Diver · *Ải Chi Lăng* · *Thần Tốc* · *Văn Miếu* · *Thánh Gióng* · *Sơn Tinh Thủy Tinh* …
 
-**How they move the game.** A story is played with real pieces: it casts the general you actually summoned and the province you actually hold, its choices spend real gold and real men, and when it resolves, the card says exactly what it changed — *−400 able men, −60 gold, the story turns toward a command*. Some ask you to **swear a charge** — hold a province, keep the peace — and remember whether you kept it. Some leave **echoes** in the browser, so a hero who walked out on you in one run can be named in the next.
+**How they move the game.** A story is played with real pieces: it casts the general you actually summoned and the province you actually hold, its choices spend real gold and real men, and when it resolves, the card says exactly what it changed — *−400 able men, −60 gold, the story turns toward a command*. Some ask you to **swear a charge** — hold a province, keep the peace — and remember whether you kept it. Some leave **echoes** in the browser, so a hero who walked out on you in one run can be named in the next. Sixteen of the beats arrive under [a print of their own](#the-cards--fifty-prints-one-behind-every-power) — the moment the story turns on, cut as a woodblock.
 
 **Why it is built this way.** The stories are the point of the whole project — but a story you can skip is a cutscene, and a cutscene teaches nothing. Binding them to the run's own heroes, land and treasury makes the history something that *happens to you*. Every telling is tagged for what it is — *chính sử*, what the annals record; *dã sử*, what is told; *ngoại truyện*, what is only ours — and all of it lands in a Chronicle you can read back at the end.
 
@@ -198,7 +201,32 @@ The game also teaches itself: a **How to Play** page, guided tours of the first 
 
 ## 🖌️ A graphic perspective
 
-The game ships almost no sprites. The people, the hosts and the country are procedural drawing in the manner of a **Đông Hồ folk woodblock print**, and this is the same ink seen close up.
+Everything above is one picture drawn by two hands, both working in the manner of a **Đông Hồ folk woodblock print**. **Plates** are drawn ahead of time to a written rule sheet — one warm-black contour, flat pigment blocks, shallow symbolic space, shell-coated paper. **Ink** is drawn by code at run time to the same rules, because a country generated fresh for every run cannot be painted in advance. The seam between them is meant to be invisible.
+
+| Drawn ahead, as plates | Drawn by code, at run time |
+|---|---|
+| **50** card prints — one behind every power card, plus 12 settings | the **country** itself: hexes, paddies, rivers, roads, fog, laid out fresh every run |
+| **325** map plates — soldiers by realm and rank, roofs, trees, carts, buffalo | **4 seasons** on that same ground — the leaves turn, the paddies flood and are cut |
+| **277** portrait parts — heads, hair, hats, collars, robes, rank marks | **5 shapes** a host can stand in, drawn as it is actually holding them |
+
+### The cards — fifty prints, one behind every power
+
+A power card is not an icon and a number. Each of the fifty carries its own scene, cut to the same rule sheet — the stakes going into the Bạch Đằng, the Trưng sisters and their elephant, the pass at Chi Lăng, the armourer's crossbow, the boys admitted at the Temple of Literature, the grain fleet at Vân Đồn:
+
+<img src="docs/readme/card-prints.webp" alt="Twelve of the fifty card prints: the Bạch Đằng stakes, the Trưng sisters, the pass at Chi Lăng, the divine crossbow, the Temple of Literature, a court petition, the great proclamation, the move to Thăng Long, the harvest, a village muster, the dykes, the grain fleet" width="100%">
+
+<table>
+  <tr>
+    <td valign="top">
+
+They are not decoration on a menu. The same print turns up wherever that idea does: on the card you draft mid-run, on the Chronicle beat that tells its story, in the sheet a minister hands you — and all of them together in the **Dynasty Deck**, the one collection that outlives a run. Every reign ending and every tenth wave pays a draw; a draw is a card kept for good. Three copies fold into a stronger one, and up to three ride into the next reign's opening hand — bought with ambition, so the enemy answers your head start.
+
+**Why it is built this way.** A roguelite's power cards are usually a wall of icons, and a wall of icons is a wall of nothing to remember. Here every card is a picture of the thing it does, from a tradition the game is about — so a player who cannot yet read *Nỏ Thần* still knows which card is the crossbow, and a collection screen is worth opening for its own sake.
+
+</td>
+    <td width="38%"><img src="docs/readme/cabinet.webp" alt="The Dynasty Deck: rows of collected cards, each a woodblock print under its rarity border, with copies counted and two marked combine ready" width="100%"></td>
+  </tr>
+</table>
 
 ### The heroes
 

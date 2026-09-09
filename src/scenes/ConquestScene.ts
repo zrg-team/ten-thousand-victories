@@ -59,6 +59,8 @@ export class ConquestScene extends MapScene {
   private frontMarker?: Phaser.GameObjects.Container;
   private ownershipTint?: Phaser.GameObjects.Container;
   private readonly ownershipRegions = new Map<string, { graphics: Phaser.GameObjects.Graphics; signature: string }>();
+  /** The front the marker is currently drawn for; an unchanged front is not redrawn. */
+  private frontMarkerKey = '';
   private readonly ownershipIndex = new ViewIndex();
   private ownershipPose = '';
   /** Ownership map the tint was last painted for, so a tick with no flips repaints nothing. */
@@ -273,15 +275,26 @@ export class ConquestScene extends MapScene {
    * board. Amber means the host is holding because the odds are still too poor.
    */
   private drawFrontMarker(): void {
+    const frontId = this.state.ascent?.frontLandId;
+    const blocked = this.state.ascent?.frontBlocked ?? false;
+    // Guarded like every other band in this scene. It used to destroy a container, two `Graphics`
+    // — one of them the whole clash device — and an endless tween and build them again on **every
+    // tick**, whether or not the front had moved; on a run that holds one province for a dozen
+    // seasons that is a dozen rebuilds of an identical mark, each leaving a fresh `repeat: -1`
+    // tween behind it.
+    const signature = frontId ? `${frontId}:${blocked ? 1 : 0}` : '';
+    // `scene` rather than the reference: `destroy()` nulls it, and a handle that outlived its
+    // display list would otherwise let the guard skip a rebuild the map needs.
+    if (signature === this.frontMarkerKey && (!frontId || this.frontMarker?.scene)) return;
+    this.frontMarkerKey = signature;
+
     this.frontMarker?.destroy();
     this.frontMarker = undefined;
 
-    const frontId = this.state.ascent?.frontLandId;
     if (!frontId) return;
     const land = this.state.lands.find((candidate) => candidate.id === frontId);
     if (!land) return;
 
-    const blocked = this.state.ascent?.frontBlocked ?? false;
     const color = blocked ? INK_UI.gold : INK_UI.cinnabar;
 
     // On the seat, not the centroid.
@@ -587,6 +600,26 @@ export class ConquestScene extends MapScene {
     // furniture on the modal layer to justify it. A key left set with nothing drawn cannot lock
     // the player out of their own map.
     return Boolean(ui.openPromptKey) && (ui.modalLayer?.length ?? 0) > 0;
+  }
+
+  /**
+   * The clash mark and the siege mark are doors into the war.
+   *
+   * Reported: *when i click to icon battle in map -> it should show battle screen*. Both marks say
+   * something is happening at a province *now*, and both stood on the map unpressable while the
+   * only ways to a field were the action bar and the army screen — so the one thing on the map
+   * that points at a live fight was the one thing that could not open it. The press fell through
+   * to the province underneath and selected it, which looks like a mark that does the wrong thing
+   * rather than one that does nothing.
+   *
+   * The mode is asked, not the map: `ui:open-battle` lands in `conquest/shell.ts`, which owns the
+   * lane and the guards around opening one.
+   */
+  protected consumeAnnotationTap(worldX: number, worldY: number): boolean {
+    const landId = this.warBadgeAt(worldX, worldY);
+    if (!landId) return false;
+    this.scene.get(this.uiSceneKey()).events.emit('ui:open-battle', landId);
+    return true;
   }
 
   protected selectLand(landId: string): void {

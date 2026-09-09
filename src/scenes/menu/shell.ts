@@ -127,6 +127,8 @@ export function create(self: MenuScene): void {
     unsubscribeInstall();
     self.installTipTimer?.remove();
     self.installTipTimer = undefined;
+    self.tipBadgeTimer?.remove();
+    self.tipBadgeTimer = undefined;
     self.lotusIdleWaveTimer?.remove();
     self.lotusIdleWaveTimer = undefined;
     self.copilot?.destroy();
@@ -143,6 +145,12 @@ export function create(self: MenuScene): void {
           && (self.replayCopilot || !hasSeenTour())) startTour(self);
       };
     } else startTour(self);
+  } else {
+    // The tip badge is the tour's quiet successor: five cards once, then one line a visit for
+    // ever after. In the same branch and not beside it, because the tour may not have opened
+    // *yet* — it waits for the scroll to finish opening — and a badge armed in the meantime would
+    // be sitting under the first card when it lands. See `armTipBadge` for the rest of the rules.
+    self.armTipBadge();
   }
   // The launch splash comes down here and nowhere else, because this scene is the first thing
   // the game ever draws. `postrender` rather than the end of `create`: `create` runs *before*

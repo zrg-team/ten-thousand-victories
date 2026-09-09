@@ -14,7 +14,9 @@
 
 <br>
 
-[![Chơi trọn game, miễn phí](https://img.shields.io/badge/▶%20%20CH%C6%A0I%20TR%E1%BB%8CN%20GAME-mi%E1%BB%85n%20ph%C3%AD%20·%20kh%C3%B4ng%20qu%E1%BA%A3ng%20c%C3%A1o-b33a26?style=for-the-badge&labelColor=7d2417)](https://zrg-team.github.io/ten-thousand-victories/)
+<a href="https://zrg-team.github.io/ten-thousand-victories/"><img src="docs/readme/play-badge-vi.png" alt="Chơi trọn game, miễn phí — không quảng cáo" width="489"></a>
+
+<sub>Cài từ trình duyệt — thêm vào màn hình chính là chơi được ngoại tuyến, toàn màn hình, không cần cửa hàng hay tài khoản.</sub>
 
 <sub>Hoặc ủng hộ tác giả — vẫn game ấy, trên hai chợ app, 50.000₫ (≈ 2$), trả một lần.</sub>
 
@@ -49,6 +51,7 @@
 - [📜 Sử Ký — chuyện kể chính là cỗ máy](#-sử-ký--chuyện-kể-chính-là-cỗ-máy)
 - [🏮 Lịch sử thật, chạm một cái là tới](#-lịch-sử-thật-chạm-một-cái-là-tới)
 - [🖌️ Chuyện vẽ vời](#️-chuyện-vẽ-vời)
+  - [Những lá bài — năm mươi bức tranh, mỗi lá một bức](#những-lá-bài--năm-mươi-bức-tranh-mỗi-lá-một-bức)
   - [Danh tướng](#danh-tướng)
   - [Quân đội các vương quốc](#quân-đội-các-vương-quốc)
   - [Đông Hồ](#đông-hồ)
@@ -73,7 +76,7 @@ Bạn là một tiểu vương với vỏn vẹn một tòa kinh thành, giữa 
 
 - **Giặc đến theo đợt.** Chừng năm rưỡi một đợt, đợt sau đông hơn đợt trước; cứ đợt thứ tư là một trận trùm, báo trước hẳn một mùa. Không có màn "thắng" — chỉ có bạn trụ được tới đâu.
 - **Tham vọng có giá của nó.** Chiếm thêm trấn, rút thêm bài, mộ thêm quân — làm gì cũng khiến đợt giặc sau hung hơn. Muốn mở cõi thì phải chịu nóng.
-- **Lên cấp, chọn sức mạnh.** Bốn lá — đồng, bạc, vàng, ngọc — chọn một, cộng dồn vĩnh viễn. Hai lá đã nâng kịch trần còn *tiến hóa* được thành một lá mới toanh.
+- **Lên cấp, chọn sức mạnh.** Bốn lá — đồng, bạc, vàng, ngọc — chọn một, cộng dồn vĩnh viễn. Hai lá đã nâng kịch trần còn *tiến hóa* được thành một lá mới toanh. Cả thảy năm mươi hai lá, và [lá nào cũng mang một bức tranh khắc riêng](#những-lá-bài--năm-mươi-bức-tranh-mỗi-lá-một-bức).
 - **Định đường lối.** Mỗi thời đại một lần, bạn nói với quần thần: giang sơn này *Cố Thủ*, *Mở Mang*, *Làm Giàu* hay *Dựng Binh*. Nói xong, bộ máy cứ thế mà xây — tới khi bạn đổi ý.
 - **Thua cũng không về tay trắng.** Hết ván, mọi thứ quy ra **Di sản** — mua đặc quyền vĩnh viễn cho ván sau.
 
@@ -156,7 +159,7 @@ Chuyện trong game không phải cutscene. Có **bốn mươi chín khuôn chuy
 
 <table>
   <tr>
-    <td width="40%"><img src="docs/readme/chronicle.webp" alt="Một lá bài chuyện đang diễn: lời đề nghị của một lãnh chúa đối địch, ba cách đáp với cái giá thật, lời bàn của quân sư bên dưới" width="100%"></td>
+    <td width="40%"><img src="docs/readme/chronicle.webp" alt="Một lá bài chuyện đang diễn: Nỏ Thần, dưới bức tranh khắc của riêng nó — hai cách đáp, cách nào cũng có giá thật" width="100%"></td>
     <td valign="top">
 
 **Vài trang trong số đó**
@@ -173,7 +176,7 @@ Chuyện trong game không phải cutscene. Có **bốn mươi chín khuôn chuy
 - *Hồ Gươm*
 - *Yết Kiêu* · *Ải Chi Lăng* · *Thần Tốc* · *Văn Miếu* · *Thánh Gióng* · *Sơn Tinh Thủy Tinh* …
 
-**Và chuyện diễn bằng quân cờ thật.** Vai chính là vị tướng bạn triệu về thật, bối cảnh là trấn đất bạn đang giữ thật; chọn phương án nào cũng tốn vàng thật, người thật. Ngã ngũ rồi, lá bài kê khai rành mạch: *−400 tráng đinh, −60 vàng, câu chuyện ngả về một chức chỉ huy*. Có chuyện bắt bạn **thề** — giữ trấn này, giữ hòa khí kia — rồi nhớ rất dai xem bạn có giữ lời. Có chuyện để lại **dư âm** trong trình duyệt: viên tướng dứt áo bỏ đi ở ván này, ván sau vẫn có kẻ nhắc tên.
+**Và chuyện diễn bằng quân cờ thật.** Vai chính là vị tướng bạn triệu về thật, bối cảnh là trấn đất bạn đang giữ thật; chọn phương án nào cũng tốn vàng thật, người thật. Ngã ngũ rồi, lá bài kê khai rành mạch: *−400 tráng đinh, −60 vàng, câu chuyện ngả về một chức chỉ huy*. Có chuyện bắt bạn **thề** — giữ trấn này, giữ hòa khí kia — rồi nhớ rất dai xem bạn có giữ lời. Có chuyện để lại **dư âm** trong trình duyệt: viên tướng dứt áo bỏ đi ở ván này, ván sau vẫn có kẻ nhắc tên. Mười sáu đoạn trong số đó hiện lên kèm [một bức tranh khắc riêng](#những-lá-bài--năm-mươi-bức-tranh-mỗi-lá-một-bức) — đúng cái khoảnh khắc câu chuyện xoay quanh.
 
 Sao không làm cutscene cho khỏe? Vì chuyện mà bấm bỏ qua được thì chẳng đọng lại gì. Trói chuyện vào tướng, vào đất, vào quốc khố của chính bạn thì lịch sử mới thành thứ *xảy đến với mình*, chứ không phải thứ xem cho xong. Và lời kể nào cũng dán nhãn phân minh — *chính sử*: sử chép vậy; *dã sử*: dân gian kể vậy; *ngoại truyện*: game này bịa — tất cả gom vào một cuốn Sử Ký, hết ván mở ra đọc lại được.
 
@@ -198,7 +201,32 @@ Game cũng biết tự dạy: có trang **Cách chơi**, có tour dắt tay ở 
 
 ## 🖌️ Chuyện vẽ vời
 
-Game gần như không mang theo sprite nào. Người, quân, sông núi — tất cả vẽ bằng code, theo lối **tranh khắc gỗ Đông Hồ**. Dưới đây là chính thứ mực ấy, soi thật gần.
+Tất cả những gì bạn thấy phía trên là một bức tranh do hai bàn tay cùng vẽ, cả hai đều theo lối **tranh khắc gỗ Đông Hồ**. **Bản in** được vẽ sẵn theo một tờ quy tắc: một nét viền đen ấm, mảng màu phẳng, không gian ước lệ nông, trên nền giấy điệp. **Mực** thì do code vẽ ngay lúc chạy, cũng theo đúng những quy tắc ấy — vì một giang sơn sinh mới mỗi ván thì không thể vẽ sẵn được. Chỗ hai bên gặp nhau, cố ý để không ai nhìn ra.
+
+| Vẽ sẵn, thành bản in | Code vẽ, ngay lúc chạy |
+|---|---|
+| **50** tranh bài — mỗi lá bài sức mạnh một bức, cộng 12 bối cảnh | chính **giang sơn**: ô lục giác, ruộng, sông, đường, sương mù — ván nào cũng bày lại từ đầu |
+| **325** bản in bản đồ — lính theo từng nước và từng cấp, mái nhà, cây, xe, trâu | **4 mùa** trên cùng nền đất ấy — lá đổi màu, ruộng ngập rồi gặt |
+| **277** mảnh chân dung — đầu, tóc, mũ, cổ áo, áo, phù hiệu | **5 thế** một đạo quân có thể đứng, vẽ đúng cái thế nó đang giữ |
+
+### Những lá bài — năm mươi bức tranh, mỗi lá một bức
+
+Một lá bài sức mạnh không phải là cái biểu tượng kèm con số. Năm mươi lá, mỗi lá mang một cảnh riêng, khắc theo cùng tờ quy tắc ấy — cọc đóng xuống lòng Bạch Đằng, Hai Bà và con voi, ải Chi Lăng, chiếc nỏ trên bàn thợ, những đứa trẻ được nhận vào Văn Miếu, đoàn thuyền lương Vân Đồn:
+
+<img src="docs/readme/card-prints.webp" alt="Mười hai trong năm mươi bức tranh bài: cọc Bạch Đằng, Hai Bà Trưng, ải Chi Lăng, nỏ thần, Văn Miếu, một buổi tấu trình, Bình Ngô đại cáo, chiếu dời đô, mùa gặt, buổi mộ binh làng, đắp đê, thuyền lương Vân Đồn" width="100%">
+
+<table>
+  <tr>
+    <td valign="top">
+
+Chúng không phải đồ trang trí trong menu. Bức nào cũng hiện lên đúng chỗ ý nghĩa của nó: trên lá bài bạn rút giữa ván, trên trang Sử Ký kể chính chuyện ấy, trong tờ trình quan lại dâng lên — và tất cả tụ lại ở **Tông Phả**, thứ duy nhất sống lâu hơn một ván chơi. Mỗi triều kết thúc, mỗi mười đợt giặc là một lượt rút; rút được lá nào thì lá ấy là của bạn mãi mãi. Ba bản giống nhau gộp thành một lá mạnh hơn, và tối đa ba lá theo bạn vào ván sau — đổi bằng tham vọng, nên giặc cũng đáp lại cái lợi thế ấy.
+
+**Vì sao làm vậy.** Bài sức mạnh trong roguelite thường là một bức tường biểu tượng, mà một bức tường biểu tượng thì chẳng có gì để nhớ. Ở đây mỗi lá là một bức tranh về đúng điều nó làm, lấy từ chính cái truyền thống game này nói tới — nên người chưa đọc được chữ *Nỏ Thần* vẫn biết lá nào là lá nỏ, và một trang sưu tập tự nó đã đáng mở ra xem.
+
+</td>
+    <td width="38%"><img src="docs/readme/cabinet.webp" alt="Tông Phả: từng hàng bài đã thu, mỗi lá một bức tranh khắc trong khung phẩm cấp, đếm số bản, hai lá đã đủ để gộp" width="100%"></td>
+  </tr>
+</table>
 
 ### Danh tướng
 

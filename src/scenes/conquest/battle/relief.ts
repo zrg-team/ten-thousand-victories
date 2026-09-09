@@ -24,7 +24,9 @@
 import Phaser from 'phaser';
 import { BATTLE_TICK_MS } from '../../../game/ascentConfig';
 import { INK_UI } from '../../../ui/InkUI';
-import { sawtoothBand, seal } from '../../../ui/ink/devices';
+import { sawtoothBand } from '../../../ui/ink/devices';
+import { drawHouseSign, houseBanner } from '../../../ui/ascent/houseBanner';
+import { inkPath, washFill, type Pt } from '../../../ui/ink/stroke';
 import { setConquestArmyStepping } from '../../../ui/ink/figureStamps';
 import { TITLE_FONT, UI_FONT } from '../../../ui/fonts';
 import { formatNumber } from '../../../utils/format';
@@ -165,11 +167,13 @@ function marchIn(self: ConquestUIScene, entry: BattleMarker, side: ReliefSide): 
 
   const dust = self.add.graphics();
   const colour = side === 'ours' ? INK_UI.brush : INK_UI.cinnabar;
-  dust.lineStyle(1.5, colour, 0.7);
   const back = side === 'ours' ? -1 : 1;
-  for (let i = 0; i < 3; i += 1) {
-    const y = marker.y - 4 + i * 5;
-    dust.lineBetween(back * (18 + i * 6), y, back * (46 + i * 10), y + (i - 1) * 1.5);
+  // Five strokes at 2.4, not three at 1.5: at a phone's scale the old trail was three hairlines
+  // behind a moving block of men and could not be seen at all.
+  for (let i = 0; i < 5; i += 1) {
+    const y = marker.y - 8 + i * 5;
+    dust.lineStyle(2.4 - (i % 2) * 0.7, colour, 0.72 - i * 0.08);
+    dust.lineBetween(back * (16 + i * 5), y, back * (52 + i * 12), y + (i - 2) * 1.5);
   }
   dust.setPosition(from, 0);
   ui.fanfare.add(dust);
@@ -184,17 +188,31 @@ function marchIn(self: ConquestUIScene, entry: BattleMarker, side: ReliefSide): 
 }
 
 /**
- * The proclamation: a ribbon across the sky over the field, in the side's colours.
+ * The proclamation: an edict unfurled over the field, in the side's colours.
  *
- * Ours is a cinnabar band ruled in gold with the drum's sawtooth inside it, the title in gold and
- * the seal stamped down at its head — the same chop the wave banner and the arrival fanfare use,
- * because this is the same register: the court announcing something. Theirs is the same band in
- * ink with the title in sỏi son and no seal; a proclamation from the wrong court. Both slide in
- * from the side the column came from, hold long enough to be read, and go out the far side.
+ * ## What this replaced, and why
  *
- * Drawn under the dials and over everything on the field, and placed at a fifth of the field's
- * height: the sky over the ridges, clear of the bubbles (which hang 78 over the line) on every
- * screen height the game supports.
+ * It was a full-bleed rectangle with two straight gold rules, slid across the sky from one edge to
+ * the other. Reported: *when reinforcement army came it show slash in UI but look really bad*, and
+ * that is the right word for it — a hard-edged bar the width of the screen, travelling sideways
+ * across empty paper, is a slash. Three separate faults behind it:
+ *
+ * - **It was a vector bar in a printed game.** Square corners, flat fill, ruled edges. Every other
+ *   coloured block in this game is pulled with `washFill` under an `inkPath` contour, which is the
+ *   difference between a printed block and clip-art (see `ink/stroke.ts`).
+ * - **Nothing gave it a place.** Full-bleed means it belongs to the frame, not to the picture. It
+ *   sat on the blank sky above the ridges with its ends running off both edges.
+ * - **It arrived by travelling.** A banner that slides past is scenery going by. A proclamation
+ *   *lands*.
+ *
+ * So it is a swallow-tailed banner now — the shape a proclamation actually has — inset from
+ * the paper's edges with its own shadow under it, printed rather than filled, and it **unfurls**
+ * from its centre and is stamped: the chop punches down, the rays sweep out once, and the field
+ * takes a jolt. Ours is cinnabar ruled in gold with the drum's sawtooth inside it; theirs is the
+ * same banner in ink with the title in sỏi son and no chop, a proclamation from the wrong court.
+ *
+ * Placed at a fifth of the field's height so it overlaps the ridges rather than floating over bare
+ * sky, and still clear of the bubbles, which hang 78 over the line on every screen height.
  */
 function proclaim(self: ConquestUIScene, side: ReliefSide, name: string, men: number): void {
   const ui = self.battleUi;
@@ -204,68 +222,183 @@ function proclaim(self: ConquestUIScene, side: ReliefSide, name: string, men: nu
   const root = self.add.container(0, 0);
   ui.fanfare.add(root);
 
-  // A wash over the whole field first, in the side's colour, gone in half a second. The one
-  // moment the field is allowed a flash — a rally is a thing seen from the whole line at once.
+  /**
+   * The light of it, thrown from the side the column came from.
+   *
+   * A flat wash over the whole field was the first try and it is invisible: an even 0.3 of gold
+   * over parchment changes nothing the eye can catch, because there is no edge in it. Six stepped
+   * bands falling away from the arriving edge do have one — the field is *lit from where the
+   * help is coming from*, which is the fact the moment is about.
+   */
   const flash = self.add.graphics();
-  flash.fillStyle(ours ? INK_UI.gold : INK_UI.cinnabar, 1);
-  flash.fillRect(box.x, box.y, box.width, box.height);
+  const glow = ours ? INK_UI.gold : INK_UI.cinnabar;
+  const bands = 6;
+  for (let step = 0; step < bands; step += 1) {
+    const w = box.width / bands;
+    flash.fillStyle(glow, (ours ? 0.34 : 0.26) * (1 - step / bands));
+    flash.fillRect(box.x + (ours ? step * w : box.width - (step + 1) * w), box.y, w + 1, box.height);
+  }
   root.add(flash);
-  self.tweens.add({ targets: flash, alpha: { from: ours ? 0.3 : 0.22, to: 0 }, duration: 520, ease: 'Quad.easeOut' });
+  self.tweens.add({ targets: flash, alpha: { from: 1, to: 0 }, duration: 560, ease: 'Quad.easeOut' });
 
-  const h = 46;
-  const y = box.y + Math.round(ui.fieldHeight * 0.2) - h / 2;
-  const ribbon = self.add.container(ours ? -box.width : box.width, 0);
+  /**
+   * Long strokes flying across the field the way the column came, the same speed-line device the
+   * shout uses. Two things at once: the eye is pulled toward the arriving side, and the picture
+   * moves — which is most of what "epic" means on a screen where the men themselves are stamps.
+   */
+  const streaks = self.add.graphics();
+  streaks.setPosition(ours ? -60 : 60, 0);
+  for (let index = 0; index < 5; index += 1) {
+    const y = box.y + box.height * (0.24 + index * 0.11);
+    streaks.lineStyle(2 + (index % 2), glow, 0.5);
+    streaks.lineBetween(box.x + 10, y, box.x + box.width - 10, y + (index - 2) * 2);
+  }
+  root.add(streaks);
+  self.tweens.add({
+    targets: streaks,
+    x: ours ? 60 : -60,
+    alpha: { from: 0.75, to: 0 },
+    duration: 520,
+    ease: 'Quad.easeOut',
+  });
+
+  // The banner itself: inset from the paper, capped so a desktop stage does not stretch it into a
+  // bar again, and drawn around its own centre so it can unfurl from there.
+  /**
+   * 56, and the two rows of type inside it are 17 and 10.
+   *
+   * At 48 with a 19-point heading the enemy banner printed its title straight through the top
+   * sawtooth: a text object's box is its leading, not its cap height, so a 19-point line occupies
+   * about 25 and the free band between the two registers was 28. The band grew, the heading gave
+   * up two points, and the pair is now centred in the room with three units either side.
+   */
+  const h = 56;
+  const w = Math.min(box.width - 36, 348);
+  const cx = box.x + box.width / 2;
+  // 0.235, not 0.2: the ridges begin at a quarter of the field, and at a fifth the banner cleared
+  // them entirely and hung on blank sky with nothing to belong to. Lowered until its foot crosses
+  // the ridge line — a proclamation nailed up over the country, not floating above it. Still 31
+  // clear of the bubbles, which hang 78 over the line and run two or three lines tall.
+  const cy = box.y + Math.round(ui.fieldHeight * 0.235);
+  const half = w / 2;
+  const rule = ours ? INK_UI.gold : INK_UI.cinnabar;
+  const ribbon = self.add.container(cx, cy);
   root.add(ribbon);
 
+  /**
+   * The swallow tail: a V cut into each end.
+   *
+   * It is the whole reason the shape reads as a banner rather than as a bar, and it costs four
+   * points on a polygon that was a rectangle.
+   */
+  const tail = 16;
+  const shape: Pt[] = [
+    { x: -half, y: -h / 2 }, { x: half, y: -h / 2 },
+    { x: half - tail, y: 0 }, { x: half, y: h / 2 },
+    { x: -half, y: h / 2 }, { x: -half + tail, y: 0 },
+  ];
+
+  // The paper's own shadow, so the banner is *on* the picture rather than composited over it.
+  const shade = self.add.graphics();
+  shade.fillStyle(INK_UI.brush, 0.16);
+  shade.fillPoints(shape.map((point) => ({ x: point.x + 3, y: point.y + 5 })), true);
+  ribbon.add(shade);
+
   const band = self.add.graphics();
-  band.fillStyle(ours ? INK_UI.cinnabar : INK_UI.brush, 0.94);
-  band.fillRect(box.x, y, box.width, h);
-  const rule = ours ? INK_UI.gold : INK_UI.cinnabar;
-  band.lineStyle(2, rule, 0.95);
-  band.lineBetween(box.x, y + 1.5, box.x + box.width, y + 1.5);
-  band.lineBetween(box.x, y + h - 1.5, box.x + box.width, y + h - 1.5);
-  // The drum's sawtooth along the rules — bronze relief on lacquer for ours, cinnabar on ink for theirs.
-  sawtoothBand(band, box.x + 4, y + 4, box.width - 8, 4, ours ? 0.55 : 0.7, rule);
-  sawtoothBand(band, box.x + 4, y + h - 8, box.width - 8, 4, ours ? 0.55 : 0.7, rule);
+  // Printed, not filled: the colour block is pulled first and registered by hand, then the
+  // contour is drawn over it. Registration 1.4 — enough to read as printing, not as a misprint.
+  washFill(band, shape, ours ? INK_UI.cinnabar : INK_UI.brush, 41, 0.95, 1.4);
+  inkPath(band, shape, 57, { colour: INK_UI.brush, width: 1.3, alpha: 0.8, wobble: 0.5, step: 11, closed: true });
+  band.lineStyle(1.6, rule, 0.9);
+  band.strokePoints([{ x: -half + 7, y: -h / 2 + 4 }, { x: half - 7, y: -h / 2 + 4 }], false, false);
+  band.strokePoints([{ x: -half + 7, y: h / 2 - 4 }, { x: half - 7, y: h / 2 - 4 }], false, false);
+  // The drum's sawtooth inside the rules — bronze on lacquer for ours, cinnabar on ink for theirs.
+  sawtoothBand(band, -half + 8, -h / 2 + 5.5, w - 16, 3.5, ours ? 0.55 : 0.7, rule);
+  sawtoothBand(band, -half + 8, h / 2 - 9, w - 16, 3.5, ours ? 0.55 : 0.7, rule);
   ribbon.add(band);
 
-  // The seal at the head of ours: stamped down, the rays swept once and gone.
-  const sealX = box.x + 34;
-  const sealY = y + h / 2;
-  const textLeft = ours ? sealX + 26 : box.x + 12;
-  const textWidth = box.x + box.width - 12 - textLeft;
+  /**
+   * The seal at the head of ours: stamped down, the rays swept once and gone.
+   *
+   * **46, not 36.** The swallow tail's notch reaches 16 units in at the banner's waist, which is
+   * exactly the height the 36-unit slip is widest at: at 36 the slip's left edge stood at
+   * `-half + 18` against a paper edge at `-half + 16`, and two units of margin photographs as the
+   * chop sitting on the cut. Twelve is the clearance now, and the notch reads as a notch.
+   */
+  const sealX = -half + 46;
+  const textLeft = ours ? sealX + 26 : -half + 14;
+  const textWidth = half - 14 - textLeft;
   const centreX = textLeft + textWidth / 2;
   if (ours) {
+    /**
+     * No paper slip under it — the sign is pressed straight into the cloth.
+     *
+     * It had one: a 36-unit parchment square, on the argument that a chop is stamped on paper. On
+     * a banner it read as a *label pinned to* the proclamation rather than as the proclamation's
+     * own seal, and it put a second rectangle inside a shape whose whole point is that it is not a
+     * rectangle. Asked for plainly: *can we remove the box?*
+     *
+     * What the paper was really doing was giving the mark an edge against cinnabar, and a ring of
+     * ink does that in one line: the sign's disc is already ringed in the house's trim, and this
+     * seats it on the red without boxing it.
+     */
+    const seat = self.add.graphics();
+    seat.fillStyle(INK_UI.brush, 0.22);
+    seat.fillCircle(sealX, 1.5, 17);
+    ribbon.add(seat);
     const rays = self.add.graphics();
-    for (let index = 0; index < 8; index += 1) {
-      const angle = (index / 8) * Math.PI * 2 + 0.2;
-      rays.lineStyle(1.8, INK_UI.gold, 0.55);
-      rays.lineBetween(Math.cos(angle) * 16, Math.sin(angle) * 16, Math.cos(angle) * 40, Math.sin(angle) * 40);
+    for (let index = 0; index < 10; index += 1) {
+      const angle = (index / 10) * Math.PI * 2 + 0.2;
+      rays.lineStyle(2, INK_UI.gold, 0.6);
+      rays.lineBetween(Math.cos(angle) * 16, Math.sin(angle) * 16, Math.cos(angle) * 46, Math.sin(angle) * 46);
     }
-    rays.setPosition(sealX, sealY).setAlpha(0).setScale(0.5);
+    rays.setPosition(sealX, 0).setAlpha(0).setScale(0.5);
     ribbon.add(rays);
-    const chop = self.add.graphics();
-    seal(chop, 0, 0, 30, 'star');
-    chop.setPosition(sealX, sealY).setScale(2.2).setAlpha(0);
+    /**
+     * The house's own sign — the round chop, not its standard.
+     *
+     * Two corrections, one after the other. It was `seal(..., 'star')` first: the shared cinnabar
+     * device, the same mark for every dynasty anybody has ever played, while the fight screen's
+     * own header stamps the house two inches away. Asked directly — *does it use the correct sign
+     * of the dynasty?* — it did not.
+     *
+     * The first answer was `drawHouseSeal`, the square field the menu's scroll carries, and that
+     * was wrong for a different reason: a house whose emblem is `banner` has a command standard
+     * drawn inside it, so a square plaque with a flag on it reads as a *flag nailed to the
+     * proclamation*. Answered as *use the sign, not the flag*. `drawHouseSign` is the round
+     * identity chop — the same emblem, field and trim, in the shape of a thing that is stamped.
+     * Whatever device a house carries, a disc reads as a seal and a square standard does not.
+     *
+     * Still on its paper slip: the chop paints the house's own field, and most of those fields are
+     * red, which on a cinnabar banner is a mark that is not there.
+     *
+     * A column an ally sent counts as ours here (`hostsJoined` reads our side of the field). The
+     * seal on a proclamation is the authority making it, not the livery of the men marching in,
+     * so the realm's own mark is the right one either way.
+     */
+    const SIGN = 30;
+    const chop = self.add.container(sealX, 0);
+    chop.add(drawHouseSign(self, houseBanner(), SIGN, SIGN).setPosition(-SIGN / 2, -SIGN / 2));
+    chop.setScale(2.4).setAlpha(0);
     ribbon.add(chop);
     self.tweens.chain({
       tweens: [
-        { targets: chop, scale: 1, alpha: 1, duration: 220, delay: RIBBON_IN_MS - 80, ease: 'Back.easeIn' },
-        { targets: rays, alpha: { from: 0.9, to: 0 }, scale: 1.4, duration: 420, ease: 'Cubic.easeOut', offset: '-=30' },
+        { targets: chop, scale: 1, alpha: 1, duration: 190, delay: RIBBON_IN_MS - 60, ease: 'Back.easeIn' },
+        { targets: rays, alpha: { from: 0.95, to: 0 }, scale: 1.5, duration: 460, ease: 'Cubic.easeOut', offset: '-=20' },
       ],
     });
   }
 
-  const title = self.add.text(centreX, y + h / 2 - 1, ours ? t('ascent.battle.reliefTitle') : t('ascent.battle.enemyReliefTitle'), {
-    fontFamily: TITLE_FONT, fontSize: '19px', fontStyle: '700', align: 'center',
+  const title = self.add.text(centreX, -9, ours ? t('ascent.battle.reliefTitle') : t('ascent.battle.enemyReliefTitle'), {
+    fontFamily: TITLE_FONT, fontSize: '17px', fontStyle: '700', align: 'center',
     color: cssHex(ours ? INK_UI.goldLight : INK_UI.cinnabar),
-  }).setOrigin(0.5, 1);
+  }).setOrigin(0.5);
   // One line, squeezed rather than wrapped, the way the wave banner keeps its heading a heading.
   if (title.width > textWidth) title.setScale(textWidth / title.width, 1);
   ribbon.add(title);
-  const sub = self.add.text(centreX, y + h / 2 + 2, t('ascent.battle.reliefSub', { name, men: formatNumber(men) }), {
-    fontFamily: UI_FONT, fontSize: '10.5px', align: 'center', color: cssHex(INK_UI.parchment),
-  }).setOrigin(0.5, 0);
+  const sub = self.add.text(centreX, 10, t('ascent.battle.reliefSub', { name, men: formatNumber(men) }), {
+    fontFamily: UI_FONT, fontSize: '10px', align: 'center', color: cssHex(INK_UI.parchment),
+  }).setOrigin(0.5);
   if (sub.width > textWidth) sub.setScale(textWidth / sub.width, 1);
   ribbon.add(sub);
 
@@ -274,35 +407,58 @@ function proclaim(self: ConquestUIScene, side: ReliefSide, name: string, men: nu
     killTweensDeep(self, root);
     root.destroy(true);
   };
+  /**
+   * Unfurled, held, then taken down.
+   *
+   * `scaleX` from a sliver with `Back.easeOut` is a banner being pulled open from its middle; the
+   * overshoot is the cloth snapping taut. It leaves upward rather than sideways, because a
+   * proclamation is taken down, not driven past.
+   */
+  ribbon.setScale(0.12, 0.6).setAlpha(0);
   self.tweens.chain({
     tweens: [
-      { targets: ribbon, x: 0, duration: RIBBON_IN_MS, ease: 'Back.easeOut' },
-      { targets: ribbon, x: ours ? 60 : -60, alpha: 0, duration: RIBBON_OUT_MS, delay: RIBBON_HOLD_MS, ease: 'Quad.easeIn' },
+      { targets: ribbon, scaleX: 1, scaleY: 1, alpha: 1, duration: RIBBON_IN_MS, ease: 'Back.easeOut' },
+      {
+        targets: ribbon,
+        y: cy - 26,
+        alpha: 0,
+        duration: RIBBON_OUT_MS,
+        delay: RIBBON_HOLD_MS,
+        ease: 'Quad.easeIn',
+      },
     ],
     onComplete: finish,
   });
 }
 
-/** The men the column brings, rising off the line it joined — gold for ours, sỏi son for theirs. */
+/**
+ * The men the column brings, rising off the line it joined — gold for ours, sỏi son for theirs.
+ *
+ * **Off the feet, not over the heads.** It used to start 54 above the line and rise to 98, which is
+ * exactly where the shout hangs (bubbles sit 78 over the line and are two or three lines tall), so
+ * the one number the moment is about was printed *behind* the sentence announcing it. Photographed
+ * on the phone: `+460` inside the bubble, half of it under the text. It rises from the ground the
+ * men are standing on instead, where nothing else is drawn.
+ */
 function countOverLine(self: ConquestUIScene, battle: AscentBattle, side: ReliefSide, men: number): void {
   const ui = self.battleUi;
   if (!ui || men <= 0) return;
   const { groundY } = ui.geometry;
   const lines = battleLines(self, battle.ourAdvance, battle.theirAdvance);
   const x = side === 'ours' ? lines.ourX : lines.theirX;
-  const label = self.ui.label(x, groundY - 54, `+${formatNumber(men)}`, 'label', {
-    fontSize: '16px', fontStyle: '700', align: 'center',
+  const label = self.ui.label(x, groundY + 8, `+${formatNumber(men)}`, 'label', {
+    fontSize: '17px', fontStyle: '700', align: 'center',
     color: cssHex(side === 'ours' ? INK_UI.gold : INK_UI.cinnabar),
-    stroke: cssHex(INK_UI.brush), strokeThickness: 2.5,
+    stroke: cssHex(INK_UI.brush), strokeThickness: 3,
   }).setOrigin(0.5).setScale(0.6);
   ui.floaters.add(label);
   self.tweens.add({ targets: label, scale: 1, duration: 240, ease: 'Back.easeOut' });
   self.tweens.add({
     targets: label,
-    y: groundY - 98,
+    y: groundY - 26,
     alpha: { from: 1, to: 0 },
     duration: 1500,
-    delay: 200,
+    delay: 260,
     ease: 'Sine.easeOut',
     onComplete: () => { if (label.active) label.destroy(); },
   });

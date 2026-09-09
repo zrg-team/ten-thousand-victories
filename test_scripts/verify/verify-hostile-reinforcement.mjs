@@ -107,7 +107,28 @@ const report = await page.evaluate(async()=>{
 });
 await page.screenshot({path:'output/web-game/hostile-reinforcement.png'});
 if(Number(process.env.WIDTH??390)===390) {
-  await page.mouse.click(220,190);
+  /**
+   * The row is found, not guessed at.
+   *
+   * This used to click a frozen (220, 190) — the first row's position on the day it was written.
+   * The relief page groups its hosts under headings now and says what is already on the road
+   * above them, so the row moved down and the check reported "warning row did not dispatch",
+   * which is a harness failing because the page got better. Located by its own name instead.
+   */
+  const at=await page.evaluate(()=>{
+    const ui=window.__phaserGame.scene.getScene('ConquestUIScene');
+    let found;
+    const walk=(o)=>{ if(o.type==='Text'&&o.text?.trim()==='Đạo tiếp viện')found=o; if(Array.isArray(o.list))o.list.forEach(walk); };
+    walk(ui.modalLayer);
+    if(!found)return null;
+    const m=found.getWorldTransformMatrix();
+    const cam=ui.cameras.main;
+    const canvas=window.__phaserGame.canvas.getBoundingClientRect();
+    const scale=canvas.width/(cam.width/cam.zoom);
+    return {x:canvas.left+m.tx*scale+40,y:canvas.top+m.ty*scale};
+  });
+  if(!at)throw new Error('Warning row was not drawn on the relief page');
+  await page.mouse.click(at.x,at.y);
   const sent=await page.evaluate(()=>window.__mandateState.movementOrders.some(o=>o.armyId==='relief-test'&&o.hostileTransit));
   if(!sent)throw new Error('Warning row did not dispatch on click');
   report.push('warning row remains clickable and sends relief');

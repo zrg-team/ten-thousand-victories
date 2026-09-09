@@ -10,11 +10,11 @@
  *
  *   DEV_URL=http://127.0.0.1:5199 node test_scripts/shot/shot-readme.mjs [section...]
  *
- * Sections: menu ascent battle chronicle empire seasons skirmish history portraits graphics.
+ * Sections: menu ascent battle chronicle empire seasons skirmish history portraits graphics prints.
  * With no arguments every section runs. The README's banner is composed from these files
  * afterwards by `scripts/build-banner.mjs` (`yarn banner`), which needs no game.
  */
-import { mkdirSync, writeFileSync, statSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, statSync } from 'node:fs';
 import { chromium } from 'playwright';
 
 const URL = process.env.DEV_URL ?? 'http://127.0.0.1:5179';
@@ -68,6 +68,46 @@ async function save(name, buffers, opts) {
   const bytes = await encode(buffers, opts);
   const path = `${OUT}/${name}.webp`;
   writeFileSync(path, bytes);
+  written.push({ path, kb: Math.round(statSync(path).size / 1024) });
+  console.log(`   ${path}  ${written.at(-1).kb} KB`);
+}
+
+/**
+ * Lays image *files* out in a grid — the one picture on this page that needs no game.
+ *
+ * The card prints under `public/art/story-prints/` are the game's one authored art seam: 65 Đông Hồ
+ * scenes drawn to a written rule sheet, one behind every power card. They are shipped assets, so a
+ * gallery of them is composed from the files themselves rather than photographed through a screen
+ * that would shrink each one to a thumbnail. Every source is the same 3:2, so the cells are the
+ * first image's size and nothing is letterboxed.
+ */
+async function mosaic(name, files, { cols = 4, gap = 10, scale = 0.62, quality = QUALITY } = {}) {
+  const sources = files.map((file) => readFileSync(`public/art/story-prints/${file}`).toString('base64'));
+  const dataUrl = await codec.evaluate(async ({ images, cols, gap, scale, quality }) => {
+    const bitmaps = await Promise.all(images.map((src) => new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = `data:image/webp;base64,${src}`;
+    })));
+    const cellW = bitmaps[0].width;
+    const cellH = bitmaps[0].height;
+    const rows = Math.ceil(bitmaps.length / cols);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round((cellW * cols + gap * (cols - 1)) * scale);
+    canvas.height = Math.round((cellH * rows + gap * (rows - 1)) * scale);
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    bitmaps.forEach((im, i) => {
+      const x = (i % cols) * (cellW + gap);
+      const y = Math.floor(i / cols) * (cellH + gap);
+      ctx.drawImage(im, Math.round(x * scale), Math.round(y * scale), Math.round(cellW * scale), Math.round(cellH * scale));
+    });
+    return canvas.toDataURL('image/webp', quality);
+  }, { images: sources, cols, gap, scale, quality });
+  const path = `${OUT}/${name}.webp`;
+  writeFileSync(path, Buffer.from(dataUrl.split(',')[1], 'base64'));
   written.push({ path, kb: Math.round(statSync(path).size / 1024) });
   console.log(`   ${path}  ${written.at(-1).kb} KB`);
 }
@@ -588,27 +628,50 @@ if (want('chronicle')) {
     const { createAscentGameState } = await import('/src/state/GameState.ts');
     const { advanceAscentTick } = await import('/src/systems/ascent/AscentTick.ts');
     const { resolveAscentPrompt } = await import('/src/systems/ascent/AscentResolver.ts');
-    let s = 20260816 >>> 0;
-    Math.random = () => {
-      s = (s + 0x6d2b79f5) | 0;
-      let t = Math.imul(s ^ (s >>> 15), 1 | s);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-    const st = createAscentGameState({ seaSides: 1, difficulty: 'normal' });
-    let found = null;
-    for (let i = 0; i < 400 && !found; i += 1) {
-      advanceAscentTick(st);
-      let guard = 0;
-      while (st.pendingAscentPrompt && guard++ < 8) {
-        const p = st.pendingAscentPrompt;
-        if (p.kind === 'story-beat') { found = { templateId: p.templateId, fragmentId: p.fragmentId }; break; }
-        if (p.kind === 'run-over') break;
-        resolveAscentPrompt(st, window.__firstChoice(p, guard));
+    // Sixteen of the Chronicle's beats carry an authored Đông Hồ print; the rest are drawn by the
+    // scene's own ink. Both are the real screen, but the picture on the README should be one of the
+    // sixteen — the first cut of this stopped at whatever beat came first and photographed a dyke
+    // as two grey lines. So: run on, and settle for an unillustrated beat only if none turns up.
+    const { storyBeatPrint } = await import('/src/ui/storyPrint.ts');
+    /**
+     * Runs a fresh seeded world to the first story beat `accept` likes, and leaves it standing.
+     * Two passes rather than a remembered state: a GameState is not something to deep-clone, and
+     * the run is pinned by the seed, so running it twice costs a second and reproduces exactly.
+     */
+    const runTo = (accept, ticks) => {
+      let s = 20260816 >>> 0;
+      Math.random = () => {
+        s = (s + 0x6d2b79f5) | 0;
+        let t = Math.imul(s ^ (s >>> 15), 1 | s);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+      const st = createAscentGameState({ seaSides: 1, difficulty: 'normal' });
+      for (let i = 0; i < ticks; i += 1) {
+        advanceAscentTick(st);
+        let guard = 0;
+        while (st.pendingAscentPrompt && guard++ < 8) {
+          const p = st.pendingAscentPrompt;
+          if (p.kind === 'story-beat' && accept(p)) {
+            return { state: st, beat: { templateId: p.templateId, fragmentId: p.fragmentId } };
+          }
+          if (p.kind === 'run-over') break;
+          resolveAscentPrompt(st, window.__firstChoice(p, guard));
+        }
       }
-    }
-    window.__shotState = st;
-    return { found, turn: st.turn };
+      return { state: st, beat: null };
+    };
+
+    const illustrated = runTo((p) => Boolean(storyBeatPrint(p.templateId, p.fragmentId)), 900);
+    const chosen = illustrated.beat ? illustrated : runTo(() => true, 400);
+    // The receipts of every beat answered on the way here. `lastStoryOutcome` is a slot of its own
+    // — the "what changed · Noted" card — and the shell raises it *over* the pending prompt, so a
+    // run long enough to reach an illustrated beat photographed the ledger of the one before it.
+    // Same for a fight the autopilot resolved: its Reckoning stands in `pendingAftermath`.
+    chosen.state.lastStoryOutcome = undefined;
+    if (chosen.state.ascent) chosen.state.ascent.pendingAftermath = undefined;
+    window.__shotState = chosen.state;
+    return { found: chosen.beat, illustrated: Boolean(illustrated.beat), turn: chosen.state.turn };
   });
   console.log('   story:', JSON.stringify(story));
   await page.evaluate(() => window.__phaserGame.scene.start('ConquestScene', { state: window.__shotState }));
@@ -923,7 +986,52 @@ if (want('graphics')) {
   await page.close();
 }
 
-// ── 12 · the banner ─────────────────────────────────────────────────────────────────────────────
+// ── 12 · the card prints: the deck they live in, and the prints themselves ──────────────────────
+//
+// The game's one authored art seam. Everything else on this page is drawn by code at run time; the
+// 65 scenes under `public/art/story-prints/` are pictures, one behind every power card, every
+// Chronicle beat that earned one, and every decision sheet. They were the largest thing about the
+// game that no picture on the README showed.
+if (want('prints')) {
+  console.log('prints');
+
+  // The deck: Tàng Ấn Các, the collection page, where the prints are a wall rather than one card.
+  const page = await newPage();
+  await toMenu(page);
+  // A collection page is worth photographing full. The store is seeded from the live card table —
+  // not a hardcoded list — so a card added later appears here by itself, and the levels and copies
+  // are spread so the badges the page exists to show (max, combine ready, ×n) are all on screen.
+  await page.evaluate(async () => {
+    const { POWER_CARDS } = await import('/src/data/ascentCards.ts');
+    const cards = {};
+    POWER_CARDS.forEach((card, i) => {
+      cards[card.id] = { level: i % 5 === 0 ? 3 : i % 3 === 0 ? 2 : 1, copies: i % 4 };
+    });
+    localStorage.setItem('mandate:cabinet:v1', JSON.stringify({
+      cards, rubbings: 6, rubbingPity: 3, learnedRecipes: [], openingHand: [], deeds: [], packsBought: 4,
+    }));
+  });
+  await toMenu(page);
+  await page.evaluate(() => window.__phaserGame.scene.getScene('MenuScene').scene.start('CabinetScene'));
+  await page.waitForFunction(() => window.__phaserGame.scene.isActive('CabinetScene'), null, { timeout: 20000 });
+  await page.waitForTimeout(1800);
+  // Past the draw button, the deeds and the opening hand, into the binder itself. Set on the scroll
+  // area rather than flicked: a flick lands wherever the glide decides, and this picture wants the
+  // same six rows every time it is regenerated.
+  await page.evaluate(() => window.__phaserGame.scene.getScene('CabinetScene').scroll?.setScroll(1500));
+  await page.waitForTimeout(600);
+  await save('cabinet', [await shot(page)]);
+  await page.close();
+
+  // The prints themselves, off the disk: what a card carries before the game frames it.
+  await mosaic('card-prints', [
+    'bach-dang-stakes-v1.webp', 'hai-ba-v1.webp', 'chi-lang-v1.webp', 'no-than-v1.webp',
+    'van-mieu-v1.webp', 'petition-v1.webp', 'dai-cao-v1.webp', 'chieu-doi-do-v1.webp',
+    'harvest-v1.webp', 'muster-v1.webp', 'de-dieu-v1.webp', 'van-don-v1.webp',
+  ], { cols: 4, gap: 10, scale: 0.62 });
+}
+
+// ── 13 · the banner ─────────────────────────────────────────────────────────────────────────────
 //
 // Moved to scripts/build-banner.mjs on 2026-09-07. It used to be composed here, by laying the menu,
 // map, founder and battle frames side by side on transparent gutters — a filmstrip with nothing on

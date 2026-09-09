@@ -11,6 +11,19 @@ export interface VirtualRow<T> {
   dispose?(row: Phaser.GameObjects.Container): void;
 }
 
+/**
+ * How many rows may be built in one frame while a finger or a fling is moving the list.
+ *
+ * Binding a row runs the page's own builder: a `Text` per label, and a `Text` is a canvas
+ * allocation, a `measureText`, a `fillText` and a full `texImage2D` at the render scale — two or
+ * three times the design size, so four or nine times the pixels. Unbudgeted, a fast fling crossing
+ * twenty rows does all twenty in whichever frame it lands in, inside the input handler, and that
+ * frame is the stutter the player feels. Two a frame drains a twenty-row backlog in ten frames
+ * while the list is still moving, and `sync` builds from the top of the range down, so the rows
+ * actually inside the viewport are the ones that get the budget first.
+ */
+const BIND_BUDGET = 2;
+
 /** Variable-height rows, with a bounded set of holders and no offscreen hit targets. */
 export class InkVirtualList<T> {
   private items: readonly T[] = [];
@@ -20,6 +33,8 @@ export class InkVirtualList<T> {
   private spare: Phaser.GameObjects.Container[] = [];
   private stop: () => void;
   private disposed = false;
+  /** Rows the budget deferred; the next sync builds them, and the glide fires one per frame. */
+  private pending = false;
 
   constructor(private area: InkScrollArea, private rows: VirtualRow<T>, items: readonly T[] = []) {
     this.stop = area.onScroll(() => this.sync());
@@ -75,9 +90,15 @@ export class InkVirtualList<T> {
     for (const [i, row] of this.mounted) if (i < from || i > to) {
       this.mounted.delete(i); this.release(row);
     }
+    // Under a moving finger the number of rows built this frame is capped; at rest it is not, so a
+    // list always settles complete. See `BIND_BUDGET`.
+    let budget = this.area.gesturing ? BIND_BUDGET : Infinity;
+    this.pending = false;
     for (let i = from; i <= to; i++) {
       let row = this.mounted.get(i);
       if (!row) {
+        if (budget <= 0) { this.pending = true; continue; }
+        budget -= 1;
         row = this.spare.pop() ?? this.rows.create();
         this.rows.bind(row, this.items[i]);
         this.area.content.add(row);
@@ -85,12 +106,21 @@ export class InkVirtualList<T> {
       }
       const visible = this.ends[i] > this.area.offset && this.starts[i] < this.area.offset + this.area.bounds.height;
       row.setPosition(0, this.starts[i]).setActive(visible).setVisible(visible);
-      row.setData('virtualKey', this.rows.key(this.items[i]));
+      // Written only when it changes. `setData` builds a `DataManager` on first use and emits
+      // `changedata` on the object and again on the scene, and this ran for every mounted row on
+      // every pointer move — up to five writes and ten events per move event, for a value that
+      // only changes when a holder is rebound. Two harnesses read it (`verify-history`,
+      // `performance-acceptance`), so it stays; only the churn goes.
+      const key = this.rows.key(this.items[i]);
+      if (row.getData('virtualKey') !== key) row.setData('virtualKey', key);
     }
   }
 
-  stats(): { total: number; mounted: number; spare: number } {
-    return { total: this.items.length, mounted: this.mounted.size, spare: this.spare.length };
+  /** Whether the last sync left rows unbuilt because the gesture budget ran out. */
+  get incomplete(): boolean { return this.pending; }
+
+  stats(): { total: number; mounted: number; spare: number; pending: boolean } {
+    return { total: this.items.length, mounted: this.mounted.size, spare: this.spare.length, pending: this.pending };
   }
 
   destroy(): void {

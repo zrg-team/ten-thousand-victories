@@ -438,6 +438,23 @@ export class OverlayRenderer {
       .map(([landId, anchor]) => ({ id: `cloud::${landId}`, ...anchor }));
   }
 
+  /**
+   * Holds the fog's drift with the world's clock.
+   *
+   * Culling stopped an off-screen cloud, but nothing stopped an on-screen one: the drift tweens are
+   * `repeat: -1` and were never given to `syncWorldMotion`, so a paused world — a card up, a lane
+   * open, a fight covering the map — went on stepping one endless tween per fogged province,
+   * dozens of them early in a run, for weather nobody was watching.
+   */
+  setPaused(halted: boolean): void {
+    for (const [landId, tween] of this.cloudTweens) {
+      // Waking, only the clouds that are on screen: culling owns the rest, and resuming one it had
+      // stopped would undo it until the next time the camera crossed its edge.
+      if (halted) tween.pause();
+      else if (this.cloudGraphics.get(landId)?.visible !== false) tween.resume();
+    }
+  }
+
   /** Hides one fog cloud and stops it drifting while it is off-screen. */
   setCloudCulled(id: string, culled: boolean): void {
     const landId = id.slice('cloud::'.length);

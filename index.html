@@ -341,6 +341,29 @@
         color: #5a4c39;
       }
 
+      /* One thing worth knowing, while the bundle parses.
+         This screen is up for six seconds on a mid phone over a slow network, and until now it
+         asked the player to spend all six watching a bar. The line is set quietly and given fixed
+         room for three lines, because it is *replaced* by the game's own cached copy a frame after
+         this document parses (see the script below) and a growing block would push the bar down
+         under the reader's eyes. Its words cannot come from `src/i18n` — those catalogs are inside
+         the bundle this screen exists to cover — so they arrive from the previous visit's cache,
+         and the fallback below is the one line a first-ever visit gets. */
+      .sp-tip {
+        margin: 18px 0 0;
+        max-width: 300px;
+        min-height: 3.2em;
+        font-size: 12px;
+        line-height: 1.45;
+        color: #6f6250;
+        text-align: center;
+      }
+
+      .sp-tip b {
+        font-weight: 700;
+        color: #8a2a1b;
+      }
+
       .sp-bar {
         width: 132px;
         height: 3px;
@@ -396,6 +419,10 @@
           <div class="sp-status">
             <p class="sp-caption" id="sp-caption">Đang tập hợp quân…</p>
             <div class="sp-bar"><i></i></div>
+            <p class="sp-tip" id="sp-tip">
+              <b>Mẹo</b> · Tạm dừng không mất gì. Đồng hồ dừng thì không lời mời nào rút lại, không
+              đợt giặc nào lọt qua.
+            </p>
           </div>
         </div>
       </div>
@@ -661,13 +688,48 @@
         // chose. It cannot come from `src/i18n` — those catalogs are inside the bundle this screen
         // exists to cover — so the two lines live here, and only here.
         try {
-          if (localStorage.getItem('mandate:language:v1') === 'en') {
+          var english = localStorage.getItem('mandate:language:v1') === 'en';
+          if (english) {
             document.documentElement.lang = 'en';
             document.getElementById('sp-caption').textContent = 'Mustering the host…';
             document.getElementById('splash').setAttribute('aria-label', 'Vạn Thắng — loading');
+            document.getElementById('sp-tip').innerHTML =
+              '<b>Tip</b> · Pause is free. Nothing expires while the clock is stopped — no offer'
+              + ' withdrawn, no wave slipped past.';
+          }
+
+          /**
+           * The tip, from the game's own catalog by way of the previous visit.
+           *
+           * `src/data/tips.ts` writes all fifty lines here on every launch, tagged with the
+           * language they were written in and paired with the catalog key they came from. This
+           * reads one at random, and records the key it printed in the same place the game's
+           * picker reads — so the boot tip and the first loading screen after it are never the
+           * same sentence. Anything unexpected in storage leaves the inline fallback above alone:
+           * a malformed cache must cost the player a better tip, not the splash.
+           */
+          var cached = JSON.parse(localStorage.getItem('mandate:tips:v1') || 'null');
+          if (cached && cached.lang === (english ? 'en' : 'vi') && cached.tips && cached.tips.length) {
+            var last = localStorage.getItem('mandate:tip:last:v1');
+            var pool = cached.tips.filter(function (entry) { return entry && entry[0] !== last; });
+            if (!pool.length) pool = cached.tips;
+            var pick = pool[Math.floor(Math.random() * pool.length)];
+            if (pick && pick[1]) {
+              var tip = document.getElementById('sp-tip');
+              // `textContent` on a fresh <b>, never `innerHTML` with the cached string in it:
+              // this text has been through storage, and storage is writable by anything else
+              // served from this origin.
+              tip.textContent = '';
+              var lead = document.createElement('b');
+              lead.textContent = cached.label || (english ? 'Tip' : 'Mẹo');
+              tip.appendChild(lead);
+              tip.appendChild(document.createTextNode(' · ' + pick[1]));
+              localStorage.setItem('mandate:tip:last:v1', pick[0]);
+            }
           }
         } catch (e) {
-          // Storage blocked. The splash still prints; it just prints the default line.
+          // Storage blocked, or a cache this build cannot read. The splash still prints; it just
+          // prints the default line and the fallback tip.
         }
 
         /**

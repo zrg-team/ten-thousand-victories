@@ -317,6 +317,54 @@ const SCROLL_MAX_FLICK = 4.5;
 const SCROLL_FLICK_STALE_MS = 90;
 
 /**
+ * Rows the virtual list owns. It decides their residency and their visibility already, and two
+ * writers of `visible` on one object is a bug waiting for an ordering change.
+ */
+const virtualHolders = new WeakSet<Phaser.GameObjects.GameObject>();
+
+/** Half a row of slack, so a row entering the viewport is never a frame late. Costs nothing. */
+const CULL_MARGIN = 24;
+/** Ink wobble and stroke width reach past the geometry a container's measurable children report. */
+const CULL_PAD = 8;
+
+/**
+ * A child's vertical extent in its parent's coordinates, or `undefined` if it cannot be measured.
+ *
+ * `getBounds()` is not usable here, and that is the whole reason this function exists: Phaser's
+ * `Graphics` does not mix in `GetBounds` at all, and `Container.getBounds` silently unions only the
+ * children that have it. A row that is a panel plus two labels would therefore measure as just the
+ * labels — a subset of its real box — and a row that is only a `Graphics` would measure as an empty
+ * rectangle and be hidden for ever. Three sources, in order of trust, and anything unmeasurable is
+ * left alone rather than guessed at.
+ */
+function cullSpan(child: Phaser.GameObjects.GameObject): { top: number; bottom: number } | undefined {
+  const told = (child as Phaser.GameObjects.GameObject & { getData?(key: string): unknown }).getData?.('cullSpan') as
+    { top?: number; height?: number } | undefined;
+  if (told && typeof told.top === 'number' && typeof told.height === 'number') {
+    return { top: told.top, bottom: told.top + told.height };
+  }
+  const sized = child as Phaser.GameObjects.GameObject & { y?: number; originY?: number; displayHeight?: number };
+  if (typeof sized.displayHeight === 'number' && sized.displayHeight > 0 && typeof sized.y === 'number') {
+    const top = sized.y - (typeof sized.originY === 'number' ? sized.originY : 0) * sized.displayHeight;
+    return { top, bottom: top + sized.displayHeight };
+  }
+  if (child instanceof Phaser.GameObjects.Container) {
+    let top = Infinity;
+    let bottom = -Infinity;
+    for (const grandchild of child.list) {
+      const span = cullSpan(grandchild);
+      if (!span) continue;
+      top = Math.min(top, span.top);
+      bottom = Math.max(bottom, span.bottom);
+    }
+    if (top === Infinity) return undefined;
+    const scale = child.scaleY ?? 1;
+    return { top: child.y + top * scale - CULL_PAD, bottom: child.y + bottom * scale + CULL_PAD };
+  }
+  return undefined;
+}
+
+/**
  * The gesture a list has already claimed as a scroll, identified rather than merely flagged.
  *
  * Cards inside a scroll area lay a full-bleed hit rectangle over the whole viewport and fire on
@@ -364,6 +412,14 @@ export class InkScrollArea {
   private lazyRows: Array<{ key: string; top: number; height: number; build: () => void }> = [];
   private lazyList?: InkVirtualList<InkScrollArea['lazyRows'][number]>;
   private lazyCount = 0;
+  /** Measured extents of the content's own children, in content space. */
+  private readonly spans = new WeakMap<Phaser.GameObjects.GameObject, { top: number; bottom: number }>();
+  /** Rows this area hid. It never shows a row it did not hide, so a page's own choice survives. */
+  private readonly hidden = new WeakSet<Phaser.GameObjects.GameObject>();
+  private cullCount = -1;
+  private cullMissed = 0;
+  private readonly culling = typeof window === 'undefined'
+    || !/[?&]noscrollcull=1/.test(window.location.search);
   get offset(): number { return this.scrollY; }
   onScroll(fn: () => void): () => void { this.scrollListeners.add(fn); return () => this.scrollListeners.delete(fn); }
   onDispose(fn: () => void): void { this.disposeListeners.add(fn); }
@@ -539,7 +595,7 @@ export class InkScrollArea {
       this.lazyCount = this.lazyRows.length;
       if (!this.lazyList) this.lazyList = new InkVirtualList(this, {
         key: row => row.key, top: row => row.top, measure: row => row.height,
-        create: () => this.scene.add.container(),
+        create: () => { const holder = this.scene.add.container(); virtualHolders.add(holder); return holder; },
         bind: (holder, row) => {
           holder.removeAll(true);
           const before = new Set(this.content.list);
@@ -571,6 +627,78 @@ export class InkScrollArea {
     this.scrollY = Phaser.Math.Clamp(value, 0, this.maxScroll);
     this.content.y = -this.scrollY;
     for (const fn of this.scrollListeners) fn();
+    // After the listeners, not as one of them: `InkVirtualList.sync` is a scroll listener, so this
+    // is where the frame's mounts and unmounts have already happened and the child list is final.
+    // Registered as a listener instead, insertion order would run it first and a row mounted this
+    // frame would stay hidden until the next scroll event — at the end of a fling, for ever.
+    this.cull();
+  }
+
+  /**
+   * Hides the rows the viewport cannot show.
+   *
+   * Phaser's container renderer has no bounds test — `ContainerWebGLRenderer` asks each child only
+   * whether it is visible — so a row scrolled off the top is still transformed, tessellated, batched
+   * and uploaded every frame, and the stencil then throws the fragments away. The work is all done
+   * before the clip. Measured on How to Play, the largest page in the game: 204 `Text` objects and
+   * 17,044 live Graphics commands resident, of which only a screenful is on screen.
+   *
+   * `InkVirtualList` already does this for the pages that opted into `lazyRow`. This covers the ones
+   * that never did — every decision prompt and story page, the lane widget blocks, How to Play,
+   * Settings, the Cabinet's panels and the menu's own pages — without touching a single page.
+   */
+  private cull(): void {
+    if (!this.culling) return;
+    const children = this.content.list;
+    if (children.length !== this.cullCount) {
+      this.cullCount = children.length;
+      this.cullMissed = 0;
+      for (const child of children) {
+        if (virtualHolders.has(child) || this.spans.has(child)) continue;
+        const span = cullSpan(child);
+        if (span) this.spans.set(child, span);
+        else this.cullMissed += 1;
+      }
+    }
+    const top = this.scrollY - CULL_MARGIN;
+    const bottom = this.scrollY + this.bounds.height + CULL_MARGIN;
+    for (const child of children) {
+      if (virtualHolders.has(child)) continue;
+      const span = this.spans.get(child);
+      if (!span) continue;
+      const shown = child as Phaser.GameObjects.GameObject & { visible: boolean; setVisible(v: boolean): unknown };
+      const wanted = span.bottom > top && span.top < bottom;
+      // Only ever un-hide what this cull hid: a row a page deliberately hid stays hidden.
+      if (!wanted) {
+        if (shown.visible) { this.hidden.add(child); shown.setVisible(false); }
+      } else if (this.hidden.has(child)) {
+        this.hidden.delete(child);
+        shown.setVisible(true);
+      }
+    }
+  }
+
+  /**
+   * Whether a finger is down or a fling is still carrying the list.
+   *
+   * The virtual list reads this to cap how many rows it builds in a frame: building a row means
+   * allocating a canvas and uploading a texture, and doing that under a moving finger is the
+   * stutter. See `BIND_BUDGET` in `InkVirtualList`.
+   */
+  get gesturing(): boolean {
+    return this.dragStart !== undefined || Math.abs(this.velocity) >= SCROLL_MIN_FLICK;
+  }
+
+  /** How much of the content the cull could measure. A page whose rows it cannot see is a warning. */
+  cullStats(): { measured: number; missed: number; culled: number } {
+    let measured = 0;
+    let culled = 0;
+    for (const child of this.content.list) {
+      if (virtualHolders.has(child)) continue;
+      if (this.spans.has(child)) measured += 1;
+      if (this.hidden.has(child)) culled += 1;
+    }
+    return { measured, missed: this.cullMissed, culled };
   }
 
   addTo(parent: Phaser.GameObjects.Container): void {
@@ -802,22 +930,34 @@ export class InkUI {
 
     if (opts.badge && badge) {
       /**
-       * Drawn, not stamped: a stamp is keyed by its rectangle and these plates differ by their
-       * ink, so two rows with the same box and different tones would share one cached design.
+       * Stamped, like the card surface above it.
+       *
+       * This was live `Graphics` on the reasoning that "a stamp is keyed by its rectangle and these
+       * plates differ by their ink". The card's own surface, eight lines up, had already solved
+       * that by putting the ink in the key — so the badge did too, and every badged row in the
+       * Army, Court and Realm lanes paid a wash fill plus three wobbled stroke passes, per row, per
+       * frame. There are two boxes and a handful of tones, so this is a dozen textures at most.
        */
       const tone = opts.badge.tone ?? INK_UI.softBrush;
       const left = bounds.width - padding - badge.width;
       const top = 8;
-      const plate = this.scene.add.graphics().setPosition(left, top);
-      printedSurface(plate, badge.width, badge.height, {
+      const plateInk = {
         fill: INK_UI.parchmentDark,
         fillAlpha: 0.5,
         border: tone,
         borderAlpha: 0.9,
         borderWidth: 1.2,
         seed: Math.round(badge.width * 13 + badge.height),
-      });
-      container.add(plate);
+      };
+      const plateStamp = stampDesign(this.scene,
+        `ui:badge:${badge.width}:${badge.height}:${JSON.stringify(plateInk)}`,
+        { left: -3, top: -3, right: badge.width + 3, bottom: badge.height + 3 },
+        (g, x, y) => {
+          g.translateCanvas(x, y);
+          printedSurface(g, badge.width, badge.height, plateInk);
+          g.translateCanvas(-x, -y);
+        }, { pool: 'ui' });
+      container.add(placeStamp(this.scene, plateStamp, left, top));
       const middle = left + badge.width / 2;
       const caption = this.scene.add.text(middle, top + 6, opts.badge.caption.toLocaleUpperCase(), {
         ...textStyle('caption'), color: INK_UI_HEX.mutedText, fontSize: '8px', fontStyle: '700',

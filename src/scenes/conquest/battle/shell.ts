@@ -21,6 +21,7 @@ import { drawHouseSeal, houseBanner } from '../../../ui/ascent/houseBanner';
 import { ourHosts, battleTelegraph } from '../../../systems/ascent/BattleSystem';
 import { defenceCommanderOf } from '../../../systems/ascent/landCommand';
 import { findLand } from '../../../systems/LandSystem';
+import { battleAt, focusBattle } from '../../../systems/ascent/fronts';
 import { BATTLE_OPENING_SECONDS } from '../../../game/ascentConfig';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import { INK_UI, INK_UI_HEX, type UIBounds } from '../../../ui/InkUI';
@@ -78,6 +79,38 @@ function battleFieldHeight(content: UIBounds): number {
    * is what a battlefield should do with spare paper.
    */
   return Math.round(Math.max(150, Math.min(content.width * 1.15, room)));
+}
+
+/**
+ * Opens the war on a named province, because the player pressed its mark on the map.
+ *
+ * Not `showBattle` directly: `openLane` is what makes `refresh` treat the field as the open sheet,
+ * and drawing the page without the lane leaves a fight under a bar that thinks nothing is open
+ * (`screens/army.ts` learned this the same way). `focusBattle` seats the player on the field they
+ * pointed at, exactly as the war board's own rows do; where there is no engagement — a siege
+ * clock, a host standing on our ground — `showBattle` falls through to the board, which is the
+ * page that has something to say about both.
+ *
+ * Refused while a card or another sheet is up. A press that reaches the map through an open prompt
+ * is the press-through bug and not a request; the map has its own guard against it
+ * (`isScreenPointOverFixedUi`), and this is the second lock on the same door.
+ */
+export function openBattleAt(self: ConquestUIScene, landId: string): void {
+  if (self.state.pendingAscentPrompt || self.openPromptKey !== '') return;
+  const fighting = Boolean(battleAt(self.state, landId));
+  if (fighting) focusBattle(self.state, landId);
+  // Choosing a field is an instruction to fight on it, and the world runs while it is fought —
+  // the same release the board's rows make, and for the same reason.
+  self.lanePauseBeforeOpen = false;
+  self.openLane('battle');
+  // A siege clock with no engagement under it has no field to draw, and `showBattle` would seat
+  // the player on whichever *other* fight most needs a pair of hands — which is not the mark
+  // they pressed. The board is: it lists that province's clock along with the rest of the war.
+  // Cast because the early return above narrows the key to '' and TypeScript has not seen
+  // `openLane` reassign it.
+  if (!fighting && (self.openPromptKey as string) === 'lane:battle') {
+    self.replaceLanePage(() => self.showWarBoard());
+  }
 }
 
 /**
@@ -406,7 +439,48 @@ function battleHeaderFrame(self: ConquestUIScene, battle: AscentBattle): {
     : battle.isGreat
       ? t('ascent.battle.greatTitle', { land: battle.landName })
       : t('ascent.battle.title', { land: battle.landName });
-  const desc = self.add.text(textX, bandY + 1, where, {
+  /**
+   * **The seat says so, above its own name.**
+   *
+   * Reported: *fight screen should highlight this is capital*. Nothing on this screen said which
+   * province it was — the title reads the same for a border district and for the one whose fall
+   * ends the run, and the player has to remember the map to tell them apart. So the capital gets a
+   * seal above the title: cinnabar plate, paper-coloured caps, and the stake spelled out on it
+   * rather than left to be remembered.
+   *
+   * A row rather than a chip beside the title, because the title's own column is 162 units on a
+   * phone and already wraps to two lines; anything set beside it would push it to three. The
+   * header grows by thirteen units, and only for the one fight that is worth thirteen units.
+   */
+  const atCapital = self.state.ascent?.capitalLandId === battle.landId;
+  let sealRoom = 0;
+  if (atCapital) {
+    const mark = self.ui.label(0, 0, t('ascent.battle.capitalMark'), 'label', {
+      color: INK_UI_HEX.lightText, fontSize: '8.5px', fontStyle: '700',
+    }).setOrigin(0, 0.5);
+    /**
+     * Shrunk, never wrapped: the mark is one stamp, and a stamp that breaks in half is a mistake.
+     *
+     * **No letter spacing**, though caps at this size are asking for it. `Text.width` does not
+     * count it, so the fit below measured 210 units for a run that drew 258 and the English mark
+     * printed straight out of its own plate and under the round track. The stamp is legible
+     * without it; a measurement that lies is not worth the tracking.
+     */
+    if (mark.width > topW - 10) mark.setScale(Math.max(0.62, (topW - 10) / mark.width));
+    const plateW = Math.min(topW, mark.displayWidth + 10);
+    const plateH = 13;
+    const seal = self.add.graphics();
+    seal.fillStyle(INK_UI.cinnabar, 0.92);
+    seal.fillRoundedRect(textX, bandY, plateW, plateH, 2);
+    self.modalLayer.add(seal);
+    mark.setPosition(textX + 5, bandY + plateH / 2);
+    // Named so a harness can find the stamp and measure it against the round track beside it.
+    mark.setData('capitalMark', true);
+    self.modalLayer.add(mark);
+    sealRoom = plateH + 2;
+  }
+
+  const desc = self.add.text(textX, bandY + 1 + sealRoom, where, {
     color: '#2a2118', fontFamily: TITLE_FONT, fontSize: '15px', fontStyle: '700', lineSpacing: 1,
     wordWrap: { width: topW },
   }).setOrigin(0, 0);

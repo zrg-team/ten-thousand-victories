@@ -279,6 +279,9 @@ export function create(self: ConquestUIScene): void {
   );
 
   self.events.on('state-changed', self.onStateChanged);
+  // The map's clash and siege marks are pressable, and this is where they land. Registered here
+  // rather than on the map because the lane, and every guard around opening one, is this scene's.
+  self.events.on('ui:open-battle', (landId: string) => self.openBattleAt(landId));
   self.worldDimmed = false;
   refresh(self);
 }

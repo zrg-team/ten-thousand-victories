@@ -1,6 +1,6 @@
 {
   "name": "van-thang-desktop",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "The Steam / desktop cabinet for Vạn Thắng — Electron around the shell build.",
   "author": "Zrg Team",
@@ -35,7 +35,10 @@
       "node_modules/steamworks.js/**"
     ],
     "win": {
-      "target": ["dir", "nsis"],
+      "target": [
+        "dir",
+        "nsis"
+      ],
       "icon": "build/icon.ico"
     },
     "nsis": {
@@ -52,13 +55,19 @@
       "artifactName": "van-thang-${version}-setup-${arch}.${ext}"
     },
     "mac": {
-      "target": ["dir", "dmg"],
+      "target": [
+        "dir",
+        "dmg"
+      ],
       "category": "public.app-category.strategy-games",
       "icon": "build/icon.png",
       "artifactName": "van-thang-${version}-${arch}.${ext}"
     },
     "linux": {
-      "target": ["dir", "AppImage"],
+      "target": [
+        "dir",
+        "AppImage"
+      ],
       "category": "Game",
       "icon": "build/icon.png",
       "artifactName": "van-thang-${version}-${arch}.${ext}"
