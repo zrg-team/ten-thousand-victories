@@ -19,6 +19,7 @@ import { createLabel } from '../ui/theme';
 import { createMapRenderer, type MapRenderer } from '../ui/MapRenderer';
 import { bucketFor, faceStampedFigure, figureStamp } from '../ui/ink/figureStamps';
 import { placeStamp } from '../ui/ink/stamp';
+import { royalScroll } from '../ui/ink/royalScroll';
 import { PIGMENT } from '../ui/ink/palette';
 import { BATTLE_HOST_SCALE } from '../game/ascentConfig';
 import type { FigureArm } from '../ui/ink/devices';
@@ -27,8 +28,10 @@ import { applyRenderScale } from '../game/graphicsQuality';
 import { qualityLadder } from '../game/qualityLadder';
 import { drawFormationRing } from '../ui/ascent/formationCounters';
 import {
-  BATTLE_DIFFICULTIES, BATTLE_SPEEDS, getBattleDifficulty, getBattleSpeed,
-  setBattleDifficulty, setBattleSpeed, type BattleDifficulty, type BattleSpeed,
+  BATTLE_DIFFICULTIES, BATTLE_HINTS, BATTLE_SPEEDS,
+  getBattleDifficulty, getBattleHints, getBattleSpeed,
+  setBattleDifficulty, setBattleHints, setBattleSpeed,
+  type BattleDifficulty, type BattleSpeed,
 } from '../game/battleOptions';
 
 /**
@@ -252,29 +255,62 @@ export class BattleArenaScene extends Phaser.Scene {
 
     const cardW = GAME_WIDTH - 44;
     const cardX = 22;
-    const cardH = 372;
-    const cardY = Math.max(40, (GAME_HEIGHT - cardH) / 2);
+    /**
+     * Tall enough for the paper's own furniture.
+     *
+     * `royalScroll` prints a rule across the sheet at 130 and another at `height - 110` — the
+     * masthead and the foot of a sắc phong. They are baked into the stamp, so the report is laid
+     * out around them rather than over them: the kicker and the headline live above the first,
+     * the grade and the six figures between the two, and the pair of buttons below the second.
+     * At the 372 the rounded card used, the fifth figure printed straight through the foot rule.
+     */
+    const cardH = 456;
+    const HEAD_RULE = 130;
+    const FOOT_RULE = cardH - 110;
+    /** The ornamental register runs to 20 units in from each edge; the reading field starts after it. */
+    const INSET = 28;
+    /**
+     * The report stands on the menu's own paper.
+     *
+     * It used to be an `InkUI.panel` — a rounded rectangle with a coloured rule around it, which
+     * is the shape every ordinary card in the mode wears. This one is the end of a battle, the
+     * one sheet in the run the player stops to read, and a rounded card is what the game says
+     * about a build row. `royalScroll` is the sắc phong paper the front page is printed on:
+     * decorated margins, cloud corners and rolled ends, baked once per size. Without the seal —
+     * the vermilion lotus is the menu's own device and this document is not issued by it.
+     *
+     * Room is left for the rolls: the stamp reaches nineteen units past the paper at the head and
+     * foot, so the card sits clear of both edges of the sheet rather than at 40.
+     */
+    const cardY = Math.max(24, Math.round((GAME_HEIGHT - cardH) / 2));
     const accent = won ? INK_UI.jade : drew ? INK_UI.gold : INK_UI.cinnabar;
-    layer.add(this.ui.panel(
-      { x: cardX, y: cardY, width: cardW, height: cardH },
-      { border: accent, borderWidth: 2, radius: 8 },
-    ));
+    layer.add(royalScroll(this, cardX, cardY, cardW, cardH, false));
+    // The outcome colours the sheet by overdrawing the masthead rule the paper already carries,
+    // rather than by ringing the whole card: on decorated paper a coloured border reads as a
+    // sticker stuck over the print. Won, drawn and lost each close the head band in their own ink.
+    const outcomeRule = this.add.graphics();
+    outcomeRule.lineStyle(1.4, accent, won ? 0.9 : 0.75);
+    outcomeRule.lineBetween(cardX + 30, cardY + HEAD_RULE, cardX + cardW - 30, cardY + HEAD_RULE);
+    layer.add(outcomeRule);
 
-    let y = cardY + 18;
+    let y = cardY + 44;
     const kicker = createLabel(this, GAME_WIDTH / 2, y, t('arena.report.kicker'), 'caption', {
       fontSize: '9.5px', align: 'center',
     }).setOrigin(0.5, 0);
     layer.add(kicker);
-    y += kicker.height + 4;
+    y += kicker.height + 6;
 
     const headline = createLabel(
       this, GAME_WIDTH / 2, y,
       t(won ? 'arena.report.won' : drew ? 'arena.report.drew' : 'arena.report.lost'),
       'title',
-      { fontSize: '24px', align: 'center', color: `#${accent.toString(16).padStart(6, '0')}`, wordWrap: { width: cardW - 28 } },
+      { fontSize: '24px', align: 'center', color: `#${accent.toString(16).padStart(6, '0')}`, wordWrap: { width: cardW - INSET * 2 } },
     ).setOrigin(0.5, 0);
     layer.add(headline);
-    y += headline.height + 10;
+
+    // Below the masthead rule, whatever the head band did with its own room: a two-line
+    // Vietnamese headline pushes the words, not the grade.
+    y = cardY + HEAD_RULE + 16;
 
     // ── the grade ────────────────────────────────────────────────────────
     const starR = 15;
@@ -303,7 +339,7 @@ export class BattleArenaScene extends Phaser.Scene {
     const verdict = createLabel(
       this, GAME_WIDTH / 2, y,
       t(`arena.report.grade${stars}` as Parameters<typeof t>[0]), 'caption',
-      { fontSize: '11px', align: 'center', wordWrap: { width: cardW - 28 } },
+      { fontSize: '11px', align: 'center', wordWrap: { width: cardW - INSET * 2 } },
     ).setOrigin(0.5, 0);
     layer.add(verdict);
     y += verdict.height + 12;
@@ -319,25 +355,29 @@ export class BattleArenaScene extends Phaser.Scene {
         ? t('arena.report.durationValue', { n: Math.max(1, Math.round(this.lastDurationMs / 1000)) })
         : '—'],
     ];
+    // The block is hung off the foot rule rather than off whatever the verdict wrapped to, so
+    // six figures always end the same distance above it and the paper never has to stretch.
+    y = Math.max(y, cardY + FOOT_RULE - 14 - rows.length * 19);
     for (const [label, value] of rows) {
-      layer.add(createLabel(this, cardX + 16, y, label, 'caption', { fontSize: '11px' }).setOrigin(0, 0));
-      layer.add(createLabel(this, cardX + cardW - 16, y, value, 'label', {
+      layer.add(createLabel(this, cardX + INSET, y, label, 'caption', { fontSize: '11px' }).setOrigin(0, 0));
+      layer.add(createLabel(this, cardX + cardW - INSET, y, value, 'label', {
         fontSize: '12px', align: 'right',
       }).setOrigin(1, 0));
       y += 19;
     }
 
     // ── and the two ways on ──────────────────────────────────────────────
-    const btnY = cardY + cardH - 60;
-    const half = (cardW - 28 - 8) / 2;
+    // In the foot band, between the paper's lower rule and its bottom roll.
+    const btnY = cardY + FOOT_RULE + 26;
+    const half = (cardW - INSET * 2 - 10) / 2;
     layer.add(this.ui.button(
-      { x: cardX + 14, y: btnY, width: half, height: 46 },
+      { x: cardX + INSET, y: btnY, width: half, height: 46 },
       t('arena.report.again'),
       () => { this.dismissResult(); this.startFight(); },
       { variant: 'primary', fontSize: '15px' },
     ));
     layer.add(this.ui.button(
-      { x: cardX + 14 + half + 8, y: btnY, width: half, height: 46 },
+      { x: cardX + INSET + half + 10, y: btnY, width: half, height: 46 },
       t('arena.report.back'),
       () => this.dismissResult(),
       { variant: 'secondary', fontSize: '15px' },
@@ -573,6 +613,13 @@ export class BattleArenaScene extends Phaser.Scene {
       by = this.row(body, by, t('arena.bubbles'), this.bubbleChoices(),
         (c) => c.value === this.bubbleChoice,
         (c) => { this.bubbleChoice = c.value; this.render(); });
+      // The crib sheet, on the screen built for practising without one.
+      by = this.row(body, by, t('arena.hints'),
+        BATTLE_HINTS.map((value) => ({
+          value, label: t(`menu.battleHints.${value}` as 'menu.battleHints.show'),
+        })),
+        (c) => c.value === getBattleHints(),
+        (c) => { setBattleHints(c.value); this.render(); });
     }
 
     /**

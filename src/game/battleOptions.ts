@@ -15,9 +15,21 @@ import { ASCENT_BATTLE_ESCALATION } from './ascentConfig';
 
 export type BattleDifficulty = 'easy' | 'medium' | 'hard' | 'nightmare';
 export type BattleSpeed = 'slow' | 'normal' | 'fast';
+/**
+ * Whether the dock marks the shapes that beat the one the invader is standing in.
+ *
+ * A third dial, and deliberately not folded into difficulty. Difficulty is how well the *enemy*
+ * plays; this is how much the interface plays for you — and a player can want a patient invader
+ * and no crib sheet, or a vicious one with the marks left on while they learn the ring. Keeping
+ * them apart is also the only way to answer "make it harder without changing the fight": with
+ * the marks off, the loss numbers still say you are losing and the table is what tells you which
+ * shape fixes it. That inference is the game.
+ */
+export type BattleHints = 'show' | 'hide';
 
 export const BATTLE_DIFFICULTIES: BattleDifficulty[] = ['easy', 'medium', 'hard', 'nightmare'];
 export const BATTLE_SPEEDS: BattleSpeed[] = ['slow', 'normal', 'fast'];
+export const BATTLE_HINTS: BattleHints[] = ['show', 'hide'];
 
 interface DifficultyProfile {
   /**
@@ -110,6 +122,7 @@ const SPEED: Record<BattleSpeed, SpeedProfile> = {
 
 const DIFFICULTY_KEY = 'mandate:battle:difficulty:v1';
 const SPEED_KEY = 'mandate:battle:speed:v1';
+const HINTS_KEY = 'mandate:battle:hints:v1';
 
 function read<T extends string>(key: string, allowed: readonly T[], fallback: T): T {
   // Guarded because the systems are imported directly by headless harnesses, and a preference that
@@ -124,6 +137,7 @@ function read<T extends string>(key: string, allowed: readonly T[], fallback: T)
 
 let difficulty: BattleDifficulty | undefined;
 let speed: BattleSpeed | undefined;
+let hints: BattleHints | undefined;
 
 export function getBattleDifficulty(): BattleDifficulty {
   difficulty ??= read(DIFFICULTY_KEY, BATTLE_DIFFICULTIES, 'medium');
@@ -135,6 +149,18 @@ export function setBattleDifficulty(value: BattleDifficulty): void {
   try {
     if (typeof localStorage !== 'undefined') localStorage.setItem(DIFFICULTY_KEY, value);
   } catch { /* a browser with storage refused is still a browser that can play */ }
+}
+
+export function getBattleHints(): BattleHints {
+  hints ??= read(HINTS_KEY, BATTLE_HINTS, 'show');
+  return hints;
+}
+
+export function setBattleHints(value: BattleHints): void {
+  hints = value;
+  try {
+    if (typeof localStorage !== 'undefined') localStorage.setItem(HINTS_KEY, value);
+  } catch { /* as above */ }
 }
 
 export function getBattleSpeed(): BattleSpeed {
@@ -175,17 +201,23 @@ export function setBattleEscalationWave(wave: number): void {
   escalationWave = wave;
 }
 
-function escalated(): { difficulty: BattleDifficulty; speed: BattleSpeed; bubbleCap: number } {
+function escalated(): {
+  difficulty: BattleDifficulty; speed: BattleSpeed; bubbleCap: number; hintsHidden: boolean;
+} {
   let diffIdx = BATTLE_DIFFICULTIES.indexOf(getBattleDifficulty());
   let speedIdx = BATTLE_SPEEDS.indexOf(getBattleSpeed());
   let bubbleCap = Infinity;
+  let hintsHidden = false;
   for (const step of ASCENT_BATTLE_ESCALATION) {
     if (escalationWave < step.wave) continue;
     if (step.enemyFloor) diffIdx = Math.max(diffIdx, BATTLE_DIFFICULTIES.indexOf(step.enemyFloor));
     if (step.paceFloor) speedIdx = Math.max(speedIdx, BATTLE_SPEEDS.indexOf(step.paceFloor));
     if (step.bubbleCapMs !== undefined) bubbleCap = Math.min(bubbleCap, step.bubbleCapMs);
+    if (step.hideHints) hintsHidden = true;
   }
-  return { difficulty: BATTLE_DIFFICULTIES[diffIdx], speed: BATTLE_SPEEDS[speedIdx], bubbleCap };
+  return {
+    difficulty: BATTLE_DIFFICULTIES[diffIdx], speed: BATTLE_SPEEDS[speedIdx], bubbleCap, hintsHidden,
+  };
 }
 
 /** Beats of hesitation before the invader orders its answer. See `DifficultyProfile.reactDelay`. */
@@ -203,9 +235,18 @@ export function battleEnemyWagerAfter(): number | null {
   return DIFFICULTY[escalated().difficulty].wagerAfter;
 }
 
-/** Whether the dock shows which shapes beat the enemy's. See `DifficultyProfile.rims`. */
+/**
+ * Whether the dock shows which shapes beat the enemy's.
+ *
+ * Three things can take the marks away and any one of them is enough: the player asked for it in
+ * Settings, the invader is playing at a tier that never had them (hard and nightmare), or the run
+ * has reached the wave where the campaign stops explaining itself. See `DifficultyProfile.rims`
+ * and `AscentBattleEscalationStep.hideHints`.
+ */
 export function battleRimsShown(): boolean {
-  return DIFFICULTY[escalated().difficulty].rims;
+  if (getBattleHints() === 'hide') return false;
+  const effective = escalated();
+  return !effective.hintsHidden && DIFFICULTY[effective.difficulty].rims;
 }
 
 /** How long a speech bubble over a host lingers, capped by the wave escalation. */
