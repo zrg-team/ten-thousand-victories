@@ -116,11 +116,36 @@ function referenceFiles() {
   return files;
 }
 
-const candidates = walk(PUBLIC)
+const everyImage = walk(PUBLIC).filter((rel) => /\.(png|jpe?g|webp)$/i.test(rel));
+const candidates = everyImage
   .filter((rel) => /\.(png|jpe?g)$/i.test(rel))
   .filter((rel) => !KEEP_FORMAT.some((rule) => rule.test(rel)))
   .filter((rel) => (ONLY ? rel.includes(ONLY) : true))
   .sort();
+
+/**
+ * **A bare file name may only be rewritten when the whole game has exactly one of them.**
+ *
+ * The manifests name a file three ways — `public/art/…/hamlet.png`, `art/…/hamlet.png`, and an
+ * atlas's own `meta.image` as just `hamlet.png` — so all three have to be matched. But there is a
+ * `conquest-dongho/settlement/hamlet.png` *and* a `conquest-dongho-v4/settlement/hamlet.png`, and
+ * a pass that searched and replaced the bare name rewrote both at once: manifests were left
+ * pointing at WebP files that were never written, and the assets whose turn came later reported
+ * as "named nowhere" because their `.png` had already been renamed out of the file.
+ *
+ * The census is therefore taken over **every image under `public/`** — not over the candidate
+ * list, and certainly not over what `--only` narrowed it to. Slicing the run must not change what
+ * the run believes about names: a first attempt counted the slice, decided `atlas.png` was
+ * unique, and rewrote the *other two* face packs' atlases to a WebP that did not exist.
+ */
+const nameCounts = new Map();
+for (const rel of everyImage) {
+  const key = basename(rel).replace(/\.(png|jpe?g|webp)$/i, '');
+  nameCounts.set(key, (nameCounts.get(key) ?? 0) + 1);
+}
+const escapeRe = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** The name as a whole path segment: quoted or after a slash, and ending at a delimiter. */
+const segment = (name) => new RegExp(`(?<=["'\`/])${escapeRe(name)}(?=["'\`,\\s)\\]])`, 'g');
 
 if (candidates.length === 0) {
   console.log('nothing to do');
@@ -210,6 +235,9 @@ async function encode(bytes, ext, qualities) {
 }
 
 const rows = [];
+/** Files whose text changed, and the originals waiting on those writes to land. */
+const touched = new Set();
+const planned = [];
 let beforeTotal = 0;
 let afterTotal = 0;
 let skipped = 0;
@@ -222,9 +250,10 @@ for (const rel of candidates) {
   // Where an asset is named: the `public/`-relative path as the game builds it, the `public/`
   // prefixed form the art manifests carry in `runtimePath`, and the bare file name an atlas's
   // own `meta.image` uses. A short bare name is not searched for — it would match anything.
+  const unique = nameCounts.get(name.replace(/\.(png|jpe?g)$/i, '')) === 1;
   const hits = [...refs].filter(([, text]) => text.includes(rel)
     || text.includes(`public/${rel}`)
-    || (name.length > 8 && text.includes(name)));
+    || (unique && segment(name).test(text)));
   // **A build script naming a file does not make it a runtime asset.**
   //
   // `menu-layer-ground-v5.png` is named exactly once in the repo — by the generator that reads it
@@ -282,17 +311,52 @@ for (const rel of candidates) {
   const absoluteTarget = join(PUBLIC, target);
   mkdirSync(dirname(absoluteTarget), { recursive: true });
   writeFileSync(absoluteTarget, Buffer.from(best.data));
-  const from = [`public/${rel}`, rel, name];
-  const to = [`public/${target}`, target, basename(target)];
   for (const [file, text] of hits) {
-    let next = text;
-    from.forEach((needle, index) => { next = next.split(needle).join(to[index]); });
+    let next = text
+      .split(`public/${rel}`).join(`public/${target}`)
+      .split(rel).join(target);
+    if (unique) next = next.replace(segment(name), basename(target));
     refs.set(file, next);
+    touched.add(file);
   }
-  if (!KEEP) unlinkSync(absolute);
+  // The original is *not* deleted here. See below.
+  planned.push(absolute);
 }
 
-if (APPLY) for (const [file, text] of refs) writeFileSync(file, text);
+/**
+ * **Write every reference first; delete the originals only once they have all landed.**
+ *
+ * This used to convert, rewrite and delete one asset at a time, which on Windows is a bet that
+ * nobody else has a file open: a run half way through 500 assets hit `UNKNOWN: open` on a source
+ * file the editor was holding, died there, and left 499 pictures deleted with only 18 of the 40
+ * files that name them updated. Nothing about that state is recoverable except from git.
+ *
+ * So the deletes wait. Every rewritten file is written first, with a few retries for exactly that
+ * transient lock, and if any of them still cannot be written then no original is removed and the
+ * run says which files it could not touch.
+ */
+if (APPLY) {
+  const failed = [];
+  for (const file of touched) {
+    let saved = false;
+    for (let attempt = 0; attempt < 5 && !saved; attempt += 1) {
+      try {
+        writeFileSync(file, refs.get(file));
+        saved = true;
+      } catch (error) {
+        if (attempt === 4) failed.push(`${file}: ${error.code ?? error.message}`);
+        else await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+    }
+  }
+  if (failed.length > 0) {
+    console.error('could not rewrite these files, so no original was deleted:');
+    for (const line of failed) console.error(`  ${line}`);
+    console.error('the .webp files are on disk; re-run when the files are free');
+  } else if (!KEEP) {
+    for (const absolute of planned) unlinkSync(absolute);
+  }
+}
 await browser.close();
 
 const kb = (n) => `${(n / 1024).toFixed(0)} kB`;

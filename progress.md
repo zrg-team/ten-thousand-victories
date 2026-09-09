@@ -1018,3 +1018,14 @@ Original prompt: Please implement the proposed Vạn Thắng documentation and P
 
 - Complete: all six new built-in ImageGen originals are preserved in output/conquest-ui-v3/masters, with accepted SHA256/crop provenance in docs/art/conquest-ui-v3/generation.json. icons-v3.png is 753,398 bytes / 4 MiB decoded. All 51 unaffected frame entries remain pixel-identical; saved dynasty sign pixels pass comparison. The 15/18/30/42px sheet and VI/EN phone plus desktop battle/resource screenshots were inspected.
 - Final fixed-source run on 5192: icon coverage 106/106, all five real formation presses with exactly one stamina spent, story choices 71/71 across 134 choices, compact dock 19/19, two installed-skill screenshot/text iterations, TypeScript and production build pass. No browser errors. Offline shell includes v3/signs and excludes v1/v2. Input fixture now freezes the simulation scene around order presses to prevent commander ticks racing reset battles. Earlier failed checks were a stale static-file inventory and live simulation fixture timing; both resolved. No outstanding work for this correction.
+
+
+## 2026-09-10 — Consistent formation uniforms and Dong Ho fight print
+
+- User approved the current soldier formation icons and requested matching Vietnamese clothing/colors, a forward-facing loose Tản ra line, and a richer generated fight icon. Preserved the original v3 spear rank; abandoned weapon-only previews were never installed.
+- Generated four formation replacements in indigo tunics/red sashes/brown trousers/ochre conical hats plus crossed curved sabres. Accepted true-alpha sources packed into icons-v4; 52 other frame entries are pixel-identical to v3, all 16 dynasty signs unchanged. Native alpha is preserved, including one source peaking at 254.
+- Runtime and offline version references updated. Added explicit 40px battle contact marker coverage to the existing icon/input suite. Validation pending.
+
+- Complete: v4 runtime atlas is 749,210 PNG bytes; final exact prompts and accepted source hashes are in docs/art/conquest-ui-v4-prompts.json and docs/art/conquest-ui-v4/generation.json. Reviewed all formation/fight prints at 15/18/30/42px and actual VI/EN phone plus desktop battle screens.
+- Final frozen source+public snapshot on 5194 passes 109/109 live checks, including all 15 formation presses/stamina costs, 40px fight marker, saved sign pixel identity, loading failure/retry and navigation; zero browser errors. Installed game-skill client completes two screenshot/text interactions without errors. TypeScript, production build and scoped offline v4/sign atlas checks pass.
+- Earlier verification overlapped a separate asset converter deleting PNGs before rewriting references; that conversion was rolled back externally. Final checks use restored files and no unrelated reference repairs. No outstanding work for the uniform, loose-formation and fight-icon request.

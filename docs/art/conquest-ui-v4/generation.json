@@ -2,46 +2,74 @@
   "mode": "built-in ImageGen",
   "assets": [
     {
-      "id": "spears",
-      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-2dd10422-13cf-4cf5-8cff-d8d03f798a40.png",
-      "master": "output/conquest-ui-v4/masters/spears.png",
-      "sha256": "ca43f526ebe1a698bf5b28c5021ab034c0cdaac8f025b8b1d5ae22c5a395f1d7",
-      "crop": [
-        288,
-        51,
-        979,
-        1202
-      ],
-      "alpha": "generated, preserved inside rectangular crop",
-      "prompt": "docs/art/conquest-ui-v4-prompts.json#spears"
-    },
-    {
       "id": "horse",
-      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-85b6cb6c-537d-44d1-9b72-1f5420f2150e.png",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-c1f70f26-0e5b-489c-a03f-a7950ef5a2df.png",
       "master": "output/conquest-ui-v4/masters/horse.png",
-      "sha256": "1298b9804e584fee4470a21bfc796dc45c66657bca7759aea841a1a15070d94b",
+      "sha256": "94b689e9c8380dad2ada3d10102f82a10f9ac2a61e46676813e4dd999d8fba4f",
       "crop": [
-        168,
-        176,
-        1083,
-        1101
+        20,
+        184,
+        1249,
+        1106
       ],
       "alpha": "generated, preserved inside rectangular crop",
       "prompt": "docs/art/conquest-ui-v4-prompts.json#horse"
     },
     {
-      "id": "skirmish",
-      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-c93fb91e-ba11-486e-a024-84137c74cc92.png",
-      "master": "output/conquest-ui-v4/masters/skirmish.png",
-      "sha256": "0a0af4a454dbcde5e74d32d997df7dceed00e1f11ad5efb1162fc591963a0495",
+      "id": "crossed-weapons",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-0f3b402c-4f17-47f7-a325-ea3330a28b0b.png",
+      "master": "output/conquest-ui-v4/masters/crossed-weapons.png",
+      "sha256": "90996e97b2ce7ada4685182f8f8960e59b5ff3e056786da4feb82042619c05ad",
       "crop": [
-        99,
-        52,
-        1153,
-        1197
+        59,
+        47,
+        1204,
+        1185
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v4-prompts.json#crossed-weapons"
+    },
+    {
+      "id": "skirmish",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-b4253960-040b-42db-b379-5c56dfd7a264.png",
+      "master": "output/conquest-ui-v4/masters/skirmish.png",
+      "sha256": "1dc620a33c0530d8d21be53c7029627851af1a80a52ce724c729fd27c5e1afc8",
+      "crop": [
+        153,
+        194,
+        1460,
+        839
       ],
       "alpha": "generated, preserved inside rectangular crop",
       "prompt": "docs/art/conquest-ui-v4-prompts.json#skirmish"
+    },
+    {
+      "id": "tortoise",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-0be1b1e7-9265-4eea-a7d9-a2ed9103f96a.png",
+      "master": "output/conquest-ui-v4/masters/tortoise.png",
+      "sha256": "04f6bca884cd7e58088a4ed80e13d07b9ef9bd0d3176062283d6509bddc8b1ae",
+      "crop": [
+        190,
+        78,
+        1057,
+        1170
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v4-prompts.json#tortoise"
+    },
+    {
+      "id": "bows",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-abb87e6e-3657-4968-952c-c5e8351ad3e8.png",
+      "master": "output/conquest-ui-v4/masters/bows.png",
+      "sha256": "2f0ddda48524aa2d86520bf58585c6b4a857c51b98d00c3f2b4ad8a99b43fc68",
+      "crop": [
+        104,
+        104,
+        1207,
+        1141
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v4-prompts.json#bows"
     }
   ]
 }

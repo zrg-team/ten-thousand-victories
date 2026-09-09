@@ -123,7 +123,7 @@ function cartoucheInk(g: Phaser.GameObjects.Graphics, rank: number, k = 1): void
 export function preloadHeroFaces(scene: Phaser.Scene): void {
   const baseUrl = import.meta.env.BASE_URL;
   // All 54 generated royal pieces share the PNG sheet described by atlas.json.
-  if (!scene.textures.exists(ROYAL_ATLAS)) scene.load.atlas(ROYAL_ATLAS, `${baseUrl}faces-royal/atlas.png`, `${baseUrl}faces-royal/atlas.json`);
+  if (!scene.textures.exists(ROYAL_ATLAS)) scene.load.atlas(ROYAL_ATLAS, `${baseUrl}faces-royal/atlas.webp`, `${baseUrl}faces-royal/atlas.json`);
   if (scene.textures.exists(FACE_ATLAS_TEXTURE_KEY)) return;
   scene.load.atlas(FACE_ATLAS_TEXTURE_KEY, `${baseUrl}${FACE_ART_PACK.image}`, `${baseUrl}${FACE_ART_PACK.atlas}`);
 }

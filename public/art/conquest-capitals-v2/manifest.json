@@ -6,7 +6,7 @@
   "assets": [
     {
       "id": "settlement.citadel-ly",
-      "path": "public/art/conquest-capitals-v2/settlement/citadel-ly.png",
+      "path": "public/art/conquest-capitals-v2/settlement/citadel-ly.webp",
       "sourceAlpha": false,
       "removedSpecks": 0,
       "sourceBounds": {
@@ -21,7 +21,7 @@
     },
     {
       "id": "settlement.citadel-le",
-      "path": "public/art/conquest-capitals-v2/settlement/citadel-le.png",
+      "path": "public/art/conquest-capitals-v2/settlement/citadel-le.webp",
       "sourceAlpha": false,
       "removedSpecks": 0,
       "sourceBounds": {
@@ -36,7 +36,7 @@
     },
     {
       "id": "settlement.citadel-nguyen",
-      "path": "public/art/conquest-capitals-v2/settlement/citadel-nguyen.png",
+      "path": "public/art/conquest-capitals-v2/settlement/citadel-nguyen.webp",
       "sourceAlpha": false,
       "removedSpecks": 0,
       "sourceBounds": {

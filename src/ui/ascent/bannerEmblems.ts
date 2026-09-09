@@ -22,7 +22,7 @@ const ART: Record<BannerEmblem, DynastySignArtId> = {
  *
  * The number is a multiple of the print's half-width, so 1.0 means the ink touches the edge of
  * the square and anything above it means the motif uses its corners. Read off the alpha of
- * `signs-v1.png` (2026-09-10, all sixteen): the blade runs corner to corner at **1.226**, the
+ * `signs-v1.webp` (2026-09-10, all sixteen): the blade runs corner to corner at **1.226**, the
  * phoenix 1.136, while the star stops at 0.892 and the bronze drum at 0.906.
  *
  * That spread is why one shared scale cannot be right for a *round* sign. At a size that keeps

@@ -236,14 +236,14 @@ const html = `
 <div class="sheet"></div>
 
 <div class="land">
-  <img class="ground"    src="${url('public/art/menu-layer-ground-v6.png')}">
+  <img class="ground"    src="${url('public/art/menu-layer-ground-v6.webp')}">
   <img class="mountains" src="${url('public/art/menu-layer-mountains-v3.png')}">
   <img class="lotus"     src="${url('public/art/menu-layer-lotus-v2.png')}">
 </div>
 
 <div class="plate">
   <div class="word">
-    <img class="seal" src="${url('public/app-emblem.png')}">
+    <img class="seal" src="${url('public/app-emblem.webp')}">
     <div class="name">VẠN THẮNG</div>
     <div class="rule"></div>
     <div class="gloss">TEN THOUSAND VICTORIES</div>

@@ -61,8 +61,8 @@ const skip = (rel) =>
   || /^faces-dongho-v\d+\/(parts\/|provenance\.json$)/.test(rel)
   // Royal wardrobe loads one combined atlas; individual cutouts and the earlier war pack are build inputs.
   || /^faces-royal\/(royal-[^/]+\.png$|provenance\.json$|war-v1\/)/.test(rel)
-  // Earlier UI atlases are packing sources; runtime uses v3 plus the preserved signs atlas.
-  || /^art\/conquest-ui-icons\/icons-v[12]\.(png|json)$/.test(rel);
+  // Earlier UI atlases are packing sources; runtime uses v5 plus the preserved signs atlas.
+  || /^art\/conquest-ui-icons\/icons-v[1234]\.(png|json)$/.test(rel);
 
 /** The art: fetched by the Phaser loader at runtime, and survivable if one is missing. */
 const isOptional = (rel) => rel.startsWith('faces/')

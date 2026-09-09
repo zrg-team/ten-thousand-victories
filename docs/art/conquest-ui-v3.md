@@ -1,5 +1,7 @@
 # Historical supplies and formation icons
 
+The current formation uniforms and fight symbol are in [revision 4](conquest-ui-v4.md). This document records the original troop-icon revision.
+
 This revision replaces the six v2 symbols called out in review. Generated raster artwork keeps a restrained Đông Hồ palette and thick printed contours, while the subjects now describe premodern materials and groups of soldiers.
 
 | Runtime ID | Meaning | Replacement subject |

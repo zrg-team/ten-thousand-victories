@@ -106,7 +106,7 @@
     },
     {
       "id": "royal-ly-hat-2",
-      "source": "public/faces-royal/war-v1/royal-ly-hat-2.png",
+      "source": "public/faces-royal/war-v1/royal-ly-hat-2.webp",
       "sourceBounds": {
         "left": 0,
         "top": 0,
@@ -196,7 +196,7 @@
     },
     {
       "id": "royal-tran-hat-2",
-      "source": "public/faces-royal/war-v1/royal-tran-hat-2.png",
+      "source": "public/faces-royal/war-v1/royal-tran-hat-2.webp",
       "sourceBounds": {
         "left": 0,
         "top": 0,
@@ -376,7 +376,7 @@
     },
     {
       "id": "royal-tayson-hat-2",
-      "source": "public/faces-royal/war-v1/royal-tayson-hat-2.png",
+      "source": "public/faces-royal/war-v1/royal-tayson-hat-2.webp",
       "sourceBounds": {
         "left": 0,
         "top": 0,

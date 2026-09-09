@@ -456,6 +456,20 @@ export function buildBattleOrders(self: ConquestUIScene, battle: AscentBattle): 
     orders.add(hit);
   });
 
+  // A wrapped verb reserves the same band for every formation. Keep the press-rest
+  // coordinates in sync so releasing a chip cannot restore its old individual size.
+  const formationChips = Object.values(dock.chips);
+  const sharedGlyphScale = Math.min(...formationChips.map(chip => chip.glyphScale));
+  const sharedGlyphY = Math.max(...formationChips.map(chip => chip.glyphY));
+  for (const chip of formationChips) {
+    chip.glyphScale = sharedGlyphScale;
+    chip.glyphY = sharedGlyphY;
+    chip.glyph.setScale(sharedGlyphScale).setY(sharedGlyphY);
+    const rest = chip.parts.find(part => part.o === chip.glyph)!;
+    rest.hs = sharedGlyphScale;
+    rest.hy = sharedGlyphY;
+  }
+
   // First readings, so the dock never shows a frame of empty handles.
   drawBattleDock(self, battle);
 }

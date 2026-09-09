@@ -1,6 +1,6 @@
 {
   "life.farmer-walk": {
-    "path": "art/conquest-dongho-v4/life/farmer-walk.png",
+    "path": "art/conquest-dongho-v4/life/farmer-walk.webp",
     "frameWidth": 627,
     "frameHeight": 627,
     "contentHeight": 550,
@@ -18,7 +18,7 @@
     ]
   },
   "life.traveler-walk": {
-    "path": "art/conquest-dongho-v4/life/traveler-walk.png",
+    "path": "art/conquest-dongho-v4/life/traveler-walk.webp",
     "frameWidth": 627,
     "frameHeight": 627,
     "contentHeight": 550,

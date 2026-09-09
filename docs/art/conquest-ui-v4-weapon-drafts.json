@@ -1,0 +1,39 @@
+{
+  "mode": "built-in ImageGen",
+  "revision": "Compact Dong Ho weapon symbols; narrow lancets; charge without flag",
+  "sources": [
+    "https://vietnamjournal.ru/2618-9453/article/view/159374"
+  ],
+  "jobs": [
+    {
+      "id": "spears",
+      "label": "Brace spears",
+      "meaning": "chong / Dựng giáo",
+      "prompt": "One compact SQUARE game icon on a transparent background, drawn as a Vietnamese Dong Ho folk woodblock print. Exactly three upright spears, spaced evenly across the square. Smooth ochre wooden shafts with hand-carved black outlines; each shaft roughly three times the length of its narrow pointed iron blade. Spearheads are slender steel lancets, ivory-grey pigment, tiny plain dark sockets: not broad leaves. The total silhouette is nearly square because the three spears are well spaced apart. Stout enough to read as a 30px UI icon, sparse woodblock grain, flat matte pigment, no decoration. All three spears are separate and completely visible, with clear transparent gaps and margin. No people, flag, tassels, bamboo nodes, scenery, labels, border, shadow, glow, paper or backdrop. Actual transparent PNG cutout."
+    },
+    {
+      "id": "horse",
+      "label": "Charge",
+      "meaning": "xung / Xung phong",
+      "prompt": "Use case: stylized-concept. Create ONE isolated raster game icon, a small Vietnamese Đông Hồ folk woodblock print. The design must be simple and readable at 30 pixels. Hand-carved warm soot-black outlines, matte earth-ochre wooden parts, small muted red accents only where requested, subdued ivory-grey metal, sparse natural print grain. Flat pigment blocks, mildly irregular ink contours, only essential carved lines. TRUE TRANSPARENT PNG: background pixels and spaces between objects must have alpha zero. Do not draw a checkerboard, white backdrop, paper, shadows, labels, border or scene. Center the complete motif with a generous transparent margin. No humans, soldiers, faces, helmets, tassels, flags, decorative patterns, bamboo nodes, gradients or 3D rendering. Subject: THREE slender long wooden Vietnamese infantry spears thrust toward the UPPER RIGHT in a compact staggered attack wedge. All three shafts parallel, tilted 45 degrees; middle spear projects furthest forward, other two are one step behind. Clearly three separate spears with open gaps and no crossing. Shaft is smooth ochre wood, about 75% of each weapon's length; tip plus small socket is the remaining 25%. Compact nearly square composition, shafts stout enough to read at 30px. Each iron blade is a very slim pointed triangular lancet, only twice the thin shaft width, light ivory-grey fill with black key-block outline. No leaf or paddle shapes. One short muted vermilion brush mark along each wooden shaft supplies a lively folk-print accent. No flag, pennant, modern arrow glyph, speed lines or other objects. The spear tips themselves show the direction of the charge."
+    },
+    {
+      "id": "skirmish",
+      "label": "Spread",
+      "meaning": "tan / Tản ra",
+      "prompt": "Use case: stylized-concept. Create ONE isolated raster game icon, a small Vietnamese Đông Hồ folk woodblock print. The design must be simple and readable at 30 pixels. Hand-carved warm soot-black outlines, matte earth-ochre wooden parts, small muted red accents only where requested, subdued ivory-grey metal, sparse natural print grain. Flat pigment blocks, mildly irregular ink contours, only essential carved lines. TRUE TRANSPARENT PNG: background pixels and spaces between objects must have alpha zero. Do not draw a checkerboard, white backdrop, paper, shadows, labels, border or scene. Center the complete motif with a generous transparent margin. No humans, soldiers, faces, helmets, tassels, flags, decorative patterns, bamboo nodes, gradients or 3D rendering. Subject: THREE slender long wooden Vietnamese infantry spears in a WIDE OPEN dispersed arrangement, middle upright, left tilting outward left 30 degrees, right tilting outward right 30 degrees. The bases also remain widely separated: no touching, crossing or joined fan handle. Large transparent gaps express spreading the formation. Each smooth ochre wooden shaft is 75% of the weapon length; a narrow iron lancet blade with small plain socket occupies the top 25%. Compact nearly square composition, shafts stout enough to read at 30px. The blade is an elongated slim triangle, only twice the shaft width, grey-ivory fill outlined in black, never broad leaf or paddle shaped. No other objects."
+    },
+    {
+      "id": "tortoise",
+      "label": "Raise shields",
+      "meaning": "quy / Giương khiên",
+      "prompt": "Use case: stylized-concept. Create ONE isolated raster game icon, a small Vietnamese Đông Hồ folk woodblock print. The design must be simple and readable at 30 pixels. Hand-carved warm soot-black outlines, matte earth-ochre wooden parts, small muted red accents only where requested, subdued ivory-grey metal, sparse natural print grain. Flat pigment blocks, mildly irregular ink contours, only essential carved lines. TRUE TRANSPARENT PNG: background pixels and spaces between objects must have alpha zero. Do not draw a checkerboard, white backdrop, paper, shadows, labels, border or scene. Center the complete motif with a generous transparent margin. No humans, soldiers, faces, helmets, tassels, flags, decorative patterns, bamboo nodes, gradients or 3D rendering. Subject: TWO plain round historical Vietnamese rattan shields overlapping into a compact defensive wall. Slightly uneven circular silhouettes, ochre pigment faces, thick black carved rims, one small dark central grip boss per shield, only three broad curved black cuts suggesting woven cane construction. No realistic weave, decorative studs, crests, rivets, spikes or spears. The front shield is slightly lower and to the right, covering a quarter of the back shield. The pair must read as sturdy handmade war shields, not coins or cymbals. Spare Đông Hồ woodblock execution."
+    },
+    {
+      "id": "bows",
+      "label": "Shoot",
+      "meaning": "no / Bắn",
+      "prompt": "Use case: stylized-concept. Create ONE isolated raster game icon, a small Vietnamese Đông Hồ folk woodblock print. The design must be simple and readable at 30 pixels. Hand-carved warm soot-black outlines, matte earth-ochre wooden parts, small muted red accents only where requested, subdued ivory-grey metal, sparse natural print grain. Flat pigment blocks, mildly irregular ink contours, only essential carved lines. TRUE TRANSPARENT PNG: background pixels and spaces between objects must have alpha zero. Do not draw a checkerboard, white backdrop, paper, shadows, labels, border or scene. Center the complete motif with a generous transparent margin. No humans, soldiers, faces, helmets, tassels, flags, decorative patterns, bamboo nodes, gradients or 3D rendering. Subject: ONE simple traditional Vietnamese wooden crossbow pointing diagonally to the upper right, seen from above. Smooth ochre wooden stock and curved transverse bow, dark carved outline, one taut dark string and one loaded short bolt along the stock. The tiny iron bolt point is slim and triangular, never a broad leaf. Clear open triangular spaces around the string. The compact stock has only one long dark carved cut. No rifle stock, trigger guard, modern machinery, hands or extra bolts. Recognizable historical crossbow silhouette, minimal detail."
+    }
+  ]
+}

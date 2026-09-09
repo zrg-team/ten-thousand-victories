@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 /** Restrained functional prints, shared by every size and interactive state. */
-export const CONQUEST_UI_TEXTURE = 'conquest-ui-icons:v3';
+export const CONQUEST_UI_TEXTURE = 'conquest-ui-icons:v5';
 /** Richer identity motifs keep a separate atlas so UI revisions never alter saved signs. */
 export const DYNASTY_SIGN_TEXTURE = 'dynasty-sign-icons:v1';
 export const CONQUEST_UI_ICON_IDS = [
@@ -24,9 +24,9 @@ export type DynastySignArtId = typeof DYNASTY_SIGN_ART_IDS[number];
 
 export function preloadConquestUiIcons(scene: Phaser.Scene, base: string): void {
   if (!scene.textures.exists(CONQUEST_UI_TEXTURE)) scene.load.atlas(CONQUEST_UI_TEXTURE,
-    `${base}art/conquest-ui-icons/icons-v3.png`, `${base}art/conquest-ui-icons/icons-v3.json`);
+    `${base}art/conquest-ui-icons/icons-v5.png`, `${base}art/conquest-ui-icons/icons-v5.json`);
   if (!scene.textures.exists(DYNASTY_SIGN_TEXTURE)) scene.load.atlas(DYNASTY_SIGN_TEXTURE,
-    `${base}art/conquest-ui-icons/signs-v1.png`, `${base}art/conquest-ui-icons/signs-v1.json`);
+    `${base}art/conquest-ui-icons/signs-v1.webp`, `${base}art/conquest-ui-icons/signs-v1.json`);
 }
 
 /** Original pigments stay intact. Labels, rims and alpha communicate control state. */

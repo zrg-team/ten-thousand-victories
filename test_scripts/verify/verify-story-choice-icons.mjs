@@ -5,7 +5,7 @@ const out = 'output/story-choice-icons/verification';
 mkdirSync(out, { recursive: true });
 const checks = [], errors = [];
 const check = (ok, name, detail) => { checks.push({ ok: !!ok, name, detail }); console.log(`${ok ? 'PASS' : 'FAIL'} ${name}`); };
-const atlas = JSON.parse(readFileSync('public/art/conquest-ui-icons/icons-v3.json', 'utf8'));
+const atlas = JSON.parse(readFileSync('public/art/conquest-ui-icons/icons-v5.json', 'utf8'));
 check(Object.keys(atlas.frames).length === 57, 'story motifs share the complete generated UI atlas');
 const browser = await chromium.launch();
 for (const [width, height, language] of [[390, 844, 'vi'], [390, 620, 'en'], [1440, 900, 'vi']]) {
@@ -20,7 +20,7 @@ for (const [width, height, language] of [[390, 844, 'vi'], [390, 620, 'en'], [14
   }, language);
   await page.goto(`${process.env.DEV_URL ?? 'http://127.0.0.1:5183'}/?capture=1&noladder=1&layout=${width > 700 ? 'desktop' : 'phone'}`);
   await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 60000 });
-  check(await page.evaluate(() => window.__phaserGame.textures.exists('conquest-ui-icons:v3')), `${tag}: shared UI atlas is ready before gameplay`);
+  check(await page.evaluate(() => window.__phaserGame.textures.exists('conquest-ui-icons:v5')), `${tag}: shared UI atlas is ready before gameplay`);
   await page.evaluate(() => window.__startBenchGame(20260908, 'ascent'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'));
   await page.evaluate(() => {
@@ -38,7 +38,7 @@ for (const [width, height, language] of [[390, 844, 'vi'], [390, 620, 'en'], [14
     const { storyText } = await import('/src/i18n/story/index.ts');
     const ui = window.__phaserGame.scene.getScene('ConquestUIScene');
     const invalid = [], samples = {}, pixels = [];
-    const tx = ui.textures.get('conquest-ui-icons:v3');
+    const tx = ui.textures.get('conquest-ui-icons:v5');
     const cv = document.createElement('canvas');
     cv.width = 120; cv.height = 120;
     const ctx = cv.getContext('2d', { willReadFrequently: true });
@@ -157,12 +157,12 @@ for (const [width, height, language] of [[390, 844, 'vi'], [390, 620, 'en'], [14
   await page.waitForTimeout(80);
   await page.screenshot({ path: `${out}/${tag}-held.png` });
   await page.evaluate(() => {
-    window.__phaserGame.textures.renameTexture('conquest-ui-icons:v3', 'icon-review:hidden');
+    window.__phaserGame.textures.renameTexture('conquest-ui-icons:v5', 'icon-review:hidden');
     window.__choiceFixture();
   });
   const fallback = await page.evaluate(() => window.__choiceRead());
   check(fallback.length === 3 && fallback.every(i => i.type === 'Container' && i.source === 'unavailable' && i.clear), `${tag}: missing atlas keeps readable controls in the same gutter`, fallback);
-  await page.evaluate(() => window.__phaserGame.textures.renameTexture('icon-review:hidden', 'conquest-ui-icons:v3'));
+  await page.evaluate(() => window.__phaserGame.textures.renameTexture('icon-review:hidden', 'conquest-ui-icons:v5'));
   await page.evaluate(() => window.__choiceFixture());
   await page.waitForTimeout(250);
   const centre = await page.evaluate(() => {

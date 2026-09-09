@@ -6,7 +6,7 @@
   "assets": [
     {
       "id": "settlement.citadel-dinh",
-      "path": "public/art/conquest-capitals-v1/settlement/citadel-dinh.png",
+      "path": "public/art/conquest-capitals-v1/settlement/citadel-dinh.webp",
       "sourceAlpha": false,
       "removedSpecks": 0,
       "sourceBounds": {
@@ -21,7 +21,7 @@
     },
     {
       "id": "settlement.citadel-ly",
-      "path": "public/art/conquest-capitals-v1/settlement/citadel-ly.png",
+      "path": "public/art/conquest-capitals-v1/settlement/citadel-ly.webp",
       "sourceAlpha": false,
       "removedSpecks": 1,
       "sourceBounds": {
@@ -36,7 +36,7 @@
     },
     {
       "id": "settlement.citadel-tran",
-      "path": "public/art/conquest-capitals-v1/settlement/citadel-tran.png",
+      "path": "public/art/conquest-capitals-v1/settlement/citadel-tran.webp",
       "sourceAlpha": false,
       "removedSpecks": 0,
       "sourceBounds": {
@@ -51,7 +51,7 @@
     },
     {
       "id": "settlement.citadel-le",
-      "path": "public/art/conquest-capitals-v1/settlement/citadel-le.png",
+      "path": "public/art/conquest-capitals-v1/settlement/citadel-le.webp",
       "sourceAlpha": false,
       "removedSpecks": 2,
       "sourceBounds": {
@@ -66,7 +66,7 @@
     },
     {
       "id": "settlement.citadel-nguyen",
-      "path": "public/art/conquest-capitals-v1/settlement/citadel-nguyen.png",
+      "path": "public/art/conquest-capitals-v1/settlement/citadel-nguyen.webp",
       "sourceAlpha": false,
       "removedSpecks": 0,
       "sourceBounds": {

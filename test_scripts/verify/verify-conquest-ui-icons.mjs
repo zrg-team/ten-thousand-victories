@@ -4,14 +4,15 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolveOpening } from '../perf/_boot.mjs';
 
 const URL = process.env.DEV_URL ?? 'http://127.0.0.1:5185';
-const out = 'output/conquest-ui-v3/verification';
+const out = 'output/conquest-ui-v5/verification';
 mkdirSync(out, { recursive: true });
 const checks = [], errors = [];
 const check = (ok, name, detail) => { checks.push({ ok: !!ok, name, detail }); console.log(`${ok ? 'PASS' : 'FAIL'} ${name}`); };
-const atlas = JSON.parse(readFileSync('public/art/conquest-ui-icons/icons-v3.json', 'utf8'));
+const atlas = JSON.parse(readFileSync('public/art/conquest-ui-icons/icons-v5.json', 'utf8'));
 check(Object.keys(atlas.frames).length === 57, 'all 57 functional meanings packed');
 check(atlas.meta.size.w === 1024 && atlas.meta.size.h === 1024, 'functional atlas uses 4 MiB decoded');
 const oldAtlas = JSON.parse(readFileSync('public/art/conquest-ui-icons/icons-v1.json', 'utf8'));
+const signAtlas = JSON.parse(readFileSync('public/art/conquest-ui-icons/signs-v1.json', 'utf8'));
 const browser = await chromium.launch();
 
 async function snapshot(page, name) {
@@ -54,9 +55,9 @@ try {
     }, language);
     await page.goto(`${URL}/?capture=1&noladder=1&layout=${width > 700 ? 'desktop' : 'phone'}`);
     await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 60000 });
-    check(await page.evaluate(() => window.__phaserGame.textures.exists('conquest-ui-icons:v3')
+    check(await page.evaluate(() => window.__phaserGame.textures.exists('conquest-ui-icons:v5')
       && window.__phaserGame.textures.exists('dynasty-sign-icons:v1')), `${tag}: UI and sign atlases ready before menu and gameplay`);
-    check(!requests.some(r => /conquest-ui-icons\/icons-v[12]\./.test(r)), `${tag}: obsolete atlas is not loaded by the game`);
+    check(!requests.some(r => /conquest-ui-icons\/icons-v[1234]\./.test(r)), `${tag}: obsolete atlas is not loaded by the game`);
     check(!requests.some(r => /\/icons\/(food|supplies|gold|manpower)\.svg/.test(r)), `${tag}: no old resource SVG downloads`);
     await page.evaluate(() => window.__startBenchGame(20260909, 'ascent'));
     await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene') && window.__phaserGame.scene.getScene('ConquestUIScene').ui);
@@ -115,19 +116,39 @@ try {
     });
     check(signs.length === 16 && signs.every(s => s.savedId === s.id && s.art.source === 'generated'
       && s.texture === 'dynasty-sign-icons:v1' && s.type === 'Image' && s.count === 1), `${tag}: all sixteen saved dynasty signs use their preserved art`, signs);
-    check(await page.evaluate(async oldFrames => {
+    const signPixels = await page.evaluate(async ({ oldFrames, sourceFormat }) => {
       const old = new Image(); old.src = '/art/conquest-ui-icons/icons-v1.png'; await old.decode();
       const tx = window.__phaserGame.textures.get('dynasty-sign-icons:v1');
       const cv = document.createElement('canvas'); cv.width = cv.height = 120;
       const ctx = cv.getContext('2d', { willReadFrequently: true });
-      return tx.getFrameNames().every(id => {
+      let alphaDelta = 0, maxOpaqueDelta = 0, squaredError = 0, weight = 0;
+      const ids = tx.getFrameNames();
+      for (const id of ids) {
         const f = oldFrames[id].frame, frame = tx.get(id);
         ctx.clearRect(0, 0, 120, 120); ctx.drawImage(old, f.x, f.y, 120, 120, 0, 0, 120, 120);
         const before = ctx.getImageData(0, 0, 120, 120).data;
         ctx.clearRect(0, 0, 120, 120); ctx.drawImage(tx.getSourceImage(), frame.cutX, frame.cutY, 120, 120, 0, 0, 120, 120);
-        return ctx.getImageData(0, 0, 120, 120).data.every((value, i) => value === before[i]);
-      });
-    }, oldAtlas.frames), `${tag}: dynasty signs preserve every original pixel`);
+        const after = ctx.getImageData(0, 0, 120, 120).data;
+        for (let i = 0; i < before.length; i += 4) {
+          const alpha = before[i + 3];
+          alphaDelta = Math.max(alphaDelta, Math.abs(alpha - after[i + 3]));
+          if (!alpha) continue;
+          for (let c = 0; c < 3; c++) {
+            const delta = Math.abs(before[i + c] - after[i + c]);
+            if (alpha >= 200) maxOpaqueDelta = Math.max(maxOpaqueDelta, delta);
+            squaredError += (alpha / 255) * delta * delta;
+            weight += alpha / 255;
+          }
+        }
+      }
+      return { frames: ids.length, alphaDelta, maxOpaqueDelta, rmse: Math.sqrt(squaredError / weight),
+        webp: sourceFormat === 'webp' };
+    }, { oldFrames: oldAtlas.frames, sourceFormat: signAtlas.meta.image.split('.').at(-1) });
+    // A separate asset conversion uses optimize.mjs's flat-art bound: exact alpha,
+    // at most two opaque pigment levels and alpha-weighted RMSE <= 1. PNG stays exact.
+    check(signPixels.frames === 16 && signPixels.alphaDelta === 0
+      && signPixels.maxOpaqueDelta <= (signPixels.webp ? 2 : 0) && signPixels.rmse <= (signPixels.webp ? 1 : 0),
+      `${tag}: dynasty signs preserve alpha and pigments within the asset format bound`, signPixels);
     const markers = await page.evaluate(async () => {
       const { InkMapItemRenderer } = await import('/src/ui/InkMapItemRenderer.ts');
       const { AtlasMapItemRenderer } = await import('/src/ui/AtlasMapItemRenderer.ts');
@@ -229,10 +250,22 @@ try {
     const battle = await page.evaluate(() => {
       const ui = window.__phaserGame.scene.getScene('ConquestUIScene');
       return { ids: JSON.parse(window.render_game_to_text()).ascent.ui.generatedUiIcons,
-        graphics: Object.values(ui.battleUi.dock.chips).map(c => c.glyph.list.map(o => o.type)) };
+        graphics: Object.values(ui.battleUi.dock.chips).map(c => c.glyph.list.map(o => o.type)),
+        formationLayout: Object.values(ui.battleUi.dock.chips).map(c => ({
+          scale: c.glyph.scaleX, y: c.glyph.y, restScale: c.glyphScale, restY: c.glyphY,
+        })),
+        clash: ui.battleUi.clashMark?.list.find(o => o.getData?.('role') === 'blades')?.list.map(o => ({
+          type: o.type, frame: o.frame.name, texture: o.texture.key, size: o.displayWidth,
+        })) };
     });
     check(['spears', 'horse', 'skirmish', 'tortoise', 'bows', 'heart', 'shield', 'balance', 'blade', 'check', 'crossed-weapons', 'territory'].every(id => battle.ids.includes(id)), `${tag}: battle vocabulary and return-to-map icon are generated`, battle);
     check(battle.graphics.every(types => types.length === 1 && types[0] === 'Image'), `${tag}: formation icons contain no procedural Graphics`);
+    check(battle.formationLayout.length === 5 && battle.formationLayout.every(c =>
+      c.scale === battle.formationLayout[0].scale && c.y === battle.formationLayout[0].y
+      && c.restScale === c.scale && c.restY === c.y), `${tag}: all five formations share display scale and baseline`, battle.formationLayout);
+    check(battle.clash?.length === 1 && battle.clash[0].type === 'Image'
+      && battle.clash[0].frame === 'crossed-weapons' && battle.clash[0].texture === 'conquest-ui-icons:v5'
+      && battle.clash[0].size === 40, `${tag}: contact marker uses the revised 40px Dong Ho fight print`, battle.clash);
     await snapshot(page, `${tag}-battle`);
     const formationFixture = await page.evaluate(() => structuredClone(window.__mandateState.ascent.activeBattle));
     // Freeze the simulation clock while isolating input. Its existing UI event handlers
@@ -260,6 +293,11 @@ try {
       check(order.target === formation && order.stamina < formationFixture.stamina,
         `${tag}: ${icon} selects ${formation} and spends stamina`, order);
     }
+    const restoredLayout = await page.evaluate(() => Object.values(window.__phaserGame.scene.getScene('ConquestUIScene').battleUi.dock.chips)
+      .map(c => ({ scale: c.glyph.scaleX, y: c.glyph.y, restScale: c.glyphScale, restY: c.glyphY })));
+    check(restoredLayout.length === 5 && restoredLayout.every(c => c.scale === restoredLayout[0].scale
+      && c.y === restoredLayout[0].y && c.restScale === c.scale && c.restY === c.y),
+      `${tag}: formation presses retain the shared size and baseline`, restoredLayout);
     await snapshot(page, `${tag}-battle-reforming`);
     await clickIcon(page, 'territory');
     check(await page.evaluate(() => window.__phaserGame.scene.getScene('ConquestUIScene').openPromptKey !== 'lane:battle'
@@ -276,7 +314,7 @@ try {
   await recovery.addInitScript(() => localStorage.setItem('mandate:graphics:v1', 'medium'));
   await recovery.goto(`${URL}/?capture=1&noladder=1&layout=phone`);
   await recovery.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 60000 });
-  check(await recovery.evaluate(() => !window.__phaserGame.textures.exists('conquest-ui-icons:v3')), 'intentional missing-art fixture reaches the menu');
+  check(await recovery.evaluate(() => !window.__phaserGame.textures.exists('conquest-ui-icons:v5')), 'intentional missing-art fixture reaches the menu');
   const fallback = await recovery.evaluate(async () => {
     const { addConquestUiIcon } = await import('/src/ui/conquestUiIcons.ts');
     const { gameplayControl } = await import('/src/ui/GameplayControl.ts');
@@ -292,7 +330,7 @@ try {
   await recovery.evaluate(() => window.__startBenchGame(20260909, 'ascent'));
   await recovery.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene') && window.__phaserGame.scene.getScene('ConquestUIScene').ui);
   await resolveOpening(recovery);
-  check(await recovery.evaluate(() => window.__phaserGame.textures.get('conquest-ui-icons:v3').has('grain')
+  check(await recovery.evaluate(() => window.__phaserGame.textures.get('conquest-ui-icons:v5').has('grain')
     && window.__phaserGame.textures.get('dynasty-sign-icons:v1').has('bronze-drum')), 'scene boundary retries both atlases and restores generated art');
   check(recoveryErrors.length === 0, 'missing-art and retry do not throw JavaScript errors', recoveryErrors);
   await snapshot(recovery, 'recovered-art');
