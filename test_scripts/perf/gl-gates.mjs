@@ -9,7 +9,7 @@
  * Usage: node test_scripts/perf/gl-gates.mjs [--screen menu|map-fresh|map-revealed|ascent-map|fight|all]
  *        [--dpr 3] [--quality high]
  */
-import { boot, startWorld, revealAll, driveToBattle, installGlCounters, glFrame, arg, report } from './_boot.mjs';
+import { boot, startWorld, revealAll, driveToBattle, installGlCounters, glFrame, settleChunkWork, arg, report } from './_boot.mjs';
 
 const SCREEN = arg('screen', 'all');
 const DPR = Number(arg('dpr', '3'));
@@ -71,6 +71,8 @@ for (const screen of screens) {
     await page.waitForTimeout(800);
   }
 
+  // The screen, not the repaint behind it: a gate sampled during a chunk tail measures the tail.
+  if (screen !== 'menu') await settleChunkWork(page, screen.startsWith('map') ? 'MapScene' : 'ConquestScene');
   await installGlCounters(page);
   const frame = await glFrame(page, { frames: 12, warm: 4 });
 

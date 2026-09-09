@@ -1299,14 +1299,23 @@ export class MapScene extends Phaser.Scene {
     this.drawSiegeMarkers();
     this.drawRecruitMarkers();
     this.drawBattleMarkers();
-    this.bakeStaticTerrain();
-    // Created after the bake so the seasonal layers are added above it, and settled straight into
-    // the current season with no opening fade.
+    // The season's layers are built BEFORE the bake, and their accents painted into it.
+    //
+    // They used to be created after it, from a design where the bake was one texture underneath
+    // everything and anything seasonal had to be added above it. Since the accents moved into the
+    // bake band ([1.40, 1.50), `SeasonRenderer.bakeAccents`), every season turn paints them and
+    // lets the sweep carry them into the ground tiles — but the opening map never did, so the
+    // accent layer stood live from the first frame of a run until the first season turned.
+    // Measured on a settled opening Ascent map at Balanced (2026-09-09): 2,340 Graphics commands
+    // re-tessellated every frame, 28% of the map's live ink, drawing what the bake was about to
+    // draw anyway. Depth sorting, not creation order, decides what is on top of what.
     this.seasons.create(
       this.state.season,
       this.landscapeGeometry(),
       this.mapRenderer.theme.id === 'dong-ho' && seasonVisualsEnabled(),
     );
+    this.seasons.bakeAccents(this.state.season);
+    this.bakeStaticTerrain();
     this.renderedSeason = this.state.season;
     for (const layer of RENDER_LAYERS) {
       this.renderSignatures[layer] = this.getSignature(layer);
@@ -2864,6 +2873,12 @@ export class MapScene extends Phaser.Scene {
     };
     for(const ink of this.landInk.values())for(const object of ink)visit(object);
     for(const node of this.landNodes.values())visit(node);
+    // The province name plates too. Each is a printed paper plate — border, fold, shadow — that
+    // changes only when the province's name or standing does, and there is one per visible land:
+    // measured on a settled Ascent map at Balanced (2026-09-09), seven of them carried 1,860 of
+    // the 6,003 Graphics commands the map still re-tessellated every frame. They are toggled by
+    // `setVisible` rather than faded, so the retained draw can never outlive its own visibility.
+    for(const label of this.landLabels.values())visit(label);
     return [...paths];
   }
 

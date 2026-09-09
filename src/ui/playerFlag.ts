@@ -8,7 +8,7 @@ import { INK } from './inkTheme';
 import { PIGMENT, mutePigment } from './ink/palette';
 import { conquestArtStamp } from './conquestMapArt';
 import { placeStamp } from './ink/stamp';
-import { drawHouseBanner, houseBanner } from './ascent/houseBanner';
+import { houseBanner, stampHouseBanner } from './ascent/houseBanner';
 
 /**
  * The five standards keep their geometry — the waving cloth, the scalloped fringe, the nested
@@ -77,7 +77,9 @@ export function createPlayerLandFlag(scene: Phaser.Scene, isCapital = false, sty
   if (!muted) {
     const sign = houseBanner();
     // Keep the existing ground anchor (+8) and roughly 54-unit mast used by map/battle layouts.
-    container.add(drawHouseBanner(scene, sign, 36, 58).setPosition(-2.88, -50));
+    // Baked, not re-tessellated: this standard stands on every player province and rides with
+    // every host, so its ink was a third of the map's per-frame Graphics cost. See `stampHouseBanner`.
+    container.add(stampHouseBanner(scene, sign, 36, 58).setPosition(-2.88, -50));
     container.setData('playerStandard', { ...sign, isCapital });
     if (isCapital) container.setScale(1.22);
     return container;

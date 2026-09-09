@@ -10,7 +10,7 @@ import { sawtoothBand } from '../ink/devices';
 import { TITLE_FONT, UI_FONT } from '../fonts';
 import { formatNumber } from '../../utils/format';
 import { motionMs } from '../../game/lifeSettings';
-import { drawHouseBanner, houseBanner } from './houseBanner';
+import { houseBanner, stampHouseBanner } from './houseBanner';
 
 const SIDE = 10;
 /**
@@ -167,7 +167,8 @@ export class InheritanceChip {
     this.skin = scene.add.graphics();
     // Built once: the banner can only change on the menu, between reigns.
     this.stamp = scene.add.container(0, 0);
-    const banner = drawHouseBanner(scene, houseBanner(), BANNER_W, BANNER_H);
+    // The chip sits on the HUD for the whole run; its flag is baked rather than re-inked each frame.
+    const banner = stampHouseBanner(scene, houseBanner(), BANNER_W, BANNER_H);
     banner.setPosition(-BANNER_W / 2, -BANNER_H / 2);
     this.stamp.add(banner);
     this.meter = scene.add.graphics();

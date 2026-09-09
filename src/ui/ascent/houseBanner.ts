@@ -3,6 +3,8 @@ import { INK_UI } from '../InkUI';
 import { getDynasty, type DynastyBanner } from '../../state/dynasty';
 import { ROYAL_HOUSES } from '../faces/kingLook';
 import { BANNER_EMBLEM_SIZE, drawBannerEmblem } from './bannerEmblems';
+import { renderScaleNow } from '../../game/graphicsQuality';
+import { registerGpuBake } from '../../game/gpuBakes';
 
 /** The same designed motif pressed as a square seal on the menu's royal document. */
 export function drawHouseSeal(scene: Phaser.Scene, sign: DynastyBanner, size: number): Phaser.GameObjects.Container {
@@ -76,6 +78,69 @@ export function drawHouseBanner(
   emblem.setScale(side * 0.66 / BANNER_EMBLEM_SIZE);
   root.add(emblem);
   root.setData('houseBanner', { ...banner, width, height });
+  return root;
+}
+
+/**
+ * The same flag, drawn once into a texture and then placed as an image.
+ *
+ * `drawHouseBanner` is about 780 Graphics commands — cloth, fringe teeth, weave ticks, the nested
+ * squares and the emblem's own paths — and Phaser 4 replays a live `Graphics` object's whole
+ * command list every frame. The standard is not one object on the Conquest map either: every
+ * player province flies it, every marching host carries it, and the inheritance chip holds one in
+ * the corner of the HUD. Measured on a settled Ascent map at Balanced (2026-09-09), the banner's
+ * instances were 4,617 of the 12,960 Graphics commands the map tessellated per frame — 36% of the
+ * whole per-frame ink cost — for a drawing that cannot change during a run: the sign is chosen on
+ * the menu, between reigns.
+ *
+ * So it is baked. One texture per design and size (the physical key carries the render scale, so a
+ * quality change re-bakes at the new resolution), shared by every instance in every scene, and
+ * repainted after a context restore — a `DynamicTexture` comes back empty from one, and an
+ * unregistered bake is a blank flag on every province after the phone wakes up.
+ *
+ * The image is wrapped in a container that carries the same `houseBanner` data as the vector
+ * version, so every surface audit still finds the saved identity where it expects it, and so a
+ * caller that scales or tweens the standard moves the container rather than the image — a stamped
+ * image's rest scale is `1/raster`, and anything that wrote a literal `1` onto it would blow the
+ * flag up to raster size.
+ */
+export function stampHouseBanner(
+  scene: Phaser.Scene,
+  banner: DynastyBanner,
+  width: number,
+  height: number,
+): Phaser.GameObjects.Container {
+  const root = scene.add.container(0, 0).setData('houseBanner', { ...banner, width, height });
+  // The fringe teeth and the mast's finial reach a little past the box the flag is measured by.
+  const pad = 4;
+  const raster = Math.max(1, Math.min(3, Math.ceil(renderScaleNow())));
+  const key = `house-banner:${banner.field.toString(16)}:${banner.trim.toString(16)}:${banner.emblem}`
+    + `:${Math.round(width)}x${Math.round(height)}@${raster}`;
+  const paint = (host: Phaser.Scene): void => {
+    const texture = host.textures.get(key) as unknown as Phaser.Textures.DynamicTexture | undefined;
+    if (!texture || typeof (texture as { draw?: unknown }).draw !== 'function') return;
+    // Built, drawn and destroyed inside this one synchronous call, so it never reaches a frame.
+    const vector = drawHouseBanner(host, banner, width, height)
+      .setPosition(pad * raster, pad * raster)
+      .setScale(raster);
+    texture.clear();
+    texture.draw(vector);
+    texture.render();
+    vector.destroy();
+  };
+  if (!scene.textures.exists(key)) {
+    scene.textures.addDynamicTexture(key,
+      Math.ceil((width + pad * 2) * raster), Math.ceil((height + pad * 2) * raster));
+    paint(scene);
+    registerGpuBake(scene.game, key, () => {
+      // The scene that baked it may be long gone; any live scene can repaint the shared texture.
+      let host: Phaser.Scene | undefined;
+      try { host = scene.sys?.isActive() ? scene : undefined; } catch { host = undefined; }
+      host ??= scene.game.scene.getScenes(true)[0];
+      if (host) paint(host);
+    });
+  }
+  root.add(scene.add.image(-pad, -pad, key).setOrigin(0, 0).setScale(1 / raster));
   return root;
 }
 
