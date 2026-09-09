@@ -193,7 +193,11 @@ export function renderVersionLine(self: MenuScene): void {
       fontSize: '9px',
       fontStyle: ready || installing ? '700' : '400',
     },
-  ).setOrigin(corner ? 1 : 0.5, 1).setData('menuVersionLine', true);
+  ).setOrigin(corner ? 1 : 0.5, 1).setData('menuVersionLine', true)
+    // Whether this is the plain build stamp rather than one of the two update sentences. Read by
+    // `renderInstallMark`, which prints "Install app ·" ahead of a plain stamp and stays out of
+    // the way of an update line that is already an instruction carrying its own icon.
+    .setData('menuVersionPlain', !ready && !installing);
   // Both update states carry an icon at the line's left; the room is spent before the
   // shrink-to-fit so icon and glyphs scale as one thing.
   const maxWidth = GAME_WIDTH - 32 - (ready || installing ? 18 : 0);

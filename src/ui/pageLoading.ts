@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { nextTip } from '../data/tips';
 import { t } from '../i18n';
 import { UI_FONT } from './fonts';
 
@@ -46,7 +47,24 @@ function showLoading(scene: Phaser.Scene): { finish: () => void; cancel: () => v
   progress.value = 0;
   progress.setAttribute('aria-label', t('page.loading'));
   progress.style.cssText = 'width:min(240px,70vw);height:6px;accent-color:#ab3924;';
-  overlay.append(label, progress);
+  /**
+   * A thing worth knowing, on the one screen where the player has nothing to do.
+   *
+   * Under the bar rather than over the title: the heading and the bar together say *what is
+   * happening*, and a sentence pushed above them makes the player hunt for that. Held to a
+   * readable measure and given fixed room for two lines, so a long tip in Vietnamese does not
+   * shift the bar upward halfway through a load — the flicker of a moving progress bar is worse
+   * than the tip is good.
+   */
+  const tip = document.createElement('p');
+  tip.style.cssText = 'margin:0;max-width:min(320px,84vw);min-height:2.8em;font-size:12px;line-height:1.4;color:#6f6250;';
+  // The word in cinnabar, the sentence in muted ink — the same two-tone lead the launch splash
+  // prints, so the two loading screens read as one thing wearing different paper.
+  const lead = document.createElement('b');
+  lead.textContent = t('tips.label');
+  lead.style.cssText = 'color:#8a2a1b;font-weight:700;';
+  tip.append(lead, document.createTextNode(` · ${nextTip()}`));
+  overlay.append(label, progress, tip);
   document.body.append(overlay);
   const update = (value: number): void => { state.progress = value; progress.value = value; };
   const cancel = (): void => {

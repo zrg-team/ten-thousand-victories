@@ -58,6 +58,10 @@ export function renderMain(self: MenuScene): void {
   let cursor = artFloor;
 
   self.tourTargets.play = { x: 54, y: cursor, width: 282, height: playHeight };
+  // What the tip badge leans over. On this page the play button is the only way into a run and
+  // the illustration above it is the one place on the sheet a card can stand without covering a
+  // control.
+  self.tipAnchor = self.tourTargets.play;
   self.content.push(self.ui.button(self.tourTargets.play, t('ascent.menu.title'), () => {
     startAscentRun(self);
   }, { variant: 'primary', fontSize: '17px' }).setData('menuPrimary', true));
@@ -132,10 +136,14 @@ function renderDesktopMain(self: MenuScene): void {
       if (current) self.startGame(current.state);
     }, { variant: 'primary', fontSize: '18px', subLabel: note })
       .setData('menuPrimary', true).setData('menuLink', 'continue'));
+    // The badge leans over the topmost button that starts a game, and here that is Continue.
+    // Anchored to the row below it, the card would stand *on* this one.
+    self.tipAnchor = { x, y: cursor, width, height: 56 };
     cursor += 64;
   }
   const playHeight = saved ? 44 : 56;
   self.tourTargets.play = { x, y: cursor, width, height: playHeight };
+  if (!saved) self.tipAnchor = self.tourTargets.play;
   self.content.push(self.ui.button(self.tourTargets.play, saved ? t('menu.newRun') : t('ascent.menu.title'),
     () => startAscentRun(self), { variant: saved ? 'secondary' : 'primary', fontSize: saved ? '13px' : '18px' })
     .setData('menuPrimary', !saved).setData('menuNewRun', true));
@@ -174,6 +182,9 @@ function renderDesktopMain(self: MenuScene): void {
     const bounds = self.tourTargets[key];
     if (bounds) bounds.x += offsetX;
   }
+  // `tipAnchor` is the play target's own object when there is no save, and shifting it twice
+  // would put the badge a column to the right of the button it points at.
+  if (self.tipAnchor && self.tipAnchor !== self.tourTargets.play) self.tipAnchor.x += offsetX;
 }
 /**
  * Both hand-played modes, stacked by flow rather than at fixed heights.

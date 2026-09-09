@@ -16,6 +16,7 @@ import * as dynastyLineage from './menu/dynastyLineage';
 import * as dynastyTablet from './menu/dynastyTablet';
 import * as front from './menu/front';
 import * as install from './menu/install';
+import * as tipBadge from './menu/tipBadge';
 import * as landscape from './menu/landscape';
 import * as leaves from './menu/leaves';
 import * as legacyShop from './menu/legacyShop';
@@ -91,6 +92,26 @@ export class MenuScene extends Phaser.Scene {
 
   /** Set while the install sheet is up, so the tip does not re-arm underneath it. */
   installModalOpen = false;
+
+  /**
+   * Whether the tip badge has already had its turn this visit.
+   *
+   * Same rule as the install hint, and for the same reason: once per visit to the front page, and
+   * never twice in one. A re-render — an update landing, an install prompt arriving — must not
+   * deal a second card of advice over the first one.
+   */
+  tipBadgeShown = false;
+
+  tipBadgeTimer?: Phaser.Time.TimerEvent;
+
+  /**
+   * What the tip badge leans over: the topmost thing on this page that starts a game.
+   *
+   * Written by whichever front page was drawn. On the phone column that is always Dragon Ascent;
+   * on the desktop scroll a save puts Continue above it, and a card of advice that pointed past
+   * the button the player is going to press would be pointing at the wrong one.
+   */
+  tipAnchor?: UIBounds;
 
   mode: MenuMode = 'main';
 
@@ -365,6 +386,10 @@ export class MenuScene extends Phaser.Scene {
   /* ------------------------------------------- the install mark, tip and sheet */
 
   renderInstallMark(): void { install.renderInstallMark(this); }
+
+  /* --------------------------------------- the tip badge over the play button */
+
+  armTipBadge(): void { tipBadge.armTipBadge(this); }
 
   /* ------------------------------------------ the illustration behind the page */
 

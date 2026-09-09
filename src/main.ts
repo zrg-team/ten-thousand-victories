@@ -5,7 +5,8 @@ import { gameConfig } from './game/config';
 import { createInitialGameState, createCampaignGameState, createEmpireGameState, createAscentGameState } from './state/GameState';
 import { scheduleCampaignEvents } from './systems/CampaignEventSystem';
 import type { GameState } from './state/types';
-import { getLanguage, heroName, politicsTitle, seasonLabel, t } from './i18n';
+import { getLanguage, heroName, politicsTitle, seasonLabel, subscribeLanguageChange, t } from './i18n';
+import { cacheTipsForSplash } from './data/tips';
 import { noteShellUpdate, registerServiceWorker } from './pwa/updates';
 import { watchInstall } from './pwa/install';
 import { usesServiceWorker } from './platform/shell';
@@ -95,6 +96,17 @@ window.__gameUpdateReady = noteShellUpdate;
 // Before Phaser for a second reason: `beforeinstallprompt` is fired at the window the moment
 // Chromium decides the site is installable, and a listener attached after that never hears it.
 watchInstall();
+
+/**
+ * Leave the tips where the launch splash can find them next time.
+ *
+ * The splash in `index.html` paints six seconds before this bundle finishes parsing, so it cannot
+ * read a catalog — it reads this cache instead, written on every launch and rewritten whenever the
+ * language changes. Never unsubscribed on purpose: it lives as long as the page does, and this is
+ * the one file whose lifetime that is.
+ */
+cacheTipsForSplash();
+subscribeLanguageChange(() => cacheTipsForSplash());
 
 const game = new Phaser.Game(gameConfig);
 window.__phaserGame = game;
