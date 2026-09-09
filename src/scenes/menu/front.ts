@@ -20,7 +20,7 @@ import { royalScroll } from '../../ui/ink/royalScroll';
 import { drawHouseSeal, houseBanner } from '../../ui/ascent/houseBanner';
 import { isDesktopPlatform } from '../../platform/layout';
 import { canQuitShell, quitShell } from '../../platform/shell';
-import { SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
+import { QUIT_ROW_HEIGHT, SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
 import { pageFloor, renderPageHead } from './helpers';
 import type { MenuScene } from '../MenuScene';
 
@@ -94,7 +94,6 @@ export function renderMain(self: MenuScene): void {
   renderFooterPair(self, utilityTop);
   self.renderLanguageSwitch(utilityTop + 34 + SETTINGS_BLOCK_GAP);
   self.renderSupportRow();
-  renderQuitCorner(self);
   self.renderVersionLine();
 }
 
@@ -104,7 +103,10 @@ function renderDesktopMain(self: MenuScene): void {
   const saved = Boolean(snapshot);
   const first = self.content.length;
   const panelWidth = 358;
-  const panelHeight = saved ? 596 : 544;
+  // The scroll grows by the Exit row rather than squeezing it in: the column, the language line
+  // and the footer are already packed against each other in here, and 28 units is what stood
+  // between the language line and the support sentence.
+  const panelHeight = (saved ? 596 : 544) + (canQuitShell() ? QUIT_ROW_HEIGHT : 0);
   const panelX = (GAME_WIDTH - panelWidth) / 2;
   const panelTop = Math.round((GAME_HEIGHT - panelHeight) / 2);
   const margin = surfaceWidth() < 1000 ? 28 : 56;
@@ -149,14 +151,16 @@ function renderDesktopMain(self: MenuScene): void {
   renderFooterPair(self, cursor);
   self.renderLanguageSwitch(cursor + 44);
 
+  // Inside the support slice on purpose: that slice is what carries the footer down to the foot
+  // of the scroll, and the Exit row has to travel with the sentence it sits above.
   const supportStart = self.content.length;
+  renderQuitButton(self, SUPPORT_TOP - QUIT_ROW_HEIGHT + 4);
   self.renderSupportRow();
   for (const object of self.content.slice(supportStart)) {
     const part = object as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform;
     part.y += panelTop + panelHeight - 88 - (SUPPORT_TOP + SUPPORT_ROW_HEIGHT / 2);
   }
   const versionStart = self.content.length;
-  renderQuitCorner(self);
   self.renderVersionLine();
   for (const object of self.content.slice(versionStart)) {
     const part = object as Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.Transform;
@@ -441,38 +445,35 @@ function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
 }
 
 /**
- * The way out, in the corner where a desktop game keeps one.
+ * The way out: a menu button, centred, in its own row above the colophon.
  *
- * Reported: *button exit game in desktop look wrong place, usually it should be bottom right on
- * top of version.* It had been a fourth door in the footer row, which was the wrong tier as well
- * as the wrong corner — so it sits where the convention puts it now: hard against the column's
- * right edge, on the line above the colophon.
+ * Two rounds to get here, and both corrections were the same correction. It went in first as a
+ * fourth door in the footer row beside How to Play and Settings — the wrong *tier*, because
+ * those three are places and the way out of a game is not a place. It went in second as a small
+ * ghost link pinned to the bottom-right corner over the version stamp, which was the wrong
+ * *shape*: *"make simple follow other game menu button exit in center of panel and right bottom
+ * version"*. A main menu's Exit is a button in the column, where every other game puts it.
  *
- * **Drawn immediately before the version stamp, and that is load-bearing.** `renderDesktopMain`
- * moves the whole slice from `renderVersionLine` down to the foot of the scroll; anything that
- * wants to travel with the stamp has to be inside that slice.
+ * So it is a button, 150 wide and centred in the scroll — ghost rather than framed, because it
+ * still must not weigh what "Dragon Ascent" weighs.
  *
- * Sixteen tall, not the footer row's thirty-four, because sixteen is what there is. Measured on
- * the phone sheet: the support sentence ends at 806 and the stamp begins at 827, and this stands
- * at 808 with three units under it. The hit padding gives back the touch height the box does not
- * have.
+ * **The desktop page only, and deliberately.** `canQuitShell()` alone is the wrong gate: it is true
+ * of the cabinet whatever shape its window is, so a player who pins the phone column in Settings
+ * got an Exit button crammed into a footer that has 21 units to spare between the support sentence
+ * and the stamp. Asked for in exactly those terms — *"why phone have exit button? i only said
+ * desktop"* — and it is the right call anyway: this is the layout the cabinet actually runs, and
+ * the phone column is a page laid out for a page that has no window to close. The run menu's own
+ * Exit is still there in every layout, which is the way out that never depended on this.
  */
-function renderQuitCorner(self: MenuScene): void {
+function renderQuitButton(self: MenuScene, top: number): void {
   if (!canQuitShell()) return;
-  const HEIGHT = 16;
-  // The stamp's own top: 9px caption type, 11 units tall, sitting on the sheet's bottom edge.
-  const versionTop = GAME_HEIGHT - VERSION_EDGE - 11;
-  const probe = self.ui.label(-999, -999, t('menu.quit'), 'button', { fontSize: '11px' });
-  const width = Math.round(CARD_ICON_SIZE * 0.62 + 7 + probe.width) + 8;
-  probe.destroy();
-  // The column's right edge, not the sheet's: on the desktop sheet the page is a scroll with a
-  // ruled border, and the footer band it shares is 44..346. See `renderFooterPair`.
-  const right = isDesktopSheet() ? 346 : GAME_WIDTH - 12;
+  const width = 150;
+  const height = 30;
   self.content.push(self.ui.button(
-    { x: right - width, y: versionTop - 3 - HEIGHT, width, height: HEIGHT },
+    { x: Math.round(44 + (302 - width) / 2), y: top, width, height },
     t('menu.quit'),
     () => confirmQuit(self),
-    { variant: 'ghost', frameless: true, icon: 'door', fontSize: '11px', extraHitPadding: 8 },
+    { variant: 'ghost', icon: 'door', fontSize: '12px', extraHitPadding: 4 },
   )
     .setData('menuUtility', 'quit')
     .setData('utilityIcon', 'door')

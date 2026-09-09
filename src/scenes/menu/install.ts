@@ -56,16 +56,31 @@ export function renderInstallMark(self: MenuScene): void {
 
   let anchor: { x: number; y: number } | undefined;
   if (versionLine) {
-    // Icon + gap + stamp are one centred group. Aligning their visual centres, rather than their
-    // object origins, puts the arrow on the text's actual line despite the text being
-    // bottom-anchored and the icon being centre-anchored.
-    const groupWidth = INSTALL_MARK_SIZE + INSTALL_MARK_GAP + versionLine.displayWidth;
-    const left = versionLine.x - groupWidth / 2;
-    anchor = {
-      x: left + INSTALL_MARK_SIZE / 2,
-      y: versionLine.y - versionLine.displayHeight / 2,
-    };
-    versionLine.setX(left + INSTALL_MARK_SIZE + INSTALL_MARK_GAP + versionLine.displayWidth / 2);
+    /**
+     * Icon, gap, stamp — one group, laid out against whichever way the stamp is anchored.
+     *
+     * The desktop page corners its stamp (`renderVersionLine`), so there the group grows leftward
+     * from a fixed edge and the line itself does not move; the phone column centres it, and there
+     * the pair has to be re-centred as one. Re-centring a cornered line pushed its tail off the
+     * column, which is why the two cases are told apart rather than averaged.
+     *
+     * Visual centres, not object origins: the text is bottom-anchored and the icon is not.
+     */
+    const cornered = versionLine.originX === 1;
+    if (cornered) {
+      anchor = {
+        x: versionLine.x - versionLine.displayWidth - INSTALL_MARK_GAP - INSTALL_MARK_SIZE / 2,
+        y: versionLine.y - versionLine.displayHeight / 2,
+      };
+    } else {
+      const groupWidth = INSTALL_MARK_SIZE + INSTALL_MARK_GAP + versionLine.displayWidth;
+      const left = versionLine.x - groupWidth / 2;
+      anchor = {
+        x: left + INSTALL_MARK_SIZE / 2,
+        y: versionLine.y - versionLine.displayHeight / 2,
+      };
+      versionLine.setX(left + INSTALL_MARK_SIZE + INSTALL_MARK_GAP + versionLine.displayWidth / 2);
+    }
   } else {
     // Any page that keeps its own stamp says where the slot it left is. Today that is the
     // settings plate and nothing else.

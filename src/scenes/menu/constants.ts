@@ -92,6 +92,19 @@ export const INSTALL_MARK_SIZE = CARD_ICON_SIZE * INSTALL_MARK_SCALE;
 export const INSTALL_MARK_GAP = 6;
 export const SUPPORT_TOP = GAME_HEIGHT - VERSION_ROW_HEIGHT - SUPPORT_ROW_HEIGHT;
 /** The language line under the utility buttons: two small flags, two labels, and thumb-sized hits. */
+/**
+ * The Exit button's own row, above the support sentence.
+ *
+ * Zero on the web, where there is nothing to exit: `renderMain` and `renderDesktopMain` both take
+ * this out of the block above rather than stacking a row on top of the footer, so a browser tab's
+ * page is laid out to the point where it always was.
+ *
+ * 38 is a 30-unit button and its air. It is a *button* and not the ghost link it was for one round
+ * — *"make simple follow other game menu button exit in center of panel"* — so it needs a
+ * button's room, and being centred it can no longer share a row with the support sentence.
+ */
+export const QUIT_ROW_HEIGHT = 38;
+
 export const LANGUAGE_ROW_HEIGHT = 20;
 /**
  * Settings and the language line are ONE block, and they are spaced like one.

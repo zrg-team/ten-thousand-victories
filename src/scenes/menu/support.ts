@@ -5,7 +5,7 @@
  * this file owns one area of the page. Cross-module calls go through the scene's forwarders.
  */
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../../game/constants';
+import { GAME_HEIGHT, GAME_WIDTH, isDesktopSheet } from '../../game/constants';
 import { t } from '../../i18n';
 import {
   applyUpdate,
@@ -172,13 +172,28 @@ export function renderVersionLine(self: MenuScene): void {
   if (!text) {
     return;
   }
-  // Anchored to the bottom edge by its own baseline rather than centred in the band, so the air
-  // in the band is all above it and the line lands where the sheet ends.
-  const line = self.ui.label(GAME_WIDTH / 2, GAME_HEIGHT - VERSION_EDGE, text, 'caption', {
-    color: ready ? '#8a2a1b' : INK_UI_HEX.mutedText,
-    fontSize: '9px',
-    fontStyle: ready || installing ? '700' : '400',
-  }).setOrigin(0.5, 1).setData('menuVersionLine', true);
+  /**
+   * Centred on the phone column, in the bottom **right** corner on the desktop page.
+   *
+   * The desktop page grew a centred Exit button above this line, and a colophon centred directly
+   * under a centred button reads as a second line of that button rather than as the foot of the
+   * page. Asked for in those terms — *"exit in center of panel and right bottom version"*.
+   *
+   * The phone column has no Exit button and never had this problem, so it keeps the centred stamp
+   * it has always had. The right edge is the column's, not the sheet's: the desktop page is a
+   * scroll with a ruled border inside it, and its footer band is 44..346.
+   *
+   * Either way the line is anchored to the sheet's bottom edge by its own baseline, so the air in
+   * the band is all above it and the line lands where the sheet ends.
+   */
+  const corner = isDesktopSheet();
+  const line = self.ui.label(
+    corner ? 346 : GAME_WIDTH / 2, GAME_HEIGHT - VERSION_EDGE, text, 'caption', {
+      color: ready ? '#8a2a1b' : INK_UI_HEX.mutedText,
+      fontSize: '9px',
+      fontStyle: ready || installing ? '700' : '400',
+    },
+  ).setOrigin(corner ? 1 : 0.5, 1).setData('menuVersionLine', true);
   // Both update states carry an icon at the line's left; the room is spent before the
   // shrink-to-fit so icon and glyphs scale as one thing.
   const maxWidth = GAME_WIDTH - 32 - (ready || installing ? 18 : 0);
@@ -187,7 +202,8 @@ export function renderVersionLine(self: MenuScene): void {
   }
   self.content.push(line);
 
-  const iconX = line.x - line.displayWidth / 2 - 11;
+  // Left of the line either way: half its width off a centred stamp, all of it off a cornered one.
+  const iconX = line.x - line.displayWidth * (corner ? 1 : 0.5) - 11;
   const iconY = line.y - line.displayHeight / 2 - 1;
 
   if (installing) {
@@ -243,7 +259,7 @@ export function renderVersionLine(self: MenuScene): void {
     // 9px type on the very edge of the sheet; a finger needs more paper than the glyphs cover.
     const hit = self.add
       .rectangle(
-        GAME_WIDTH / 2,
+        line.x - line.displayWidth * (corner ? 0.5 : 0),
         line.y - line.displayHeight / 2,
         Math.max(line.displayWidth + 44, 200),
         line.displayHeight + 12,
