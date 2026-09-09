@@ -12,6 +12,9 @@ const heat = page => page.evaluate(()=>{
     const initial=await page.evaluate(()=>({state:window.__ladder.state(),record:JSON.parse(localStorage.getItem('mandate:graphics:launch:v3')),old:localStorage.getItem('mandate:graphics:rung:v1')}));
     checks.push(['first run calibrates a clarity-preserving profile', ['high','medium','clarity'].includes(initial.state.rung)&&initial.state.scale>=2&&initial.state.fps>=40&&initial.record?.samples?.length>0,JSON.stringify(initial)]);
     checks.push(['obsolete automatic rung records are discarded', initial.old===null]);
+    // A driven browser resolves to the phone platform (platform/layout.ts), which is the case under test:
+    // High is not even probed there, so the choice cannot be High whatever this computer's timing says.
+    checks.push(['a phone is never calibrated onto High', initial.state.rung!=='high'&&initial.record?.samples?.every(s=>s.profile!=='high')===true, JSON.stringify(initial.record?.samples)]);
     // A deterministic High fixture isolates monitor behavior from this test computer's GPU.
     await page.evaluate(()=>window.__ladder.useAuto('high'));
     const hot=await heat(page);
@@ -24,6 +27,15 @@ const heat = page => page.evaluate(()=>{
     await page.reload();await page.waitForFunction(()=>window.__phaserGame?.scene.isActive('MenuScene'));
     checks.push(['changed display/profile characteristics invalidate calibration',await page.evaluate(()=>JSON.parse(localStorage.getItem('mandate:graphics:launch:v3')).fingerprint!=='obsolete')]);
     checks.push(['no Auto console errors',errors.length===0,errors.join(' | ')]);
+  } finally {await browser.close();}
+}
+{
+  // The same page asked to be a computer: High goes back on the probe, whatever it then decides.
+  const {browser,page,errors}=await boot({quality:'auto',dpr:2,query:'?bench=1&layout=desktop',ladder:true});
+  try {
+    const record=await page.evaluate(()=>JSON.parse(localStorage.getItem('mandate:graphics:launch:v3')));
+    checks.push(['a computer is still measured for High', record?.samples?.some(s=>s.profile==='high')===true, JSON.stringify(record?.samples)]);
+    checks.push(['no desktop console errors',errors.length===0,errors.join(' | ')]);
   } finally {await browser.close();}
 }
 {

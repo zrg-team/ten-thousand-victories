@@ -12,6 +12,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5179",
     "perf:drag": "node test_scripts/perf/measure-map-drag.mjs",
+    "perf:menu-water": "node test_scripts/perf/measure-menu-water.mjs",
     "perf:conquest": "node test_scripts/perf/conquest-performance.mjs",
     "perf:map-refresh": "node test_scripts/perf/measure-map-refresh.mjs",
     "perf:spatial": "node test_scripts/perf/compare-spatial-index.mjs",

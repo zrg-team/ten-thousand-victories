@@ -100,6 +100,29 @@ export async function revealAll(page) {
   }, null, { timeout: 180000 });
 }
 
+/**
+ * Waits until the world's ground/fog chunk layers have stopped painting: no build for 20 straight
+ * stepped frames. `performanceStats().pending` only covers cells in view, and the nearby prefetch
+ * that follows every invalidation keeps binding render targets for a while after it clears — a
+ * frame sampled then reports the repaint (75k-137k indices, 1-2 MB, fbBinds 2-5), not the screen.
+ * Measured 2026-09-09: the fight gate read 93k indices mid-tail against 34.5k settled.
+ */
+export async function settleChunkWork(page, sceneKey = 'ConquestScene', { maxFrames = 4000 } = {}) {
+  return page.evaluate(([key, cap]) => {
+    const game = window.__phaserGame; const scene = game.scene.getScene(key);
+    if (!scene?.performanceStats) return { frames: 0, settled: true };
+    let clock = performance.now(), quiet = 0, frames = 0, last = -1;
+    while (frames < cap && quiet < 20) {
+      const s = scene.performanceStats();
+      const builds = (s.ground?.builds ?? 0) + (s.fog?.builds ?? 0);
+      const busy = s.refreshPending || s.sceneryPending || s.ground?.pending || s.fog?.pending || builds !== last;
+      quiet = busy ? 0 : quiet + 1; last = builds;
+      clock += 16; game.step(clock, 16); frames++;
+    }
+    return { frames, settled: quiet >= 20 };
+  }, [sceneKey, maxFrames]);
+}
+
 /** Drains the Ascent opening prompt chain (founder pick etc.) so the map is in play. */
 export async function resolveOpening(page, { max = 12 } = {}) {
   await page.evaluate(async ([src, cap]) => {
