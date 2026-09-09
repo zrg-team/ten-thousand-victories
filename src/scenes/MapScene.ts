@@ -1,7 +1,7 @@
 import { preloadConquestMapArt } from '../ui/conquestMapArt';
 import { showPageLoading } from '../ui/pageLoading';
 import { preloadStoryPrints, preloadStorySettings } from '../ui/storyPrint';
-import { preloadStoryChoiceIcons } from '../ui/storyChoiceIcons';
+import { preloadConquestUiIcons } from '../ui/conquestUiIcons';
 import { preloadThroneHall } from '../ui/ascent/throneHall';
 import Phaser from 'phaser';
 import { RetainedMapRenderer } from './map/RetainedMapRenderer';
@@ -589,10 +589,11 @@ export class MapScene extends Phaser.Scene {
 
   preload(): void {
     showPageLoading(this);
+    // Retry a failed boot-time icon download at the playable scene boundary.
+    preloadConquestUiIcons(this, import.meta.env.BASE_URL);
     preloadConquestMapArt(this, import.meta.env.BASE_URL);
     preloadStoryPrints(this, import.meta.env.BASE_URL);
     preloadStorySettings(this, import.meta.env.BASE_URL);
-    preloadStoryChoiceIcons(this, import.meta.env.BASE_URL);
     preloadThroneHall(this, import.meta.env.BASE_URL);
   }
 

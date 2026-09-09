@@ -1,3 +1,4 @@
+import { addConquestUiIcon } from '../conquestUiIcons';
 import Phaser from 'phaser';
 import { GAME_WIDTH, HEADER_HEIGHT } from '../../game/constants';
 import { INK_UI, INK_UI_HEX, InkUI } from '../InkUI';
@@ -544,12 +545,13 @@ export class AscentHud {
     const rising = delta > 0;
     // In the bar the figure stands on the store row, so the ticker rises from beside it there.
     const figureX = this.compact && this.parts ? this.parts.powerValue.x : undefined;
-    const ticker = this.scene.add.text(
+    const ticker = this.scene.add.container(
       (figureX ?? 14) + Math.max(this.powerWidth, powerWidth) + 8,
       figureX !== undefined ? TOP + STRIP_ROW_Y + 1 : TOP + 24,
-      `${rising ? '▲' : '▼'}${formatNumber(Math.abs(delta))}`,
-      { color: rising ? '#4c6b46' : '#a4402c', fontFamily: UI_FONT, fontSize: '11px', fontStyle: '700' },
     ).setDepth(91);
+    ticker.add(addConquestUiIcon(this.scene, rising ? 'chevron-up' : 'chevron-down', 10).setPosition(5, 6));
+    ticker.add(this.scene.add.text(12, 0, formatNumber(Math.abs(delta)),
+      { color: rising ? '#4c6b46' : '#a4402c', fontFamily: UI_FONT, fontSize: '11px', fontStyle: '700' }));
     this.root.add(ticker);
     this.scene.tweens.add({
       targets: ticker,

@@ -1,3 +1,4 @@
+import { addConquestUiIcon } from '../../../ui/conquestUiIcons';
 /**
  * Everything transient over the Dragon Ascent fight: the arrow volleys, the casualty numbers rising
  * off the seam, and the clash mark where the two lines touch. None of them is the fight — each is a
@@ -133,28 +134,7 @@ export function spawnBattleFloaters(self: ConquestUIScene, beat: BattleBeat): vo
   float(theirLine + 30, beat.theirLoss, 10, INK_UI_HEX.inkText);
 }
 
-/**
- * The mark over the seam, where the two lines are actually touching.
- *
- * **It was the character `⚔`, and that is a font, not a drawing.** Everything else on this screen
- * is cut from the same woodblock — the men, the camps, the banners, the paper itself — and in the
- * middle of it sat a glyph the platform chose: a flat outline on desktop Chromium, and on iOS a
- * full-colour emoji, rendered in Apple's palette at Apple's weight, over Đông Hồ paper. The one
- * mark on the screen that says "this is the fight" was the one mark that did not belong to it.
- *
- * Drawn now, in three pieces that each answer a different question:
- *
- *   the burst  — *something is happening here*. Sỏi son, breathing on its own clock so the mark
- *                is alive even in the second or two between beats.
- *   the blades — *what* is happening. Crossed, ink-edged, paper-bright so they read against both
- *                the pale ground and the dark blocks of men.
- *   the ring   — *now*. Fired per exchange by `strikeClash`, and the only part of the three that
- *                is tied to the simulation rather than to a timer.
- *
- * The three are separate objects on purpose: the burst's pulse is `repeat: -1` and the blades'
- * punch is a one-shot, and a single target cannot carry both without one stealing the other's
- * scale.
- */
+/** Generated crossed weapons over the contact point; burst and rings are animated feedback. */
 export function battleClashMark(self: ConquestUIScene): Phaser.GameObjects.Container {
   const container = self.add.container(0, 0);
 
@@ -192,38 +172,7 @@ export function battleClashMark(self: ConquestUIScene): Phaser.GameObjects.Conta
     ease: 'Sine.easeInOut',
   });
 
-  /**
-   * One blade along +x, pommel behind the origin and point in front of it.
-   *
-   * The pair are hung at −45° and −135°, which is the heraldic arrangement: both points up, both
-   * hilts down, and the crossing at the middle. First attempt used ±45°, so the points were at
-   * opposite corners and the two hilts made a dark blob exactly where the eye lands. The guard is
-   * a short bar rather than a full cross-piece for the same reason — at eighteen points across
-   * there is no room for a hilt that is drawn in detail.
-   */
-  const blade = (angle: number): Phaser.GameObjects.Graphics => {
-    const g = self.add.graphics();
-    g.fillStyle(INK_UI.brush, 1);
-    g.fillRect(-13, -1.3, 6.5, 2.6);
-    g.fillCircle(-13.2, 0, 1.9);
-    g.fillRect(-6.8, -3.8, 2.2, 7.6);
-    // Paper-bright, so the blade reads against the dark blocks of men it stands between.
-    g.fillStyle(INK_UI.parchment, 1);
-    g.beginPath();
-    g.moveTo(-4.2, -2.4);
-    g.lineTo(10, -2.1);
-    g.lineTo(15.5, 0);
-    g.lineTo(10, 2.1);
-    g.lineTo(-4.2, 2.4);
-    g.closePath();
-    g.fillPath();
-    g.lineStyle(1.3, INK_UI.brush, 0.95);
-    g.strokePath();
-    g.setRotation(angle);
-    return g;
-  };
-  const blades = self.add.container(0, 0);
-  blades.add([blade(-Math.PI / 4), blade(-Math.PI * 0.75)]);
+  const blades = self.add.container(0, 0, [addConquestUiIcon(self, 'crossed-weapons', 40)]);
   blades.setData('role', 'blades');
   container.add(blades);
 

@@ -6,9 +6,13 @@ import { addPressFeedback } from './animations';
 import {
   installPressWatch, liftForInput, markControlBorn, noteControlFired, pressIsEchoOnto, releaseNotOwnedBy, sheetIsUp, insideSheet } from './inputGeneration';
 import { CARD_ICON_SIZE, drawCardIcon, type CardIconId } from './CardIcons';
+import { addConquestUiIcon } from './conquestUiIcons';
 import { UI_FONT } from './fonts';
 import { RectClip } from './ink/clipRect';
 import { PIGMENT } from './ink/palette';
+import {
+  CAPTION_FONT as CHIP_CAPTION_FONT, drawCostChips, measureChipCaption, measureCostChips, type CostChip,
+} from './costChips';
 import { inkPath, mulberry32, washFill, type Pt } from './ink/stroke';
 import { designLength, localPointer } from '../game/graphicsQuality';
 import { isDesktopPlatform } from '../platform/layout';
@@ -129,6 +133,14 @@ export const INK_UI_HEX = {
   inkText: '#2a2118',
   mutedText: '#5a4c39',
   lightText: '#fbf2df',
+  /**
+   * `PIGMENT.sonDeep`, as CSS.
+   *
+   * The lead word of a tip is set in it on all three surfaces that print one — the launch
+   * splash's inline stylesheet, the loading page, and the menu's tip card — and two of those are
+   * DOM, which cannot read a number. Written once here so the three cannot drift apart.
+   */
+  cinnabarDeep: '#8a2a1b',
 };
 
 export type InkButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'disabled';
@@ -241,6 +253,19 @@ export interface InkCardOptions extends InkSurfaceOptions {
    */
   statusColor?: number;
   rows?: InkCardRow[];
+  /**
+   * The row's price, drawn as icon-and-figure chips under everything else it says.
+   *
+   * A cost belongs in `costs`, never in the subtitle: spelled into the prose it reads at the
+   * same weight as the sentence around it, and a list of rows becomes a list of paragraphs to
+   * be read rather than prices to be compared. See `costChips`.
+   */
+  costs?: CostChip[];
+  /**
+   * A small caption over the chip strip, for figures that are not a price — a province's yield
+   * per season, a focus's tilt. Omitted for a cost, where the chips need no introduction.
+   */
+  costsLabel?: string;
   body?: string;
   action?: {
     label: string;
@@ -774,6 +799,10 @@ export class InkUI {
         : measure(value, 'body', { fontSize: '12px' }) + 4;
     }
     if (opts.body) height += measure(opts.body, 'body', { fontSize: '12px', lineSpacing: 5 });
+    if (opts.costs?.length) {
+      const indent = opts.costsLabel ? measureChipCaption(this.scene, opts.costsLabel) : 0;
+      height += measureCostChips(this.scene, opts.costs, textWidth, indent) + 4;
+    }
     if (opts.action && opts.actionPlacement === 'bottom') height += 34;
     return Math.max(minimum, badge ? badge.height + 18 : 0, Math.round(height));
   }
@@ -908,6 +937,22 @@ export class InkUI {
         lineSpacing: 5,
         wordWrap: { width: textWidth },
       }), 0);
+    }
+
+    if (opts.costs?.length) {
+      // The caption rides on the strip's own line, not above it: what these figures are is one
+      // word, and a word does not need a line of its own on a card five of which fit a screen.
+      const indent = opts.costsLabel ? measureChipCaption(this.scene, opts.costsLabel) : 0;
+      if (opts.costsLabel) {
+        const caption = this.scene.add.text(padding, cursorY + 8, opts.costsLabel.toLocaleUpperCase(), {
+          ...CHIP_CAPTION_FONT, color: INK_UI_HEX.mutedText,
+        });
+        container.add(caption);
+      }
+      const strip = drawCostChips(this.scene, opts.costs,
+        { x: padding, y: cursorY + 2, width: textWidth, muted: opts.muted, indent });
+      container.add(strip);
+      cursorY += measureCostChips(this.scene, opts.costs, textWidth, indent) + 4;
     }
 
     let contentBottom = cursorY + 10; // breathing room below the last line
@@ -1470,11 +1515,8 @@ export class InkUI {
 
   closeIcon(bounds: UIBounds, onClick: () => void): Phaser.GameObjects.Container {
     const container = this.scene.add.container(bounds.x, bounds.y);
-    const text = this.label(bounds.width / 2, bounds.height / 2 - 1, '×', 'button', {
-      color: INK_UI_HEX.inkText,
-      fontSize: '22px',
-      fontStyle: '700',
-    }).setOrigin(0.5);
+    const text = addConquestUiIcon(this.scene, 'close', 22)
+      .setPosition(bounds.width / 2, bounds.height / 2 - 1);
     const hitArea = this.scene.add
       .rectangle(bounds.width / 2, bounds.height / 2, bounds.width, bounds.height, 0xffffff, 0.001)
       .setInteractive({ useHandCursor: true });

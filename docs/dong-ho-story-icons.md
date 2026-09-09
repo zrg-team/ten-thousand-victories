@@ -1,5 +1,7 @@
 # Đông Hồ story choice icons
 
+**2026-09-10:** These fourteen motifs belong to the [revised Conquest UI atlas](art/conquest-ui-v3.md), with restrained historical prints for functional icons and troop formations. The 57-frame UI atlas loads before the menu and retries at the map boundary. Decorative dynasty signs have a separate preserved atlas. The source atlas and production history below remain for provenance; the old atlases are no longer fetched at runtime.
+
 Story choices and the pending decisions in the Chronicle share fourteen generated bitmap motifs. They use the same warm black contours, vermilion, ochre, indigo and leaf green as the petition and harvest power-card prints.
 
 The pack covers person, crown, grain, purse, scales, wall, scroll, hammer, shield, blade, banner, spark, herd and hut. The current story catalogue uses twelve of these; herd and hut complete the complex choice vocabulary. The existing option IDs still determine meaning through `iconForOption`. Small utility symbols keep their existing drawing code.

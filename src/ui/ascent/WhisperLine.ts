@@ -1,3 +1,4 @@
+import { addConquestUiIcon } from '../conquestUiIcons';
 import Phaser from 'phaser';
 import { GAME_WIDTH } from '../../game/constants';
 import type { GameEvent, GameState } from '../../state/types';
@@ -49,6 +50,7 @@ const MAX_QUEUE = 4;
  */
 export class WhisperLine {
   private root: Phaser.GameObjects.Container;
+  private chevron: Phaser.GameObjects.Image;
   private skin: Phaser.GameObjects.Graphics;
   private line: Phaser.GameObjects.Text;
   private hit: Phaser.GameObjects.Rectangle;
@@ -70,6 +72,7 @@ export class WhisperLine {
   ) {
     this.root = scene.add.container(0, 0).setDepth(DEPTH).setAlpha(0);
     this.skin = scene.add.graphics();
+    this.chevron = addConquestUiIcon(scene, 'chevron-up', 12).setAngle(90);
     this.line = scene.add.text(SIDE + PAD + 13, 0, '', {
       color: '#4a3b28',
       fontFamily: UI_FONT,
@@ -98,7 +101,7 @@ export class WhisperLine {
       this.dismiss();
       this.onOpen(ref.storyId);
     });
-    this.root.add([this.skin, this.line, this.hit]);
+    this.root.add([this.skin, this.line, this.chevron, this.hit]);
     // Its own clock, because the economy tick is far too coarse for a hold-and-fade — a season
     // can be several seconds and the strip has to come and go inside one.
     this.clock = scene.time.addEvent({ delay: 120, loop: true, callback: () => this.pump() });
@@ -203,15 +206,7 @@ export class WhisperLine {
     this.skin.fillRect(SIDE + PAD + 1.6, cy, 1.6, 3.2);
     this.skin.fillRect(SIDE + PAD + 6, cy, 1.6, 3.2);
 
-    // The chevron, drawn rather than typed: `⌄` is not a chevron in Be Vietnam Pro and renders as
-    // a lowercase v. Two strokes are the same picture in every face and at every size.
-    const chevronX = SIDE + WIDTH - PAD - 4;
-    this.skin.lineStyle(1.6, PIGMENT.mucSoft, 0.7);
-    this.skin.beginPath();
-    this.skin.moveTo(chevronX - 2, cy - 4);
-    this.skin.lineTo(chevronX + 2.5, cy);
-    this.skin.lineTo(chevronX - 2, cy + 4);
-    this.skin.strokePath();
+    this.chevron.setPosition(SIDE + WIDTH - PAD - 4, cy);
 
     this.root.sendToBack(this.skin);
   }

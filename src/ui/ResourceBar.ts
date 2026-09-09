@@ -6,13 +6,13 @@ import { compactNumber } from '../utils/format';
 import { realmPopulationCapacity } from '../systems/ResourceSystem';
 import { seasonLabel, t } from '../i18n';
 import { InkUI, INK_UI, INK_UI_HEX } from './InkUI';
-import { RESOURCE_ICONS } from './theme';
+import { addConquestUiIcon } from './conquestUiIcons';
 import { sawtoothBand } from './ink/devices';
 import { PIGMENT } from './ink/palette';
 import { placeStamp, stampDesign } from './ink/stamp';
 
 const RESOURCE_ORDER: ResourceKey[] = ['food', 'supplies', 'gold', 'humans'];
-const ICON_DISPLAY_SIZE = 15;
+const ICON_DISPLAY_SIZE = 18;
 
 /**
  * The strip's vertical rhythm. The two răng cưa bands frame it, so the type has to clear them
@@ -108,10 +108,8 @@ export class ResourceBar extends Phaser.GameObjects.Container {
         .rectangle(x - 4, ROW_Y, itemWidth - 6, 17, INK_UI.cinnabar, 0.9)
         .setOrigin(0, 0.5)
         .setVisible(false);
-      const icon = scene.add
-        .image(x, ROW_Y, RESOURCE_ICONS[resource].key)
-        .setOrigin(0, 0.5)
-        .setDisplaySize(ICON_DISPLAY_SIZE, ICON_DISPLAY_SIZE);
+      const icon = addConquestUiIcon(scene, resource, ICON_DISPLAY_SIZE)
+        .setPosition(x, ROW_Y).setOrigin(0, 0.5);
       const text = ui.label(x + ICON_DISPLAY_SIZE + 4, ROW_Y, '', 'subtitle', {
         fontSize: '12px',
       }).setOrigin(0, 0.5);

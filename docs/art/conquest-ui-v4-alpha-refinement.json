@@ -1,0 +1,19 @@
+{
+  "mode": "built-in ImageGen",
+  "purpose": "Remove generated checkerboard backing with real alpha; preserve subject artwork",
+  "prompt": "Use case: background-extraction. Remove the entire grey-and-white checkerboard backdrop from the attached image, including every gap between weapon components. Return only the existing dark ink and colored pigment weapon/sign artwork as a clean transparent PNG cutout with a REAL alpha channel. The checkerboard is an unwanted painted background, not part of the icon. There must be no checkerboard pixels, white background, grey background, paper texture or backing rectangle remaining; all background pixels must have zero opacity. Preserve the original simple Dong Ho woodblock silhouette, thick hand-cut ink edges, ochre/vermilion pigment and print texture on the subject itself. Do not redesign the subject, add subjects, repeat it, or add text. Keep the complete unclipped icon centered with transparent margins. Actual transparent background, not a drawing that represents transparency.",
+  "sources": [
+    {
+      "id": "spears",
+      "path": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-134b7992-9143-4da8-b5eb-7bf8c66c8e55.png"
+    },
+    {
+      "id": "horse",
+      "path": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-24a46107-4be0-41fe-b282-7708007fc23d.png"
+    },
+    {
+      "id": "skirmish",
+      "path": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-32c9b347-de85-4dfc-8841-5e48f698cd30.png"
+    }
+  ]
+}

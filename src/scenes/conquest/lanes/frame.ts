@@ -21,6 +21,7 @@ import { openingFor, takeOpening } from '../../../systems/story/StorySystem';
 import { contestedFronts } from '../../../systems/ascent/battleReport';
 import { storyText } from '../../../i18n/story';
 import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type InkCardOptions, type InkCardRow, type UIBounds } from '../../../ui/InkUI';
+import { type CostChip } from '../../../ui/costChips';
 import { UI_FONT } from '../../../ui/fonts';
 import { t } from '../../../i18n';
 import type { AscentLane, Hero } from '../../../state/types';
@@ -31,6 +32,8 @@ import { clearLanePage } from '../layers';
 import { delegateBattle } from '../../../systems/ascent/BattleSystem';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 import { soundDirector } from '../../../ui/sound/SoundDirector';
+import { addConquestUiIcon } from '../../../ui/conquestUiIcons';
+import type { CardIconId } from '../../../ui/CardIcons';
 
 /** The ghost "back" button a lane sub-page shows above its footer button. */
 const LANE_BACK_BUTTON_HEIGHT = 34;
@@ -152,10 +155,49 @@ export function openLane(self: ConquestUIScene, lane: AscentLane): void {
  * The scrolling body every bar screen shares: a titled frame, a scroll area, and a helper
  * that appends one tappable row. Factored out so the five screens differ only in content.
  */
+/**
+ * The mark for a post nobody holds — a dashed frame the size of a portrait, with the person
+ * glyph inside it.
+ *
+ * Reported against the province sheet's governor row: vacant, it was a card of words with a
+ * blank margin where every filled hero row carries a face, so the one row on the page that
+ * *wants* something from the player was the least marked thing on it. Dashed rather than a
+ * panel, the same rule the inheritance shelf uses: a filled-looking box with no face in it
+ * reads as a portrait that failed to load.
+ */
+function vacantFaceBox(
+  self: ConquestUIScene,
+  box: UIBounds,
+  muted: boolean,
+): Phaser.GameObjects.Container {
+  const holder = self.add.container(box.x, box.y);
+  const g = self.add.graphics();
+  g.lineStyle(1.4, INK_UI.softBrush, muted ? 0.45 : 0.8);
+  const { width, height } = box;
+  for (const [x1, y1, x2, y2] of [
+    [0, 0, width, 0], [width, 0, width, height], [width, height, 0, height], [0, height, 0, 0],
+  ] as const) {
+    const span = Math.hypot(x2 - x1, y2 - y1);
+    const steps = Math.max(2, Math.round(span / 7));
+    for (let i = 0; i < steps; i += 1) {
+      if (i % 2 === 1) continue;
+      const a = i / steps;
+      const b = Math.min(1, (i + 1) / steps);
+      g.lineBetween(x1 + (x2 - x1) * a, y1 + (y2 - y1) * a, x1 + (x2 - x1) * b, y1 + (y2 - y1) * b);
+    }
+  }
+  holder.add(g);
+  holder.add(addConquestUiIcon(self, 'person', Math.min(28, height - 14))
+    .setPosition(width / 2, height / 2)
+    .setAlpha(muted ? 0.3 : 0.55));
+  return holder;
+}
+
 export function laneList(self: ConquestUIScene,
   title: string,
   subtitle: string,
   laneOpts: {
+    titleIcon?: CardIconId;
     /** A primary action in the close button's slot, in place of Close. */
     footer?: {
       label: string;
@@ -227,7 +269,7 @@ export function laneList(self: ConquestUIScene,
 ): {
   content: UIBounds;
   addRow: (
-    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; status?: string; statusColor?: number; rows?: InkCardRow[]; badge?: InkCardOptions['badge'] },
+    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; badge?: InkCardOptions['badge'] },
     onTap?: () => void,
   ) => void;
   addHeading: (title: string, hint?: string) => void;
@@ -241,7 +283,7 @@ export function laneList(self: ConquestUIScene,
   // A lane takes the readout band too — see `promptFrame`. A page you opened to work in has no
   // use for the between-decisions numbers, and forty-eight points is the difference between four
   // rows and five on a 620-high screen.
-  const content = self.promptFrame(title, subtitle, { coverReadout: true });
+  const content = self.promptFrame(title, subtitle, { coverReadout: true, titleIcon: laneOpts.titleIcon });
   // At most three. A dock that grows without limit is a second page pinned over the first, and the
   // point of it is to be the short answer to "what now" — the lane itself is where everything else
   // lives.
@@ -365,12 +407,16 @@ export function laneList(self: ConquestUIScene,
   let y = 0;
 
   const addRow = (
-    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; status?: string; statusColor?: number; rows?: InkCardRow[]; badge?: InkCardOptions['badge'] },
+    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; badge?: InkCardOptions['badge'] },
     onTap?: () => void,
   ) => {
     // A portrait sits in its own column beside the card, so a hero row is recognisable at a
     // glance and the card's own auto-fit is untouched.
-    const faceCol = opts.portrait ? LANE_PORTRAIT_COLUMN : 0;
+    // A vacant post keeps the portrait column and marks it: an empty seat that simply had no
+    // face column read as a plain notice, and the row that posts somebody looked like the rows
+    // that only tell you things. See `vacantFaceBox`.
+    const face = opts.portrait ? 'hero' : opts.vacantFace ? 'vacant' : opts.icon ? 'icon' : 'none';
+    const faceCol = face === 'hero' || face === 'vacant' ? LANE_PORTRAIT_COLUMN : face === 'icon' ? 40 : 0;
     const measuredHeight = self.ui.measureCard(rowWidth - faceCol, 54, opts);
     const top = y;
     scroll.lazyRow(`${opts.portrait?.id ?? opts.title}`, top, measuredHeight + 8, () => {
@@ -378,11 +424,16 @@ export function laneList(self: ConquestUIScene,
     const row = self.ui.card({ x: faceCol, y, width: rowWidth - faceCol, height: 54 }, opts);
     const height = (row.getData('cardHeight') as number) ?? 54;
     let holder: Phaser.GameObjects.Container = row;
-    if (opts.portrait) {
+    if (face !== 'none') {
       holder = self.add.container(0, y);
       row.setPosition(faceCol, 0);
       holder.add(row);
-      holder.add(renderHeroFaceInBox(self, opts.portrait, { x: 0, y: 2, width: faceCol - 6, height: Math.max(40, height - 4) }));
+      if (opts.portrait) holder.add(renderHeroFaceInBox(self, opts.portrait,
+        { x: 0, y: 2, width: faceCol - 6, height: Math.max(40, height - 4) }));
+      else if (face === 'vacant') holder.add(vacantFaceBox(self,
+        { x: 0, y: 2, width: faceCol - 6, height: Math.max(40, height - 4) }, opts.muted === true));
+      else if (opts.icon) holder.add(addConquestUiIcon(self, opts.icon, 32)
+        .setPosition(faceCol / 2, height / 2).setAlpha(opts.muted ? 0.45 : 1));
     }
     if (onTap) {
       const hit = self.add
@@ -395,7 +446,7 @@ export function laneList(self: ConquestUIScene,
         }
         onTap();
       });
-      (opts.portrait ? holder : row).add(hit);
+      (opts.portrait || opts.icon ? holder : row).add(hit);
     }
     scroll.content.add(holder);
     });
@@ -610,10 +661,8 @@ export function laneList(self: ConquestUIScene,
 
       // The chevron, and only the chevron. It had a grey disc behind it, which put a second
       // button-shaped thing on a header whose whole width is already the button.
-      sheetHost.add(self.add.text(
-        content.x + content.width, headMid, sheetOpen ? '▾' : '▴',
-        { color: INK_UI.mutedText, fontFamily: UI_FONT, fontSize: '15px', fontStyle: '700' },
-      ).setOrigin(1, 0.5));
+      sheetHost.add(addConquestUiIcon(self, sheetOpen ? 'chevron-down' : 'chevron-up', 18)
+        .setPosition(content.x + content.width - 9, headMid));
 
       const headHit = self.add.rectangle(
         0, stackTop, GAME_WIDTH, LANE_SHEET_HEADER_HEIGHT, INK_UI.brush, 0.001,
@@ -654,10 +703,8 @@ export function laneList(self: ConquestUIScene,
             wordWrap: { width: content.width - 26 },
           },
         ).setOrigin(0, 0.5));
-        sheetHost.add(self.add.text(
-          content.x + content.width, mid, '›',
-          { color: cssHex(INK_UI.cinnabar), fontFamily: UI_FONT, fontSize: '13px' },
-        ).setOrigin(1, 0.5));
+        sheetHost.add(addConquestUiIcon(self, 'chevron-up', 14)
+          .setPosition(content.x + content.width - 7, mid).setAngle(90));
 
         // The whole row, and on the press — the same as every other control in this mode. The
         // teardown that follows swallows the rest of the gesture (see `clearLanePage`), so the
@@ -731,12 +778,7 @@ export function laneList(self: ConquestUIScene,
       box.lineStyle(1.2, cfg.checked ? INK_UI.gold : INK_UI.softBrush, 1);
       box.strokeRect(content.x + 2, ty + 6, 14, 14);
       if (cfg.checked) {
-        box.lineStyle(2, INK_UI.gold, 1);
-        box.beginPath();
-        box.moveTo(content.x + 5, ty + 13);
-        box.lineTo(content.x + 8, ty + 16);
-        box.lineTo(content.x + 14, ty + 8);
-        box.strokePath();
+        sheetHost.add(addConquestUiIcon(self, 'check', 14).setPosition(content.x + 9, ty + 13));
       }
       sheetHost.add(box);
 

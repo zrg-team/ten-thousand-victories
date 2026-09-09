@@ -1,3 +1,4 @@
+import { addConquestUiIcon } from '../conquestUiIcons';
 import Phaser from 'phaser';
 import { GAME_WIDTH, HEADER_HEIGHT } from '../../game/constants';
 import { t } from '../../i18n';
@@ -61,6 +62,7 @@ export class AdvisorStrip {
   private readonly ui: InkUI;
   private root: Phaser.GameObjects.Container;
   private skin: Phaser.GameObjects.Graphics;
+  private chevron: Phaser.GameObjects.Image;
   private mark: Phaser.GameObjects.Graphics;
   private line: Phaser.GameObjects.Text;
   private hit: Phaser.GameObjects.Rectangle;
@@ -80,6 +82,7 @@ export class AdvisorStrip {
     this.root = scene.add.container(0, 0).setDepth(DEPTH);
     this.skin = scene.add.graphics();
     this.mark = scene.add.graphics();
+    this.chevron = addConquestUiIcon(scene, 'chevron-up', 12);
     this.line = scene.add.text(SIDE + PAD + 14, ADVISOR_TOP + 7, '', {
       color: TONE.calm.text,
       fontFamily: UI_FONT,
@@ -105,7 +108,7 @@ export class AdvisorStrip {
       this.draw();
     });
     markControlBorn(this.hit);
-    this.root.add([this.skin, this.mark, this.line, this.hit]);
+    this.root.add([this.skin, this.mark, this.line, this.chevron, this.hit]);
   }
 
   /**
@@ -261,27 +264,7 @@ export class AdvisorStrip {
       this.mark.fillCircle(SIDE + PAD + 4, cy, 1.4);
     }
 
-    // The open/shut chevron, drawn rather than typed.
-    //
-    // It was a `›` / `⌄` pair of text glyphs, and the second one is not a chevron in Be Vietnam
-    // Pro — it renders as a lowercase v, so the shut strip offered an arrow and the open one
-    // appeared to have a letter stuck to its corner. Two strokes are the same picture at every
-    // size and in every face, and this one already owns a Graphics.
-    const chevronX = SIDE + WIDTH - PAD - 4;
-    this.mark.lineStyle(1.6, PIGMENT.mucSoft, 0.75);
-    if (this.open) {
-      this.mark.beginPath();
-      this.mark.moveTo(chevronX - 4, cy - 2);
-      this.mark.lineTo(chevronX, cy + 2.5);
-      this.mark.lineTo(chevronX + 4, cy - 2);
-      this.mark.strokePath();
-    } else {
-      this.mark.beginPath();
-      this.mark.moveTo(chevronX - 2, cy - 4);
-      this.mark.lineTo(chevronX + 2.5, cy);
-      this.mark.lineTo(chevronX - 2, cy + 4);
-      this.mark.strokePath();
-    }
+    this.chevron.setPosition(SIDE + WIDTH - PAD - 4, cy).setAngle(this.open ? 180 : 90);
 
     // The hit area is resized in place rather than re-registered. Calling `setInteractive` a
     // second time on a live object replaces its input handler and drops the listeners bound to

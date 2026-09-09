@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import type { ResourceKey } from '../state/types';
 import { InkUI, INK_UI, INK_UI_HEX, type InkButtonVariant, type InkSurfaceOptions } from './InkUI';
 import { UI_FONT } from './fonts';
 
@@ -29,15 +28,6 @@ export const PARCHMENT = {
   dark: INK_UI.backgroundInk,
   darkBorder: INK_UI.cinnabar,
 };
-
-/** SVG icon textures for the resource bar, loaded by PreloadScene from /public/icons. */
-export const RESOURCE_ICONS: Record<ResourceKey, { key: string; file: string }> = {
-  food: { key: 'icon-food', file: 'food' },
-  supplies: { key: 'icon-supplies', file: 'supplies' },
-  gold: { key: 'icon-gold', file: 'gold' },
-  humans: { key: 'icon-humans', file: 'manpower' },
-};
-export const RESOURCE_ICON_SIZE = 32;
 
 export type TextVariant =
   | 'header'

@@ -36,7 +36,11 @@ await page.addInitScript(() => {
 await page.addInitScript(() => localStorage.setItem('mandate:language:v1', 'en'));
 
 await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
-await page.waitForFunction(() => typeof window.__startBenchGame === 'function', null, { timeout: 30000 });
+// Wait for the *menu*, not for the hook. `__startBenchGame` is defined before PreloadScene has
+// finished, and jumping the queue there starts the conquest scene while the shared atlases are
+// still in flight — five "Texture key already in use" errors that failed the console check on a
+// boot with nothing wrong with it.
+await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
 await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
 await page.waitForFunction(() => Boolean(gameState()), null, { timeout: 30000 });
 await page.waitForTimeout(900);
@@ -301,7 +305,25 @@ check(
     ui.showBuildOptions(land.id);
   });
   await page.waitForTimeout(300);
+  // The sheet is taller than the phone and its rows mount lazily, so what is on the modal layer
+  // is what is *near the viewport*. The build section is the last of the four and has always been
+  // below the fold; scroll once and read again, or the check is really "does the sheet fit".
+  //
+  // Read at every step of the way down, not only at the bottom: a heading unmounts once it has
+  // passed the top edge as surely as before it arrives, so one scrape after eight wheels finds
+  // the build rows and not the words above them.
   const sheet = await modalText();
+  await page.mouse.move(box.x + box.w / 2, box.y + box.h / 2);
+  for (let i = 0; i < 8; i += 1) {
+    await page.mouse.wheel(0, 300);
+    await page.waitForTimeout(90);
+    sheet.push(...await modalText());
+  }
+  for (let i = 0; i < 8; i += 1) {
+    await page.mouse.wheel(0, -300);
+    await page.waitForTimeout(60);
+  }
+  await page.waitForTimeout(200);
   // Headings are set as small caps, so matched case-insensitively.
   check(
     'the sheet is divided into named sections',
@@ -309,11 +331,16 @@ check(
       .every((s) => sheet.some((line) => line.toLowerCase().includes(s))),
     sheet.filter((l) => /this province|governor|focus|build and upgrade/i.test(l)).join(' / '),
   );
+  // The yield is drawn, not written: three glyph-and-figure chips under an "EACH SEASON"
+  // caption, where it used to be the sentence "Food 15 · Goods 7 · Gold 28". So the check is
+  // the caption plus three bare figures on the sheet — the sentence would now be a false pass.
+  const bareFigures = sheet.filter((l) => /^\d+$/.test(l.trim())).length;
   check(
-    'the status block shows people, growth and yield',
+    'the status block shows people, growth and the yield chips',
     sheet.some((l) => /people\s+·\s+\+\d+\/season/.test(l))
-      && sheet.some((l) => /Food \d+\s+·\s+Goods \d+\s+·\s+Gold \d+/.test(l)),
-    sheet.filter((l) => /people|Food \d/.test(l)).slice(0, 2).join(' / '),
+      && sheet.some((l) => /each season/i.test(l))
+      && bareFigures >= 3,
+    `${sheet.filter((l) => /people|each season/i.test(l)).slice(0, 2).join(' / ')} · ${bareFigures} figures`,
   );
 }
 

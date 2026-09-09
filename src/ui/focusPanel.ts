@@ -32,6 +32,11 @@ export interface FocusRow {
   /** The tilt as it will actually be paid on this land, e.g. "Food x1.54  Supplies x0.85". */
   effect: string;
   /**
+   * The same three multipliers as numbers, for a renderer that draws them as glyph-and-figure
+   * chips rather than as a sentence. `effect` stays for the classic panel, which has no chips.
+   */
+  mult: { food: number; supplies: number; gold: number };
+  /**
    * What the focus pays that is not a resource — the defence and loyalty of `fortress`, the
    * soldiers of `garrison`. Empty for the economic focuses, whose whole effect is in `effect`.
    */
@@ -134,6 +139,7 @@ export function buildFocusRows(state: GameState, land: Land): FocusRow[] {
       focus,
       title: focusTitle(state, focus),
       effect,
+      mult: { food: mult.food, supplies: mult.supplies, gold: mult.gold },
       extra,
       suitLine,
       suitability,

@@ -1,3 +1,4 @@
+import { addConquestUiIcon } from './conquestUiIcons';
 /**
  * Ink-wash rendering for items drawn on top of the map: settlements, resource clusters
  * (farms/mines), and army/progress badges.
@@ -9,7 +10,7 @@
 import Phaser from 'phaser';
 import { COLORS } from '../game/constants';
 import { INK, brushStroke } from './inkTheme';
-import { clashDevice, type HostKit } from './ink/devices';
+import { type HostKit } from './ink/devices';
 import { compactNumber } from '../utils/format';
 import { IsoBuildingRenderer } from './IsoBuildingRenderer';
 import { SoldierRenderer } from './SoldierRenderer';
@@ -248,27 +249,8 @@ export class InkMapItemRenderer implements MapItemRenderer {
 
     container.add([back, wedge]);
 
-    if (variant === 'acquisition') {
-      const coin = this.scene.add.circle(0, 0, 6, INK.sealRed, 1).setStrokeStyle(1, INK.cloud, 0.8);
-      container.add(coin);
-    } else if (variant === 'siege' || variant === 'battle') {
-      // Two straight strokes in a red ring is the cancel glyph, not a fight. The battle screen's
-      // own clash mark instead, at the size this ring can hold.
-      const swords = this.scene.add.graphics();
-      clashDevice(swords, 0, 0, 0.6, false);
-      container.add(swords);
-    } else if (variant === 'recruit') {
-      const flag = this.scene.add.graphics();
-      flag.lineStyle(2, INK.cloud, 0.95);
-      flag.lineBetween(-4, 7, -4, -7);
-      flag.fillStyle(INK.cloud, 0.95);
-      flag.fillTriangle(-4, -7, -4, -1, 6, -4);
-      container.add(flag);
-    } else {
-      const head = this.scene.add.rectangle(0, -2, 10, 5, INK.cloud, 1).setStrokeStyle(1, INK.ink, 0.8);
-      const handle = this.scene.add.rectangle(0, 3, 3, 9, INK.inkSoft, 1);
-      container.add([head, handle]);
-    }
+    const icon = { build: 'hammer', siege: 'ladder', battle: 'crossed-weapons', recruit: 'banner', acquisition: 'coin' } as const;
+    container.add(addConquestUiIcon(this.scene, icon[variant], 24));
 
     const text = this.scene.add.text(0, 23, `${Math.round(progress)}/${Math.round(required)}`, {
       color: '#f3ede0',

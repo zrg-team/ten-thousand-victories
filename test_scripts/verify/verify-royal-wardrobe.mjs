@@ -6,7 +6,7 @@ const base = process.env.DEV_URL ?? 'http://127.0.0.1:5179';
 const out = 'output/royal-wardrobe'; mkdirSync(out,{recursive:true});
 const inventory = JSON.parse(readFileSync('src/data/royalWardrobe.json','utf8'));
 assert.equal(inventory.length,54); assert.equal(new Set(inventory.map(i=>i.id)).size,54);
-assert.equal(new Set(inventory.map(i=>createHash('sha256').update(readFileSync(`public/faces-royal/${i.id}.svg`)).digest('hex'))).size,54,'Duplicate art');
+assert.equal(new Set(inventory.map(i=>createHash('sha256').update(readFileSync(`public/faces-royal/${i.id}.png`)).digest('hex'))).size,54,'Duplicate art');
 const browser=await chromium.launch();
 try {
  const page=await browser.newPage({viewport:{width:1200,height:1100}}), errors=[];

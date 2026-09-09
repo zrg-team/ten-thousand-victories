@@ -217,6 +217,14 @@ window.render_game_to_text = () => {
     if (object instanceof Phaser.GameObjects.Container) object.list.forEach(readIllustration);
   };
   if (ascentUi?.modalLayer) readIllustration(ascentUi.modalLayer);
+  const generatedUiIcons = new Set<string>();
+  const readUiIcons = (object: Phaser.GameObjects.GameObject): void => {
+    if ('visible' in object && !object.visible) return;
+    const art = object.getData('conquestUiIcon') as { id: string; source: string } | undefined;
+    if (art?.source === 'generated') generatedUiIcons.add(art.id);
+    if (object instanceof Phaser.GameObjects.Container) object.list.forEach(readUiIcons);
+  };
+  ascentUi?.children.list.forEach(readUiIcons);
 
   return JSON.stringify({
     coordinateSystem: 'Phaser canvas pixels, origin top-left, x right, y down',
@@ -337,6 +345,7 @@ window.render_game_to_text = () => {
             screen: ascentUi?.openPromptKey || 'map',
             storyIllustration,
             storyChoiceIcons: storyChoiceIcons.length ? storyChoiceIcons : undefined,
+            generatedUiIcons: [...generatedUiIcons].sort(),
             bannerEditor: state.pendingAscentPrompt?.kind === 'coronation' ? ascentUi?.coronationSheet?.bannerState() : undefined,
             wardrobe: state.pendingAscentPrompt?.kind === 'coronation' ? ascentUi?.coronationSheet?.wardrobeState() : undefined,
             chronicleTab: ascentUi?.openPromptKey === 'lane:chronicle'

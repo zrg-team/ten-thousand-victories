@@ -1,0 +1,47 @@
+{
+  "mode": "built-in ImageGen",
+  "assets": [
+    {
+      "id": "spears",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-2dd10422-13cf-4cf5-8cff-d8d03f798a40.png",
+      "master": "output/conquest-ui-v4/masters/spears.png",
+      "sha256": "ca43f526ebe1a698bf5b28c5021ab034c0cdaac8f025b8b1d5ae22c5a395f1d7",
+      "crop": [
+        288,
+        51,
+        979,
+        1202
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v4-prompts.json#spears"
+    },
+    {
+      "id": "horse",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-85b6cb6c-537d-44d1-9b72-1f5420f2150e.png",
+      "master": "output/conquest-ui-v4/masters/horse.png",
+      "sha256": "1298b9804e584fee4470a21bfc796dc45c66657bca7759aea841a1a15070d94b",
+      "crop": [
+        168,
+        176,
+        1083,
+        1101
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v4-prompts.json#horse"
+    },
+    {
+      "id": "skirmish",
+      "generatedSource": "C:/Users/zerg/.codex/generated_images/01a086b8-6105-7171-a8cb-fb1c434a50b2/exec-c93fb91e-ba11-486e-a024-84137c74cc92.png",
+      "master": "output/conquest-ui-v4/masters/skirmish.png",
+      "sha256": "0a0af4a454dbcde5e74d32d997df7dceed00e1f11ad5efb1162fc591963a0495",
+      "crop": [
+        99,
+        52,
+        1153,
+        1197
+      ],
+      "alpha": "generated, preserved inside rectangular crop",
+      "prompt": "docs/art/conquest-ui-v4-prompts.json#skirmish"
+    }
+  ]
+}

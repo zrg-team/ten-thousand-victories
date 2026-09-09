@@ -1,1 +1,1092 @@
-{"frames":{"royal-dinh-hat-1":{"frame":{"x":0,"y":0,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-dinh-hat-2":{"frame":{"x":260,"y":0,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-dinh-hat-3":{"frame":{"x":520,"y":0,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-dinh-robe-1":{"frame":{"x":780,"y":0,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-dinh-robe-2":{"frame":{"x":1040,"y":0,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-dinh-robe-3":{"frame":{"x":1300,"y":0,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-dinh-ornament-1":{"frame":{"x":1560,"y":0,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-dinh-ornament-2":{"frame":{"x":0,"y":176,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-dinh-ornament-3":{"frame":{"x":260,"y":176,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-ly-hat-1":{"frame":{"x":520,"y":176,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-ly-hat-2":{"frame":{"x":780,"y":176,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-ly-hat-3":{"frame":{"x":1040,"y":176,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-ly-robe-1":{"frame":{"x":1300,"y":176,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-ly-robe-2":{"frame":{"x":1560,"y":176,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-ly-robe-3":{"frame":{"x":0,"y":352,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-ly-ornament-1":{"frame":{"x":260,"y":352,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-ly-ornament-2":{"frame":{"x":520,"y":352,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-ly-ornament-3":{"frame":{"x":780,"y":352,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tran-hat-1":{"frame":{"x":1040,"y":352,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-tran-hat-2":{"frame":{"x":1300,"y":352,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-tran-hat-3":{"frame":{"x":1560,"y":352,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-tran-robe-1":{"frame":{"x":0,"y":528,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tran-robe-2":{"frame":{"x":260,"y":528,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tran-robe-3":{"frame":{"x":520,"y":528,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tran-ornament-1":{"frame":{"x":780,"y":528,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tran-ornament-2":{"frame":{"x":1040,"y":528,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tran-ornament-3":{"frame":{"x":1300,"y":528,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-le-hat-1":{"frame":{"x":1560,"y":528,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-le-hat-2":{"frame":{"x":0,"y":704,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-le-hat-3":{"frame":{"x":260,"y":704,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-le-robe-1":{"frame":{"x":520,"y":704,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-le-robe-2":{"frame":{"x":780,"y":704,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-le-robe-3":{"frame":{"x":1040,"y":704,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-le-ornament-1":{"frame":{"x":1300,"y":704,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-le-ornament-2":{"frame":{"x":1560,"y":704,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-le-ornament-3":{"frame":{"x":0,"y":880,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tayson-hat-1":{"frame":{"x":260,"y":880,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-tayson-hat-2":{"frame":{"x":520,"y":880,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-tayson-hat-3":{"frame":{"x":780,"y":880,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-tayson-robe-1":{"frame":{"x":1040,"y":880,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tayson-robe-2":{"frame":{"x":1300,"y":880,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tayson-robe-3":{"frame":{"x":1560,"y":880,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tayson-ornament-1":{"frame":{"x":0,"y":1056,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tayson-ornament-2":{"frame":{"x":260,"y":1056,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-tayson-ornament-3":{"frame":{"x":520,"y":1056,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-nguyen-hat-1":{"frame":{"x":780,"y":1056,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-nguyen-hat-2":{"frame":{"x":1040,"y":1056,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-nguyen-hat-3":{"frame":{"x":1300,"y":1056,"w":256,"h":168},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":256,"h":168},"sourceSize":{"w":256,"h":168}},"royal-nguyen-robe-1":{"frame":{"x":1560,"y":1056,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-nguyen-robe-2":{"frame":{"x":0,"y":1232,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-nguyen-robe-3":{"frame":{"x":260,"y":1232,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-nguyen-ornament-1":{"frame":{"x":520,"y":1232,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-nguyen-ornament-2":{"frame":{"x":780,"y":1232,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}},"royal-nguyen-ornament-3":{"frame":{"x":1040,"y":1232,"w":224,"h":140},"rotated":false,"trimmed":false,"spriteSourceSize":{"x":0,"y":0,"w":224,"h":140},"sourceSize":{"w":224,"h":140}}},"meta":{"image":"atlas.svg","size":{"w":1820,"h":1408},"scale":"1"}}
+{
+  "frames": {
+    "royal-dinh-hat-1": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 204,
+        "h": 91
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 91
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 91
+      }
+    },
+    "royal-dinh-hat-2": {
+      "frame": {
+        "x": 210,
+        "y": 2,
+        "w": 204,
+        "h": 106
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 106
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 106
+      }
+    },
+    "royal-dinh-hat-3": {
+      "frame": {
+        "x": 418,
+        "y": 2,
+        "w": 204,
+        "h": 110
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 110
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 110
+      }
+    },
+    "royal-dinh-robe-1": {
+      "frame": {
+        "x": 626,
+        "y": 2,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-dinh-robe-2": {
+      "frame": {
+        "x": 966,
+        "y": 2,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-dinh-robe-3": {
+      "frame": {
+        "x": 1306,
+        "y": 2,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-dinh-ornament-1": {
+      "frame": {
+        "x": 1646,
+        "y": 2,
+        "w": 222,
+        "h": 55
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 55
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 55
+      }
+    },
+    "royal-dinh-ornament-2": {
+      "frame": {
+        "x": 2,
+        "y": 216,
+        "w": 222,
+        "h": 72
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 72
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 72
+      }
+    },
+    "royal-dinh-ornament-3": {
+      "frame": {
+        "x": 228,
+        "y": 216,
+        "w": 222,
+        "h": 72
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 72
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 72
+      }
+    },
+    "royal-ly-hat-1": {
+      "frame": {
+        "x": 454,
+        "y": 216,
+        "w": 384,
+        "h": 139
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 139
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 139
+      }
+    },
+    "royal-ly-hat-2": {
+      "frame": {
+        "x": 842,
+        "y": 216,
+        "w": 204,
+        "h": 143
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 143
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 143
+      }
+    },
+    "royal-ly-hat-3": {
+      "frame": {
+        "x": 1050,
+        "y": 216,
+        "w": 204,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 104
+      }
+    },
+    "royal-ly-robe-1": {
+      "frame": {
+        "x": 1258,
+        "y": 216,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-ly-robe-2": {
+      "frame": {
+        "x": 1598,
+        "y": 216,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-ly-robe-3": {
+      "frame": {
+        "x": 2,
+        "y": 430,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-ly-ornament-1": {
+      "frame": {
+        "x": 342,
+        "y": 430,
+        "w": 222,
+        "h": 55
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 55
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 55
+      }
+    },
+    "royal-ly-ornament-2": {
+      "frame": {
+        "x": 568,
+        "y": 430,
+        "w": 222,
+        "h": 72
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 72
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 72
+      }
+    },
+    "royal-ly-ornament-3": {
+      "frame": {
+        "x": 794,
+        "y": 430,
+        "w": 222,
+        "h": 67
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 67
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 67
+      }
+    },
+    "royal-tran-hat-1": {
+      "frame": {
+        "x": 1020,
+        "y": 430,
+        "w": 204,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 112
+      }
+    },
+    "royal-tran-hat-2": {
+      "frame": {
+        "x": 1228,
+        "y": 430,
+        "w": 204,
+        "h": 131
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 131
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 131
+      }
+    },
+    "royal-tran-hat-3": {
+      "frame": {
+        "x": 1436,
+        "y": 430,
+        "w": 204,
+        "h": 101
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 101
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 101
+      }
+    },
+    "royal-tran-robe-1": {
+      "frame": {
+        "x": 1644,
+        "y": 430,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-tran-robe-2": {
+      "frame": {
+        "x": 2,
+        "y": 644,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-tran-robe-3": {
+      "frame": {
+        "x": 342,
+        "y": 644,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-tran-ornament-1": {
+      "frame": {
+        "x": 682,
+        "y": 644,
+        "w": 222,
+        "h": 58
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 58
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 58
+      }
+    },
+    "royal-tran-ornament-2": {
+      "frame": {
+        "x": 908,
+        "y": 644,
+        "w": 222,
+        "h": 72
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 72
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 72
+      }
+    },
+    "royal-tran-ornament-3": {
+      "frame": {
+        "x": 1134,
+        "y": 644,
+        "w": 222,
+        "h": 54
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 54
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 54
+      }
+    },
+    "royal-le-hat-1": {
+      "frame": {
+        "x": 1360,
+        "y": 644,
+        "w": 204,
+        "h": 144
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 144
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 144
+      }
+    },
+    "royal-le-hat-2": {
+      "frame": {
+        "x": 1568,
+        "y": 644,
+        "w": 384,
+        "h": 97
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 97
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 97
+      }
+    },
+    "royal-le-hat-3": {
+      "frame": {
+        "x": 2,
+        "y": 858,
+        "w": 384,
+        "h": 95
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 95
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 95
+      }
+    },
+    "royal-le-robe-1": {
+      "frame": {
+        "x": 390,
+        "y": 858,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-le-robe-2": {
+      "frame": {
+        "x": 730,
+        "y": 858,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-le-robe-3": {
+      "frame": {
+        "x": 1070,
+        "y": 858,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-le-ornament-1": {
+      "frame": {
+        "x": 1410,
+        "y": 858,
+        "w": 222,
+        "h": 66
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 66
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 66
+      }
+    },
+    "royal-le-ornament-2": {
+      "frame": {
+        "x": 1636,
+        "y": 858,
+        "w": 222,
+        "h": 72
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 72
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 72
+      }
+    },
+    "royal-le-ornament-3": {
+      "frame": {
+        "x": 2,
+        "y": 1072,
+        "w": 222,
+        "h": 51
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 51
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 51
+      }
+    },
+    "royal-tayson-hat-1": {
+      "frame": {
+        "x": 228,
+        "y": 1072,
+        "w": 204,
+        "h": 115
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 115
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 115
+      }
+    },
+    "royal-tayson-hat-2": {
+      "frame": {
+        "x": 436,
+        "y": 1072,
+        "w": 222,
+        "h": 126
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 126
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 126
+      }
+    },
+    "royal-tayson-hat-3": {
+      "frame": {
+        "x": 662,
+        "y": 1072,
+        "w": 204,
+        "h": 125
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 125
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 125
+      }
+    },
+    "royal-tayson-robe-1": {
+      "frame": {
+        "x": 870,
+        "y": 1072,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-tayson-robe-2": {
+      "frame": {
+        "x": 1210,
+        "y": 1072,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-tayson-robe-3": {
+      "frame": {
+        "x": 1550,
+        "y": 1072,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-tayson-ornament-1": {
+      "frame": {
+        "x": 2,
+        "y": 1286,
+        "w": 222,
+        "h": 67
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 67
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 67
+      }
+    },
+    "royal-tayson-ornament-2": {
+      "frame": {
+        "x": 228,
+        "y": 1286,
+        "w": 198,
+        "h": 156
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 198,
+        "h": 156
+      },
+      "sourceSize": {
+        "w": 198,
+        "h": 156
+      }
+    },
+    "royal-tayson-ornament-3": {
+      "frame": {
+        "x": 430,
+        "y": 1286,
+        "w": 222,
+        "h": 72
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 72
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 72
+      }
+    },
+    "royal-nguyen-hat-1": {
+      "frame": {
+        "x": 656,
+        "y": 1286,
+        "w": 204,
+        "h": 144
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 144
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 144
+      }
+    },
+    "royal-nguyen-hat-2": {
+      "frame": {
+        "x": 864,
+        "y": 1286,
+        "w": 384,
+        "h": 86
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 384,
+        "h": 86
+      },
+      "sourceSize": {
+        "w": 384,
+        "h": 86
+      }
+    },
+    "royal-nguyen-hat-3": {
+      "frame": {
+        "x": 1252,
+        "y": 1286,
+        "w": 204,
+        "h": 109
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 109
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 109
+      }
+    },
+    "royal-nguyen-robe-1": {
+      "frame": {
+        "x": 1460,
+        "y": 1286,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-nguyen-robe-2": {
+      "frame": {
+        "x": 2,
+        "y": 1500,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-nguyen-robe-3": {
+      "frame": {
+        "x": 342,
+        "y": 1500,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-nguyen-ornament-1": {
+      "frame": {
+        "x": 682,
+        "y": 1500,
+        "w": 222,
+        "h": 56
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 56
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 56
+      }
+    },
+    "royal-nguyen-ornament-2": {
+      "frame": {
+        "x": 908,
+        "y": 1500,
+        "w": 222,
+        "h": 72
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 72
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 72
+      }
+    },
+    "royal-nguyen-ornament-3": {
+      "frame": {
+        "x": 1134,
+        "y": 1500,
+        "w": 96,
+        "h": 72
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 72
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 72
+      }
+    }
+  },
+  "meta": {
+    "image": "atlas.png",
+    "size": {
+      "w": 2048,
+      "h": 1712
+    },
+    "scale": "1"
+  }
+}

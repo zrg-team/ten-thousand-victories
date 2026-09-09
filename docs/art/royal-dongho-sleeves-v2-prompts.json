@@ -1,0 +1,168 @@
+{
+  "generator": "built-in image_gen",
+  "prompt": "Use case: precise-object-edit.\nAsset type: a single modular royal robe sprite for a Vietnamese Đông Hồ portrait game.\nInput image 1 is the EDIT TARGET. Keep this exact garment identity, neckline, torso design, chest emblem, colours, embroidery motifs, ink weight and dry woodblock texture.\nChange the ARM POSE and SLEEVE SILHOUETTE: both arms hang naturally straight DOWN beside the torso, with continuous long cloth sleeves descending all the way to the bottom portrait crop. Eliminate the side-facing hollow cuff openings that make the person look armless. The left sleeve, torso and right sleeve all continue to ONE STRAIGHT HORIZONTAL BOTTOM CROP LINE, as a waist-up portrait of a dressed person whose wrists/hands are below the frame. Show convincing downward fabric folds and inner-arm seams. Do not draw a finished hem or cuff at that crop; it is an image crop through the cloth. No exposed hands, skin, person, head, mannequin, background scene or additional accessories. If there are shoulder armour plates, preserve them and extend the same underlying cloth sleeves downward.\nFrontal orthographic composition, symmetrical relaxed shoulders, complete centered single garment, wide bust aspect ratio about 1.55:1. Neck opening and exterior are a perfectly UNIFORM PURE MAGENTA #ff00ff production chroma-key background. 5% empty margin around the object, including below its straight bottom cut, no clipping at the canvas edge. No checkerboard, shadows, gradients, glow, text or labels. Preserve the Đông Hồ printed palette without magenta on the garment.",
+  "jobs": [
+    {
+      "id": "royal-dinh-robe-1",
+      "era": "dinh",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-dinh-robe-1.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-dinh-robe-1.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-51abdef3-2992-4811-b9d9-3261f934aa6f.png"
+    },
+    {
+      "id": "royal-dinh-robe-2",
+      "era": "dinh",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-dinh-robe-2.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-dinh-robe-2.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-b79ea8b3-9f98-494a-8b56-eacf42db22a2.png"
+    },
+    {
+      "id": "royal-dinh-robe-3",
+      "era": "dinh",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-dinh-robe-3.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-dinh-robe-3.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-4e864eb2-cee3-4071-bfec-04d32ae0afcf.png"
+    },
+    {
+      "id": "royal-ly-robe-1",
+      "era": "ly",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-ly-robe-1.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-ly-robe-1.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-2092dc0e-2302-459a-8101-e832df3a1715.png"
+    },
+    {
+      "id": "royal-ly-robe-2",
+      "era": "ly",
+      "slot": "robe",
+      "source": "docs/art/hero-war-v1/royal-ly-robe-2.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-ly-robe-2.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-9791548d-4a06-4bbc-869d-c2e9c723f177.png"
+    },
+    {
+      "id": "royal-ly-robe-3",
+      "era": "ly",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-ly-robe-3.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-ly-robe-3.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-9ee8650d-57d8-416d-80ee-8538e2d31cf6.png"
+    },
+    {
+      "id": "royal-tran-robe-1",
+      "era": "tran",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-tran-robe-1.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-tran-robe-1.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-14044257-7c73-4b81-be02-913e373afedd.png"
+    },
+    {
+      "id": "royal-tran-robe-2",
+      "era": "tran",
+      "slot": "robe",
+      "source": "docs/art/hero-war-v1/royal-tran-robe-2.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-tran-robe-2.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-d5282dde-8ac1-4b0e-9e83-d0beaa1ac9b1.png"
+    },
+    {
+      "id": "royal-tran-robe-3",
+      "era": "tran",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-tran-robe-3.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-tran-robe-3.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-6353b8aa-1ef5-4582-baf0-6df3e4edcb68.png"
+    },
+    {
+      "id": "royal-le-robe-1",
+      "era": "le",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-le-robe-1.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-le-robe-1.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-169bd190-b16f-4e4b-bdf5-e71a2f99c8e7.png"
+    },
+    {
+      "id": "royal-le-robe-2",
+      "era": "le",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-le-robe-2.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-le-robe-2.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-a59305dd-954b-4abb-a279-a75bc89a7e17.png"
+    },
+    {
+      "id": "royal-le-robe-3",
+      "era": "le",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-le-robe-3.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-le-robe-3.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-aba78ecb-1014-4384-8e58-b3832e6cf7e8.png"
+    },
+    {
+      "id": "royal-tayson-robe-1",
+      "era": "tayson",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-tayson-robe-1.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-tayson-robe-1.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-94b0afc0-f143-49ba-9fba-c49925e609d8.png"
+    },
+    {
+      "id": "royal-tayson-robe-2",
+      "era": "tayson",
+      "slot": "robe",
+      "source": "docs/art/hero-war-v1/royal-tayson-robe-2.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-tayson-robe-2.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-d06a1427-cb88-44b8-88b9-c9796d920c47.png"
+    },
+    {
+      "id": "royal-tayson-robe-3",
+      "era": "tayson",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-tayson-robe-3.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-tayson-robe-3.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-00ad7edd-de25-44a4-97ca-95ab54ad835b.png"
+    },
+    {
+      "id": "royal-nguyen-robe-1",
+      "era": "nguyen",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-nguyen-robe-1.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-nguyen-robe-1.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-37c34953-d078-494f-b2d6-00814ecbebbd.png"
+    },
+    {
+      "id": "royal-nguyen-robe-2",
+      "era": "nguyen",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-nguyen-robe-2.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-nguyen-robe-2.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-a6baa3c7-2fa7-42da-a580-cc2503da0c8d.png"
+    },
+    {
+      "id": "royal-nguyen-robe-3",
+      "era": "nguyen",
+      "slot": "robe",
+      "source": "docs/art/royal-dongho-v1/royal-nguyen-robe-3.png",
+      "master": "docs/art/royal-dongho-sleeves-v2/royal-nguyen-robe-3.png",
+      "productionMatte": true,
+      "generationResult": "C:\\Users\\zerg\\.codex\\generated_images\\01a086e4-dcbd-7e32-9bf9-2772bc371195\\exec-cd14d2f2-42ca-47e8-9e24-5562fd72ab82.png"
+    }
+  ]
+}

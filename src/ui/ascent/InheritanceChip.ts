@@ -1,3 +1,4 @@
+import { addConquestUiIcon } from '../conquestUiIcons';
 import Phaser from 'phaser';
 import { GAME_WIDTH } from '../../game/constants';
 import { t } from '../../i18n';
@@ -129,6 +130,7 @@ export class InheritanceChip {
   private skin: Phaser.GameObjects.Graphics;
   /** The house's banner, centred on its own holder so the punch can scale it about its middle. */
   private stamp: Phaser.GameObjects.Container;
+  private chevron: Phaser.GameObjects.Image;
   private meter: Phaser.GameObjects.Graphics;
   private caption: Phaser.GameObjects.Text;
   private line: Phaser.GameObjects.Text;
@@ -147,7 +149,7 @@ export class InheritanceChip {
   /** Until when the house line holds the shut chip after the last change. */
   private houseUntil = 0;
   /** The ink caret after the house line: *this reign is still being written*. */
-  private caret: Phaser.GameObjects.Text;
+  private caret: Phaser.GameObjects.Image;
   private caretTimer?: Phaser.Time.TimerEvent;
   /** The topic an event pinned to the headline, until `holdUntil`. */
   private pinned?: Topic;
@@ -172,6 +174,7 @@ export class InheritanceChip {
     banner.setPosition(-BANNER_W / 2, -BANNER_H / 2);
     this.stamp.add(banner);
     this.meter = scene.add.graphics();
+    this.chevron = addConquestUiIcon(scene, 'chevron-up', 12);
     this.caption = scene.add.text(TEXT_X, 0, t('ascent.inherit.caption').toUpperCase(), {
       color: '#6b4f12',
       fontFamily: UI_FONT,
@@ -187,9 +190,7 @@ export class InheritanceChip {
       // One line only, fitted by `fitLine` — never wrapped, because a headline that wraps pushes
       // the chip up into the map.
     });
-    this.caret = scene.add.text(0, 0, '▲', {
-      color: '#1c6b58', fontFamily: UI_FONT, fontSize: '8px', fontStyle: '700',
-    }).setOrigin(0, 0.5).setVisible(false);
+    this.caret = addConquestUiIcon(scene, 'chevron-up', 8).setOrigin(0, 0.5).setVisible(false);
     // A step, not a fade: the caret is the one loop the run keeps, and it reads as a cursor.
     this.caretTimer = scene.time.addEvent({
       delay: CARET_MS, loop: true,
@@ -213,7 +214,7 @@ export class InheritanceChip {
       this.draw();
       this.onToggle?.();
     });
-    this.root.add([this.skin, this.meter, this.stamp, this.caption, this.line, this.caret, this.hit]);
+    this.root.add([this.skin, this.meter, this.stamp, this.caption, this.line, this.caret, this.chevron, this.hit]);
   }
 
   /** Everything the chip occupies, so the world scene never reads a press on it as a map tap. */
@@ -503,7 +504,7 @@ export class InheritanceChip {
     // The live reign card's caret: the reign being written, said without a word. Always on the
     // shut pill; on the open card only beside the house line. Blinked by the timer while `on`.
     const caretOn = !this.open || headline.topic === 'house';
-    this.caret.setVisible(caretOn).setData('on', caretOn);
+    this.caret.setVisible(caretOn && this.caret.getData('conquestUiIcon').source === 'generated').setData('on', caretOn);
     if (caretOn) {
       this.caret.setPosition(TEXT_X + this.line.width + 4, this.line.y + this.line.height / 2 + 1);
       if (!this.caret.getData('was')) this.caret.setAlpha(1);
@@ -520,20 +521,7 @@ export class InheritanceChip {
       this.meter.fillRect(TEXT_X, barY, Math.max(2, barW * Math.min(1, Math.max(0, headline.fill))), 2.5);
     }
 
-    // The chevron, drawn: `⌄` is a lowercase v in Be Vietnam Pro.
-    const chevronX = SIDE + chipWidth - PAD - 3;
-    this.meter.lineStyle(1.4, PIGMENT.mucSoft, 0.7);
-    this.meter.beginPath();
-    if (this.open) {
-      this.meter.moveTo(chevronX - 3.5, cy - 2);
-      this.meter.lineTo(chevronX, cy + 2);
-      this.meter.lineTo(chevronX + 3.5, cy - 2);
-    } else {
-      this.meter.moveTo(chevronX - 3.5, cy + 2);
-      this.meter.lineTo(chevronX, cy - 2);
-      this.meter.lineTo(chevronX + 3.5, cy + 2);
-    }
-    this.meter.strokePath();
+    this.chevron.setPosition(SIDE + chipWidth - PAD - 3, cy).setAngle(this.open ? 180 : 0);
 
     // The hit area covers chip and sheet. Resized in place, never re-registered: a second
     // `setInteractive` replaces the handler and drops the listener bound to the first.

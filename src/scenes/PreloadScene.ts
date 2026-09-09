@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { calibrateGraphics } from '../game/calibrateGraphics';
 import { preloadHeroFaces } from '../ui/FaceRenderer';
-import { RESOURCE_ICONS, RESOURCE_ICON_SIZE } from '../ui/theme';
+import { preloadConquestUiIcons } from '../ui/conquestUiIcons';
 import { applyRenderScale } from '../game/graphicsQuality';
 import { configuredSupportChannels, supportQrTextureKey } from '../data/support';
 import { allowsDonationLinks } from '../platform/shell';
@@ -13,8 +13,8 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload(): void {
-    const size = { width: RESOURCE_ICON_SIZE, height: RESOURCE_ICON_SIZE };
     const baseUrl = import.meta.env.BASE_URL;
+    preloadConquestUiIcons(this, baseUrl);
     // Optional authored world art. Every call site retains its procedural draw as a fallback.
     preloadConquestMapArt(this, baseUrl, ['flora', 'terrain', 'settlements', 'markers'], false);
 
@@ -28,9 +28,6 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image('menu-layer-mountains-v3', `${baseUrl}art/menu-layer-mountains-v3.png`);
     this.load.image('menu-layer-bamboo-v2', `${baseUrl}art/menu-layer-bamboo-v2.png`);
     this.load.image('menu-layer-lotus-v2', `${baseUrl}art/menu-layer-lotus-v2.png`);
-    for (const icon of Object.values(RESOURCE_ICONS)) {
-      this.load.svg(icon.key, `${baseUrl}icons/${icon.file}.svg`, size);
-    }
     // Hero portraits are composed from a part library rather than drawn at runtime; every
     // scene that shows a roster needs these in the texture manager before it renders.
     preloadHeroFaces(this);

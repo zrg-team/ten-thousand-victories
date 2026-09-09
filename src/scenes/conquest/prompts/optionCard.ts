@@ -12,10 +12,11 @@
 import Phaser from 'phaser';
 import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type UIBounds } from '../../../ui/InkUI';
 import { CARD_ICON_SIZE, drawCardIcon, type CardIconId } from '../../../ui/CardIcons';
+import { drawCostChips, measureCostChips, type CostChip } from '../../../ui/costChips';
 import { addStoryChoiceIcon, isStoryChoiceIcon, STORY_CHOICE_ICON_SIZE } from '../../../ui/storyChoiceIcons';
 import { UI_FONT } from '../../../ui/fonts';
 import { soundDirector } from '../../../ui/sound/SoundDirector';
-import { BADGE_CLEARANCE, ICON_GUTTER, cssHex } from '../constants';
+import { BADGE_CLEARANCE, cssHex } from '../constants';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 
 
@@ -50,6 +51,15 @@ export function optionCard(self: ConquestUIScene,
     body: string;
     note?: string;
     noteColor?: string;
+    /**
+     * What the choice costs, drawn as icon-and-figure chips between the body and the note.
+     *
+     * The prices used to arrive *as* the note — "168 vàng" in green prose under a paragraph of
+     * green-adjacent prose — so the one figure that decides between two cards was the same shape
+     * as everything else on them. The note keeps what it is for: a warning, a condition, a reason
+     * the card is barred.
+     */
+    costs?: CostChip[];
     /** Width kept clear on the right (a portrait column), so text wraps before it. */
     reserveRight?: number;
     /** Glyph drawn in a left gutter. Resolved from the option id by `iconForOption`. */
@@ -82,7 +92,7 @@ export function optionCard(self: ConquestUIScene,
   // depends on the measured text being honest.
   const storyIcon = opts.icon && opts.iconArt === 'story' && isStoryChoiceIcon(opts.icon) ? opts.icon : undefined;
   // Reserve the same room even if an optional atlas download fails.
-  const gutter = storyIcon ? STORY_CHOICE_ICON_SIZE + 12 : opts.icon ? ICON_GUTTER : 0;
+  const gutter = opts.icon ? STORY_CHOICE_ICON_SIZE + 12 : 0;
   const textX = 16 + gutter;
   const textWidth = bounds.width - 32 - gutter - (opts.reserveRight ?? 0);
 
@@ -116,6 +126,17 @@ export function optionCard(self: ConquestUIScene,
   // wrapped one does not, so any note long enough to wrap — which in Vietnamese is most of the
   // longer ones, the language running wider than the English it was laid out against — spilled
   // through the card's own border and over the card below it. Two separate screens reported it.
+  // The price sits under the body and above the note, in the text column: measured first, so the
+  // card's own height accounts for it exactly as it does for the wrapped lines above.
+  const costsHeight = opts.costs?.length
+    ? measureCostChips(self, opts.costs, textWidth) + 6
+    : 0;
+  const costsTop = bodyText.y + bodyText.height + 6;
+  if (opts.costs?.length) {
+    container.add(drawCostChips(self, opts.costs,
+      { x: textX, y: costsTop, width: textWidth, muted: opts.disabled }));
+  }
+
   const noteText = opts.note
     ? self.add.text(textX, 0, opts.note, {
       color: opts.noteColor ?? '#4c6b46',
@@ -126,7 +147,7 @@ export function optionCard(self: ConquestUIScene,
     }).setAlpha(alpha)
     : undefined;
   const noteHeight = noteText ? noteText.height + 8 : 0;
-  const contentBottom = bodyText.y + bodyText.height + 10 + noteHeight;
+  const contentBottom = bodyText.y + bodyText.height + 10 + costsHeight + noteHeight;
   const height = Math.max(bounds.height, contentBottom, storyIcon ? STORY_CHOICE_ICON_SIZE + 20 : 0);
 
   if (noteText) {
@@ -159,12 +180,14 @@ export function optionCard(self: ConquestUIScene,
   }
 
   if (opts.icon) {
-    const size = storyIcon ? STORY_CHOICE_ICON_SIZE : CARD_ICON_SIZE;
+    const size = STORY_CHOICE_ICON_SIZE;
     let glyph: Phaser.GameObjects.Image | Phaser.GameObjects.Container | undefined = storyIcon
       ? addStoryChoiceIcon(self, storyIcon) : undefined;
     if (!glyph) {
       glyph = drawCardIcon(self, opts.icon, opts.accent).setScale(size / CARD_ICON_SIZE);
-      if (storyIcon) glyph.setData('storyChoiceIcon', { id: storyIcon, source: 'procedural-fallback' });
+      if (storyIcon) glyph.setData('storyChoiceIcon', {
+        id: storyIcon, source: glyph.getData('conquestUiIcon')?.source ?? 'unavailable',
+      });
     }
     glyph.setPosition(16 + size / 2, height / 2).setAlpha(alpha);
     container.addAt(glyph, 2);

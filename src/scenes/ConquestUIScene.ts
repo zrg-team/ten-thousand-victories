@@ -5,6 +5,8 @@ import { type HeroPickerRow, type HostPickerRow } from '../ui/heroPickerRows';
 import { InkUI, type InkCardOptions, type InkCardRow, type InkScrollArea, type UIBounds } from '../ui/InkUI';
 import { type MapItemRenderer } from '../ui/MapItemRenderer';
 import { type CardIconId } from '../ui/CardIcons';
+import { type CostChip } from '../ui/costChips';
+import { type ConquestUiIconId } from '../ui/conquestUiIcons';
 import { AscentHud } from '../ui/ascent/AscentHud';
 import { AdvisorStrip } from '../ui/ascent/AdvisorStrip';
 import { BarHint } from '../ui/ascent/BarHint';
@@ -760,6 +762,7 @@ export class ConquestUIScene extends Phaser.Scene {
     title: string,
     subtitle: string,
     laneOpts: {
+      titleIcon?: CardIconId;
       /** A primary action in the close button's slot, in place of Close. */
       footer?: {
         label: string;
@@ -815,7 +818,7 @@ export class ConquestUIScene extends Phaser.Scene {
   ): {
     content: UIBounds;
     addRow: (
-      opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; status?: string; statusColor?: number; rows?: InkCardRow[]; badge?: InkCardOptions['badge'] },
+      opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; badge?: InkCardOptions['badge'] },
       onTap?: () => void,
     ) => void;
     addHeading: (title: string, hint?: string) => void;
@@ -855,7 +858,7 @@ export class ConquestUIScene extends Phaser.Scene {
   actionTiles(
     parent: Phaser.GameObjects.Container,
     width: number,
-    tiles: Array<{ title: string; note?: string; border: number; muted?: boolean; onTap?: () => void }>,
+    tiles: Array<{ title: string; note?: string; icon?: ConquestUiIconId; costs?: CostChip[]; border: number; muted?: boolean; onTap?: () => void }>,
     opts: { columns?: 1 | 2 } = {},
   ): number {
     return lanesWidgets.actionTiles(this, parent, width, tiles, opts);
@@ -909,7 +912,7 @@ export class ConquestUIScene extends Phaser.Scene {
 
   /* ------------------------------- the prompt card, and the answer coming back */
 
-  promptFrame(title: string, subtitle: string, opts?: { coverReadout?: boolean }): UIBounds {
+  promptFrame(title: string, subtitle: string, opts?: { coverReadout?: boolean; titleIcon?: CardIconId }): UIBounds {
     return promptsFrame.promptFrame(this, title, subtitle, opts);
   }
 
@@ -932,6 +935,8 @@ export class ConquestUIScene extends Phaser.Scene {
       body: string;
       note?: string;
       noteColor?: string;
+      /** The price, as icon-and-figure chips under the body. See `costChips`. */
+      costs?: CostChip[];
       /** A longer hold than the rule, for the one page that asks it (the reign-end sequence). */
       holdMs?: number;
       /** Width kept clear on the right (a portrait column), so text wraps before it. */

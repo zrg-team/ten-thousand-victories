@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 const base = process.env.DEV_URL ?? 'http://127.0.0.1:5179';
 const out = 'output/hero-war-v1'; mkdirSync(out, { recursive: true });
-const warDefs = JSON.parse(readFileSync('src/ui/faces/war-v1.defs.json', 'utf8'));
+const warDefs = JSON.parse(readFileSync('src/ui/faces/royal.defs.json', 'utf8')).filter(d => /^royal-(ly|tran|tayson)-(hat|robe)-2$/.test(d.key));
 assert.equal(warDefs.length, 6);
 const browser = await chromium.launch();
 try {
@@ -11,7 +11,8 @@ try {
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto(`${base}/?capture=1`); await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'));
   const report = await page.evaluate(async () => {
-    const { default: war } = await import('/src/ui/faces/war-v1.defs.json');
+    const { default: royal } = await import('/src/ui/faces/royal.defs.json');
+    const war = royal.filter(d => /^royal-(ly|tran|tayson)-(hat|robe)-2$/.test(d.key));
     const { default: original } = await import('/src/ui/faces/dongho-v2.defs.json');
     const { fitDonghoPart } = await import('/src/ui/faces/donghoFit.ts');
     const { buildKingLook, rollKingChoice } = await import('/src/ui/faces/kingLook.ts');
@@ -20,7 +21,7 @@ try {
     const must = (c, m) => { if (!c) throw Error(m); };
     const images = new Map();
     for (const d of [...war, ...original.filter(d => d.key.startsWith('eyes-'))]) {
-      const im = new Image(); im.src = war.includes(d) ? `/faces-royal/war-v1/${d.key}.png` : `/faces-dongho-v2/parts/${d.key}.png`; await im.decode(); images.set(d.key, im);
+      const im = new Image(); im.src = war.includes(d) ? `/faces-royal/${d.key}.png` : `/faces-dongho-v2/parts/${d.key}.png`; await im.decode(); images.set(d.key, im);
       if (!war.includes(d)) continue;
       const c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
       const ctx = c.getContext('2d'); ctx.drawImage(im, 0, 0); const rgba = ctx.getImageData(0, 0, c.width, c.height).data;
@@ -53,7 +54,7 @@ try {
       const look = buildKingLook({ ...rollKingChoice(() => .7), era, sex: 'man', age: 'prime', beard: 0,
         royalHat: `royal-${era}-hat-2`, royalRobe: `royal-${era}-robe-2` }, 3);
       const root = renderLookInBox(scene, look, { x: i * w / 3 + 8, y: 16, width: w / 3 - 16, height: h - 70 }, 2.5);
-      const visit = o => { if (o.list) o.list.forEach(visit); else if (o.texture?.key === 'face:royal:war-v1') rendered++; }; visit(root);
+      const visit = o => { if (o.list) o.list.forEach(visit); else if (o.texture?.key === 'face:royal') rendered++; }; visit(root);
       scene.add.text((i + .5) * w / 3, h - 37, ['Lý · Giáp phiến', 'Trần · Giáp buộc dây', 'Tây Sơn · Giáp da'][i], { fontSize: '15px', fontFamily: 'serif', color: '#392e25' }).setOrigin(.5, 0);
     });
     must(rendered === 6, 'Renderer used old vector frames');
@@ -63,7 +64,7 @@ try {
   // Both legacy art selections must still load and show the same earned replacement IDs.
   for (const pack of ['legacy', 'dongho-v1']) {
     await page.goto(`${base}/?capture=1&heroArt=${pack}`); await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'));
-    assert(await page.evaluate(() => window.__phaserGame.textures.get('face:royal:war-v1').has('royal-tran-hat-2')));
+    assert(await page.evaluate(() => window.__phaserGame.textures.get('face:royal').has('royal-tran-hat-2')));
   }
   assert.deepEqual(errors, []);
   writeFileSync(`${out}/report.json`, JSON.stringify({ ...report, artPacks: 3, errors }, null, 2)); console.log('PASS', report);

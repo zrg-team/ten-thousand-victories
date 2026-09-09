@@ -25,6 +25,7 @@ import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type UIBounds } from '../
 import { writeText } from '../../../ui/textWrite';
 import { formationTier, FORMATION_RING } from '../../../data/ascent/formations';
 import { CARD_ICON_SIZE, drawCardIcon } from '../../../ui/CardIcons';
+import { addConquestUiIcon } from '../../../ui/conquestUiIcons';
 import { PIGMENT } from '../../../ui/ink/palette';
 import { t } from '../../../i18n';
 import type { AscentBattle, FieldStance } from '../../../state/types';
@@ -181,7 +182,7 @@ export function buildBattleOrders(self: ConquestUIScene, battle: AscentBattle): 
     }
     const stanceIcon = drawCardIcon(self, id === 'defend' ? 'shield' : id === 'press' ? 'blade' : 'balance',
       chosen ? PIGMENT.sonDeep : PIGMENT.muc);
-    orders.add(stanceIcon.setPosition(x + 13, stanceY + BATTLE_STANCE_HEIGHT / 2).setScale(15 / CARD_ICON_SIZE));
+    orders.add(stanceIcon.setPosition(x + 13, stanceY + BATTLE_STANCE_HEIGHT / 2).setScale(19 / CARD_ICON_SIZE));
     const stanceLabel = self.ui.label(
       x + segW / 2 + 9, stanceY + BATTLE_STANCE_HEIGHT / 2,
       t(`ascent.stance.${id}` as Parameters<typeof t>[0]), 'label',
@@ -275,12 +276,10 @@ export function buildBattleOrders(self: ConquestUIScene, battle: AscentBattle): 
         const tier = formationTier(id, answering!);
         const cy = formY + BATTLE_FORMATION_HEIGHT - 9;
         const cx = x + chipW - 12;
-        for (let mark = 0; mark < Math.abs(tier); mark += 1) {
-          const yy = cy - mark * 4;
-          const direction = tier > 0 ? -1 : 1;
-          edge.lineBetween(cx - 3, yy, cx, yy + direction * 2.5);
-          edge.lineBetween(cx, yy + direction * 2.5, cx + 3, yy);
-        }
+        const motif = tier > 0
+          ? (tier === 2 ? 'chevrons-up' : 'chevron-up')
+          : (tier === -2 ? 'chevrons-down' : 'chevron-down');
+        orders.add(addConquestUiIcon(self, motif, 12).setPosition(cx, cy - 2).setAlpha(rimAlpha));
       }
       edge.setData('battleMatchup', { id, tier: formationTier(id, answering!) });
       orders.add(edge);
@@ -316,7 +315,7 @@ export function buildBattleOrders(self: ConquestUIScene, battle: AscentBattle): 
      * structural — a re-form starting or landing changes the signature — so the glyph's band is
      * fixed for the life of this build; only the countdown's *text* moves per beat.
      */
-    const GLYPH = 23;
+    const GLYPH = 30;
     const verb = self.ui.label(
       0, 0, t(`ascent.formation.${id}.verb` as Parameters<typeof t>[0]), 'label',
       {
@@ -353,11 +352,9 @@ export function buildBattleOrders(self: ConquestUIScene, battle: AscentBattle): 
     glyph.setPosition(glyphX, glyphY).setScale(glyphScale);
     orders.add(glyph);
     if (held && !committedHere) {
-      const check = self.add.graphics().setData('battleSelected', id);
-      check.lineStyle(2, PIGMENT.sonDeep, 1);
       const cy = formY + BATTLE_FORMATION_HEIGHT - 9;
-      check.lineBetween(x + 7, cy, x + 10, cy + 3);
-      check.lineBetween(x + 10, cy + 3, x + 16, cy - 3);
+      const check = addConquestUiIcon(self, 'check', 12)
+        .setPosition(x + 12, cy).setData('battleSelected', id);
       orders.add(check);
     }
 
@@ -373,8 +370,7 @@ export function buildBattleOrders(self: ConquestUIScene, battle: AscentBattle): 
 
     /**
      * The **whole chip** dips, not just the tile under it — the paper and the word printed on it
-     * move together. `parts` is mutable because the glyph is *replaced* when its ink changes
-     * (a Graphics-drawn icon cannot be recoloured), and the press must scale the current one.
+     * move together. The generated glyph keeps its pigments and only fades when unavailable.
      */
     const cx = bounds.x + chipW / 2;
     const cy = formY + BATTLE_FORMATION_HEIGHT / 2;
@@ -595,16 +591,8 @@ export function drawBattleDock(self: ConquestUIScene, battle: AscentBattle): voi
     if (gone !== chip.gone) {
       chip.gone = gone;
       chip.tile.setAlpha(gone ? 0.45 : 1);
-      // A Graphics-drawn icon cannot be recoloured; swap it for one in the right ink and point
-      // the press parts at the replacement.
-      const ink = gone ? INK_UI.softBrush : chip.baseInk;
-      const replacement = drawCardIcon(self, FORMATION_ICON[id], ink);
-      replacement.setPosition(chip.glyphX, chip.glyphY).setScale(chip.glyphScale);
-      replacement.setAlpha(gone ? 0.5 : 1);
-      ui.orders.add(replacement);
-      chip.glyph.destroy();
-      chip.glyph = replacement;
-      chip.parts[1].o = replacement;
+      // Keep the generated pigments and the same image through stamina changes.
+      chip.glyph.setAlpha(gone ? 0.5 : 1);
       writeText(chip.verb, chip.verb.text, gone ? INK_UI_HEX.mutedText : chip.baseVerbColour);
     }
 

@@ -19,7 +19,8 @@ import { PROMPT_FOOTER_HEIGHT } from '../constants';
 import { promptFoot } from './frame';
 import { iconForOption, type CardIconId } from '../../../ui/CardIcons';
 import { staggerIn } from '../../../ui/animations';
-import { formatResourceList, heroName, resourceLabel, t } from '../../../i18n';
+import { heroName, resourceLabel, t } from '../../../i18n';
+import { resourceChips } from '../../../ui/costChips';
 import { focusTitle } from '../../../ui/focusPanel';
 import { storyPrintHeader } from '../../../ui/storyPrint';
 import type { AscentPrompt } from '../../../state/types';
@@ -51,18 +52,22 @@ export function showEnvoy(self: ConquestUIScene, prompt: Extract<AscentPrompt, {
   const cards: Phaser.GameObjects.Container[] = [];
   let used = storyPrintHeader(self, body, 'petition', bodyWidth);
   offers.forEach((option) => {
-    const price = option.cost && Object.keys(option.cost).length > 0
-      ? formatResourceList(option.cost)
+    // Resources go to the chip strip; influence and "no cost" have no glyph of their own and
+    // stay in the note, which is also where a refusal to sell says so.
+    const chips = resourceChips(option.cost, option.affordable ? undefined : INK_UI.cinnabar);
+    const price = !option.affordable
+      ? t('ascent.response.cantAfford')
       : option.influenceCost
         ? t('ascent.envoy.influence', { n: option.influenceCost })
-        : t('ascent.conquer.free');
+        : chips.length === 0 ? t('ascent.conquer.free') : undefined;
 
     const card = self.optionCard(
       { x: 0, y: used, width: bodyWidth, height: rowHeight },
       {
         title: t(`ascent.envoy.${option.id}` as Parameters<typeof t>[0]),
         body: kingdom ? envoyOptionDetail(self.state, kingdom, option) : '',
-        note: option.affordable ? price : t('ascent.response.cantAfford'),
+        costs: chips,
+        note: price,
         noteColor: option.affordable ? undefined : '#a4402c',
         accent: option.affordable ? (option.id === 'tribute' ? INK_UI.cinnabar : INK_UI.gold) : INK_UI.softBrush,
         disabled: !option.affordable,
@@ -107,9 +112,10 @@ export function showWorldEvent(
   const cards: Phaser.GameObjects.Container[] = [];
   let used = 0;
   prompt.options.forEach((option) => {
-    const price = option.cost && Object.keys(option.cost).length > 0
-      ? formatResourceList(option.cost)
-      : t('ascent.conquer.free');
+    const chips = resourceChips(option.cost, option.affordable ? undefined : INK_UI.cinnabar);
+    const price = !option.affordable
+      ? t('ascent.response.cantAfford')
+      : chips.length === 0 ? t('ascent.conquer.free') : undefined;
     const card = self.optionCard(
       { x: 0, y: used, width: bodyWidth, height: rowHeight },
       {
@@ -119,7 +125,8 @@ export function showWorldEvent(
         body: t(key(`${option.id}.fx`), {
           kingdom: prompt.kingdomName, other: prompt.otherKingdomName ?? '',
         }),
-        note: option.affordable ? price : t('ascent.response.cantAfford'),
+        costs: chips,
+        note: price,
         noteColor: option.affordable ? undefined : '#a4402c',
         accent: option.affordable ? INK_UI.gold : INK_UI.softBrush,
         disabled: !option.affordable,
@@ -321,9 +328,8 @@ export function showFamine(self: ConquestUIScene, prompt: Extract<AscentPrompt, 
         icon: iconForOption(option.id),
         title: label,
         body: detail,
-        note: option.cost
-          ? (option.affordable ? formatResourceList(option.cost) : t('ascent.response.cantAfford'))
-          : undefined,
+        costs: resourceChips(option.cost, option.affordable ? undefined : INK_UI.cinnabar),
+        note: option.cost && !option.affordable ? t('ascent.response.cantAfford') : undefined,
         noteColor: option.affordable ? undefined : '#a4402c',
         // Enduring is the red option: free today, and the hunger keeps taking.
         accent: !option.affordable
@@ -372,9 +378,8 @@ ${damage}`,
         icon: icon[option.id],
         title: label,
         body: detail,
-        note: option.cost
-          ? (option.affordable ? formatResourceList(option.cost) : t('ascent.response.cantAfford'))
-          : undefined,
+        costs: resourceChips(option.cost, option.affordable ? undefined : INK_UI.cinnabar),
+        note: option.cost && !option.affordable ? t('ascent.response.cantAfford') : undefined,
         noteColor: option.affordable ? undefined : '#a4402c',
         accent: !option.affordable
           ? INK_UI.softBrush
@@ -435,9 +440,8 @@ ${t(`ascent.rival.standing.${standing}` as Parameters<typeof t>[0])}`,
         icon: iconForOption(option.id),
         title: label,
         body: detail,
-        note: option.cost?.gold
-          ? (option.affordable ? formatResourceList(option.cost) : t('ascent.response.cantAfford'))
-          : undefined,
+        costs: resourceChips(option.cost, option.affordable ? undefined : INK_UI.cinnabar),
+        note: option.cost?.gold && !option.affordable ? t('ascent.response.cantAfford') : undefined,
         noteColor: option.affordable ? undefined : '#a4402c',
         // Defiance is the red option: free now, paid for on the wave curve.
         accent: !option.affordable

@@ -333,7 +333,7 @@ export function buildBattleExits(self: ConquestUIScene, battle: AscentBattle): v
       // Not a retreat and not a concession: the engagement keeps running on the world clock with
       // the general on both dials, and the aftermath card finds the player wherever they are.
       label: t('ascent.battle.leaveShort'),
-      icon: 'globe',
+      icon: 'territory',
       order: 'leave',
     },
   ];
@@ -356,9 +356,9 @@ export function buildBattleExits(self: ConquestUIScene, battle: AscentBattle): v
     // Grouped so the press dip moves icon and word as one thing.
     const group = self.add.container(x + w / 2, y + h / 2);
     const icon = drawCardIcon(self, chip.icon, chip.tint ?? INK_UI.brush);
-    icon.setScale(0.55);
+    icon.setScale(0.76);
     icon.setPosition(0, -h / 2 + 12);
-    const label = self.ui.label(0, -h / 2 + 22, chip.label, 'label', {
+    const label = self.ui.label(0, -h / 2 + 25, chip.label, 'label', {
       fontSize: '10px', align: 'center',
       ...(chip.tint !== undefined ? { color: cssHex(chip.tint) } : {}),
     }).setOrigin(0.5, 0);

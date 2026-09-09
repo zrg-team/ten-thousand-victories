@@ -1,0 +1,548 @@
+{
+  "generator": "built-in image_gen",
+  "prompts": "docs/art/royal-dongho-v1-prompts.json",
+  "sleevePrompts": "docs/art/royal-dongho-sleeves-v2-prompts.json",
+  "retainedPrompts": "docs/hero-war-dongho-v1-prompts.json",
+  "parts": [
+    {
+      "id": "royal-dinh-hat-1",
+      "source": "docs/art/royal-dongho-v1/royal-dinh-hat-1.png",
+      "sourceBounds": {
+        "left": 64,
+        "top": 168,
+        "right": 1570,
+        "bottom": 838
+      }
+    },
+    {
+      "id": "royal-dinh-hat-2",
+      "source": "docs/art/royal-dongho-v1/royal-dinh-hat-2.png",
+      "sourceBounds": {
+        "left": 162,
+        "top": 81,
+        "right": 1636,
+        "bottom": 846
+      }
+    },
+    {
+      "id": "royal-dinh-hat-3",
+      "source": "docs/art/royal-dongho-v1/royal-dinh-hat-3.png",
+      "sourceBounds": {
+        "left": 97,
+        "top": 92,
+        "right": 1537,
+        "bottom": 866
+      }
+    },
+    {
+      "id": "royal-dinh-robe-1",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-dinh-robe-1.png",
+      "sourceBounds": {
+        "left": 143,
+        "top": 40,
+        "right": 1418,
+        "bottom": 965
+      }
+    },
+    {
+      "id": "royal-dinh-robe-2",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-dinh-robe-2.png",
+      "sourceBounds": {
+        "left": 85,
+        "top": 23,
+        "right": 1466,
+        "bottom": 966
+      }
+    },
+    {
+      "id": "royal-dinh-robe-3",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-dinh-robe-3.png",
+      "sourceBounds": {
+        "left": 201,
+        "top": 64,
+        "right": 1380,
+        "bottom": 936
+      }
+    },
+    {
+      "id": "royal-dinh-ornament-1",
+      "source": "docs/art/royal-dongho-v1/royal-dinh-ornament-1.png",
+      "sourceBounds": {
+        "left": 37,
+        "top": 225,
+        "right": 1736,
+        "bottom": 640
+      }
+    },
+    {
+      "id": "royal-dinh-ornament-2",
+      "source": "docs/art/royal-dongho-v1/royal-dinh-ornament-2.png",
+      "sourceBounds": {
+        "left": 19,
+        "top": 282,
+        "right": 1515,
+        "bottom": 827
+      }
+    },
+    {
+      "id": "royal-dinh-ornament-3",
+      "source": "docs/art/royal-dongho-v1/royal-dinh-ornament-3.png",
+      "sourceBounds": {
+        "left": 58,
+        "top": 164,
+        "right": 1716,
+        "bottom": 805
+      }
+    },
+    {
+      "id": "royal-ly-hat-1",
+      "source": "docs/art/royal-dongho-v1/royal-ly-hat-1.png",
+      "sourceBounds": {
+        "left": 38,
+        "top": 21,
+        "right": 2016,
+        "bottom": 732
+      }
+    },
+    {
+      "id": "royal-ly-hat-2",
+      "source": "public/faces-royal/war-v1/royal-ly-hat-2.png",
+      "sourceBounds": {
+        "left": 0,
+        "top": 0,
+        "right": 203,
+        "bottom": 142
+      }
+    },
+    {
+      "id": "royal-ly-hat-3",
+      "source": "docs/art/royal-dongho-v1/royal-ly-hat-3.png",
+      "sourceBounds": {
+        "left": 69,
+        "top": 96,
+        "right": 1564,
+        "bottom": 851
+      }
+    },
+    {
+      "id": "royal-ly-robe-1",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-ly-robe-1.png",
+      "sourceBounds": {
+        "left": 219,
+        "top": 51,
+        "right": 1366,
+        "bottom": 941
+      }
+    },
+    {
+      "id": "royal-ly-robe-2",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-ly-robe-2.png",
+      "sourceBounds": {
+        "left": 38,
+        "top": 58,
+        "right": 1547,
+        "bottom": 950
+      }
+    },
+    {
+      "id": "royal-ly-robe-3",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-ly-robe-3.png",
+      "sourceBounds": {
+        "left": 108,
+        "top": 42,
+        "right": 1438,
+        "bottom": 953
+      }
+    },
+    {
+      "id": "royal-ly-ornament-1",
+      "source": "docs/art/royal-dongho-v1/royal-ly-ornament-1.png",
+      "sourceBounds": {
+        "left": 25,
+        "top": 327,
+        "right": 1511,
+        "bottom": 690
+      }
+    },
+    {
+      "id": "royal-ly-ornament-2",
+      "source": "docs/art/royal-dongho-v1/royal-ly-ornament-2.png",
+      "sourceBounds": {
+        "left": 64,
+        "top": 238,
+        "right": 1473,
+        "bottom": 774
+      }
+    },
+    {
+      "id": "royal-ly-ornament-3",
+      "source": "docs/art/royal-dongho-v1/royal-ly-ornament-3.png",
+      "sourceBounds": {
+        "left": 63,
+        "top": 290,
+        "right": 1474,
+        "bottom": 715
+      }
+    },
+    {
+      "id": "royal-tran-hat-1",
+      "source": "docs/art/royal-dongho-v1/royal-tran-hat-1.png",
+      "sourceBounds": {
+        "left": 50,
+        "top": 93,
+        "right": 1485,
+        "bottom": 879
+      }
+    },
+    {
+      "id": "royal-tran-hat-2",
+      "source": "public/faces-royal/war-v1/royal-tran-hat-2.png",
+      "sourceBounds": {
+        "left": 0,
+        "top": 0,
+        "right": 203,
+        "bottom": 130
+      }
+    },
+    {
+      "id": "royal-tran-hat-3",
+      "source": "docs/art/royal-dongho-v1/royal-tran-hat-3.png",
+      "sourceBounds": {
+        "left": 78,
+        "top": 117,
+        "right": 1547,
+        "bottom": 841
+      }
+    },
+    {
+      "id": "royal-tran-robe-1",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-tran-robe-1.png",
+      "sourceBounds": {
+        "left": 147,
+        "top": 70,
+        "right": 1436,
+        "bottom": 924
+      }
+    },
+    {
+      "id": "royal-tran-robe-2",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-tran-robe-2.png",
+      "sourceBounds": {
+        "left": 56,
+        "top": 54,
+        "right": 1502,
+        "bottom": 967
+      }
+    },
+    {
+      "id": "royal-tran-robe-3",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-tran-robe-3.png",
+      "sourceBounds": {
+        "left": 166,
+        "top": 40,
+        "right": 1368,
+        "bottom": 1000
+      }
+    },
+    {
+      "id": "royal-tran-ornament-1",
+      "source": "docs/art/royal-dongho-v1/royal-tran-ornament-1.png",
+      "sourceBounds": {
+        "left": 102,
+        "top": 343,
+        "right": 1431,
+        "bottom": 688
+      }
+    },
+    {
+      "id": "royal-tran-ornament-2",
+      "source": "docs/art/royal-dongho-v1/royal-tran-ornament-2.png",
+      "sourceBounds": {
+        "left": 48,
+        "top": 217,
+        "right": 1486,
+        "bottom": 864
+      }
+    },
+    {
+      "id": "royal-tran-ornament-3",
+      "source": "docs/art/royal-dongho-v1/royal-tran-ornament-3.png",
+      "sourceBounds": {
+        "left": 40,
+        "top": 230,
+        "right": 1734,
+        "bottom": 639
+      }
+    },
+    {
+      "id": "royal-le-hat-1",
+      "source": "docs/art/royal-dongho-v1/royal-le-hat-1.png",
+      "sourceBounds": {
+        "left": 143,
+        "top": 86,
+        "right": 1286,
+        "bottom": 1014
+      }
+    },
+    {
+      "id": "royal-le-hat-2",
+      "source": "docs/art/royal-dongho-v1/royal-le-hat-2.png",
+      "sourceBounds": {
+        "left": 55,
+        "top": 109,
+        "right": 2117,
+        "bottom": 625
+      }
+    },
+    {
+      "id": "royal-le-hat-3",
+      "source": "docs/art/royal-dongho-v1/royal-le-hat-3.png",
+      "sourceBounds": {
+        "left": 45,
+        "top": 74,
+        "right": 2126,
+        "bottom": 588
+      }
+    },
+    {
+      "id": "royal-le-robe-1",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-le-robe-1.png",
+      "sourceBounds": {
+        "left": 162,
+        "top": 34,
+        "right": 1395,
+        "bottom": 962
+      }
+    },
+    {
+      "id": "royal-le-robe-2",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-le-robe-2.png",
+      "sourceBounds": {
+        "left": 184,
+        "top": 30,
+        "right": 1375,
+        "bottom": 970
+      }
+    },
+    {
+      "id": "royal-le-robe-3",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-le-robe-3.png",
+      "sourceBounds": {
+        "left": 237,
+        "top": 58,
+        "right": 1343,
+        "bottom": 942
+      }
+    },
+    {
+      "id": "royal-le-ornament-1",
+      "source": "docs/art/royal-dongho-v1/royal-le-ornament-1.png",
+      "sourceBounds": {
+        "left": 48,
+        "top": 317,
+        "right": 1487,
+        "bottom": 738
+      }
+    },
+    {
+      "id": "royal-le-ornament-2",
+      "source": "docs/art/royal-dongho-v1/royal-le-ornament-2.png",
+      "sourceBounds": {
+        "left": 49,
+        "top": 241,
+        "right": 1487,
+        "bottom": 808
+      }
+    },
+    {
+      "id": "royal-le-ornament-3",
+      "source": "docs/art/royal-dongho-v1/royal-le-ornament-3.png",
+      "sourceBounds": {
+        "left": 45,
+        "top": 212,
+        "right": 1728,
+        "bottom": 595
+      }
+    },
+    {
+      "id": "royal-tayson-hat-1",
+      "source": "docs/art/royal-dongho-v1/royal-tayson-hat-1.png",
+      "sourceBounds": {
+        "left": 65,
+        "top": 96,
+        "right": 1471,
+        "bottom": 885
+      }
+    },
+    {
+      "id": "royal-tayson-hat-2",
+      "source": "public/faces-royal/war-v1/royal-tayson-hat-2.png",
+      "sourceBounds": {
+        "left": 0,
+        "top": 0,
+        "right": 221,
+        "bottom": 125
+      }
+    },
+    {
+      "id": "royal-tayson-hat-3",
+      "source": "docs/art/royal-dongho-v1/royal-tayson-hat-3.png",
+      "sourceBounds": {
+        "left": 108,
+        "top": 100,
+        "right": 1427,
+        "bottom": 907
+      }
+    },
+    {
+      "id": "royal-tayson-robe-1",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-tayson-robe-1.png",
+      "sourceBounds": {
+        "left": 147,
+        "top": 25,
+        "right": 1408,
+        "bottom": 970
+      }
+    },
+    {
+      "id": "royal-tayson-robe-2",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-tayson-robe-2.png",
+      "sourceBounds": {
+        "left": 133,
+        "top": 63,
+        "right": 1450,
+        "bottom": 923
+      }
+    },
+    {
+      "id": "royal-tayson-robe-3",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-tayson-robe-3.png",
+      "sourceBounds": {
+        "left": 123,
+        "top": 36,
+        "right": 1439,
+        "bottom": 959
+      }
+    },
+    {
+      "id": "royal-tayson-ornament-1",
+      "source": "docs/art/royal-dongho-v1/royal-tayson-ornament-1.png",
+      "sourceBounds": {
+        "left": 39,
+        "top": 141,
+        "right": 1942,
+        "bottom": 714
+      }
+    },
+    {
+      "id": "royal-tayson-ornament-2",
+      "source": "docs/art/royal-dongho-v1/royal-tayson-ornament-2.png",
+      "sourceBounds": {
+        "left": 145,
+        "top": 34,
+        "right": 1395,
+        "bottom": 996
+      }
+    },
+    {
+      "id": "royal-tayson-ornament-3",
+      "source": "docs/art/royal-dongho-v1/royal-tayson-ornament-3.png",
+      "sourceBounds": {
+        "left": 19,
+        "top": 226,
+        "right": 1516,
+        "bottom": 833
+      }
+    },
+    {
+      "id": "royal-nguyen-hat-1",
+      "source": "docs/art/royal-dongho-v1/royal-nguyen-hat-1.png",
+      "sourceBounds": {
+        "left": 75,
+        "top": 61,
+        "right": 1353,
+        "bottom": 1052
+      }
+    },
+    {
+      "id": "royal-nguyen-hat-2",
+      "source": "docs/art/royal-dongho-v1/royal-nguyen-hat-2.png",
+      "sourceBounds": {
+        "left": 40,
+        "top": 101,
+        "right": 2133,
+        "bottom": 567
+      }
+    },
+    {
+      "id": "royal-nguyen-hat-3",
+      "source": "docs/art/royal-dongho-v1/royal-nguyen-hat-3.png",
+      "sourceBounds": {
+        "left": 47,
+        "top": 37,
+        "right": 1633,
+        "bottom": 882
+      }
+    },
+    {
+      "id": "royal-nguyen-robe-1",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-nguyen-robe-1.png",
+      "sourceBounds": {
+        "left": 192,
+        "top": 65,
+        "right": 1366,
+        "bottom": 942
+      }
+    },
+    {
+      "id": "royal-nguyen-robe-2",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-nguyen-robe-2.png",
+      "sourceBounds": {
+        "left": 214,
+        "top": 41,
+        "right": 1346,
+        "bottom": 964
+      }
+    },
+    {
+      "id": "royal-nguyen-robe-3",
+      "source": "docs/art/royal-dongho-sleeves-v2/royal-nguyen-robe-3.png",
+      "sourceBounds": {
+        "left": 157,
+        "top": 59,
+        "right": 1424,
+        "bottom": 942
+      }
+    },
+    {
+      "id": "royal-nguyen-ornament-1",
+      "source": "docs/art/royal-dongho-v1/royal-nguyen-ornament-1.png",
+      "sourceBounds": {
+        "left": 43,
+        "top": 155,
+        "right": 1950,
+        "bottom": 632
+      }
+    },
+    {
+      "id": "royal-nguyen-ornament-2",
+      "source": "docs/art/royal-dongho-v1/royal-nguyen-ornament-2.png",
+      "sourceBounds": {
+        "left": 48,
+        "top": 240,
+        "right": 1487,
+        "bottom": 851
+      }
+    },
+    {
+      "id": "royal-nguyen-ornament-3",
+      "source": "docs/art/royal-dongho-v1/royal-nguyen-ornament-3.png",
+      "sourceBounds": {
+        "left": 339,
+        "top": 55,
+        "right": 1197,
+        "bottom": 950
+      }
+    }
+  ]
+}

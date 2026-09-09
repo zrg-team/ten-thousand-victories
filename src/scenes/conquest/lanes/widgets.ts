@@ -1,4 +1,6 @@
 import { measureInkText } from '../../../ui/InkVirtualList';
+import { drawCostChips, measureCostChips, type CostChip } from '../../../ui/costChips';
+import { addConquestUiIcon, type ConquestUiIconId } from '../../../ui/conquestUiIcons';
 import type { InkScrollArea } from '../../../ui/InkUI';
 /**
  * The pieces a lane page is built from above the level of a row — owned by no one screen, reached
@@ -78,24 +80,42 @@ export function statPanel(self: ConquestUIScene,
 export function actionTiles(self: ConquestUIScene,
   parent: Phaser.GameObjects.Container,
   width: number,
-  tiles: Array<{ title: string; note?: string; border: number; muted?: boolean; onTap?: () => void }>,
+  tiles: Array<{ title: string; note?: string; icon?: ConquestUiIconId; costs?: CostChip[]; border: number; muted?: boolean; onTap?: () => void }>,
   opts: { columns?: 1 | 2 } = {},
 ): number {
   const GAP = 6, COLUMNS = opts.columns ?? 2;
   const tileWidth = (width - GAP * (COLUMNS - 1)) / COLUMNS, inner = tileWidth - 18;
   const flow = parent.getData('virtualFlow') as { scroll: InkScrollArea; top: number } | undefined;
+  // A tile's glyph sits in the title's line, left of the words, and the title wraps short of it:
+  // a picture the eye finds before it reads — which is the point of putting one there at all.
+  const TILE_ICON = 17, TILE_ICON_GAP = 5;
   const titleStyle = { color: INK_UI_HEX.inkText, fontFamily: UI_FONT, fontSize: '12px', fontStyle: '700', wordWrap: { width: inner }, lineSpacing: -1 };
+  const titleStyleWithIcon = { ...titleStyle, wordWrap: { width: inner - TILE_ICON - TILE_ICON_GAP } };
   const noteStyle = { color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '9px', wordWrap: { width: inner }, lineSpacing: -1 };
   let y = 0;
   for (let index = 0; index < tiles.length; index += COLUMNS) {
     const row = tiles.slice(index, index + COLUMNS);
-    const height = Math.max(42, ...row.map(tile => 18 + measureInkText(self, tile.title, titleStyle) + (tile.note ? measureInkText(self, tile.note, noteStyle) + 3 : 0)));
+    const height = Math.max(42, ...row.map(tile => 18 + measureInkText(self, tile.title, tile.icon ? titleStyleWithIcon : titleStyle)
+      + (tile.note ? measureInkText(self, tile.note, noteStyle) + 3 : 0)
+      + (tile.costs?.length ? measureCostChips(self, tile.costs, inner) + 2 : 0)));
     const top = y + (flow?.top ?? 0);
     const build = () => row.forEach((tile, column) => {
       const holder = self.add.container(column * (tileWidth + GAP), top);
       holder.add(self.ui.panel({ x: 0, y: 0, width: tileWidth, height }, { border: tile.border, borderWidth: 1.5, muted: tile.muted }));
-      const title = self.add.text(9, 9, tile.title, titleStyle).setAlpha(tile.muted ? .55 : 1); holder.add(title);
-      if (tile.note) holder.add(self.add.text(9, 9 + title.height + 3, tile.note, noteStyle).setAlpha(tile.muted ? .5 : .9));
+      const titleX = 9 + (tile.icon ? TILE_ICON + TILE_ICON_GAP : 0);
+      const title = self.add.text(titleX, 9, tile.title, tile.icon ? titleStyleWithIcon : titleStyle)
+        .setAlpha(tile.muted ? .55 : 1);
+      holder.add(title);
+      if (tile.icon) holder.add(addConquestUiIcon(self, tile.icon, TILE_ICON)
+        .setPosition(9 + TILE_ICON / 2, 9 + TILE_ICON / 2 + 1).setAlpha(tile.muted ? .5 : 1));
+      const noteBottom = 9 + title.height + (tile.note ? 3 : 0);
+      if (tile.note) holder.add(self.add.text(titleX, noteBottom, tile.note, noteStyle).setAlpha(tile.muted ? .5 : .9));
+      // The tile's price, in glyphs, under whatever it says about itself.
+      if (tile.costs?.length) {
+        const noteHeight = tile.note ? measureInkText(self, tile.note, noteStyle) + 2 : 0;
+        holder.add(drawCostChips(self, tile.costs,
+          { x: titleX, y: noteBottom + noteHeight, width: inner, muted: tile.muted }));
+      }
       if (tile.onTap) {
         const hit = self.add.rectangle(tileWidth / 2, height / 2, tileWidth, height, 0xffffff, .001).setInteractive({ useHandCursor: true });
         hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
