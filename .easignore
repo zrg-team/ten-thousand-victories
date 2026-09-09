@@ -1,0 +1,91 @@
+# What EAS uploads to its build machines.
+#
+# ## Why this file is at the repository root and not next to eas.json
+#
+# The EAS CLI looks for `.easignore` in **one** place: the root of the git repository, found with
+# `git rev-parse --show-toplevel`. Not the Expo project folder, not the directory `eas build` was
+# run from. There was a copy at `apps/mobile/.easignore` for a long time and it was never once
+# read — the CLI walked past it and fell back to its .gitignore mode instead.
+#
+# That fallback has a bug of its own that hid the mistake for months. In .gitignore mode the CLI
+# collects every `**/.gitignore` in the tree and keys each one by its folder prefix — but the
+# prefix is written with forward slashes while the paths it tests against come from `fs.cp` with
+# the platform separator. On Windows the two never match, so **only the repository root's
+# .gitignore applies** and every nested one is silently inert. Two accidents cancelled out:
+# `apps/mobile/.gitignore` hides `assets/` (which the build cannot do without), and it was being
+# ignored, so the game was uploaded anyway. Meanwhile `apps/desktop/.gitignore` hides `web/` and
+# `steam/content/`, and it was ignored too — so 600 MB of Electron and Steam depot staging went up
+# with every build. The archive reached 2.1 GB and EAS refuses anything over 2.0 GB.
+#
+# ## What this file does
+#
+# `.easignore` REPLACES .gitignore entirely for uploads — it is not additive, and no nested file
+# is consulted. So rather than restate three .gitignores and hope they stay in step, this is an
+# allow-list: nothing is uploaded except the Expo project itself. A new gigabyte landing anywhere
+# else in this repository — another cabinet under apps/, a render output folder, a depot — can
+# never reach a build machine again without an explicit line here.
+
+# ---------------------------------------------------------------------------------------------
+# 1. Nothing outside apps/mobile.
+# ---------------------------------------------------------------------------------------------
+#
+# `/*` excludes every top-level entry, dotfiles included — which is also how `.git` is dropped:
+# the CLI deletes the shallow clone's history only if `.easignore` says to, and this says to.
+# Each `!` line below then re-admits one entry, and `/apps/*` closes apps/ again behind it so
+# that only apps/mobile survives. Order matters: a negation must come after the rule it undoes.
+/*
+!/apps
+/apps/*
+!/apps/mobile
+
+# The one file outside apps/mobile that a build machine reads: `app.config.js` takes the version
+# players see from the repository root's package.json, so that one number has one source. Without
+# this line prebuild fails on a missing module before it ever starts.
+!/package.json
+
+# ---------------------------------------------------------------------------------------------
+# 2. Inside apps/mobile, what the machine regenerates, already has, or must never see.
+# ---------------------------------------------------------------------------------------------
+#
+# These are deliberately **unanchored** — a leading slash would anchor them to the repository
+# root, where none of them exist. Unanchored, they match at any depth and are correct either way.
+
+# Reinstalled from package-lock.json on the build machine.
+node_modules/
+.expo/
+
+# Regenerated in the cloud by `expo prebuild` on every build. This is a Continuous Native
+# Generation project; uploading a local copy is pointless at best and stale at worst.
+android/
+ios/
+
+# Local output: `yarn sync`'s staging, and the archive and .ipa from a Mac build (scripts/ios.mjs).
+dist/
+build/
+
+# The store submission kit: screenshots, listing text, and the .aab and .ipa files downloaded
+# into store/*/builds/. Uploaded by hand to Play and App Store Connect, of no use to a build
+# machine, and 1.2 GB of it — the single largest thing in the archive before this file existed.
+store/
+
+# Signing material. Never in the repository, on any branch, ever: an upload keystore or an App
+# Store Connect key in a commit is a rotation at best and a hijacked listing at worst. The keys
+# themselves live outside the tree (~/.android-keys, ~/.appstore-keys) — these patterns exist so
+# that a copy landing here by accident never travels.
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+
+# Read by the CLI on this machine, never needed on a build machine — and it carries the p12
+# password in clear, so it must not travel inside the project archive.
+credentials.json
+
+# ---------------------------------------------------------------------------------------------
+# What is left is roughly 130 MB, and 115 MB of that is `assets/web.zip` — the game itself, which
+# `metro.config.js` embeds in the binary as an asset. That is the floor.
+#
+# To see exactly what an upload would contain, without starting a build:
+#   node scripts/eas-archive-size.mjs
+# ---------------------------------------------------------------------------------------------
