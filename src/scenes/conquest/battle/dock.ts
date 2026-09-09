@@ -179,16 +179,41 @@ function buildOtherFronts(self: ConquestUIScene, battle: AscentBattle, elsewhere
  * Who could come, how soon, and whether that is soon enough.
  *
  * One page for every entry point — the fight, the army screen's war section, a host's own
- * detail — so the answer reads the same wherever the question was asked. Rows are sorted
- * nearest-first; a host that would arrive after the clock runs out is still offered, in
- * cinnabar, because a fight in overtime is still a fight and the player may know better.
+ * detail — so the answer reads the same wherever the question was asked.
+ *
+ * ## What was wrong with it
+ *
+ * Reported: *fight screen reinforcement look really bad*. Three faults, and the first was not a
+ * matter of taste at all.
+ *
+ * **It had no paper.** `showBattle` hides the map, because the field is a full sheet of parchment
+ * with nothing showing through it — and this page is opened *from* the fight through
+ * `replaceLanePage`, so it inherited a hidden map and drew an ordinary lane list over the lane's
+ * 0.93 dim with nothing behind it. What showed through the seven per cent was the six scenes this
+ * game keeps resident: photographed, the lower half of this page was the **main menu**, "Rồng
+ * Thăng Long" and the version line and all. `showWarBoard` carries the same restore for the same
+ * reason; this one was simply missed.
+ *
+ * **Every row looked the same.** A host that can march now, a host already marching, and a host
+ * that cannot come at all were three cards of the same shape, distinguished by a word buried in
+ * the middle of the title and a grey line under it. The one question the page exists to answer —
+ * *who can I send* — had to be worked out by reading all of them.
+ *
+ * **The number was prose.** How many men a host brings is the figure the whole decision turns on,
+ * and it was set inline in a run of text between two middots, where no two rows can be compared.
+ *
+ * So: the hosts are grouped under headings, the men are a badge in the corner where a reader's eye
+ * goes for the verdict, and the arrival is the badge's own note — jade when it is in time,
+ * cinnabar when it is not.
  */
 export function showReinforcePicker(self: ConquestUIScene, onBack: () => void): void {
   const state = self.state;
   const battle = state.ascent?.activeBattle;
   if (!battle || battle.over) { onBack(); return; }
   self.replaceLanePage(() => {
-    const { addRow, addNote, finish } = self.laneList(
+    // The paper. See the note above: without it this page's background is the title screen.
+    self.setMapVisible(true);
+    const { addRow, addHeading, addNote, finish } = self.laneList(
       t('ascent.reinforce.title', { land: battle.landName }),
       t('ascent.reinforce.subtitle', {
         ours: Math.round(battle.ourNow), theirs: Math.round(battle.theirNow),
@@ -196,30 +221,69 @@ export function showReinforcePicker(self: ConquestUIScene, onBack: () => void): 
       }),
       { back: onBack },
     );
+
     const rows = reinforcementCandidates(state, battle);
+    // What is already on its way, said once at the top rather than left to be counted off the
+    // rows: it is the fact that decides whether anything more needs sending at all.
+    const coming = reinforcementsEnRoute(state, battle);
+    addNote(coming.hosts > 0
+      ? t('ascent.reinforce.onWay', {
+        n: coming.hosts, men: coming.men,
+        eta: coming.etaTicks === Number.POSITIVE_INFINITY ? 0 : coming.etaTicks,
+      })
+      : t('ascent.reinforce.needed'), coming.hosts > 0 ? INK_UI.jade : INK_UI.softBrush);
+
+    const ready = rows.filter((row) => !row.blockedReason && !row.enRoute);
+    const marching = rows.filter((row) => !row.blockedReason && row.enRoute);
+    const blocked = rows.filter((row) => Boolean(row.blockedReason));
     if (rows.length === 0) addNote(t('ascent.reinforce.nobody'));
-    for (const row of rows) {
+
+    const draw = (row: typeof rows[number], sendable: boolean): void => {
       const at = state.lands.find((candidate) => candidate.id === row.army.landId);
       const general = state.heroes.find((hero) => hero.id === row.army.generalHeroId);
-      const eta = row.etaTicks === undefined ? '' : row.etaTicks === 0
-        ? t('ascent.reinforce.etaNow')
-        : t(row.inTime ? 'ascent.reinforce.etaInTime' : 'ascent.reinforce.etaLate', { n: row.etaTicks });
-      const blocked = Boolean(row.blockedReason);
+      const note = row.etaTicks === undefined ? undefined : row.etaTicks === 0
+        ? t('ascent.reinforce.noteNow')
+        : t(row.inTime ? 'ascent.reinforce.noteInTime' : 'ascent.reinforce.noteLate', { n: row.etaTicks });
+      // Gold beats jade on a row that can march but through country that will cost it: the
+      // warning is about the road, and the road is what the badge's note is promising.
+      const tone = row.routeWarning ? INK_UI.gold : row.inTime ? INK_UI.jade : INK_UI.cinnabar;
       addRow(
         {
-          title: `${row.army.name}  ·  ${row.men}${row.enRoute ? `  ·  ${t('ascent.reinforce.onRoad')}` : ''}`,
-          subtitle: [blocked ? row.blockedReason : eta, row.routeWarning, t('ascent.reinforce.row', {
+          // The host, and nothing else. Its strength is the badge and its errand is the line
+          // under it; a title carrying all three is a title nobody scans.
+          title: row.army.name,
+          subtitle: [row.blockedReason, row.routeWarning, t('ascent.reinforce.row', {
             land: at?.name ?? '—', order: hostOrderLabel(state, row.army),
           })].filter(Boolean).join('\n'),
-          border: blocked || row.enRoute ? INK_UI.softBrush : row.routeWarning ? INK_UI.gold : row.inTime ? INK_UI.jade : INK_UI.cinnabar,
-          muted: blocked || row.enRoute,
+          border: sendable ? tone : INK_UI.softBrush,
+          muted: !sendable,
           portrait: general,
+          badge: {
+            caption: t('ascent.reinforce.badgeMen'),
+            value: String(row.men),
+            note,
+            tone: sendable ? tone : INK_UI.softBrush,
+          },
         },
-        blocked || row.enRoute ? undefined : () => {
+        sendable ? () => {
           sendReinforcement(state, battle, row.army.id);
           onBack();
-        },
+        } : undefined,
       );
+    };
+
+    // Ordered by what the player can do about it: what will march, what already is, what will not.
+    if (ready.length > 0) {
+      addHeading(t('ascent.reinforce.groupReady'), t('ascent.reinforce.hint'));
+      ready.forEach((row) => draw(row, true));
+    }
+    if (marching.length > 0) {
+      addHeading(t('ascent.reinforce.groupComing'));
+      marching.forEach((row) => draw(row, false));
+    }
+    if (blocked.length > 0) {
+      addHeading(t('ascent.reinforce.groupBlocked'));
+      blocked.forEach((row) => draw(row, false));
     }
     finish();
   });

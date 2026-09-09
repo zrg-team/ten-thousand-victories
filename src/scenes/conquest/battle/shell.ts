@@ -439,7 +439,48 @@ function battleHeaderFrame(self: ConquestUIScene, battle: AscentBattle): {
     : battle.isGreat
       ? t('ascent.battle.greatTitle', { land: battle.landName })
       : t('ascent.battle.title', { land: battle.landName });
-  const desc = self.add.text(textX, bandY + 1, where, {
+  /**
+   * **The seat says so, above its own name.**
+   *
+   * Reported: *fight screen should highlight this is capital*. Nothing on this screen said which
+   * province it was — the title reads the same for a border district and for the one whose fall
+   * ends the run, and the player has to remember the map to tell them apart. So the capital gets a
+   * seal above the title: cinnabar plate, paper-coloured caps, and the stake spelled out on it
+   * rather than left to be remembered.
+   *
+   * A row rather than a chip beside the title, because the title's own column is 162 units on a
+   * phone and already wraps to two lines; anything set beside it would push it to three. The
+   * header grows by thirteen units, and only for the one fight that is worth thirteen units.
+   */
+  const atCapital = self.state.ascent?.capitalLandId === battle.landId;
+  let sealRoom = 0;
+  if (atCapital) {
+    const mark = self.ui.label(0, 0, t('ascent.battle.capitalMark'), 'label', {
+      color: INK_UI_HEX.lightText, fontSize: '8.5px', fontStyle: '700',
+    }).setOrigin(0, 0.5);
+    /**
+     * Shrunk, never wrapped: the mark is one stamp, and a stamp that breaks in half is a mistake.
+     *
+     * **No letter spacing**, though caps at this size are asking for it. `Text.width` does not
+     * count it, so the fit below measured 210 units for a run that drew 258 and the English mark
+     * printed straight out of its own plate and under the round track. The stamp is legible
+     * without it; a measurement that lies is not worth the tracking.
+     */
+    if (mark.width > topW - 10) mark.setScale(Math.max(0.62, (topW - 10) / mark.width));
+    const plateW = Math.min(topW, mark.displayWidth + 10);
+    const plateH = 13;
+    const seal = self.add.graphics();
+    seal.fillStyle(INK_UI.cinnabar, 0.92);
+    seal.fillRoundedRect(textX, bandY, plateW, plateH, 2);
+    self.modalLayer.add(seal);
+    mark.setPosition(textX + 5, bandY + plateH / 2);
+    // Named so a harness can find the stamp and measure it against the round track beside it.
+    mark.setData('capitalMark', true);
+    self.modalLayer.add(mark);
+    sealRoom = plateH + 2;
+  }
+
+  const desc = self.add.text(textX, bandY + 1 + sealRoom, where, {
     color: '#2a2118', fontFamily: TITLE_FONT, fontSize: '15px', fontStyle: '700', lineSpacing: 1,
     wordWrap: { width: topW },
   }).setOrigin(0, 0);

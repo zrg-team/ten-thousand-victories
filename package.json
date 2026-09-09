@@ -43,6 +43,7 @@
     "verify:quit": "node test_scripts/verify/verify-quit.mjs",
     "verify:battle-mark": "node test_scripts/verify/verify-battle-mark.mjs",
     "verify:restore-card": "node test_scripts/verify/verify-restore-card.mjs",
+    "verify:fight-screen": "node test_scripts/verify/verify-fight-screen.mjs",
     "verify:perf": "node test_scripts/verify/verify-listeners.mjs && node test_scripts/verify/verify-fps-cap.mjs && node test_scripts/verify/verify-tick-clock.mjs",
     "build": "tsc && vite build && node scripts/build-sw.mjs",
     "build:shell": "tsc && vite build --mode shell",
