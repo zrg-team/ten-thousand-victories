@@ -42,6 +42,7 @@
     "build": "tsc && vite build && node scripts/build-sw.mjs",
     "build:shell": "tsc && vite build --mode shell",
     "mobile:sync": "yarn build:shell && npm --prefix apps/mobile run sync",
+    "mobile:eas:size": "node scripts/eas-archive-size.mjs",
     "mobile:eas:ios": "yarn mobile:sync && npm --prefix apps/mobile run eas:ios",
     "mobile:eas:android": "yarn mobile:sync && npm --prefix apps/mobile run eas:android",
     "mobile:eas:all": "yarn mobile:sync && npm --prefix apps/mobile run eas:all",
