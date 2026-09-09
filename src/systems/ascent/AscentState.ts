@@ -333,6 +333,25 @@ function restoreCardEarly(state: GameState, prompt: AscentPrompt): boolean {
   return last !== undefined && state.turn - last < RESTORE_CARD_GAP_TICKS;
 }
 
+/**
+ * A rebuild card for a province that is no longer ours.
+ *
+ * Reported: *if my land lose should not show modal ask me to rebuild the land.* The card is raised
+ * the tick a fight ends and then deliberately held a few seasons (`restoreCardEarly`) so it does
+ * not land back-to-back with the wave's own card — and the war does not wait those seasons. The
+ * next column takes the province while its rebuilding question is still in the queue, and the
+ * player is then asked *"{land} was fought over: how hard does the throne push the rebuilding?"*
+ * about ground the throne has just lost, with a mason's bill attached to somebody else's walls.
+ *
+ * Dead, not early: there is no later season at which this becomes answerable. Retaking the
+ * province is its own fight, and it raises its own card.
+ */
+function restoreCardDead(state: GameState, prompt: AscentPrompt): boolean {
+  if (prompt.kind !== 'restore-land') return false;
+  const land = state.lands.find((one) => one.id === prompt.landId);
+  return !land || land.ownerId !== PLAYER_KINGDOM_ID;
+}
+
 function musterCardDead(state: GameState, prompt: AscentPrompt): boolean {
   if (prompt.kind !== 'muster-proposal') return false;
   const hero = state.heroes.find((candidate) => candidate.id === prompt.heroId);
@@ -381,7 +400,7 @@ export function drainAscentPrompts(state: GameState): void {
   // to raise a host" about a king standing with his army.
   if (state.pendingAscentPrompt) {
     const up = state.pendingAscentPrompt;
-    if (musterCardDead(state, up)) {
+    if (musterCardDead(state, up) || restoreCardDead(state, up)) {
       state.pendingAscentPrompt = undefined;
     } else if (musterCardEarly(state, up)) {
       // Off the screen, back into the queue: a muster begun while this card stood is not a reason
@@ -401,7 +420,9 @@ export function drainAscentPrompts(state: GameState): void {
 
   ascent.promptQueue.sort((a, b) => PROMPT_PRIORITY[a.kind] - PROMPT_PRIORITY[b.kind]);
   // Dead cards leave; early ones stay where they are and are stepped over.
-  const deadDropped = ascent.promptQueue.filter((queued) => !musterCardDead(state, queued));
+  const deadDropped = ascent.promptQueue.filter(
+    (queued) => !musterCardDead(state, queued) && !restoreCardDead(state, queued),
+  );
   ascent.promptQueue.length = 0;
   ascent.promptQueue.push(...deadDropped);
   const nextIndex = ascent.promptQueue.findIndex((queued) => !musterCardEarly(state, queued) && !restoreCardEarly(state, queued));

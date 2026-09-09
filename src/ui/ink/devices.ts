@@ -951,6 +951,15 @@ export interface FormationBlock {
   rankPitch: number;
   /** How far each rank back steps sideways. Carried on the block so `spread` reaches it too. */
   shear: number;
+  /**
+   * How far each file to the right steps *down* — the other half of a lean, and zero everywhere
+   * but a marching column on a road that runs more across the sheet than up it.
+   *
+   * `shear` alone can only tilt a block that is stacked in ranks down the sheet. A column marching
+   * east is stacked in files across it, and without this the only lean available to it was none:
+   * every road between due east and the diagonal drew the same flat bar. See `armyShape`.
+   */
+  fileShear: number;
   /** Ranks of one, two, three, drawn as a point. Only Thế Xung's horse asks for it. */
   wedge?: boolean;
   /** Where its feet land, which is what the painting order sorts on. */
@@ -1097,7 +1106,7 @@ export function armyShape(
     const feet = by + (rows - 1) * br;
     blocks.push({
       key, arm: borrowedArm[key] ?? slot.arm, pri: slot.pri, marks, cols, rows,
-      x: bx, y: by, pitch: bp, rankPitch: br, shear, feet, wedge: tweak?.wedge,
+      x: bx, y: by, pitch: bp, rankPitch: br, shear, fileShear: 0, feet, wedge: tweak?.wedge,
     });
     left = Math.min(left, bx);
     right = Math.max(right, bx + (cols - 1) * bp);
@@ -1122,32 +1131,63 @@ export function armyShape(
     const cos = Math.cos(column.heading);
     const sin = Math.sin(column.heading);
     /**
-     * **Tight across the road, open along it.**
+     * **Tight across the road, open along it — and leaning to the road it is actually on.**
      *
      * A block is `cols` across screen-x and `rows` down screen-y, so which of its two pitches is
-     * the road depends on the heading — 0 due east or west, 1 due north or south. Closing both (the
-     * first pass) put men in file inside one another; this opens the one the column runs along and
-     * closes only the one across it, at every heading, with the diagonals half way between.
+     * the road depends on the heading. The first pass closed both up and put men in file inside
+     * one another; the second opened the along-road one and blended the two on `cos(2th)`, which
+     * left a **square block on all four diagonals** — half of the eight headings the map
+     * quantises to, and the whole of *there are no direction awareness*. Measured on a 2,600-man
+     * host: 105 x 25 due east, 29 x 127 due south, and 84 x 73 to the south-east.
+     *
+     * So there is no blend. `upright` is which axis the road is more nearly running along, and the
+     * block is laid out on it: files across the road, ranks down it. The other half of the answer
+     * is the lean — a rank steps sideways as it steps back (`shear`), or a file steps down as
+     * it steps across (`fileShear`), by exactly the road's own gradient. Due south the gradient is
+     * zero and the column is a plain vertical file; at forty-five degrees it is one, and each rank
+     * stands a full step to the side of the rank in front, which is a 45 degree file. Neither
+     * layout is ever asked for a steeper lean than that, because `upright` picks the shallower.
      */
-    const t = (1 - Math.cos(2 * column.heading)) / 2;
-    // Each axis blends between its along-road spacing and its across-road one. See `MARCH_ALONG_X`.
-    const filePitch = (column.alongX * (1 - t) + column.acrossX * t) * pitch;
-    const depthPitch = (column.acrossY * (1 - t) + column.alongY * t) * pitch;
-    const alongPitch = column.alongX * (1 - t) * pitch + column.alongY * t * pitch;
+    const upright = Math.abs(sin) >= Math.abs(cos);
+    /**
+     * One rank's step measured **down the road itself**, not along a screen axis.
+     *
+     * A figure is 3.86 wide and 8.15 tall at map scale, so the distance that clears the man in
+     * front is not one number but two — `MARCH_ALONG_X` going east, `MARCH_ALONG_Y` going north
+     * — and a diagonal needs neither in full. Two men are clear of each other as soon as they
+     * are clear on *one* axis, so the step a road asks for is the **smaller** of the two demands,
+     * not their sum: at forty-five degrees a stride of 1.30 pitches puts a full figure-width
+     * between one man and the next in x, and what they do in y no longer matters.
+     *
+     * Both other readings were tried and measured on a 2,600-man host. Dividing the laid-out
+     * axis's number back out of the heading charges a diagonal the full *northward* clearance on
+     * both axes: 147 units of road against 105 due east, the same men with forty per cent more air
+     * in the file. Adding the two demands is nearer but still generous, and it pushed the largest
+     * host's column to 306 units, past the length a province can hold.
+     */
+    const stepAlong = Math.min(
+      Math.abs(cos) > 0 ? column.alongX / Math.abs(cos) : Infinity,
+      Math.abs(sin) > 0 ? column.alongY / Math.abs(sin) : Infinity,
+    ) * pitch;
+    // The road's gradient on the axis the block is *not* laid out on: how far sideways a rank
+    // steps as it steps back, or how far down a file steps as it steps across. Never past one,
+    // because `upright` lays the block out on whichever axis the road runs more nearly along.
+    const gradient = upright ? cos / Math.abs(sin) : sin / Math.abs(cos);
     const extent = new Map<FormationKey, number>();
     for (const block of blocks) {
       const room = column.room[block.key] ?? 1;
-      block.pitch = filePitch * room;
-      block.rankPitch = depthPitch * room;
-      block.shear = shear * column.shear;
-      extent.set(
-        block.key,
-        Math.abs(cos) * (block.cols - 1) * block.pitch
-        + Math.abs(sin) * (block.rows - 1) * block.rankPitch,
-      );
+      // Across the road the column is tight, and that pitch is the sheet's; along it, the pitch is
+      // whatever share of the road's own step this axis carries.
+      block.pitch = (upright ? column.acrossX * pitch : stepAlong * Math.abs(cos)) * room;
+      block.rankPitch = (upright ? stepAlong * Math.abs(sin) : column.acrossY * pitch) * room;
+      // The decorative stagger stays — it is what keeps a file from reading as a drawn grid —
+      // and the lean is added to it rather than replacing it.
+      block.shear = shear * column.shear + (upright ? block.rankPitch * gradient : 0);
+      block.fileShear = upright ? 0 : block.pitch * gradient;
+      extent.set(block.key, (upright ? block.rows - 1 : block.cols - 1) * stepAlong * room);
     }
-    // The interval is a distance down the road, so it is always the along-road pitch.
-    const gap = column.interval * alongPitch;
+    // The interval is a distance down the road, so it is always the along-road step.
+    const gap = column.interval * stepAlong;
     let cursor = 0;
     const centres = new Map<FormationKey, number>();
     for (const key of column.order) {
@@ -1161,12 +1201,20 @@ export function armyShape(
     left = Infinity; right = -Infinity; top = Infinity; bottom = -Infinity;
     for (const block of blocks) {
       const along = middle - (centres.get(block.key) ?? middle);
-      block.x = along * cos - ((block.cols - 1) * block.pitch) / 2;
-      block.y = along * sin - ((block.rows - 1) * block.rankPitch) / 2;
-      block.feet = block.y + (block.rows - 1) * block.rankPitch;
-      left = Math.min(left, block.x);
-      right = Math.max(right, block.x + (block.cols - 1) * block.pitch);
-      top = Math.min(top, block.y);
+      // The grid's own extent, and the run the lean adds to it — which is signed, because a
+      // road running west leans the file the other way. A block centred on its files alone would
+      // sit half a lean off the road it is meant to be walking down.
+      const wide = (block.cols - 1) * block.pitch;
+      const deep = (block.rows - 1) * block.rankPitch;
+      const runX = (block.rows - 1) * block.shear;
+      const runY = (block.cols - 1) * block.fileShear;
+      block.x = along * cos - (wide + runX) / 2;
+      block.y = along * sin - (deep + runY) / 2;
+      // Paint order sorts on the feet, so the lean's lowest man is the one that counts.
+      block.feet = block.y + deep + Math.max(0, runY);
+      left = Math.min(left, block.x + Math.min(0, runX));
+      right = Math.max(right, block.x + wide + Math.max(0, runX));
+      top = Math.min(top, block.y + Math.min(0, runY));
       bottom = Math.max(bottom, block.feet);
     }
   }
@@ -1272,7 +1320,8 @@ export function planArmy(
         for (let file = 0; file < block.cols && drawn < block.marks; file += 1) {
           figures.push({
             x: bx + file * block.pitch + (rand() - 0.5) * 0.32 * block.pitch + rank * shear,
-            y: by + rank * block.rankPitch + (rand() - 0.5) * 0.3 * block.rankPitch,
+            y: by + rank * block.rankPitch + (rand() - 0.5) * 0.3 * block.rankPitch
+              + file * block.fileShear,
             rank: index + rank, block: block.key, arm: block.arm,
           });
           drawn += 1;
@@ -1371,7 +1420,7 @@ export function armyFootprint(g: G, x: number, y: number, shape: ArmyShape, s = 
   g.fillStyle(PIGMENT.muc, alpha);
   for (const block of shape.blocks) {
     const spanX = (block.cols - 1) * block.pitch + (block.rows - 1) * block.shear;
-    const spanY = (block.rows - 1) * block.rankPitch;
+    const spanY = (block.rows - 1) * block.rankPitch + (block.cols - 1) * block.fileShear;
     g.fillEllipse(
       x + block.x + spanX / 2, y + block.y + spanY / 2 + FOOT_LEAD * s,
       spanX + FOOT_WIDTH * s, spanY + FOOT_DEPTH * s,

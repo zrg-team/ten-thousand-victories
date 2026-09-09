@@ -14,6 +14,7 @@ import { MapScene } from '../scenes/MapScene';
 import { PreloadScene } from '../scenes/PreloadScene';
 import { UIScene } from '../scenes/deprecated/UIScene';
 import { renderScale } from './graphicsQuality';
+import { wantsMultisampling, wantsStrictContext } from './renderProfile';
 
 // The scale the buffer BOOTS at. The quality ladder can change the live scale later through
 // `applyPendingRenderScale`, which resizes this same FIT-mode surface in place.
@@ -56,6 +57,15 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     preserveDrawingBuffer: needsCapture,
     powerPreference: 'high-performance',
     roundPixels: true,
+    // Multisampling, decided rather than inherited. Phaser defaults it on; above render scale 1 the
+    // buffer is already supersampled 2-3x and no camera is filtered, so the MSAA resolve is a
+    // full-buffer bandwidth pass every frame buying edges the downscale already smooths — and
+    // bandwidth is what a budget phone has least of. See `renderProfile.wantsMultisampling`.
+    antialiasGL: wantsMultisampling(RENDER_SCALE),
+    // Left false, deliberately: turning it on would make `Phaser.AUTO` fall back to Canvas, which
+    // this game cannot run on (MapScene registers a custom GLSL render node). A software context is
+    // detected after boot and demoted instead — `renderProfile.softwareRenderer`.
+    failIfMajorPerformanceCaveat: wantsStrictContext(),
     // Curve subdivision floor for every Graphics path. Phaser resolves per-object thresholds as
     // max(object, config), and at render scale 3 the default of 1 tessellates hairline wobble the
     // buffer cannot even show: measured on the revealed map at DSF 3, threshold 2x scale alone

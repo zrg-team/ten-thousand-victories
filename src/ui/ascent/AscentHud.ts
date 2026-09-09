@@ -4,12 +4,31 @@ import { INK_UI, INK_UI_HEX, InkUI } from '../InkUI';
 import { TITLE_FONT, UI_FONT } from '../fonts';
 import { heatFor } from '../../systems/ascent/AmbitionSystem';
 import { WAVE_INTERVAL_TICKS } from '../../game/ascentConfig';
-import { heronMeter } from '../ink/devices';
+import { heron } from '../ink/devices';
+import { applyStamp, placeStamp, stampDesign } from '../ink/stamp';
 import { t } from '../../i18n';
 import { formatNumber } from '../../utils/format';
 import type { AscentState } from '../../state/types';
 import { PIGMENT } from '../ink/palette';
 import { ROW_Y as STRIP_ROW_Y, TITLE_Y as STRIP_TITLE_Y } from '../ResourceBar';
+
+/** The frieze's own height, in design units. Was an inline 11 in two places. */
+const FRIEZE_HEIGHT = 11;
+
+/**
+ * One chim Lạc, baked. Keyed by size, state and colour, so the whole frieze is two textures.
+ * `heron` draws around the anchor, so the box is the bird's own reach plus a margin for the ink.
+ */
+function heronStamp(scene: Phaser.Scene, size: number, filled: boolean, colour: number) {
+  const margin = 1.2;
+  return stampDesign(
+    scene,
+    `hud:heron:${filled ? 'flown' : 'waiting'}:${size.toFixed(3)}:${colour.toString(16)}`,
+    { left: -(10.5 * size + margin), right: 10.6 * size + margin, top: -(5 * size + margin), bottom: 4.6 * size + margin },
+    (g, x, y) => heron(g, x, y, size, filled, colour),
+    { pool: 'ui', raster: 'super' },
+  );
+}
 
 /**
  * Bottom edge of the HUD band. Kept in sync with ConquestScene's input guard.
@@ -96,10 +115,15 @@ export class AscentHud {
     level: Phaser.GameObjects.Text;
     wave: Phaser.GameObjects.Text;
     meter: Phaser.GameObjects.Graphics;
+    /** The wave frieze's birds, as placed stamps. See `layoutFrieze`. */
+    frieze: Phaser.GameObjects.Container;
     xp: Phaser.GameObjects.Graphics;
     /** POWER's caption, then THREAT's. */
     labels: Phaser.GameObjects.Text[];
   };
+
+  /** One image per bird in the wave frieze, reused across refreshes. */
+  private readonly friezeBirds: Phaser.GameObjects.Image[] = [];
 
   /**
    * Everything the readout draws, in one container, so the whole band can be placed: on the desktop
@@ -317,7 +341,12 @@ export class AscentHud {
     if (this.meterKey !== meterKey) {
       this.meterKey = meterKey;
       parts.meter.clear();
-      if (meterShown) heronMeter(parts.meter, barX, y, barWidth, 11, toWave, true);
+      if (meterShown) {
+        // The band's own rule under the birds — two commands, and the only live ink left here.
+        parts.meter.lineStyle(0.8, PIGMENT.mucFaint, 0.35);
+        parts.meter.lineBetween(barX, y + FRIEZE_HEIGHT, barX + barWidth, y + FRIEZE_HEIGHT);
+      }
+      this.layoutFrieze(parts.frieze, meterShown ? { x: barX, y, width: barWidth, progress: toWave } : undefined);
     }
 
     // Level progress keeps its own thin rule beneath the frieze: two different quantities, and
@@ -337,6 +366,50 @@ export class AscentHud {
           parts.xp.fillRect(barX, xpY, Math.max(1.5, barWidth * filled), 3);
         }
       }
+    }
+  }
+
+  /**
+   * The wave frieze, as baked birds rather than live ink.
+   *
+   * `heronMeter` drew fifteen chim Lạc into one `Graphics`, each a fifteen-point closed polygon
+   * stroked three times by `inkPath` — about 2,774 recorded commands. The guard above already kept
+   * it from being *re-inked* more than once every few seconds, and that saved nothing that reached
+   * the GPU: Phaser 4 has no retained geometry for `Graphics`, so it re-walks the whole command
+   * buffer, re-allocates a `Path` per sub-path, re-triangulates and re-uploads it **every frame**.
+   * Measured on a settled Conquest map, this one object was 2,774 of the 4,143 live commands the
+   * whole map submitted per frame — two thirds of it, for a bar that moves once per season.
+   *
+   * The birds are deterministic (`heron` seeds its wobble at a constant), so every flown bird is
+   * identical to every other flown bird and the whole frieze is two textures and a row of images.
+   * This is the same fix the header's răng cưa band already had — see `ui/ResourceBar.ts`.
+   */
+  private layoutFrieze(layer: Phaser.GameObjects.Container,
+    bar?: { x: number; y: number; width: number; progress: number }): void {
+    const birds = this.friezeBirds;
+    if (!bar) {
+      for (const bird of birds) bird.destroy();
+      birds.length = 0;
+      return;
+    }
+    const size = FRIEZE_HEIGHT * 0.05;
+    const count = Math.max(8, Math.round(bar.width / (FRIEZE_HEIGHT * 1.05)));
+    const gap = (bar.width - FRIEZE_HEIGHT * 0.7) / count;
+    const flown = heronStamp(this.scene, size, true, PIGMENT.hoePale);
+    const waiting = heronStamp(this.scene, size, false, PIGMENT.mucFaint);
+    while (birds.length > count) birds.pop()!.destroy();
+    for (let index = 0; index < count; index += 1) {
+      const stamp = index / count < bar.progress ? flown : waiting;
+      let bird = birds[index];
+      if (!bird) {
+        bird = placeStamp(this.scene, stamp, 0, 0);
+        layer.add(bird);
+        birds[index] = bird;
+      } else {
+        // Swaps the texture and moves the refcount with it; the image's own scale survives.
+        applyStamp(bird, stamp);
+      }
+      bird.setPosition(bar.x + FRIEZE_HEIGHT * 0.6 + index * gap, bar.y + FRIEZE_HEIGHT * 0.5);
     }
   }
 
@@ -445,14 +518,15 @@ export class AscentHud {
     }).setDepth(91);
 
     const meter = this.scene.add.graphics().setDepth(91);
+    const frieze = this.scene.add.container(0, 0).setDepth(91);
     const xp = this.scene.add.graphics().setDepth(91);
 
     this.parts = {
-      panel, powerValue, threatValue, threatVerdict, countdown, ambition, level, wave, meter, xp, labels,
+      panel, powerValue, threatValue, threatVerdict, countdown, ambition, level, wave, meter, frieze, xp, labels,
     };
     // Into the root, in the order the depths above asked for: the panel under everything, the
     // figures over it. A container ignores its children's `setDepth`, so the order is the depth.
-    this.root.add([panel, ...labels, powerValue, threatValue, threatVerdict, countdown, ambition, level, wave, meter, xp]);
+    this.root.add([panel, ...labels, powerValue, threatValue, threatVerdict, countdown, ambition, level, wave, meter, frieze, xp]);
     panel.setVisible(this.panelShown);
     return this.parts;
   }

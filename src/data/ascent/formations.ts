@@ -402,9 +402,18 @@ export interface MarchColumn {
  * **The aspect has to follow the heading.** A block is built `cols` across by `rows` deep in screen
  * axes, so a block deeper than it is wide reads as a column only while the road runs up and down
  * the sheet; on an east-west road the same block is a bar standing across its own line of march.
- * `cos(2θ)` is +1 due east or west, −1 due north or south and 0 on all four diagonals, so blending
- * the two exact aspects on it gives the block laid along the road at the axes and a square block on
- * the diagonals, with no seam in between.
+ *
+ * This used to blend the two aspects on `cos(2θ)` — which is a seamless curve, and which put a
+ * **square block on all four diagonals**, exactly half of the eight headings the map quantises to.
+ * Reported: *there are no direction awareness*, and the report was right about the half of the
+ * cases it saw. A 2,600-man host measured 105 × 25 due east and 29 × 127 due south — both plainly
+ * lines — and 84 × 73 to the south-east, which is a host standing still.
+ *
+ * So the aspect is no longer blended. The block is laid out on whichever axis the road is *more*
+ * nearly running along, and `armyShape` then **leans** the file over to the true heading with the
+ * block's shear: a rank steps sideways as well as back, and forty-five degrees is a full step of
+ * each. That gives a line at every heading rather than at four of them, and the two layouts meet
+ * at the diagonal drawing the same 45° file, so there is still no seam to see.
  */
 export function marchColumn(
   shares: Record<FormationKey, BlockShare>,
@@ -415,8 +424,11 @@ export function marchColumn(
     MARCH_FRONTAGE_MAX,
     Math.max(MARCH_FRONTAGE_MIN, Math.ceil(Math.max(1, total) / MARCH_MAX_RANKS)),
   );
-  // 1 due north or south, 0 due east or west, ½ on the diagonals.
-  const along = (1 - Math.cos(2 * radians)) / 2;
+  // Which axis the road is more nearly running along: 1 for up-and-down the sheet, 0 for across
+  // it. Not a blend — see above. The diagonals go with the upright layout, which `armyShape` then
+  // leans a full step per rank, and the two readings agree there because a 45° file is a 45° file
+  // whichever way it was built.
+  const along = Math.abs(Math.sin(radians)) >= Math.abs(Math.cos(radians)) ? 1 : 0;
   const aspect = {} as Record<FormationKey, number>;
   const room = {} as Record<FormationKey, number>;
   for (const key of MARCH_ORDER) {

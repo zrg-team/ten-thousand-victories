@@ -253,6 +253,193 @@ export async function throttle(cdp, rate) {
   await cdp.send('Emulation.setCPUThrottlingRate', { rate });
 }
 
+/**
+ * Samples REAL presented frames, not `game.step` in a loop.
+ *
+ * `glFrame` drives the clock itself, which is right for counting geometry and wrong for anything
+ * about smoothness: it never yields to the compositor, so it cannot see a dropped frame, a long
+ * task, or the cost of presenting. On a device there is no synthetic clock to drive at all. This
+ * hooks Phaser's own step boundary and records, per presented frame, the wall gap since the last
+ * one, the time spent inside the step, and the GL counter delta.
+ *
+ * Needs `installGlCounters` first for the per-frame GL numbers; without it those come back zero.
+ */
+export async function installFrameProbe(page) {
+  await page.evaluate(() => {
+    if (window.__frameProbe) return;
+    const game = window.__phaserGame;
+    const state = { on: false, last: 0, t0: 0, gaps: [], work: [], gl: [], longTasks: 0, longTaskMs: 0 };
+    const snap = () => {
+      const c = window.__glc;
+      return c ? { draws: c.draws, indices: c.indices, bytes: c.bytes, texBinds: c.texBinds, fbBinds: c.fbBinds } : null;
+    };
+    let before = null;
+    const pre = () => {
+      if (!state.on) return;
+      state.t0 = performance.now();
+      if (state.last) state.gaps.push(state.t0 - state.last);
+      state.last = state.t0;
+      before = snap();
+    };
+    const post = () => {
+      if (!state.on) return;
+      state.work.push(performance.now() - state.t0);
+      const now = snap();
+      if (now && before) {
+        state.gl.push({
+          draws: now.draws - before.draws, indices: now.indices - before.indices,
+          bytes: now.bytes - before.bytes, texBinds: now.texBinds - before.texBinds,
+          fbBinds: now.fbBinds - before.fbBinds,
+        });
+      }
+    };
+    game.events.on('prestep', pre);
+    game.events.on('postrender', post);
+    // Long tasks are the jank a player feels that a frame average hides.
+    try {
+      new PerformanceObserver((list) => {
+        if (!state.on) return;
+        for (const entry of list.getEntries()) { state.longTasks += 1; state.longTaskMs = Math.max(state.longTaskMs, entry.duration); }
+      }).observe({ entryTypes: ['longtask'] });
+    } catch { /* not in every engine */ }
+    const pct = (arr, q) => {
+      if (!arr.length) return 0;
+      const s = [...arr].sort((a, b) => a - b);
+      return +s[Math.min(s.length - 1, Math.floor(s.length * q))].toFixed(2);
+    };
+    window.__frameProbe = {
+      start() { state.on = true; state.last = 0; state.gaps = []; state.work = []; state.gl = []; state.longTasks = 0; state.longTaskMs = 0; },
+      stop() {
+        state.on = false;
+        const n = Math.max(1, state.gl.length);
+        const sum = (k) => state.gl.reduce((t, g) => t + g[k], 0) / n;
+        return {
+          frames: state.work.length,
+          fps: state.gaps.length ? +(1000 / (state.gaps.reduce((a, b) => a + b, 0) / state.gaps.length)).toFixed(1) : 0,
+          gapP50: pct(state.gaps, 0.5), gapP95: pct(state.gaps, 0.95), gapP99: pct(state.gaps, 0.99),
+          gapMax: pct(state.gaps, 1),
+          workP50: pct(state.work, 0.5), workP95: pct(state.work, 0.95), workMax: pct(state.work, 1),
+          over16: state.gaps.filter((g) => g > 16.7).length,
+          over33: state.gaps.filter((g) => g > 33.3).length,
+          over50: state.gaps.filter((g) => g > 50).length,
+          longTasks: state.longTasks, longTaskMs: +state.longTaskMs.toFixed(1),
+          draws: Math.round(sum('draws')), indices: Math.round(sum('indices')),
+          uploadKB: +(sum('bytes') / 1024).toFixed(1), texBinds: Math.round(sum('texBinds')),
+          fbBinds: +sum('fbBinds').toFixed(2),
+        };
+      },
+    };
+  });
+}
+
+/**
+ * Input-to-paint for a scripted gesture.
+ *
+ * Two independent measurements, because neither alone is trustworthy: the browser's own Event
+ * Timing (the same thing INP is built from, available in Chrome on Android), and a render-side
+ * stamp taken the first time a scroll area's content actually moves after a pointer went down.
+ */
+export async function installGestureProbe(page) {
+  await page.evaluate(() => {
+    if (window.__gestureProbe) return;
+    const state = { downAt: 0, movedAt: 0, worstDelay: 0, worstDuration: 0, watching: [] };
+    try {
+      new PerformanceObserver((list) => {
+        for (const e of list.getEntries()) {
+          state.worstDelay = Math.max(state.worstDelay, e.processingStart - e.startTime);
+          state.worstDuration = Math.max(state.worstDuration, e.duration);
+        }
+      }).observe({ type: 'event', durationThreshold: 16, buffered: false });
+    } catch { /* Event Timing is Chromium-only */ }
+    const game = window.__phaserGame;
+    game.events.on('postrender', () => {
+      if (!state.watching.length || !state.downAt) return;
+      for (const w of state.watching) {
+        if (w.object.y === w.last) continue;
+        w.travel += Math.abs(w.object.y - w.last);
+        w.last = w.object.y;
+        if (!state.movedAt) state.movedAt = performance.now();
+      }
+    });
+    /**
+     * Every live scrolling container, not just one.
+     *
+     * Several scenes stay resident at once — the menu sits behind a run, a lane sits over the map —
+     * so more than one list can exist, and picking a single one picked a container that never moved:
+     * the first sweep of this harness reported no input-to-paint at all on the two scenes that
+     * scroll. Watching all of them and taking the first that moves cannot pick the wrong one.
+     */
+    const findContent = () => {
+      const found = [];
+      const walk = (o) => {
+        if (o.getData && o.getData('inkScrollContent')) found.push(o);
+        if (o.list) o.list.forEach(walk);
+      };
+      for (const scene of game.scene.getScenes(true)) scene.children.list.forEach(walk);
+      return found;
+    };
+    window.__gestureProbe = {
+      watch() {
+        state.watching = findContent().map((object) => ({ object, last: object.y, travel: 0 }));
+        return state.watching.length;
+      },
+      down() {
+        // Re-baseline: a warm-up touch has already moved the list, and a stale baseline would
+        // book that movement as this gesture's.
+        for (const w of state.watching) { w.last = w.object.y; w.travel = 0; }
+        state.downAt = performance.now(); state.movedAt = 0; state.worstDelay = 0; state.worstDuration = 0;
+      },
+      read() {
+        return {
+          inputToPaintMs: state.movedAt && state.downAt ? +(state.movedAt - state.downAt).toFixed(1) : null,
+          worstInputDelayMs: +state.worstDelay.toFixed(1),
+          worstEventDurationMs: +state.worstDuration.toFixed(1),
+          // Proof the gesture landed: a fling that scrolled nothing is an idle sample in disguise.
+          scrolledPx: +state.watching.reduce((t, w) => t + w.travel, 0).toFixed(1),
+          lists: state.watching.length,
+        };
+      },
+    };
+  });
+}
+
+/**
+ * A real touch drag-and-release through the input pipeline, in CSS pixels.
+ *
+ * Driven over CDP rather than through `page.touchscreen`, which can only tap: a fling needs the
+ * move stream and the release that carries velocity into the glide. The same call drives headless
+ * Chromium and Chrome on a device, so the two rigs measure the same gesture.
+ */
+export async function fling(cdp, { x, y, dy = -600, steps = 24, holdMs = 5 } = {}) {
+  const touch = (type, py) => cdp.send('Input.dispatchTouchEvent', {
+    type,
+    touchPoints: type === 'touchEnd' ? [] : [{ x, y: py, id: 1 }],
+  });
+  await touch('touchStart', y);
+  for (let i = 1; i <= steps; i += 1) {
+    await touch('touchMove', y + (dy * i) / steps);
+    if (holdMs) await new Promise((r) => setTimeout(r, holdMs));
+  }
+  await touch('touchEnd', y + dy);
+}
+
+/** The ink-stamp registry's footprint, so a batching win cannot hide a texture-memory loss. */
+export async function stampReport(page) {
+  return page.evaluate(() => (window.__inkStamps ? window.__inkStamps() : null));
+}
+
+/** Total bytes of every texture the game has uploaded, as RGBA. */
+export async function textureBytes(page) {
+  return page.evaluate(() => {
+    const list = window.__phaserGame.textures.list;
+    let bytes = 0;
+    for (const key of Object.keys(list)) {
+      for (const source of list[key].source ?? []) bytes += (source.width || 0) * (source.height || 0) * 4;
+    }
+    return Math.round(bytes / 1048576);
+  });
+}
+
 /** Style-B reporting: prints each check, a summary, and exits non-zero on failure. */
 export function report(checks) {
   let passed = 0;

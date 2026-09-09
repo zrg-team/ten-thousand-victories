@@ -12,13 +12,14 @@ import { hasSnapshot, loadSnapshot, snapshotLabel } from '../../state/save';
 import { hasSeenClassicTour, markClassicTourSeen } from '../../state/tour';
 import { seasonLabel, t } from '../../i18n';
 import { INK_UI } from '../../ui/InkUI';
-import { type CardIconId } from '../../ui/CardIcons';
+import { CARD_ICON_SIZE, type CardIconId } from '../../ui/CardIcons';
 import { Copilot, type CopilotStep } from '../../ui/Copilot';
 import { TITLE_FONT, UI_FONT } from '../../ui/fonts';
 import { dongHoWordmark } from '../../ui/ink/dongHoWordmark';
 import { royalScroll } from '../../ui/ink/royalScroll';
 import { drawHouseSeal, houseBanner } from '../../ui/ascent/houseBanner';
 import { isDesktopPlatform } from '../../platform/layout';
+import { canQuitShell, quitShell } from '../../platform/shell';
 import { SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
 import { pageFloor, renderPageHead } from './helpers';
 import type { MenuScene } from '../MenuScene';
@@ -373,15 +374,6 @@ export function renderConfirmNew(self: MenuScene): void {
  * between neighbouring words than inside each control, so the three links looked unrelated.
  */
 function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
-  const WIDTH = 90;
-  const GAP = 0;
-  const left = Math.round((GAME_WIDTH - (WIDTH * 3 + GAP * 2)) / 2);
-  const height = self.vh(34);
-  // Remembered as one rectangle rather than three: the tour's card is about the footer as a
-  // tier — the manual, the record and the settings — and framing one of the three would say the
-  // other two were something else.
-  self.tourTargets.footer = { x: left, y: top, width: WIDTH * 3 + GAP * 2, height };
-
   // 12px, not 13. "How to Play" is three words where the other two are two and one, and at 13 it
   // wraps to a second line inside a 34-unit button — which centres the pair of lines and leaves
   // the row looking like one button broke.
@@ -390,9 +382,51 @@ function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
     { id: 'history', label: t('history.menu.button'), icon: 'book', onPress: () => self.scene.start('HistoryScene') },
     { id: 'settings', label: t('menu.settings'), icon: 'gear', onPress: () => self.scene.start('SettingsScene') },
   ];
+  // The way out, in a cabinet that has one. A tab does not, and the row was three doors for as
+  // long as the game only ran in one — which is why a desktop player had nothing but the window's
+  // own ✕ and Alt+F4 to close it with. It goes last because it is the only one that ends the
+  // session, and it goes *here*, with the other chrome, rather than in the column above: a
+  // full-width Exit under "Dragon Ascent" would weigh the same as starting a run.
+  if (canQuitShell()) {
+    doors.push({ id: 'quit', label: t('menu.quit'), icon: 'door', onPress: () => confirmQuit(self) });
+  }
+
+  // Measured, then divided — because four fixed cells do not fit and three did only by luck.
+  //
+  // Every cell used to be 90 wide, which put "How to Play" (66 units of type) in the same box as
+  // "History" (45) and left the air between the words uneven; with a fourth door the row ran 360
+  // wide in a 390 column and printed straight through the desktop scroll's ruled border. So the
+  // ink is measured first — glyph, gap and label, the button's own numbers — and the slack in the
+  // band is shared out equally instead. Every door then gets the room its words need and the gaps
+  // between them are the same, which is what made the row read as one tier in the first place.
+  const GLYPH = CARD_ICON_SIZE * 0.62 + 7;
+  const ink = doors.map((door) => {
+    const probe = self.ui.label(-999, -999, door.label, 'button', { fontSize: '11px' });
+    const width = GLYPH + probe.width;
+    probe.destroy();
+    return width;
+  });
+  // The band is the column's, not the sheet's: on the desktop sheet the page is a 358-unit scroll
+  // with a ruled border inside it, and a row centred on `GAME_WIDTH` overhangs both rules.
+  const band = isDesktopSheet() ? { x: 44, width: 302 } : { x: 12, width: GAME_WIDTH - 24 };
+  const inkTotal = ink.reduce((sum, width) => sum + width, 0);
+  // 24 is the air the three-door row had; 4 is the floor, below which a fourth door would be
+  // better left out than crammed in. Both ends matter: too much padding and the row spreads to
+  // the sheet's edges, too little and the words touch.
+  const pad = Math.max(4, Math.min(24, (band.width - inkTotal) / doors.length));
+  const widths = ink.map((width) => width + pad);
+  const span = widths.reduce((sum, width) => sum + width, 0);
+  const left = Math.round(band.x + (band.width - span) / 2);
+  const height = self.vh(34);
+  // Remembered as one rectangle rather than three: the tour's card is about the footer as a
+  // tier — the manual, the record and the settings — and framing one of the three would say the
+  // other two were something else.
+  self.tourTargets.footer = { x: left, y: top, width: span, height };
+
+  let cursor = left;
   doors.forEach((door, index) => {
     const button = self.ui.button(
-      { x: left + index * (WIDTH + GAP), y: top, width: WIDTH, height },
+      { x: cursor, y: top, width: widths[index], height },
       door.label,
       door.onPress,
       {
@@ -407,5 +441,39 @@ function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
       .setData('utilityIcon', door.icon)
       .setData('ghostWithIcon', true);
     self.content.push(button);
+    cursor += widths[index];
   });
+}
+
+/**
+ * Asked before the game closes, and asked on the front page of all places — where nothing is at
+ * stake — because the control that raises it is a 90-unit ghost button sitting next to Settings.
+ * The run menu's own Exit needs no such thing: it writes the reign down first, and a player who
+ * opened a menu called ☰ during a run went looking for the way out. A thumb that missed Settings
+ * did not.
+ *
+ * The sheet says what is *not* lost rather than warning about what is, because a saved reign
+ * genuinely survives — this is the one place the game can reassure instead of alarm.
+ */
+function confirmQuit(self: MenuScene): void {
+  self.closeModal();
+  const modal = self.ui.modal({
+    title: t('menu.quitConfirm'),
+    subtitle: t('menu.quitConfirmBody'),
+    onClose: () => self.closeModal(),
+    // 104 of header, the modal's own 14 of content inset, one 46-unit row, and 14 under it. The
+    // sheet is cut to what it holds rather than to `contentBounds`, which is always measured back
+    // off a 66-unit footer band — reserving that band for a sheet with no footer leaves a third of
+    // the paper empty under the only button on it.
+    height: 104 + 14 + 46 + 14,
+  });
+  self.modalObjects.push(...modal.objects);
+  const { contentBounds } = modal;
+  self.modalObjects.push(self.ui.button(
+    { x: contentBounds.x, y: contentBounds.y + 4, width: contentBounds.width, height: 46 },
+    t('menu.quitConfirmYes'),
+    () => quitShell(),
+    { variant: 'danger', fontSize: '14px' },
+  ));
+  self.adoptModal();
 }

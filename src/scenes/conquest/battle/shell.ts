@@ -21,6 +21,7 @@ import { drawHouseSeal, houseBanner } from '../../../ui/ascent/houseBanner';
 import { ourHosts, battleTelegraph } from '../../../systems/ascent/BattleSystem';
 import { defenceCommanderOf } from '../../../systems/ascent/landCommand';
 import { findLand } from '../../../systems/LandSystem';
+import { battleAt, focusBattle } from '../../../systems/ascent/fronts';
 import { BATTLE_OPENING_SECONDS } from '../../../game/ascentConfig';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import { INK_UI, INK_UI_HEX, type UIBounds } from '../../../ui/InkUI';
@@ -78,6 +79,38 @@ function battleFieldHeight(content: UIBounds): number {
    * is what a battlefield should do with spare paper.
    */
   return Math.round(Math.max(150, Math.min(content.width * 1.15, room)));
+}
+
+/**
+ * Opens the war on a named province, because the player pressed its mark on the map.
+ *
+ * Not `showBattle` directly: `openLane` is what makes `refresh` treat the field as the open sheet,
+ * and drawing the page without the lane leaves a fight under a bar that thinks nothing is open
+ * (`screens/army.ts` learned this the same way). `focusBattle` seats the player on the field they
+ * pointed at, exactly as the war board's own rows do; where there is no engagement — a siege
+ * clock, a host standing on our ground — `showBattle` falls through to the board, which is the
+ * page that has something to say about both.
+ *
+ * Refused while a card or another sheet is up. A press that reaches the map through an open prompt
+ * is the press-through bug and not a request; the map has its own guard against it
+ * (`isScreenPointOverFixedUi`), and this is the second lock on the same door.
+ */
+export function openBattleAt(self: ConquestUIScene, landId: string): void {
+  if (self.state.pendingAscentPrompt || self.openPromptKey !== '') return;
+  const fighting = Boolean(battleAt(self.state, landId));
+  if (fighting) focusBattle(self.state, landId);
+  // Choosing a field is an instruction to fight on it, and the world runs while it is fought —
+  // the same release the board's rows make, and for the same reason.
+  self.lanePauseBeforeOpen = false;
+  self.openLane('battle');
+  // A siege clock with no engagement under it has no field to draw, and `showBattle` would seat
+  // the player on whichever *other* fight most needs a pair of hands — which is not the mark
+  // they pressed. The board is: it lists that province's clock along with the rest of the war.
+  // Cast because the early return above narrows the key to '' and TypeScript has not seen
+  // `openLane` reassign it.
+  if (!fighting && (self.openPromptKey as string) === 'lane:battle') {
+    self.replaceLanePage(() => self.showWarBoard());
+  }
 }
 
 /**

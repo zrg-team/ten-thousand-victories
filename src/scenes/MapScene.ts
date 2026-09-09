@@ -38,6 +38,15 @@ import { applyPaperFX } from '../ui/ink/PaperFX';
 import { type ProgressBadgeVariant, createMapItemRenderer, LABEL_KEEP_OUT, type MapItemRenderer } from '../ui/MapItemRenderer';
 /** Map badges (build, siege, battle, claim) are drawn at 1.8× the renderers' thirty units — a third larger was still reported as small. */
 const MAP_BADGE_SCALE = 1.8;
+/**
+ * The box a press on a progress badge is taken inside, in the badge's own units.
+ *
+ * One rectangle for three themes, because they draw three different marks: Dong Ho's is a 60 x 24
+ * plate with the glyph beside the count, the other two a ~34-unit disc with the count under it.
+ * This is the union of the three and no more — the badge stands on the province's own marker
+ * point, and a box much wider than the ink would start taking presses meant for open country.
+ */
+const BADGE_HIT = { width: 60, height: 34 };
 import { ArmyRenderer } from './map/ArmyRenderer';
 import { OverlayRenderer } from './map/OverlayRenderer';
 import { captureSeasonalInk, repaintSeasonalInk } from '../ui/ink/seasonalInk';
@@ -328,10 +337,21 @@ export class MapScene extends Phaser.Scene {
       return;
     }
 
-    const landId = this.resolveTapLand(
-      this.cameras.main.scrollX + point.x / this.mapZoom,
-      this.cameras.main.scrollY + point.y / this.mapZoom,
-    );
+    const worldX = this.cameras.main.scrollX + point.x / this.mapZoom;
+    const worldY = this.cameras.main.scrollY + point.y / this.mapZoom;
+    // **A mark on the map is a door, wherever the mode has somewhere to send it.**
+    //
+    // Reported: *when i click to icon battle in map -> it should show battle screen*. The clash
+    // mark over a contested province was drawn and nothing else — it announced a fight and then
+    // refused to be pressed, and the press fell through to the province underneath, which selected
+    // it. Offered before `resolveTapLand`, because a badge stands *on* a province and would
+    // otherwise always lose to it.
+    if (this.consumeAnnotationTap(worldX, worldY)) {
+      this.domTapAnsweredAt = performance.now();
+      this.domDown = undefined;
+      return;
+    }
+    const landId = this.resolveTapLand(worldX, worldY);
     this.domTapAnsweredAt = performance.now();
     if (landId) {
       this.selectLand(landId);
@@ -350,6 +370,51 @@ export class MapScene extends Phaser.Scene {
       this.deselectLand();
     }
     this.domDown = undefined;
+  }
+
+  /**
+   * A press on one of the map's own annotations, for a mode with a screen to open from one.
+   *
+   * Nothing here by default: the classic modes draw the same badges and have nowhere to send a
+   * press. Return true to say the press was spent — the province underneath is then left alone,
+   * and neither selected nor deselected.
+   */
+  protected consumeAnnotationTap(_worldX: number, _worldY: number): boolean {
+    return false;
+  }
+
+  /**
+   * The province whose war badge — a live engagement, or a siege clock — stands under this
+   * world point, if one does.
+   *
+   * Measured through the badge's live scale rather than at a fixed size: `progressBadge` scales
+   * every badge against the zoom, so the same mark is a third of its drawn size when the map is
+   * pulled out, and a press has to land on what is actually on the paper.
+   *
+   * The clash mark wins a province that carries both, being the more urgent of the two, and it is
+   * also the only one of the six badges the player can *do* anything about from here.
+   */
+  protected warBadgeAt(worldX: number, worldY: number): string | undefined {
+    return this.badgeLandAt(this.battleMarkers, worldX, worldY)
+      ?? this.badgeLandAt(this.siegeMarkers, worldX, worldY);
+  }
+
+  private badgeLandAt(
+    markers: Phaser.GameObjects.GameObject[],
+    worldX: number,
+    worldY: number,
+  ): string | undefined {
+    for (const marker of markers) {
+      if (!(marker instanceof Phaser.GameObjects.Container) || !marker.visible) continue;
+      const landId = marker.getData('badgeLand') as string | undefined;
+      if (!landId) continue;
+      const scale = marker.scaleX || 1;
+      if (Math.abs(worldX - marker.x) <= (BADGE_HIT.width / 2) * scale
+        && Math.abs(worldY - marker.y) <= (BADGE_HIT.height / 2) * scale) {
+        return landId;
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -819,12 +884,22 @@ export class MapScene extends Phaser.Scene {
    */
   protected syncWorldMotion(): void {
     clearFinishedRunSaves(this.state);
-    const halted = this.isWorldHalted();
+    // Motion sleeps when the world is halted **or when it is not being drawn**.
+    //
+    // The battle lane deliberately un-pauses the world, because the fight is the world happening —
+    // but it also hides the map behind a full sheet of parchment (`setMapVisible`), and under that
+    // sheet 150-250 traffic, bird, cloud and march tweens went on being stepped, and the weather
+    // went on drifting, at sixty frames a second, for a scene nobody could see. Tween stepping is
+    // main-thread work, which is the budget a phone actually runs out of.
+    const halted = this.isWorldHalted() || !this.scene.isVisible();
     if (halted === this.worldMotionHalted) return;
     this.worldMotionHalted = halted;
     this.traffic.setPaused(halted);
     this.birds.setPaused(halted);
     this.seasons.setPaused(halted);
+    // The fog's drift belongs to the clock too; culling alone only ever stopped the clouds that
+    // had scrolled off the edge.
+    this.overlays.setPaused(halted);
     // The hosts belong to the clock too. Their march is a tween, so it used to run straight
     // through a card prompt, finish its leg against a tick that was not coming, and freeze.
     this.armies.setPaused(halted);
@@ -2571,7 +2646,7 @@ export class MapScene extends Phaser.Scene {
 
       const { x, y } = this.getVisibleLandMarkerPoint(land);
       const marker = this.progressBadge(land.id, x, y, order.progress, order.required, 'siege');
-      marker.setDepth(72);
+      marker.setDepth(72).setData('badgeLand', land.id);
       this.siegeMarkers.push(marker);
     }
 
@@ -2586,7 +2661,7 @@ export class MapScene extends Phaser.Scene {
       const marker = this.progressBadge(
         land.id, x, y, Math.max(0, siege.ticks - siege.ticksLeft), Math.max(1, siege.ticks), 'siege',
       );
-      marker.setDepth(72);
+      marker.setDepth(72).setData('badgeLand', land.id);
       this.siegeMarkers.push(marker);
     }
     this.progressBadges.end('siege');
@@ -2627,7 +2702,7 @@ export class MapScene extends Phaser.Scene {
       const marker = this.progressBadge(
         land.id, x, y, fight.round, Math.max(1, fight.totalRounds), 'battle',
       );
-      marker.setDepth(72);
+      marker.setDepth(72).setData('badgeLand', land.id);
       this.battleMarkers.push(marker);
     }
     this.progressBadges.end('battle');

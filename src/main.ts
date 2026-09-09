@@ -12,6 +12,7 @@ import { usesServiceWorker } from './platform/shell';
 import { getMapTheme } from './ui/mapTheme';
 import { stampStats } from './ui/ink/stamp';
 import { installQualityLadder } from './game/qualityLadder';
+import { applyTextureUnits, renderDiagnosis } from './game/renderProfile';
 import { renderScaleNow } from './game/graphicsQuality';
 import type { CoronationSheet } from './ui/coronation/CoronationSheet';
 import type { GuideScene } from './scenes/GuideScene';
@@ -33,6 +34,10 @@ declare global {
     __ladder?: ReturnType<typeof installQualityLadder>;
     /** The render scale the buffer is actually using right now. */
     __renderScale?: () => number;
+    /** Set only when the page is drawing through a software rasteriser — see `game/renderProfile.ts`. */
+    __softwareRenderer?: string;
+    /** Every renderer decision this page made about the device, for a bug report. */
+    __renderDiagnosis?: Record<string, unknown>;
     /** rAF histogram over N seconds: p50/p95/p99/worst and over-budget counts. */
     __fpsProbe?: (seconds?: number) => Promise<{
       frames: number; p50: number; p95: number; p99: number; worst: number;
@@ -93,6 +98,13 @@ watchInstall();
 
 const game = new Phaser.Game(gameConfig);
 window.__phaserGame = game;
+// How many textures one batch may bind. Phaser gives a phone exactly one, which turns every
+// distinct texture into its own draw call on the devices least able to afford them; this game's art
+// is atlased and its scenery node samples eight. Runtime rather than config, so a harness can
+// measure both ways without a reload — see `game/renderProfile.ts`.
+applyTextureUnits(game);
+// Re-applied after a context restore: the render nodes are rebuilt from the config value.
+game.renderer.on?.(Phaser.Renderer.Events.RESTORE_WEBGL, () => applyTextureUnits(game));
 installPerformanceBench();
 // A right-click on the map is a map gesture, not a request for the browser's menu — on the desktop
 // layout only, where a mouse is what is expected to be in the hand.
@@ -110,6 +122,7 @@ window.__ladder = installQualityLadder(game);
 // down before either. See `game/resilience.ts` for the three failures this stands against.
 window.__health = installResilience(game).health;
 window.__renderScale = renderScaleNow;
+window.__renderDiagnosis = renderDiagnosis(game);
 window.__fpsProbe = (seconds = 3) => new Promise((resolve) => {
   // A rAF histogram: what the browser actually presented, not what the loop believes.
   const gaps: number[] = [];

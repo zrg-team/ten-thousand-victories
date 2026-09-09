@@ -19,6 +19,9 @@ export type CardIconId =
   | 'hut' | 'ladder' | 'crown' | 'scales' | 'person' | 'grain'
   | 'herd' | 'cart' | 'branch' | 'retreat' | 'spark' | 'wall'
   | 'hourglass' | 'book' | 'skull' | 'cup' | 'hammer' | 'gear' | 'globe' | 'phone' | 'install'
+  // The way out of the cabinet. Not `retreat`: that arrow is already the word "back" everywhere
+  // else in the game, and a front page whose last control means "back" says nothing about leaving.
+  | 'door'
   // The world clock's two faces. Not the hourglass: its crossed strokes are mud at the exits
   // row's 14-unit scale, and pause/play are the two glyphs nobody has ever had to learn.
   | 'pause' | 'play' | 'heart' | 'balance'
@@ -385,6 +388,19 @@ export function drawCardIcon(
         const angle = (tooth / 8) * Math.PI * 2;
         g.lineBetween(Math.cos(angle) * 7.5, Math.sin(angle) * 7.5, Math.cos(angle) * 11, Math.sin(angle) * 11);
       }
+      break;
+
+    case 'door':
+      // Three jambs and an arrow through the missing fourth. A closed rectangle at this size
+      // reads as a window or a card; the open side is the whole of what makes it a doorway.
+      line(2);
+      g.lineBetween(-4, -11, -11, -11);
+      g.lineBetween(-11, -11, -11, 11);
+      g.lineBetween(-11, 11, -4, 11);
+      line(2.4);
+      g.lineBetween(-2, 0, 8, 0);
+      g.lineBetween(8, 0, 2, -6);
+      g.lineBetween(8, 0, 2, 6);
       break;
 
     case 'hourglass':

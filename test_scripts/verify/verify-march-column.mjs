@@ -59,10 +59,16 @@ const shapes = await page.evaluate(async () => {
       const sin = Math.sin(heading);
       // Every block's footprint projected onto the road, and onto the line across it.
       const spans = shape.blocks.map((b) => {
-        const w = (b.cols - 1) * b.pitch;
-        const h = (b.rows - 1) * b.rankPitch;
-        const cx = b.x + w / 2;
-        const cy = b.y + h / 2;
+        // A marching block leans: a rank steps sideways as it steps back, or a file steps down as
+        // it steps across, so the grid's own `cols x pitch` is no longer the box the men fill.
+        // Measuring the grid alone understated a diagonal block by a third of its length, which
+        // read here as bare road between blocks that are in fact nose to tail.
+        const runX = (b.rows - 1) * b.shear;
+        const runY = (b.cols - 1) * (b.fileShear ?? 0);
+        const w = (b.cols - 1) * b.pitch + Math.abs(runX);
+        const h = (b.rows - 1) * b.rankPitch + Math.abs(runY);
+        const cx = b.x + Math.min(0, runX) + w / 2;
+        const cy = b.y + Math.min(0, runY) + h / 2;
         const half = (u, v) => (Math.abs(u) * w) / 2 + (Math.abs(v) * h) / 2;
         const along = cx * cos + cy * sin;
         const across = -cx * sin + cy * cos;
