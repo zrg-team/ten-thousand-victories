@@ -26,7 +26,7 @@
  */
 import { chromium } from 'playwright';
 import { tagSrgb } from './icons/river-icon-pack.mjs';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -586,6 +586,15 @@ const chosen = meta.screenshots.filter((s) => {
 
 for (const [platform, name, w, h, why] of SHOTS) {
   const at = dir(platform, 'screenshots', name);
+  // Cleared first, because a frame's filename carries both its position and the shot that leads
+  // it: adding a seventh screenshot renumbered everything after the third, and the run that did
+  // it left `04-founder.png` standing beside the new `04-cabinet.png`. The console orders by the
+  // order you upload, and the README beside these files says to upload them sorted — so an
+  // orphan from a previous shot list is a duplicate screenshot in the store. This directory is
+  // generated in full on every run; nothing in it is worth keeping.
+  for (const stale of readdirSync(at)) {
+    if (stale.endsWith('.png')) rmSync(join(at, stale));
+  }
   const per = Math.max(1, Math.min(3, Math.round(w / h / SHOT_ASPECT)));
   const groups = [];
   for (let i = 0; i < chosen.length; i += per) groups.push(chosen.slice(i, i + per));
