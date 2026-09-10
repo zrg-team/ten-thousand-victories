@@ -905,6 +905,100 @@ function findFfmpeg() {
   }
 }
 
+/**
+ * The score: the game's own two tracks, cut to the film's own chapters.
+ *
+ * Not written for this — `public/audio/` ships five battle tracks and three ambient ones, and
+ * `SoundDirector` already says which belong where: `menu`/`map` draw on *jade-kings-throne*, and a
+ * great host at the capital is the `epic` list, which is where *terminus* lives. So the trailer is
+ * scored with the pair the game itself would have chosen for these screens, rather than with
+ * something picked by ear from the folder.
+ *
+ * The battle window is read off `CUTS` rather than typed in, so the score follows the film: move a
+ * chapter and the music moves with it. The arithmetic is arranged so the two cross-fades cancel and
+ * the bed lands exactly on the film's length —
+ *
+ *     (from + XF/2) + (to - from + XF) + (total - to + XF/2) - 2·XF  =  total
+ */
+const SCORE = {
+  ambient: 'public/audio/ambient/jade-kings-throne.mp3',
+  battle: 'public/audio/battle/terminus.mp3',
+  crossfade: 1.5,
+  /**
+   * The fight has to be the loudest thing in the film, and out of the box it is the quietest.
+   *
+   * Measured with `loudnorm` over the first minute of each: *jade-kings-throne* is **-21.3 LUFS**
+   * and *terminus* is **-26.7**. Mixed as they ship, the battle chapter came out ~8 dB under the
+   * map — a fight scored quieter than a field of rice. So the battle segment is lifted the 5.4 it
+   * is down, plus a couple more so it sits *above* the bed where it belongs.
+   */
+  battleGain: '2.5dB',
+  /**
+   * Where in the battle track the fight starts, and it is not the beginning.
+   *
+   * These are game tracks, written to come up under a scene that has already started — *terminus*
+   * opens at **-31 dB** and does not reach full until about 100 seconds in. Started at 0, the
+   * loudest chapter of the film was scored with a track's quiet introduction, which is why lifting
+   * it by 7.5 dB still left it under the map. Measured in 25-second windows: -31.4 at 0, -24.1 at
+   * 25, -19.9 at 75, **-18.9 at 100**. So the fight is cut in at 95 and runs through the loud
+   * middle. The ambient is the opposite case and is left at 0: it opens soft, which is what a title
+   * card wants, and the reprise picks it up at 55 where it is full.
+   */
+  battleStart: 95,
+  /**
+   * And the bed as a whole is lifted to sit where a trailer sits. `volume` alone can clip a peak,
+   * so a limiter follows it — cheap insurance on a file that will be handed to platforms that
+   * re-encode it.
+   */
+  masterGain: '3dB',
+  /** Where the closing ambient picks the track up again, so it is not the same phrase twice. */
+  reprise: 55,
+};
+
+/** Which seconds of the film the fight occupies, from the cut list itself. */
+function battleWindow() {
+  let at = 0;
+  let from;
+  let to;
+  for (const cut of CUTS) {
+    if (cut.page === 'battle') {
+      if (from === undefined) from = at;
+      to = at + cut.seconds;
+    }
+    at += cut.seconds;
+  }
+  return { from: from ?? 0, to: to ?? at, total: at };
+}
+
+/** The `-i` list and the filter that turns the two tracks into one bed. */
+function scoreArgs() {
+  if (!existsSync(SCORE.ambient) || !existsSync(SCORE.battle)) return null;
+  const { from, to, total } = battleWindow();
+  const xf = SCORE.crossfade;
+  const head = (from + xf / 2).toFixed(2);
+  const fight = (to - from + xf).toFixed(2);
+  const tail = (total - to + xf / 2).toFixed(2);
+  const fadeOut = Math.max(0, total - 3.5).toFixed(2);
+  const filter = [
+    `[1:a]atrim=0:${head},asetpts=N/SR/TB[a0]`,
+    `[2:a]atrim=${SCORE.battleStart}:${(SCORE.battleStart + Number(fight)).toFixed(2)},`
+    + `asetpts=N/SR/TB,volume=${SCORE.battleGain}[a1]`,
+    `[3:a]atrim=${SCORE.reprise}:${(SCORE.reprise + Number(tail)).toFixed(2)},asetpts=N/SR/TB[a2]`,
+    `[a0][a1]acrossfade=d=${xf}:c1=tri:c2=tri[x1]`,
+    `[x1][a2]acrossfade=d=${xf}:c1=tri:c2=tri[x2]`,
+    // 48 kHz stereo out of 32 kHz mono sources: it adds no information, and it is what every player
+    // and platform this file is handed expects to find.
+    `[x2]afade=t=in:st=0:d=2,afade=t=out:st=${fadeOut}:d=3.5,volume=${SCORE.masterGain},`
+    + `alimiter=limit=0.89,aformat=sample_rates=48000:channel_layouts=stereo[aout]`,
+  ].join(';');
+  return {
+    inputs: ['-i', SCORE.ambient, '-i', SCORE.battle, '-i', SCORE.ambient],
+    filter: ['-filter_complex', filter, '-map', '0:v', '-map', '[aout]',
+      '-c:a', 'aac', '-b:a', '192k', '-shortest'],
+    says: `score: ambient to ${from}s, ${SCORE.battle.split('/').pop()} through the fight to ${to}s, ambient out`,
+  };
+}
+
 async function encode() {
   const ffmpeg = findFfmpeg();
   if (!ffmpeg) {
@@ -916,10 +1010,15 @@ async function encode() {
   console.log(`encoding ${count} frames -> ${OUT}`);
   // yuv420p and an even frame size, because every player and platform this file will be handed
   // assumes both, and the ones that do not assume them refuse the file silently.
+  const score = scoreArgs();
+  if (score) console.log(`   ${score.says}`);
+  else console.log('   no score: the audio the game ships was not found');
   const run = spawn(ffmpeg, [
     '-y',
     '-framerate', String(FPS),
     '-i', `${COMPOSED}/%05d.jpg`,
+    ...(score?.inputs ?? []),
+    ...(score?.filter ?? []),
     '-c:v', 'libx264',
     '-preset', 'slow',
     '-crf', '18',

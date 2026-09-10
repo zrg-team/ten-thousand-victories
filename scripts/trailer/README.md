@@ -107,6 +107,35 @@ lit.** Gate it on the lettering and the sheet vanishes for the six tenths of a s
 lines of the same run and comes back for the second one — the exact blink the timeline exists to
 remove, reintroduced one level down. A frame in that gap carries the run's entry at zero lettering.
 
+## The score
+
+Two tracks, both the game's own, cut to the film's own chapters: **jade-kings-throne** under the
+country, the cards and the Chronicle, **terminus** through the fight. Neither was chosen by ear from
+the folder — `SoundDirector` already says which belong where (`menu` and `map` draw on
+jade-kings-throne; a great host at the capital is the `epic` list, where terminus lives), so the
+trailer is scored with the pair the game itself would have played over these screens.
+
+The battle window is read off `CUTS` rather than typed in, so the score follows the film: move a
+chapter and the music moves with it. The arithmetic is arranged so the two cross-fades cancel and
+the bed lands exactly on the film's length.
+
+Three things had to be measured rather than assumed:
+
+- **The battle track is quieter than the ambient**, by 5.4 LU — *jade-kings-throne* is -21.3 LUFS
+  and *terminus* is -26.7. Mixed as they ship, the fight came out ~8 dB *under* the map.
+- **And it opens on a hundred-second build.** These are game tracks, written to come up under a
+  scene already in progress: terminus is at -31 dB at 0 and does not reach full until about 100 s
+  in. Lifting it 7.5 dB still left it under the map, because what was being lifted was an
+  introduction. The fight is cut in at **95 s** and runs through the loud middle. The ambient is the
+  opposite case and starts at 0 — it opens soft, which is what a title card wants.
+- **Levels are checked, not eyeballed.** The finished film reads: opening -21.6 dB RMS, the cards
+  -19.0, **the fight -15.2**, the Chronicle -20.7, the end card fading to -25.6; -15.5 LUFS
+  integrated at -2.9 dBTP. The fight is the loudest thing in the film, which is the whole point of
+  scoring it separately.
+
+Output is 48 kHz stereo AAC from 32 kHz mono sources — it adds no information, and it is what every
+player and platform this file is handed expects to find. The GIFs stay silent.
+
 ## The screens that have to be *handled*
 
 Most of this film reads from a single frame. Two do not, and they are the two the game is most often
