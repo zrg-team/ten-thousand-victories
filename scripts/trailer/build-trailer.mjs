@@ -29,7 +29,7 @@ import { chromium } from 'playwright';
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { CUTS, HIGHLIGHT } from './film.mjs';
+import { CUTS, HIGHLIGHT, RAMP, captionTimeline } from './film.mjs';
 import { advance, boot, frameOn, installCrank, crank, newPage, toMenu, FIRST_CHOICE, FPS } from './game.mjs';
 
 const arg = (flag, fallback) => {
@@ -744,7 +744,7 @@ function gestureTrack(kind, at) {
 }
 
 /** What the compositor is told about one frame. */
-function spec(cut, i, total, frame, ripple) {
+function spec(cut, i, total, frame, ripple, timeline = []) {
   const u = total <= 1 ? 1 : i / (total - 1);
   const time = i / FPS;
   const kb = cut.kenburns;
@@ -759,46 +759,36 @@ function spec(cut, i, total, frame, ripple) {
 
   // ── which line, and whether the plate is up ────────────────────────────────────────────────────
   //
-  // These are two different questions and answering them as one made the plate blink.
-  //
-  // A cut with two captions has a moment where the first is leaving and the second arriving. Taking
-  // the *first* caption whose window contains the time, and deriving the paper from that one
-  // caption's alpha, meant the plate followed the outgoing line down to nothing and then snapped
-  // back at full for the incoming one — one frame of bare screen between two lines that are
-  // supposed to be on the same sheet. On the Build cut it read as a hard flicker.
-  //
-  // So: the *lettering* is whichever caption is strongest right now, cross-fading through the
-  // hand-over; the *plate* is up for the whole run of captions, and only ramps at the two ends of
-  // the run. Captions less than 1.5 s apart are one run — which is every pair in this film.
-  const RAMP = 0.35;
-  const alphaAt = (c) => Math.min(
-    Math.min(1, Math.max(0, (time - (c.from - RAMP)) / RAMP)),
-    Math.min(1, Math.max(0, (c.to + RAMP - time) / RAMP)),
+  // Two questions, two answers, and they are deliberately not the same one. The *lettering* is
+  // whichever caption is strongest at this frame, cross-fading through any hand-over. The *plate*
+  // belongs to the run that caption sits in — see `captionTimeline` — so it stays put while the
+  // lines change under it and comes down once, at the end of the run.
+  const ramp = (at, from, to) => Math.min(
+    Math.min(1, Math.max(0, (at - (from - RAMP)) / RAMP)),
+    Math.min(1, Math.max(0, (to + RAMP - at) / RAMP)),
   );
-  const captions = cut.captions ?? [];
   let strongest = null;
   let best = 0;
-  for (const c of captions) {
-    const a = alphaAt(c);
-    if (a > best) { best = a; strongest = c; }
+  for (const entry of timeline) {
+    const alpha = ramp(frame, entry.from, entry.to);
+    if (alpha > best) { best = alpha; strongest = entry; }
+  }
+  // A frame in the gap *between* two captions of one run has no visible lettering — and the plate
+  // still belongs there, holding while one line hands over to the next. Emitting only when some
+  // caption is lit is what put the paper back down in the middle of its own run: the sheet vanished
+  // for the six tenths of a second between two lines and came back for the second one, which is the
+  // blink this whole timeline exists to remove. So if a run covers this frame, that run's entry
+  // carries it, at zero lettering.
+  if (!strongest) {
+    strongest = timeline.find((entry) => frame >= entry.runFrom - RAMP && frame <= entry.runTo + RAMP);
   }
   if (strongest) {
-    // The caption in the film's language. `vi` carries its own lines, written rather than
-    // translated; without one, the English stands.
-    const said = LANG !== 'en' && strongest[LANG] ? strongest[LANG] : strongest;
-    // The run this caption belongs to: walk out either way while the gaps stay short.
-    const at = captions.indexOf(strongest);
-    let first = at;
-    let last = at;
-    while (first > 0 && captions[first].from - captions[first - 1].to <= 1.5) first -= 1;
-    while (last < captions.length - 1 && captions[last + 1].from - captions[last].to <= 1.5) last += 1;
-    const plate = Math.min(
-      Math.min(1, Math.max(0, (time - (captions[first].from - RAMP)) / RAMP)),
-      Math.min(1, Math.max(0, (captions[last].to + RAMP - time) / RAMP)),
-    );
+    // `vi` carries its own lines, written rather than translated; without one, the English stands.
+    const c = strongest.caption;
+    const said = LANG !== 'en' && c[LANG] ? c[LANG] : c;
     out.caption = {
-      line: said.line, line2: said.line2, y: strongest.y, band: cut.band,
-      alpha: best, plate,
+      line: said.line, line2: said.line2, y: strongest.y, band: strongest.band,
+      alpha: best, plate: ramp(frame, strongest.runFrom, strongest.runTo),
     };
   }
   if (ripple) {
@@ -826,13 +816,25 @@ async function compose() {
    * the fades — comes from the film, every time.
    */
   const byId = new Map(CUTS.map((cut) => [cut.id, cut]));
-  const specs = JSON.parse(readFileSync(`${RAW}/specs.json`, 'utf8'))
-    .map((one) => spec(byId.get(one.cut), one.i, one.total, one.frame, one.ripple));
+  const raw = JSON.parse(readFileSync(`${RAW}/specs.json`, 'utf8'));
+  const timeline = captionTimeline(raw);
+  const specs = raw.map((one) => spec(byId.get(one.cut), one.i, one.total, one.frame, one.ripple, timeline));
   rmSync(COMPOSED, { recursive: true, force: true });
   mkdirSync(COMPOSED, { recursive: true });
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
   page.on('pageerror', (e) => console.log(`compositor: ${e.message}`));
+  // The compositor is served by the dev server too, so it holds an HMR socket like any other page —
+  // and a compose is two minutes long. Any write anywhere in the repo during it (editing a caption,
+  // saving this file) pushes a full reload, the page navigates out from under the loop, and the run
+  // dies on `Execution context was destroyed` a frame or two in. Cut the socket, as the game pages
+  // already do; the compositor has no use for live reload.
+  await page.routeWebSocket('**', (ws) => ws.close());
+  await page.addInitScript(() => {
+    try {
+      Object.defineProperty(Location.prototype, 'reload', { value: () => {}, configurable: true });
+    } catch { /* the socket block is the load-bearing half */ }
+  });
   await page.goto(`${URL}/scripts/trailer/compose.html`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.__composeReady === true, null, { timeout: 30000 });
 
