@@ -1,5 +1,0 @@
-{
-  "//": "The root tsconfig includes only `src`, so `yarn build` never type-checks this directory — which is deliberate: nothing here ships, and a marketing tool must not be able to break the game's build. Check it on demand with `npx tsc -p scripts/promo`.",
-  "extends": "../../tsconfig.json",
-  "include": ["**/*.ts", "../../src/**/*.ts"]
-}

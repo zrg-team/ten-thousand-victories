@@ -47,8 +47,9 @@ test_scripts/perf-results/
 # builds, and never travels.
 credentials.json
 
-# The promo film's output — frames and cuts are large and rebuildable (scripts/promo).
-scripts/promo/out/
+# The gameplay trailer's output — two thousand captured frames, two thousand composed ones and the
+# cut itself. Same status as the promo film's: large, and rebuilt by `yarn trailer`.
+scripts/trailer/out/
 
 # Python bytecode from the art tooling in scripts/conquest-art.
 __pycache__/

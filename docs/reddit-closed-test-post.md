@@ -3,7 +3,7 @@
 Post A → game subs (r/AndroidGaming, r/IndieGaming, r/strategygames). Real players.
 Post B → swap subs (r/playtesters). The 12 bodies Google needs.
 
-📹 **Attach media or it dies.** Rebuild the trailer with `yarn promo`, or post screenshots from
+📹 **Attach media or it dies.** Rebuild the trailer with `yarn trailer`, or post screenshots from
 `apps/mobile/store/android/screenshots/phone/` — `02-battle` first, never the map first.
 
 ---
@@ -98,7 +98,7 @@ are judging how you take a hit.
   tester by hand. Verify by opening groups.google.com/g/vanthang-test in an incognito window
 - ⚠️ `vanthang-test@googlegroups.com` added under Closed testing → Testers → Google Groups, saved
 - ⚠️ Both links tested yourself from a second Google account before posting
-- 📹 Trailer rebuilt (`yarn promo` — the file in `out/` is a partial from August)
+- 📹 Trailer rebuilt (`yarn trailer` — 68 s, cut from a real run)
 - 📦 AAB in the track is the build you want people on for a fortnight (kit is at 1.1.0/554)
 - 📋 Read each sub's rules — several need flair or confine this to a weekly megathread
 - 💬 Reply to every comment within a few hours

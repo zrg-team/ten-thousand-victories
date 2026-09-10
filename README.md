@@ -26,6 +26,12 @@
 
 <br>
 
+<img src="docs/readme/trailer.gif" alt="Twenty-five seconds of a real run: the country ticking under a drifting camera, the realm wide, a power draft of woodblock cards, a champion summoned, an invasion column reaching the capital, two hosts ranked in their shapes on the field, and a Chronicle beat under its own print" width="330">
+
+<sub>Twenty-five seconds of an actual run. Nothing here is a mock-up — every frame is the game, played. <a href="README.vi.md">Bản tiếng Việt</a> has its own cut.</sub>
+
+<br>
+
 [![Deploy](https://github.com/zrg-team/ten-thousand-victories/actions/workflows/deploy-github-pages.yml/badge.svg)](https://github.com/zrg-team/ten-thousand-victories/actions/workflows/deploy-github-pages.yml)
 
 ![Phaser 4](https://img.shields.io/badge/Phaser-4-2a2118?style=flat-square)
