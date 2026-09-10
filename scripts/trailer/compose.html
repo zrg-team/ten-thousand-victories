@@ -90,7 +90,9 @@ function caption(spec) {
  * the mark this game reserves for the player's own.
  */
 function captionFloating(lines, alpha, y) {
-  const top = H * (y ?? 0.735);
+  // Comes down a little as it arrives, so it settles into the country rather than appearing on it.
+  const eased = 1 - Math.pow(1 - Math.min(1, Math.max(0, alpha)), 3);
+  const top = H * (y ?? 0.735) - (1 - eased) * 44;
   const lead = 68;
   ctx.save();
   ctx.textAlign = 'center';
@@ -124,30 +126,48 @@ function captionFloating(lines, alpha, y) {
  * the only thing it covers is the resource header, which the map cuts have already shown.
  */
 function captionBand(lines, alpha, kind) {
-  // Two heights, because there are two HUDs and a band that ends anywhere else cuts a row of the
-  // game in half — which is what it looked like: a sawtooth straight through POWER · INVASION ·
-  // THREAT, with the strip showing through the paper above it.
+  // Three screens, two seams. The plate has to end where the game's own layout ends, or it puts a
+  // sawtooth through the middle of a line and the text shows above it in halves:
   //
-  //   'hud'  272 — the map and the card screens carry two rows: the resources, then the power
-  //                strip. The seam is under both.
-  //   'top'  140 — the fight carries one. Its own header band starts immediately under the
-  //                resources, so anything taller cuts the commander's plate.
+  //   'hud'  272 — the map and the prompt screens carry two rows, the resources and the power
+  //                strip, and the paper changes tone under both.
+  //   'top'  140 — the fight carries one row and starts its commander plate straight under it;
+  //                so does a lane page, whose own title begins at 210.
   //
-  // The short band holds one line and the tall one holds two; that is a real constraint on the
-  // writing, and single-line captions over a fight are better anyway.
+  // The short plate holds one line. That is a real constraint on the writing and a good one: a
+  // single line over a fight is better than two.
   const height = kind === 'hud' ? 272 : 140;
   const lead = 58;
   const first = height / 2 - ((lines.length - 1) * lead) / 2;
-  // The paper arrives three times faster than the lettering does. A band that fades in at the same
-  // rate as its own text spends half a second translucent, and a translucent sheet of paper with
-  // the resource header showing through it reads as a rendering fault rather than as a caption.
-  const sheet = Math.min(1, alpha * 3);
+  const t = Math.min(1, Math.max(0, alpha));
+
+  // **The plate does not move. The lettering slides down inside it.**
+  //
+  // The obvious animation — slide the whole plate down from above the top edge — is wrong here, and
+  // wrong in exactly the way the static version was: for the five frames its bottom edge is
+  // travelling, that edge is *across* the resource row, and a frame caught then shows the header
+  // cut in half with its top under paper. It is the artefact the seams were measured to remove,
+  // reintroduced as motion.
+  //
+  // So the paper arrives at its seam and stays there — over three frames, fast enough that nothing
+  // underneath is ever legible through it — and the line of type slides down into it behind a clip.
+  // Same read as a plate coming down, and the edge never crosses anything.
+  const paper = Math.min(1, t * 6);
+  const eased = 1 - Math.pow(1 - t, 3);
+
   ctx.save();
-  ctx.globalAlpha = sheet;
+  ctx.globalAlpha = paper;
   ctx.fillStyle = PIGMENT.diep;
   ctx.fillRect(0, 0, W, height);
-  sawtooth(0, height, W, 15, PIGMENT.muc, sheet * 0.45);
-  ctx.globalAlpha = alpha;
+  sawtooth(0, height, W, 15, PIGMENT.muc, paper * 0.45);
+  ctx.restore();
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, W, height);
+  ctx.clip();
+  ctx.translate(0, (1 - eased) * -46);
+  ctx.globalAlpha = t;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = PIGMENT.muc;

@@ -142,11 +142,19 @@ Two more, cheaper:
   so the fill that runs round the card plays on camera.
 - **`HELPERS` is a template literal.** A nested backtick closes it — including one inside a comment.
   Twice.
-- **The caption band has to end on a HUD seam, and there are two of them.** The map and the card
+- **The caption plate has to end on a seam, and there are two of them.** The map and the prompt
   screens carry two rows — resources, then the power strip — and the seam is at 272. The fight
-  carries one row and its own header starts straight under it, so the seam is at 140. One height
-  for both put a sawtooth through the middle of `POWER · INVASION · THREAT`. Hence `band: 'hud'`
-  and `band: 'top'`; the short one holds a single line, which is better writing over a fight anyway.
+  carries one row and starts its commander plate straight under it; so does a *lane page*, whose
+  own title begins at 210. Both of those want 140. One height for all three put a sawtooth through
+  the middle of `POWER · INVASION · THREAT`, and then through the Build lane's subtitle. Hence
+  `band: 'hud'` and `band: 'top'`; the short one holds a single line, which is better writing over
+  a fight anyway.
+- **Do not animate the plate by sliding the plate.** The obvious version — bring the whole thing
+  down from above the top edge — reintroduces the seam bug as motion: for the five frames its
+  bottom edge is travelling, that edge is across the resource row, and any frame caught then shows
+  the header cut in half with its top under paper. The plate arrives at its seam over three frames
+  and stays; the *lettering* slides down inside it behind a clip. Same read, and the edge never
+  crosses anything.
 
 ### Auditioning the fight
 
