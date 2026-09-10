@@ -52,8 +52,8 @@ export const CUTS = [
     },
     step: drift({ dx: 70, dy: 26 }),
     captions: [
-      { from: 0.6, to: 2.6, line: 'I was given one citadel.' },
-      { from: 3.4, to: 5.1, line: 'The country would not wait.' },
+      { from: 0.6, to: 2.6, line: 'I was given one citadel.', vi: { line: 'Ta được trao một tòa thành.' } },
+      { from: 3.4, to: 5.1, line: 'The country would not wait.', vi: { line: 'Giang sơn thì không đợi ai.' } },
     ],
   },
   // ── the realm, wide ───────────────────────────────────────────────────────────────────────────
@@ -68,8 +68,8 @@ export const CUTS = [
     },
     step: drift({ dx: -60, dy: 40 }),
     captions: [
-      { from: 0.3, to: 2.1, line: 'Forty-two provinces around it.' },
-      { from: 2.9, to: 4.5, line: 'I meant to hold them all.' },
+      { from: 0.3, to: 2.1, line: 'Forty-two provinces around it.', vi: { line: 'Bốn mươi hai trấn quanh nó.' } },
+      { from: 2.9, to: 4.5, line: 'I meant to hold them all.', vi: { line: 'Ta định giữ bằng hết.' } },
     ],
   },
   // ── the cards: where do we press ───────────────────────────────────────────────────────────────
@@ -95,7 +95,8 @@ export const CUTS = [
     // Held, not tapped: the card says so itself — *hold a card to choose it*.
     taps: [{ at: 2.6, find: 'option', hold: 0.9 }],
     captions: [
-      { from: 0.4, to: 4.4, line: 'My ministers asked me', line2: 'where we should press.' },
+      { from: 0.4, to: 4.4, line: 'My ministers asked me', line2: 'where we should press.',
+        vi: { line: 'Triều đình hỏi ta', line2: 'nên ép hướng nào.' } },
     ],
   },
   // ── the power draft ───────────────────────────────────────────────────────────────────────────
@@ -122,8 +123,8 @@ export const CUTS = [
     // card the browse passes, which is the draft's whole readout.
     gestures: [{ at: 0.9, kind: 'browse-fan' }, { at: 3.4, kind: 'take-fan' }],
     captions: [
-      { from: 0.4, to: 2.4, line: 'The realm learned as it grew.' },
-      { from: 3.2, to: 5.0, line: 'I chose what it learned.' },
+      { from: 0.4, to: 2.4, line: 'The realm learned as it grew.', vi: { line: 'Nước lớn đến đâu, học đến đó.' } },
+      { from: 3.2, to: 5.0, line: 'I chose what it learned.', vi: { line: 'Học gì là do ta chọn.' } },
     ],
   },
   // ── the court ─────────────────────────────────────────────────────────────────────────────────
@@ -154,8 +155,8 @@ export const CUTS = [
       { at: 3.4, kind: 'swipe-take' },
     ],
     captions: [
-      { from: 0.4, to: 2.3, line: 'Three answered the call.' },
-      { from: 3.1, to: 4.5, line: 'The treasury could pay one.' },
+      { from: 0.4, to: 2.3, line: 'Three answered the call.', vi: { line: 'Ba người đến ứng mộ.' } },
+      { from: 3.1, to: 4.5, line: 'The treasury could pay one.', vi: { line: 'Ngân khố chỉ nuôi nổi một.' } },
     ],
   },
   // ── the build sheet ───────────────────────────────────────────────────────────────────────────
@@ -175,8 +176,8 @@ export const CUTS = [
       });
     },
     captions: [
-      { from: 0.4, to: 2.1, line: 'I raised walls where I could.' },
-      { from: 2.9, to: 4.1, line: 'And rice where I could not.' },
+      { from: 0.4, to: 2.1, line: 'I raised walls where I could.', vi: { line: 'Chỗ nào xây được thành, ta xây.' } },
+      { from: 2.9, to: 4.1, line: 'And rice where I could not.', vi: { line: 'Chỗ nào không, thì trồng lúa.' } },
     ],
   },
 
@@ -200,7 +201,8 @@ export const CUTS = [
     step: drift({ dx: 40, dy: -18 }),
     taps: [{ at: 4.4, find: 'battle-button' }],
     captions: [
-      { from: 0.3, to: 3.6, line: 'Then the north came down,', line2: 'the way it always does.' },
+      { from: 0.3, to: 3.6, line: 'Then the north came down,', line2: 'the way it always does.',
+        vi: { line: 'Rồi phương Bắc kéo xuống,', line2: 'như xưa nay vẫn thế.' } },
     ],
   },
   // ── the field ─────────────────────────────────────────────────────────────────────────────────
@@ -232,8 +234,8 @@ export const CUTS = [
       });
     },
     captions: [
-      { from: 0.4, to: 2.8, line: 'We formed up. The drum fell in five.' },
-      { from: 3.6, to: 5.5, line: 'Every man on it, my own land raised.' },
+      { from: 0.4, to: 2.8, line: 'We formed up. The drum fell in five.', vi: { line: 'Hai bên dàn trận. Trống điểm năm hồi.' } },
+      { from: 3.6, to: 5.5, line: 'Every man on it, my own land raised.', vi: { line: 'Lính trên trận ấy, đất ta nuôi cả.' } },
     ],
   },
   // ── the five shapes ───────────────────────────────────────────────────────────────────────────
@@ -248,8 +250,8 @@ export const CUTS = [
     // player reads it off the words over their line.
     taps: [{ at: 2.6, find: 'shape-any' }],
     captions: [
-      { from: 0.3, to: 2.4, line: 'They showed me what they held.' },
-      { from: 3.4, to: 6.5, line: 'I answered with what breaks it.' },
+      { from: 0.3, to: 2.4, line: 'They showed me what they held.', vi: { line: 'Chúng để lộ thế đang giữ.' } },
+      { from: 3.4, to: 6.5, line: 'I answered with what breaks it.', vi: { line: 'Ta đáp bằng thế khắc nó.' } },
     ],
   },
   // ── the tempo dial ────────────────────────────────────────────────────────────────────────────
@@ -262,8 +264,8 @@ export const CUTS = [
     seconds: 6,
     taps: [{ at: 1.2, find: 'tempo-press' }],
     captions: [
-      { from: 0.2, to: 2.4, line: 'Then I leaned on it.' },
-      { from: 3.2, to: 5.5, line: 'We were outnumbered. We usually are.' },
+      { from: 0.2, to: 2.4, line: 'Then I leaned on it.', vi: { line: 'Rồi ta thúc quân.' } },
+      { from: 3.2, to: 5.5, line: 'We were outnumbered. We usually are.', vi: { line: 'Quân ta ít hơn. Xưa nay vẫn ít hơn.' } },
     ],
   },
 
@@ -275,8 +277,10 @@ export const CUTS = [
     seconds: 7,
     open: true,
     captions: [
-      { from: 0.4, to: 3.0, line: 'The chroniclers wrote it all down.', line2: 'Most of it is even true.' },
-      { from: 3.8, to: 6.5, line: 'There is no winning this —', line2: 'only how far I got.' },
+      { from: 0.4, to: 3.0, line: 'The chroniclers wrote it all down.', line2: 'Most of it is even true.',
+        vi: { line: 'Sử quan chép lại tất cả.', line2: 'Phần nhiều là thật.' } },
+      { from: 3.8, to: 6.5, line: 'There is no winning this —', line2: 'only how far I got.',
+        vi: { line: 'Không có chiến thắng cuối cùng —', line2: 'chỉ có đi được bao xa.' } },
     ],
   },
 

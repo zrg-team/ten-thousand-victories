@@ -39,16 +39,27 @@ const arg = (flag, fallback) => {
 const URL = arg('--url', process.env.DEV_URL ?? 'http://127.0.0.1:5179');
 const STAGE = arg('--stage', 'all');
 const ONLY = (arg('--only', '') || '').split(',').filter(Boolean);
-const RAW = arg('--frames', 'scripts/trailer/out/raw');
-const COMPOSED = 'scripts/trailer/out/composed';
-const OUT = arg('--out', 'scripts/trailer/out/van-thang-trailer-1080x1920.mp4');
-const GIF = arg('--gif', 'docs/readme/trailer.gif');
+/**
+ * Which language the film is in — the game's and the captions', together.
+ *
+ * Both are cut, and neither is a subtitled version of the other: the page boots in that language so
+ * every screen under the lettering is the real localised interface, and the captions are written in
+ * it rather than translated into it. Everything downstream is named for it, so the two live side by
+ * side and one never overwrites the other's frames.
+ */
+const LANG = arg('--lang', 'en');
+const SUFFIX = LANG === 'en' ? '' : `-${LANG}`;
+const RAW = arg('--frames', `scripts/trailer/out/raw${SUFFIX}`);
+const COMPOSED = `scripts/trailer/out/composed${SUFFIX}`;
+const OUT = arg('--out', `scripts/trailer/out/van-thang-trailer${SUFFIX}-1080x1920.mp4`);
+const GIF = arg('--gif', `docs/readme/trailer${SUFFIX}.gif`);
 
 // The capture surface. 360x640 CSS at 3.25x gives 1170x2080 device pixels, and the game's own
 // design surface resolves to 390x693 there — a 9:16 sheet, so the trailer is full bleed with no
 // letterbox anywhere. The 90 spare pixels of width are the push-in's whole travel: the compositor
 // crops them back to 1080 rather than zooming the map camera, which would re-bake the ground.
 const VIEW = { width: 360, height: 640, scale: 3.25 };
+const view = () => ({ ...VIEW, lang: LANG });
 const SEED = 20260901;
 /**
  * The fight is auditioned separately from the realm, and for a different quality.
@@ -397,7 +408,7 @@ async function settleCranked(page, maxFrames = 900) {
  */
 const PAGES = {
   async run(browser) {
-    const page = await newPage(browser, VIEW);
+    const page = await newPage(browser, view());
     await boot(page, URL, SEED, 'ascent');
     const state = await advance(page, 65, { seed: SEED });
     console.log(`   run: ${JSON.stringify(state)}`);
@@ -411,7 +422,7 @@ const PAGES = {
     return { page, state };
   },
   async battle(browser) {
-    const page = await newPage(browser, VIEW);
+    const page = await newPage(browser, view());
     await boot(page, URL, BATTLE_SEED, 'ascent');
     const state = await advance(page, 400, { stopOnBattle: true, battleAfter: BATTLE_AFTER, seed: BATTLE_SEED });
     console.log(`   battle: ${JSON.stringify(state)}`);
@@ -452,7 +463,7 @@ const PAGES = {
     return { page, state, battleLandId };
   },
   async story(browser) {
-    const page = await newPage(browser, VIEW);
+    const page = await newPage(browser, view());
     await toMenu(page, URL);
     await page.evaluate(FIRST_CHOICE);
     // A headless run to the first Chronicle beat that carries an authored woodblock print, handed
@@ -512,7 +523,7 @@ const PAGES = {
     return { page, state: found };
   },
   async menu(browser) {
-    const page = await newPage(browser, VIEW);
+    const page = await newPage(browser, view());
     await toMenu(page, URL);
     await page.waitForTimeout(1200);
     await page.evaluate(() => {
@@ -772,6 +783,9 @@ function spec(cut, i, total, frame, ripple) {
     if (a > best) { best = a; strongest = c; }
   }
   if (strongest) {
+    // The caption in the film's language. `vi` carries its own lines, written rather than
+    // translated; without one, the English stands.
+    const said = LANG !== 'en' && strongest[LANG] ? strongest[LANG] : strongest;
     // The run this caption belongs to: walk out either way while the gaps stay short.
     const at = captions.indexOf(strongest);
     let first = at;
@@ -783,7 +797,7 @@ function spec(cut, i, total, frame, ripple) {
       Math.min(1, Math.max(0, (captions[last].to + RAMP - time) / RAMP)),
     );
     out.caption = {
-      line: strongest.line, line2: strongest.line2, y: strongest.y, band: cut.band,
+      line: said.line, line2: said.line2, y: strongest.y, band: cut.band,
       alpha: best, plate,
     };
   }
@@ -794,6 +808,7 @@ function spec(cut, i, total, frame, ripple) {
   if (cut.end) {
     // The card comes up over the front page rather than replacing it.
     out.end = Math.min(1, Math.max(0, (time - 0.5) / 0.9));
+    out.lang = LANG;
   }
   return out;
 }

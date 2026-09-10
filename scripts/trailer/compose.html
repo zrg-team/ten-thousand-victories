@@ -220,7 +220,7 @@ function ripple(spec, scale, cropX, cropY) {
  * third instead, which is where the page keeps its links, its language row and its build number,
  * and puts the three lines a trailer has to end on there.
  */
-function endCard(alpha) {
+function endCard(alpha, lang) {
   if (alpha <= 0) return;
   // Below the Dragon Ascent button and above the dynasty card, so the band lands on a seam
   // rather than through the middle of a row.
@@ -234,18 +234,31 @@ function endCard(alpha) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
+  // The Vietnamese card is the game's own README line, not a translation of the English one.
+  const say = lang === 'vi'
+    ? {
+      pitch: ['Game chiến lược roguelite,', 'vẽ theo lối tranh khắc gỗ Đông Hồ.'],
+      free: 'Miễn phí · không quảng cáo · chơi ngoại tuyến',
+      langs: 'Tiếng Việt · English',
+    }
+    : {
+      pitch: ['A grand-strategy roguelite,', 'printed like a Đông Hồ woodblock.'],
+      free: 'Free · no ads · no account · plays offline',
+      langs: 'English · Tiếng Việt',
+    };
+
   ctx.fillStyle = PIGMENT.muc;
   ctx.font = '600 46px "Source Serif 4", Georgia, serif';
-  ctx.fillText('A grand-strategy roguelite,', W / 2, top + 170);
-  ctx.fillText('printed like a Đông Hồ woodblock.', W / 2, top + 228);
+  ctx.fillText(say.pitch[0], W / 2, top + 170);
+  ctx.fillText(say.pitch[1], W / 2, top + 228);
 
   ctx.fillStyle = PIGMENT.son;
   ctx.fillRect(W / 2 - 90, top + 288, 180, 4);
 
   ctx.fillStyle = PIGMENT.mucSoft;
   ctx.font = '400 38px "Be Vietnam Pro", system-ui, sans-serif';
-  ctx.fillText('Free · no ads · no account · plays offline', W / 2, top + 356);
-  ctx.fillText('English · Tiếng Việt', W / 2, top + 408);
+  ctx.fillText(say.free, W / 2, top + 356);
+  ctx.fillText(say.langs, W / 2, top + 408);
 
   ctx.fillStyle = PIGMENT.muc;
   ctx.font = '600 40px "Be Vietnam Pro", system-ui, sans-serif';
@@ -285,7 +298,7 @@ window.__compose = async (spec) => {
 
   if (spec.ripple) ripple(spec.ripple, scale, cropX, cropY);
   if (spec.caption) caption(spec.caption);
-  if (spec.end) endCard(spec.end);
+  if (spec.end) endCard(spec.end, spec.lang);
 
   // The dip to paper between chapters. Last, so it takes the lettering with it.
   if (spec.fade > 0) {

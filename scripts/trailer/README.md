@@ -40,6 +40,26 @@ node scripts/trailer/build-trailer.mjs --stage gif         # rebuild the README'
 node scripts/trailer/build-trailer.mjs --only shapes,press  # one chapter, while tuning it
 ```
 
+## Two languages, two films
+
+```sh
+node scripts/trailer/build-trailer.mjs             # English  -> docs/readme/trailer.gif
+node scripts/trailer/build-trailer.mjs --lang vi   # Vietnamese -> docs/readme/trailer-vi.gif
+```
+
+Neither is a subtitled version of the other. `--lang` boots the page in that language, so every
+screen under the lettering is the real localised interface — *Cố thủ · Cân bằng · Thúc quân* on the
+tempo dial, *DỰNG GIÁO · XUNG PHONG · TẢN RA · GIƯƠNG KHIÊN · BẮN* on the shapes — and the captions
+are **written** in it rather than translated into it. Every output is named for the language, so the
+two never overwrite each other's frames.
+
+The Vietnamese captions borrow the game's own court register, because the game already has one: it
+calls the player *bệ hạ*, its battle screen says *thế*, *thế khắc* and *thúc quân*, and its conquest
+card asks *Ta ép hướng nào?* So the caption over the fight is *Ta đáp bằng thế khắc nó* — the same
+words the line above it is using, which no translation of "I answered with what breaks it" would
+have found. If you add a caption, add its `vi` beside it; the English is the fallback, and a
+fallback showing through is the sign one is missing.
+
 `--stage` splits the work into three because the captions get rewritten far more often than the
 gameplay gets recaptured: `capture` drives the game into `out/raw`, `compose` crops, letters and
 dips into `out/composed`, `encode` makes the mp4. A full run is about nine minutes; a re-letter is

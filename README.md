@@ -26,9 +26,9 @@
 
 <br>
 
-<img src="docs/readme/trailer.gif" alt="Twenty-seven seconds of a real run: the country ticking under a drifting camera, the realm wide, a power draft of woodblock cards, a champion summoned, an invasion column reaching the capital, two hosts ranked in their shapes on the field, and a Chronicle beat under its own print" width="330">
+<img src="docs/readme/trailer.gif" alt="Twenty-five seconds of a real run: the country ticking under a drifting camera, the realm wide, a power draft of woodblock cards, a champion summoned, an invasion column reaching the capital, two hosts ranked in their shapes on the field, and a Chronicle beat under its own print" width="330">
 
-<sub>Twenty-seven seconds of an actual run. Nothing here is a mock-up — every frame is the game, played.</sub>
+<sub>Twenty-five seconds of an actual run. Nothing here is a mock-up — every frame is the game, played. <a href="README.vi.md">Bản tiếng Việt</a> has its own cut.</sub>
 
 <br>
 

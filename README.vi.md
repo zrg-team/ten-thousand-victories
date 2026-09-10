@@ -26,9 +26,9 @@
 
 <br>
 
-<img src="docs/readme/trailer.gif" alt="Hai mươi bảy giây của một ván chơi thật: giang sơn nhích dưới ống kính, bản đồ mở rộng, ván bài quyền lực in khắc gỗ, một tướng được chiêu mộ, đại quân kéo tới chân thành, hai đạo quân dàn thế trên trận địa, và một trang Chiến ký dưới bức tranh của riêng nó" width="330">
+<img src="docs/readme/trailer-vi.gif" alt="Hai lăm giây của một ván chơi thật, chơi bằng tiếng Việt: giang sơn nhích dưới ống kính, bản đồ mở rộng, ván bài quyền lực in khắc gỗ, một tướng được chiêu mộ, đại quân kéo tới chân thành, hai đạo quân dàn thế trên trận địa, và một trang Chiến ký dưới bức tranh của riêng nó" width="330">
 
-<sub>Hai mươi bảy giây trích từ một ván chơi thật. Không dàn dựng — từng khung hình đều là game đang chạy.</sub>
+<sub>Hai lăm giây trích từ một ván chơi thật, chơi bằng tiếng Việt. Không dàn dựng — từng khung hình đều là game đang chạy.</sub>
 
 <br>
 

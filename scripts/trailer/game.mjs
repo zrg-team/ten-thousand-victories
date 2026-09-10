@@ -60,16 +60,16 @@ window.__firstChoice = (p, retry) => {
   }
 };`;
 
-/** A page with the game's own settings pinned: English, the Dong Ho theme, and the high tier. */
-export async function newPage(browser, { width, height, scale }) {
+/** A page with the game's own settings pinned: the chosen language, the Dong Ho theme, high tier. */
+export async function newPage(browser, { width, height, scale, lang = 'en' }) {
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: scale });
-  await page.addInitScript(() => {
-    localStorage.setItem('mandate:language:v1', 'en');
+  await page.addInitScript((chosen) => {
+    localStorage.setItem('mandate:language:v1', chosen);
     localStorage.setItem('mandate:map-theme:v1', 'dong-ho');
     // The dense bake and the live settlement band are behind `high`. A trailer is the one place
     // the game is judged on a machine that can afford them.
     localStorage.setItem('mandate:graphics:v1', 'high');
-  });
+  }, lang);
   // Nothing Vite watches may reload the page during a ten-minute capture.
   await page.routeWebSocket('**', (ws) => ws.close());
   await page.addInitScript(() => {
