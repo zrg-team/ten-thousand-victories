@@ -16,6 +16,7 @@ import { resourceLabel } from '../../i18n';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { heatFor } from './AmbitionSystem';
 import { contestedFronts } from './battleReport';
+import { landSupply } from './SupplySystem';
 
 /**
  * The in-run advisor: what the numbers mean, and what to do about them.
@@ -134,7 +135,44 @@ export function adviseAscent(state: GameState): Advice[] {
         ticks: Math.max(1, worst.required - worst.progress),
         n: sieges.length,
       },
-      lane: 'army',
+      // The war lane, not the army lane. This advice is about a province being taken, and the
+      // answer to it — walk onto the field against the occupier, or call the neighbours in — lives
+      // on that province's front sheet. The army lane is a list of hosts, which is a step further
+      // from the order than the advice implies.
+      lane: 'battle',
+    });
+  }
+
+  /**
+   * ── A province of ours has no road home ──────────────────────────────────
+   *
+   * The consequence is large — 45% of what it makes, and a trade network cut down to whatever is
+   * stranded with it — and the cause is a thing that happened somewhere else entirely: a district
+   * between it and the seat changed hands. The toast fires on the tick it happens and then it is
+   * gone, so this is what remains standing while the realm is still cut in two.
+   *
+   * Below the sieges deliberately. A siege has a deadline the player can miss; a severed province
+   * is expensive but not urgent, and ranking it above a wall clock would push the one piece of
+   * advice with a countdown off the strip.
+   */
+  const stranded = state.lands.filter((land) => (
+    land.ownerId === PLAYER_KINGDOM_ID && landSupply(state, land.id).cutOff));
+  if (stranded.length > 0) {
+    // The richest of them: it is the one whose shortfall the player is actually paying for, and
+    // naming the biggest loss makes the size of the problem legible from the line alone.
+    const worst = stranded.slice().sort((a, b) => (
+      (b.outputs.food + b.outputs.supplies + b.outputs.gold)
+      - (a.outputs.food + a.outputs.supplies + a.outputs.gold)))[0];
+    add({
+      id: 'supply-cut',
+      tone: 'urgent',
+      priority: 88,
+      line: 'advice.supplyCut.line',
+      body: 'advice.supplyCut.body',
+      params: { land: worst.name, n: stranded.length },
+      // The map lane: the answer is a province to retake or claim, and that is a thing chosen on
+      // the board rather than off a list of hosts.
+      lane: 'build',
     });
   }
 

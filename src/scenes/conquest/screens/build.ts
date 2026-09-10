@@ -31,6 +31,7 @@ import {
   ASCENT_MILITIA_REGROW_DELAY, GARRISON_RECOVER_SEASONS, RETAKE_BONUS_WAVES, RETAKE_POWER_BONUS,
 } from '../../../game/ascentConfig';
 import { wallManning } from '../../../systems/WarSystem';
+import { hostileClaimAt } from '../../../systems/LandSystem';
 import { STORE_KEYS, saleQuote, sellStores, storeWasteFrom } from '../../../systems/ascent/GranarySystem';
 import { STORE_WASTE_RATE } from '../../../game/ascentConfig';
 import { buildFocusRows, focusTitle } from '../../../ui/focusPanel';
@@ -340,6 +341,16 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
    */
   const notes: string[] = [];
   if (state.gameMode === 'ascent') {
+    // First, above everything else the district has to say about itself: the walls are carried and
+    // there is a clock running. Every order on this page is refused while it runs (`getBuildOptions`),
+    // so without the line the sheet is a wall of blockers with no stated cause.
+    const claim = hostileClaimAt(state, land.id);
+    if (claim) {
+      notes.push(t('ascent.falling.underClaim', {
+        land: land.name,
+        ticks: Math.max(0, claim.required - claim.progress),
+      }));
+    }
     notes.push(t('ascent.land.peopleCap', {
       held: Math.round(land.population),
       cap: landPopulationCapacity(state, land),

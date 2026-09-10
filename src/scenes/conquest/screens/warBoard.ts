@@ -111,8 +111,11 @@ function takeField(self: ConquestUIScene, landId: string): void {
 export function warBoardSignature(self: ConquestUIScene): string {
   const state = self.state;
   const commanded = state.ascent?.activeBattle?.over === false ? state.ascent.activeBattle.landId : '';
+  // The claim's remaining seasons are part of the picture: on falling ground nothing else in this
+  // signature moves for the 2-6 seasons the province takes to go, so the row's countdown would sit
+  // frozen at whatever it read when the board opened.
   return `${commanded}|${contestedFronts(state)
-    .map((front) => `${front.landId}${front.live ? '!' : ''}${front.besieged ? '#' : ''}${front.assaultTicks ?? ''}`)
+    .map((front) => `${front.landId}${front.live ? '!' : ''}${front.besieged ? '#' : ''}${front.assaultTicks ?? ''}${front.falling ? `~${siegeLeft(self, front.landId) ?? ''}` : ''}`)
     .join(',')}`;
 }
 
@@ -297,6 +300,11 @@ export function showFrontSheet(self: ConquestUIScene, landId: string): void {
   });
 
   if (left !== undefined) addNote(t('ascent.war.siegeClock', { ticks: left }), INK_UI.cinnabar);
+  // Said out loud, because the headcounts above it changed meaning. On carried ground the walls
+  // and the militia turn out for neither side, so `ourMen` is the men the player has actually put
+  // there — and a player reading a small number needs to know it is not a bug but the terms of a
+  // retake. See `defenderPower` and `enrolArrivals`.
+  if (front.falling) addNote(t('ascent.war.claimNoWalls'));
   const assault = assaultLeft(self, landId);
   if (left === undefined && assault !== undefined) {
     addNote(t('ascent.war.assaultClock', { ticks: assault, land: front.landName }), INK_UI.gold);

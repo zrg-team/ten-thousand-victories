@@ -80,7 +80,21 @@ for (const seed of SEEDS) {
         if (r.role === 'offence') continue;
         if (r.rounds > 0 && r.outcome === 'we-rout') { losses += 1; lossAt.set(r.landId, { tick, wave: a.wave }); continue; }
         const lost = lossAt.get(r.landId);
-        const besieged = st.siegeOrders.some((o) => o.landId === r.landId && o.attackerKingdomId !== PLAYER);
+        /**
+         * A claim that was *already standing* when this roll was made.
+         *
+         * Two things now legitimately produce a record at a province with a claim on it, and
+         * neither is the defect. The dispatch that loses the province lays the claim itself, so it
+         * is filed on the very turn the order opens (`openedTurn`) — counting it would flag the
+         * fall of a province as a re-roll of it. And a **retake** is a fight deliberately stood up
+         * on ground already being claimed, which is the whole point of being able to win it back.
+         * The defect is narrower than either: a fresh roll for ground a *previous* column had
+         * already carried, fought by nobody but what the province itself had left. `ourHosts` is
+         * the record's own count of our field hosts in the line, so `0` is precisely "the militia
+         * remnant, alone" — and any retake, however badly it goes, has a host in it.
+         */
+        const claim = st.siegeOrders.find((o) => o.landId === r.landId && o.attackerKingdomId !== PLAYER);
+        const besieged = claim !== undefined && (claim.openedTurn ?? 0) < tick && r.ourHosts === 0;
         if (lost !== undefined && tick - lost.tick <= WINDOW) {
           if (besieged) records += 1;
           notes.push(`t${tick}: dispatch at ${r.landId} ${tick - lost.tick} ticks after its line broke (wave ${lost.wave}->${a.wave}, siege standing: ${besieged}): ${r.outcome} ours ${r.ourStart}->${r.ourEnd}`);

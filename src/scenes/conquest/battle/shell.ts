@@ -109,7 +109,12 @@ export function openBattleAt(self: ConquestUIScene, landId: string): void {
   // Cast because the early return above narrows the key to '' and TypeScript has not seen
   // `openLane` reassign it.
   if (!fighting && (self.openPromptKey as string) === 'lane:battle') {
-    self.replaceLanePage(() => self.showWarBoard());
+    // Straight to that province's own sheet rather than the board it sits on. The board is a list
+    // of the whole war, and the player pressed one mark on the map — the sheet is the page with
+    // the two orders that answer it: walk onto the field against whoever is standing there, and
+    // call the neighbours in. It is the retake screen, and it heals back to the board itself when
+    // the province turns out to have no front (a host marched off, a general settled it).
+    self.replaceLanePage(() => self.showFrontSheet(landId));
   }
 }
 

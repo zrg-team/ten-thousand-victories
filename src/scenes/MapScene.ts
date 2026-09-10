@@ -2638,8 +2638,13 @@ export class MapScene extends Phaser.Scene {
     this.siegeMarkers = [];
 
     const carried = new Set<string>();
+    // The clash badge has the tile while a retake is being fought there — see `drawBattleMarkers`.
+    const retaking = new Set(liveBattles(this.state)
+      .filter((fight) => fight.retake)
+      .map((fight) => fight.landId));
     for (const order of this.state.siegeOrders) {
       carried.add(order.landId);
+      if (retaking.has(order.landId)) continue;
       const land = findLand(this.state, order.landId);
       if (!land?.isVisible) {
         continue;
@@ -2688,7 +2693,11 @@ export class MapScene extends Phaser.Scene {
     this.battleMarkers = [];
 
     for (const fight of liveBattles(this.state)) {
-      if (this.state.siegeOrders.some((order) => order.landId === fight.landId)) {
+      // A siege badge normally wins the tile, because a siege is the attack that makes no contact
+      // and there is no fight to draw. A **retake** is the exception: there is a fight, it is on
+      // that exact ground, and it is the one thing the player can still change the outcome of —
+      // so the clash is drawn over the claim it is trying to lift.
+      if (!fight.retake && this.state.siegeOrders.some((order) => order.landId === fight.landId)) {
         continue;
       }
       const land = findLand(this.state, fight.landId);

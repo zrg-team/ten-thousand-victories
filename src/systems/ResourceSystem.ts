@@ -42,7 +42,18 @@ import {
   demandDifficultyScale,
   FOCUS_PENALTY_AT_BEST,
   FOCUS_PENALTY_AT_WORST,
+  CLAIM_OUTPUT_SHARE,
 } from '../game/ascentConfig';
+import { provinceIsFalling } from './LandSystem';
+import {
+  computeRealmSupply,
+  diffSupplySeverance,
+  landSupply,
+  neighborTradeWeight,
+  supplyFactor,
+  supplyLinesActive,
+  type SupplyReading,
+} from './ascent/SupplySystem';
 import { ARMY_PROVISION_USE_PER_150, ARMY_RATION_USE_PER_100 } from '../game/gameplayConfig';
 import { palisadeMilitiaBonus } from './ascent/DoctrineSystem';
 import { doctrineMilitiaMult } from './ascent/RealmDoctrineSystem';
@@ -852,7 +863,9 @@ export function getTaxEffects(state: GameState): { goldMult: number; stabilityDe
 /** Assign a province's economic focus. Player-owned lands only; refreshes outputs. */
 export function setLandSpecialization(state: GameState, landId: string, focus: LandSpecialization): boolean {
   const land = state.lands.find((candidate) => candidate.id === landId);
-  if (!land || land.ownerId !== PLAYER_KINGDOM_ID) {
+  // Nor is a province re-tasked while an enemy is taking it: the district is not answering the
+  // throne this season. See `hostileClaimAt`.
+  if (!land || land.ownerId !== PLAYER_KINGDOM_ID || provinceIsFalling(state, landId)) {
     return false;
   }
   land.specialization = focus;
@@ -940,6 +953,18 @@ export function refreshAllLandOutputs(state: GameState): void {
   const labor = getLaborStatus(state);
   const courtBonuses = getCourtBonuses(state);
 
+  // ── Đường tiếp vận: the shape of the realm, read once ──
+  //
+  // The only site the supply walk runs. Everything downstream — `calculateLandOutputs`, the map
+  // wash, the inspect card — reads the cache this writes, so the walk happens once per refresh
+  // rather than once per province, and the numbers on the card can never disagree with the numbers
+  // that were paid. Empty (and therefore inert) in every mode but Dragon Ascent.
+  if (state.ascent) {
+    const supply = computeRealmSupply(state);
+    announceSupplyChanges(state, supply);
+    state.ascent.supply = Object.fromEntries(supply);
+  }
+
   for (const land of state.lands) {
     if (land.ownerId !== PLAYER_KINGDOM_ID) {
       land.outputs = calculateLandOutputs(state, land, 1);
@@ -970,6 +995,38 @@ export function refreshAllLandOutputs(state: GameState): void {
     outputs.gold = Math.round(outputs.gold * realmShare(courtBonuses.goldOutputMult, realised));
     outputs.food = Math.round(outputs.food * realmShare(courtBonuses.foodOutputMult, realised));
     outputs.supplies = Math.round(outputs.supplies * realmShare(courtBonuses.suppliesOutputMult, realised));
+    /**
+     * The haulage bill — what survives the journey to the capital.
+     *
+     * Applied here rather than through the `efficiency` argument, and that is not a stylistic
+     * choice: `efficiency` reaches only the per-building loop inside `calculateLandOutputs`, so a
+     * castle's or a market's flat land-type income would have escaped it entirely — and those are
+     * exactly the gold lines that a road is supposed to carry. Scaling the finished bag catches
+     * every source.
+     *
+     * `supplyFactor` returns the literal 1 outside Dragon Ascent and for any province within two
+     * hops of the seat, so the common case multiplies by a number that changes nothing.
+     */
+    const haulage = supplyFactor(state, land);
+    if (haulage !== 1) {
+      outputs.gold = Math.round(outputs.gold * haulage);
+      outputs.food = Math.round(outputs.food * haulage);
+      outputs.supplies = Math.round(outputs.supplies * haulage);
+    }
+    /**
+     * A province being taken delivers a quarter of what it makes.
+     *
+     * The walls are carried and an enemy host is camped in the district, but the flag does not
+     * turn for another 2-6 seasons — and for that whole stretch this loop paid the province out
+     * in full, because every test here asks only whose it is. Scaled last, after the court and
+     * governor multipliers, so it stays one legible factor rather than something smeared through
+     * the stack. See `CLAIM_OUTPUT_SHARE`.
+     */
+    if (provinceIsFalling(state, land.id)) {
+      outputs.gold = Math.round(outputs.gold * CLAIM_OUTPUT_SHARE);
+      outputs.food = Math.round(outputs.food * CLAIM_OUTPUT_SHARE);
+      outputs.supplies = Math.round(outputs.supplies * CLAIM_OUTPUT_SHARE);
+    }
     land.outputs = outputs;
   }
 
@@ -991,7 +1048,11 @@ export function refreshAllLandOutputs(state: GameState): void {
  */
 function applyLandLimit(state: GameState): void {
   if (!landLimit(state)) return;
-  const owned = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID);
+  // Ground being taken is out of the redistribution entirely. Cut to a quarter it ranks among the
+  // poorest, so the law would have paid it a share out of the provinces still standing — the realm
+  // subsidising a district the enemy is walking into.
+  const owned = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID
+    && !provinceIsFalling(state, land.id));
   if (owned.length < LAND_LIMIT_COUNT * 2) return;
 
   const worth = (land: Land) => land.outputs.food + land.outputs.supplies + land.outputs.gold;
@@ -1020,9 +1081,34 @@ function applyLandLimit(state: GameState): void {
  * This is the main answer to "none of my work affects the economy" — taking land now
  * lifts output across the whole network, not just on the new tile.
  */
-function getTradeNetworkMult(state: GameState): number {
-  const ownedLandCount = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID).length;
-  return 1 + Math.min(1.6, Math.max(0, ownedLandCount - 1) * 0.09);
+function getTradeNetworkMult(state: GameState, land: Land): number {
+  // A trade network is a thing goods actually move through, so in Dragon Ascent it is the size of
+  // the connected block this province sits in, not the realm's total holdings. A realm split eight
+  // and four is two networks — and the four stranded provinces get a four-province network, which
+  // is the whole reason a contiguous empire is worth more than a scattered one of the same size.
+  // Outside Ascent it stays the plain realm count, byte for byte.
+  const reach = supplyLinesActive(state) && land.ownerId === PLAYER_KINGDOM_ID
+    ? landSupply(state, land.id).block
+    : state.lands.filter((other) => other.ownerId === PLAYER_KINGDOM_ID).length;
+  return 1 + Math.min(1.6, Math.max(0, reach - 1) * 0.09);
+}
+
+/**
+ * Says so, on the tick a corridor is cut or reopened.
+ *
+ * The rule is invisible without this. A province going quiet looks exactly like a province being
+ * raided, and the player's first encounter with supply lines should not be a number on a card they
+ * had no reason to open. Diffed against the cache still on state, before it is overwritten.
+ */
+function announceSupplyChanges(state: GameState, next: Map<string, SupplyReading>): void {
+  const { cut, restored } = diffSupplySeverance(state.ascent?.supply, next);
+  const name = (id: string) => state.lands.find((land) => land.id === id)?.name ?? id;
+  for (const id of cut) {
+    pushToast(state, t('ascent.supply.cutToast', { land: name(id) }), 'threat');
+  }
+  for (const id of restored) {
+    pushToast(state, t('ascent.supply.restoredToast', { land: name(id) }), 'info');
+  }
 }
 
 /**
@@ -1068,13 +1154,17 @@ const UNSETTLED_OUTPUT_FLOOR = 0.75;
 
 export function calculateLandOutputs(state: GameState, land: Land, efficiency = 1): ResourceBag {
   const outputs = emptyResourceBag();
-  const ownedNeighbors = land.neighbors.filter((neighborId) => state.lands.find((other) => other.id === neighborId)?.ownerId === PLAYER_KINGDOM_ID).length;
+  // What the neighbours are worth to this province's trade. Our own ground scores 1 apiece, as the
+  // plain count did; a neutral district with a village, empty ground and a rival's border score a
+  // descending share of that instead of the flat zero all three used to get. Outside Dragon Ascent
+  // this returns the identical owned-neighbour count, so the term is unchanged there.
+  const ownedNeighbors = neighborTradeWeight(state, land);
   const roads = Math.floor(land.neighbors.length / 3) + ownedNeighbors * 2;
   // The trade network is the biggest thing the realm gives a province — up to +160% — and it is
   // given by *being part of this realm*, so a province that has stopped answering the throne stops
   // receiving it. See `realmShare`; realised is 1 outside empire/ascent, leaving this untouched.
   const tradeMult = land.ownerId === PLAYER_KINGDOM_ID
-    ? realmShare(getTradeNetworkMult(state), state.mandate ? landRealised(land) : 1)
+    ? realmShare(getTradeNetworkMult(state, land), state.mandate ? landRealised(land) : 1)
     : 1;
   // Terrain bonuses scale with how much of it there is, rather than asking whether there is any.
   //
@@ -1853,6 +1943,16 @@ export function getBuildOrder(state: GameState, landId: string): BuildOrder | un
 
 export function getBuildOptions(state: GameState, land: Land): BuildOption[] {
   const activeOrder = getBuildOrder(state, land.id);
+  /**
+   * Nothing is founded on ground an enemy is walking into.
+   *
+   * First in the reason chain because it outranks every other blocker: it does not matter that
+   * the realm can afford a market here or that the terrain allows it. Refused rather than hidden,
+   * so the sheet still explains itself — and because `autoBuild`/`autoUpgrade` read these same
+   * options, this one seam also stops the autopilot spending its single decision a season on a
+   * province it is in the middle of losing.
+   */
+  const fallingReason = provinceIsFalling(state, land.id) ? t('ascent.falling.busyGround') : undefined;
 
   return BUILDING_ORDER.map((type) => {
     const spec = BUILDING_ECONOMY[type];
@@ -1879,7 +1979,7 @@ export function getBuildOptions(state: GameState, land: Land): BuildOption[] {
     // grossing 40 a season is not a decision to one grossing 400. See `priceScale.ts`.
     const cost = scaledCost(state, scaleResourceBag(spec.baseCost, getCourtBonuses(state).buildingCostMult));
     const costReason = !canSpend(state, cost) ? formatCostBlocker(cost) : undefined;
-    const reason = eraReason ?? terrainReason ?? capacityReason ?? duplicateReason ?? activeOrderReason ?? costReason;
+    const reason = fallingReason ?? eraReason ?? terrainReason ?? capacityReason ?? duplicateReason ?? activeOrderReason ?? costReason;
 
     return {
       type,
@@ -1898,6 +1998,8 @@ export function getBuildOptions(state: GameState, land: Land): BuildOption[] {
 
 export function getUpgradeOptions(state: GameState, land: Land): UpgradeOption[] {
   const activeOrder = getBuildOrder(state, land.id);
+  /** See `getBuildOptions` — no masonry is raised on ground already being taken. */
+  const fallingReason = provinceIsFalling(state, land.id) ? t('ascent.falling.busyGround') : undefined;
 
   const buildingCap = getBuildingLevelCap(state);
   return land.buildings.map((building, index) => {
@@ -1916,7 +2018,7 @@ export function getUpgradeOptions(state: GameState, land: Land): UpgradeOption[]
       upgradeCostMultiplier(building.level) * getCourtBonuses(state).buildingCostMult,
     ));
     const costReason = !atMaxLevel && !canSpend(state, cost) ? formatCostBlocker(cost) : undefined;
-    const reason = atMaxLevel ? t('reason.maxLevel') : (activeOrderReason ?? costReason);
+    const reason = fallingReason ?? (atMaxLevel ? t('reason.maxLevel') : (activeOrderReason ?? costReason));
     const nextLevel = Math.min(buildingCap, building.level + 1);
 
     return {

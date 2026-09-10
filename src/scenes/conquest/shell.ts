@@ -46,11 +46,13 @@ import { sawtoothBand } from '../../ui/ink/devices';
 import { PIGMENT } from '../../ui/ink/palette';
 import { placeStamp, stampDesign } from '../../ui/ink/stamp';
 import { UI_FONT } from '../../ui/fonts';
-import { heroName, t } from '../../i18n';
+import { heroName, t, tickLabel } from '../../i18n';
+import { hostileClaimAt } from '../../systems/LandSystem';
 import { buildFocusRows } from '../../ui/focusPanel';
 import { getLandSpecialization } from '../../systems/ResourceSystem';
 import { masonryPowerPerDefense, militiaPowerPerMan } from '../../systems/WarSystem';
-import type { AscentLane } from '../../state/types';
+import { landSupply } from '../../systems/ascent/SupplySystem';
+import type { AscentLane, GameState, Land } from '../../state/types';
 import { promptSignature } from './constants';
 import { clearLanePage } from './layers';
 import { showWarBoard, warBoardSignature } from './screens/warBoard';
@@ -907,6 +909,35 @@ const INSPECT_FLOOR_GAP = 10;
 /** Used before the first render has measured a card. */
 const INSPECT_FALLBACK_HEIGHT = 134;
 
+/**
+ * The supply row: how far this province's goods travel, and how much survives the trip.
+ *
+ * Reads the cache `refreshAllLandOutputs` wrote, so the percentage on the card is by construction
+ * the same number that was multiplied into the three figures above it.
+ */
+function supplyRow(state: GameState, land: Land): { label: string; value: string } {
+  const reading = landSupply(state, land.id);
+  if (reading.cutOff) {
+    return { label: t('ascent.supply.row'), value: t('ascent.supply.cut') };
+  }
+  if (reading.hops === 0) {
+    return { label: t('ascent.supply.row'), value: t('ascent.supply.seat') };
+  }
+  return {
+    label: t('ascent.supply.row'),
+    value: t('ascent.supply.hops', {
+      hops: String(reading.hops),
+      percent: String(Math.round(reading.factor * 100)),
+    }),
+  };
+}
+
+/** Everything of the reading the card prints, for the rebuild key. */
+function supplyKey(state: GameState, land: Land): string {
+  const reading = landSupply(state, land.id);
+  return `${reading.cutOff ? 'cut' : reading.hops}/${reading.factor}`;
+}
+
 function renderInspect(self: ConquestUIScene): void {
   const land = self.state.lands.find((candidate) => candidate.id === self.state.selectedLandId);
   // Keyed on everything the card prints. It was destroyed and rebuilt on every refresh — every
@@ -915,14 +946,23 @@ function renderInspect(self: ConquestUIScene): void {
   const governor = land
     ? self.state.heroes.find((candidate) => candidate.assignedTo === land.id)
     : undefined;
+  // The claim, and how far it has run. Ownership does not change for the 2-6 seasons a province
+  // is being taken, and none of the other terms move either — so without this the card a player
+  // opened on falling ground never repainted, never grew its retake button, and printed a clock
+  // that never ticked. It is the reason the whole state was invisible from the map.
+  const claim = land ? hostileClaimAt(self.state, land.id) : undefined;
   const key = !land || self.state.pendingAscentPrompt || self.openPromptKey !== ''
     ? ''
-    : [land.id, land.ownerId, Math.round(land.outputs.gold), Math.round(land.outputs.food),
+    : [land.id, land.ownerId, claim ? `${claim.progress}/${claim.required}` : '-',
+      Math.round(land.outputs.gold), Math.round(land.outputs.food),
       Math.round(land.defense * masonryPowerPerDefense(self.state)
         + land.localSoldiers * militiaPowerPerMan(self.state)),
       // Both are printed now, so both have to be in the key or the card goes stale the moment the
       // player changes either from the very buttons it draws.
-      governor?.id ?? '-', getLandSpecialization(land)].join(':');
+      governor?.id ?? '-', getLandSpecialization(land),
+      // Likewise the supply reading: a corridor cut while this card is open changes the row, the
+      // border and three of the numbers above, and none of the existing terms would have moved.
+      supplyKey(self.state, land)].join(':');
   if (key === self.inspectKey) return;
   self.inspectKey = key;
   for (const object of self.inspectObjects) object.destroy();
@@ -931,7 +971,12 @@ function renderInspect(self: ConquestUIScene): void {
   if (key === '') return;
   if (!land) return;
 
-  const mine = land.ownerId === PLAYER_KINGDOM_ID;
+  // Three states, not two. A province being taken is still ours on the map and still ours by
+  // `ownerId`, but nothing the "ours" branch offers can be done to it — and the one thing that
+  // can be done to it, marching an army back onto it, the card had no way to say.
+  const falling = claim !== undefined;
+  const claimLeft = claim ? Math.max(0, claim.required - claim.progress) : 0;
+  const mine = land.ownerId === PLAYER_KINGDOM_ID && !falling;
   // The dock: the card and its buttons sit in the sheet's bottom-right corner on the desktop —
   // the selected-thing panel of every strategy game — and at the foot of the column on the phone,
   // where the dock is zero.
@@ -946,7 +991,16 @@ function renderInspect(self: ConquestUIScene): void {
         value: Math.round(land.defense * masonryPowerPerDefense(self.state)
           + land.localSoldiers * militiaPowerPerMan(self.state)),
       })}`,
-      rows: mine
+      rows: falling
+        ? [
+            // What the player needs in order to decide whether to spend a host on it: how long
+            // there is, who is taking it, and what it is still worth while the clock runs.
+            { label: t('ascent.falling.seasons'), value: `${claimLeft} ${tickLabel(claimLeft)}` },
+            { label: t('ascent.falling.reducedYield'), value: t('ascent.falling.reducedYieldValue') },
+            { label: t('resource.gold'), value: String(Math.round(land.outputs.gold)) },
+            { label: t('resource.food'), value: String(Math.round(land.outputs.food)) },
+          ]
+        : mine
         ? [
             // All three stores, not the two that happened to fit. A focus is chosen against what
             // the province currently yields, and supplies was the one the card left out.
@@ -965,12 +1019,20 @@ function renderInspect(self: ConquestUIScene): void {
               // about what a focus is called.
               value: buildFocusRows(self.state, land).find((row) => row.isCurrent)?.title ?? '—',
             },
+            // How much of what it makes actually reaches the treasury, and why. Without this row
+            // the haulage toll is an unexplained shortfall: the three numbers above are the
+            // *delivered* figures, so a distant province simply looked poorer than it is.
+            supplyRow(self.state, land),
           ]
         : [
             { label: t('resource.gold'), value: String(Math.round(land.outputs.gold)) },
             { label: t('resource.food'), value: String(Math.round(land.outputs.food)) },
           ],
-      border: mine ? INK_UI.jade : INK_UI.softBrush,
+      // Cinnabar for a province in trouble, either way it is in trouble: being taken, or still
+      // ours and with no road home.
+      border: falling || (mine && landSupply(self.state, land.id).cutOff)
+        ? INK_UI.cinnabar
+        : mine ? INK_UI.jade : INK_UI.softBrush,
     },
   );
   const cardHeight = Math.round((card.getData('cardHeight') as number) ?? INSPECT_FALLBACK_HEIGHT);
@@ -1000,7 +1062,25 @@ function renderInspect(self: ConquestUIScene): void {
   // Three across for a province of ours: post a governor, set what it works at, put something up.
   // Building was the one of the three that still had to be found inside a lane by name.
   const third = (GAME_WIDTH - 40) / 3;
-  const controls: Phaser.GameObjects.GameObject[] = mine
+  const controls: Phaser.GameObjects.GameObject[] = falling
+    ? [
+        /**
+         * The one thing that can still be done about this province.
+         *
+         * Governor, focus and building are all refused on carried ground, so the card used to
+         * offer three buttons that answered "the enemy holds this ground" — and the order that
+         * would actually help, marching a host back onto it, was not on the card at all. This
+         * goes to the province's own war sheet, which carries both halves of a retake: walk onto
+         * the field against the occupier, or call in the neighbours.
+         */
+        self.ui.button(
+          { x: 14 + dock, y: buttonY, width: GAME_WIDTH - 28, height: INSPECT_BUTTON_HEIGHT },
+          t('ascent.falling.retake', { land: land.name }),
+          () => self.openBattleAt(land.id),
+          { variant: 'primary', fontSize: '13px' },
+        ),
+      ]
+    : mine
     ? [
         self.ui.button(
           { x: 14 + dock, y: buttonY, width: third, height: INSPECT_BUTTON_HEIGHT },

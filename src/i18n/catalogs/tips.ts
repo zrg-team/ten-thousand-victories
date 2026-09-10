@@ -76,6 +76,13 @@ export const enTips = {
   'tip.militiaCap': 'The watch is drawn from the people and never outnumbers half of them. Grow the province to garrison it.',
   'tip.roads': 'Hosts march the drawn roads. A province off the road is a province relief reaches late.',
 
+  // ── Supply lines ────────────────────────────────────────────────────────────────────────
+  'tip.supplyBlock': 'Trade compounds only inside one connected block of your ground. Twelve provinces in one piece beat twelve scattered.',
+  'tip.supplyCut': 'A province with no route home over your own ground delivers 45%. The map outlines it in broken red.',
+  'tip.supplyHops': 'Provinces more than two steps from the capital deliver a little less. Claim toward the seat, not away from it.',
+  'tip.supplyNeighbour': 'A province trades best beside your own ground, worst beside a rival. A neutral village on the border is worth more than empty moor.',
+  'tip.supplyMarch': 'Hosts march faster over ground you hold. Crossing a rival costs a season and men.',
+
   // ── Neighbours ──────────────────────────────────────────────────────────────────────────
   'tip.notEverySiege': 'Not every province needs storming. Buy it, marry into it, or win its oath in Affairs.',
   'tip.standing': 'Envoy options open on standing. A warm court is not a pact until you ask and they agree.',
@@ -139,6 +146,13 @@ export const viTips = {
   'tip.wallsPeople': 'Thành cần người giữ. Lũy tre không có tuần đinh phía sau chỉ là hàng rào để ngắm.',
   'tip.militiaCap': 'Tuần đinh lấy từ dân và không bao giờ quá nửa số dân. Muốn giữ trấn thì phải nuôi trấn lớn lên.',
   'tip.roads': 'Quân hành theo đường vẽ trên bản đồ. Trấn nằm xa đường là trấn viện binh tới muộn.',
+
+  // ── Đường tiếp vận ──────────────────────────────────────────────────────────────────────
+  'tip.supplyBlock': 'Buôn bán chỉ nhân lên trong một khối đất liền nhau. Mười hai phủ liền một dải hơn hẳn mười hai phủ rải rác.',
+  'tip.supplyCut': 'Phủ không còn lối về kinh đi trọn trên đất ta chỉ nộp được 45%. Bản đồ viền nó bằng nét đỏ đứt quãng.',
+  'tip.supplyHops': 'Phủ cách kinh đô quá hai chặng thì nộp hụt đi một ít. Hãy lấy đất hướng về kinh, đừng lấy xa ra.',
+  'tip.supplyNeighbour': 'Phủ buôn bán tốt nhất khi kề đất ta, tệ nhất khi kề đất địch. Một làng trung lập ngoài biên còn hơn bãi hoang.',
+  'tip.supplyMarch': 'Quân đi trên đất ta thì nhanh hơn. Băng qua đất địch mất một mùa và mất người.',
 
   'tip.notEverySiege': 'Không phải trấn nào cũng phải đánh. Mua, kết thân, hoặc thu phục ở trang Ngoại giao.',
   'tip.standing': 'Việc sứ mở theo uy tín. Triều đình thân thiện chưa phải hiệp ước cho tới khi bạn hỏi và họ gật.',

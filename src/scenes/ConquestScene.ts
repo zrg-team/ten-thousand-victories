@@ -23,10 +23,12 @@ import {
 import { createAscentGameState } from '../state/GameState';
 import { ASCENT_HUD_HEIGHT } from '../ui/ascent/AscentHud';
 import { clashDevice } from '../ui/ink/devices';
+import { PIGMENT } from '../ui/ink/palette';
+import { landSupply } from '../systems/ascent/SupplySystem';
 import { MapScene } from './MapScene';
 import { ViewIndex } from './map/ViewIndex';
 import type { BattleFormation } from '../data/ascent/formations';
-import type { ArmyOrders, FieldStance } from '../state/types';
+import type { ArmyOrders, FieldStance, Land } from '../state/types';
 
 /**
  * Dragon Ascent's world scene.
@@ -173,15 +175,24 @@ export class ConquestScene extends MapScene {
    * This avoids replaying the whole country's paths on every frame of a camera drag.
    */
   private repaintOwnershipTint(): void {
-    // Control view already paints every tile in its owner's colour at full strength.
-    if (this.state.mapRenderMode !== 'terrain') {
+    // Control view already paints every tile in its owner's colour at full strength — but it says
+    // nothing about supply, so the severed-province wash still has to run there. `ownershipWash`
+    // returns nothing for foreign ground in that mode; the layer stays up for the cut-off marks.
+    const terrainView = this.state.mapRenderMode === 'terrain';
+    const anyCutOff = this.state.lands.some(
+      (land) => land.isVisible && land.ownerId === PLAYER_KINGDOM_ID && landSupply(this.state, land.id).cutOff,
+    );
+    if (!terrainView && !anyCutOff) {
       this.ownershipTint?.setVisible(false);
       return;
     }
 
-    const signature = this.state.lands
+    // `mapRenderMode` and the cut-off flag are both in the key: without them the wash survives a
+    // view flip unrepainted, and a corridor cut changes nothing on screen until some *other*
+    // province happens to change hands.
+    const signature = `${this.state.mapRenderMode}|` + this.state.lands
       .filter((land) => land.isVisible)
-      .map((land) => `${land.id}:${land.ownerId}:${this.ownershipWash(land.ownerId)?.color}`)
+      .map((land) => `${land.id}:${land.ownerId}:${this.ownershipWash(land)?.color}`)
       .join(',');
     this.ownershipTint ??= this.add.container(0, 0).setDepth(1.95);
     this.ownershipTint.setVisible(true);
@@ -191,10 +202,10 @@ export class ConquestScene extends MapScene {
     const live = new Set<string>();
     const hexSize = this.state.mapConfig.hexSize;
     for (const land of this.state.lands) {
-      const wash = this.ownershipWash(land.ownerId);
+      const wash = this.ownershipWash(land);
       if (!land.isVisible || !wash) continue;
       live.add(land.id);
-      const regionSignature = `${land.ownerId}:${wash.color}:${wash.alpha}`;
+      const regionSignature = `${land.ownerId}:${wash.color}:${wash.alpha}:${wash.severed ? 'cut' : ''}`;
       const previous = this.ownershipRegions.get(land.id);
       if (previous?.signature === regionSignature) continue;
       const graphics = previous?.graphics ?? this.make.graphics({}, false);
@@ -204,7 +215,18 @@ export class ConquestScene extends MapScene {
       const include = (points: Array<{ x: number; y: number }>) => {
         for (const p of points) { left = Math.min(left, p.x); top = Math.min(top, p.y); right = Math.max(right, p.x); bottom = Math.max(bottom, p.y); }
       };
-      if (this.mapRenderer.drawForeignWash) {
+      if (wash.severed) {
+        // Ours, and unreachable. Drawn as its own thing rather than through `drawForeignWash`,
+        // which is the vocabulary for "someone else's" — a severed province must not read as lost.
+        // A thin sỏi son wash says something is wrong with it, and the broken outline says what:
+        // the line around it is no longer continuous with the realm.
+        const loops = traceLandBoundaryLoops(this.state, this.hexTileMap, (v: number) => this.wx(v), (v: number) => this.wy(v), this.foreignLoopCache, land.id);
+        for (const loop of loops) {
+          graphics.fillStyle(PIGMENT.son, 0.16).fillPoints(loop, true);
+          this.strokeBrokenLoop(graphics, loop);
+          include(loop);
+        }
+      } else if (this.mapRenderer.drawForeignWash) {
         const loops = traceLandBoundaryLoops(this.state, this.hexTileMap, (v: number) => this.wx(v), (v: number) => this.wy(v), this.foreignLoopCache, land.id);
         this.mapRenderer.drawForeignWash(graphics, loops, land.ownerId === NEUTRAL_OWNER_ID, wash.color);
         for (const loop of loops) include(loop);
@@ -237,6 +259,46 @@ export class ConquestScene extends MapScene {
     this.syncOwnershipCulling(true);
   }
 
+  /**
+   * The province outline, drawn as a line that keeps stopping.
+   *
+   * A broken border is the map's way of saying the connection is broken, and it survives the two
+   * things a colour wash does not: a small province at low zoom, where a 16%-alpha fill is a few
+   * pixels of pink, and the Đông Hồ theme's habit of encoding faction as hatch rather than hue.
+   *
+   * Walked by accumulated arc length rather than by vertex, because a boundary loop's segments are
+   * wildly uneven — a hex edge against a long welded run — and dashing per-vertex produced a solid
+   * line on one side of a province and three dots on the other.
+   */
+  private strokeBrokenLoop(graphics: Phaser.GameObjects.Graphics, loop: Array<{ x: number; y: number }>): void {
+    const DASH = 9;
+    const GAP = 7;
+    graphics.lineStyle(1.6, PIGMENT.sonDeep, 0.85);
+    let walked = 0;
+    graphics.beginPath();
+    for (let i = 0; i < loop.length; i += 1) {
+      const from = loop[i];
+      const to = loop[(i + 1) % loop.length];
+      const span = Math.hypot(to.x - from.x, to.y - from.y);
+      if (span <= 0) continue;
+      let along = 0;
+      while (along < span) {
+        const cycle = (walked + along) % (DASH + GAP);
+        const remaining = cycle < DASH ? DASH - cycle : DASH + GAP - cycle;
+        const step = Math.min(remaining, span - along);
+        if (cycle < DASH) {
+          const t0 = along / span;
+          const t1 = (along + step) / span;
+          graphics.moveTo(from.x + (to.x - from.x) * t0, from.y + (to.y - from.y) * t0);
+          graphics.lineTo(from.x + (to.x - from.x) * t1, from.y + (to.y - from.y) * t1);
+        }
+        along += step;
+      }
+      walked += span;
+    }
+    graphics.strokePath();
+  }
+
   private syncOwnershipCulling(force = false): void {
     if (!this.ownershipTint?.visible) return;
     const c = this.cameras.main;
@@ -254,8 +316,20 @@ export class ConquestScene extends MapScene {
    * the reverse — leave our ground untouched and bright, and mute everything we do not hold.
    * Contrast, not colour, is what makes the border obvious at a glance.
    */
-  private ownershipWash(ownerId: string): { color: number; alpha: number } | undefined {
-    if (ownerId === PLAYER_KINGDOM_ID) return undefined;
+  private ownershipWash(land: Land): { color: number; alpha: number; severed?: boolean } | undefined {
+    const ownerId = land.ownerId;
+    if (ownerId === PLAYER_KINGDOM_ID) {
+      // Ours and reachable is the one case that stays bare paper — the whole point of the layer is
+      // that our own ground is the bright thing. Ours and *cut off* is the exception the player
+      // most needs to see, and it is drawn in the realm's own red rather than in a foreign colour:
+      // the province has not changed hands, it has lost its road home.
+      return landSupply(this.state, land.id).cutOff
+        ? { color: PIGMENT.son, alpha: 0.16, severed: true }
+        : undefined;
+    }
+    // Control view already paints foreign ground in its owner's colour at full strength; washing it
+    // again there would double the ink and mute the very thing that view exists to show.
+    if (this.state.mapRenderMode !== 'terrain') return undefined;
     // Deep and cool rather than the palette's near-black olive, which sits so close to the
     // grass and forest beneath it that even a heavy wash reads as "slightly dim", not "not
     // yours". Pushing it blue separates foreign ground by hue as well as by value.
