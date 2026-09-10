@@ -37,7 +37,13 @@ function showLoading(scene: Phaser.Scene): { finish: () => void; cancel: () => v
   active = state;
   const overlay = document.createElement('div');
   overlay.dataset.pageLoading = state.scene;
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:grid;place-content:center;gap:18px;background:#e9dfc2;color:#493a2b;text-align:center;touch-action:none;';
+  // `justify-items:center` is load-bearing, not decoration.
+  //
+  // `place-content:center` centres the grid's tracks, but the items inside the one column still sit
+  // at its start, and the column is as wide as its widest item — the tip, at up to 320px. The bar is
+  // a fixed 240px, so it was being pinned to the left edge of a wider column and reading as
+  // off-centre against a centred heading. Centring the items is what actually lines the three up.
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:grid;place-content:center;justify-items:center;gap:18px;background:#e9dfc2;color:#493a2b;text-align:center;touch-action:none;';
   overlay.style.fontFamily = UI_FONT;
   const label = document.createElement('div');
   label.setAttribute('role', 'status');

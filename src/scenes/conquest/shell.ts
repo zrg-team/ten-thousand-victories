@@ -160,11 +160,18 @@ export function create(self: ConquestUIScene): void {
 
   // The resource strip is the door to the ledger. A player wondering about a number taps
   // the number — no new bar button, and the books open exactly where the question arose.
+  //
+  // That intent was sound and undiscoverable: the door was a 0.001-alpha rectangle with no mark
+  // on it, no cursor and no bar entry, and it was reported as a page the player could not find a
+  // way into. Two halves to the fix, because neither covers both kinds of device — the hand
+  // cursor here, which exists only on a desktop pointer, and the scales drawn beside the year by
+  // `ResourceBar.setLedgerHint`, which is the half a phone can see.
   const ledgerHit = self.add
     .rectangle(0, 0, GAME_WIDTH, HEADER_HEIGHT, 0xffffff, 0.001)
     .setOrigin(0, 0)
     .setDepth(81)
-    .setInteractive();
+    .setInteractive({ useHandCursor: true });
+  self.resourceBar.setLedgerHint(true);
   ledgerHit.on('pointerup', () => {
     if (self.state.pendingAscentPrompt || self.openPromptKey !== '') return;
     self.openLane('ledger');
@@ -527,6 +534,20 @@ function playPendingWaveCue(self: ConquestUIScene): void {
  * Same guard as the advisor: hidden under every card and lane, so re-reading the stores for an
  * invisible chip is pure cost.
  */
+/**
+ * Every floating thing over the map, as rectangles the map's own tap handling skips.
+ *
+ * Assembled in one place because two callers used to build it: the chip's layout and, now,
+ * the paused badge — and whichever ran last would have dropped the other's rectangle. The
+ * map listens on the DOM and runs *after* Phaser's own input, so an interactive object up
+ * here is not enough on its own; without its rectangle in this list a press meant for the
+ * badge also selects the province behind it.
+ */
+function refreshHudTapBounds(self: ConquestUIScene): void {
+  window.__hudTapBounds = [...self.mapControlBounds, ...self.advisor.tapBounds(),
+    ...self.whispers.tapBounds(), ...self.inheritance.tapBounds(), ...self.pausedBadgeBounds];
+}
+
 function layoutInheritanceChip(self: ConquestUIScene): void {
   if (self.state.pendingAscentPrompt || self.openPromptKey !== '') return;
   const barTop = GAME_HEIGHT - ACTION_BAR_HEIGHT;
@@ -536,8 +557,7 @@ function layoutInheritanceChip(self: ConquestUIScene): void {
   const floor = Math.min(cardTop ?? barTop, self.barHint.top() ?? barTop);
   self.inheritance.render(self.state, floor);
   // The tap guard and the paused badge both read the chip's rectangle.
-  window.__hudTapBounds = [...self.mapControlBounds, ...self.advisor.tapBounds(), ...self.whispers.tapBounds(),
-    ...self.inheritance.tapBounds()];
+  refreshHudTapBounds(self);
 }
 
 export function renderActionBar(self: ConquestUIScene): void {
@@ -582,9 +602,13 @@ export function renderActionBar(self: ConquestUIScene): void {
  *
  * Pause is now a real toggle rather than a door into the quit sheet, which means the player
  * can leave the game stopped and walk away from the bar — so the state has to be visible from
- * the map, not only from the shape of one 34px glyph. Deliberately not interactive: anything
- * tappable floating over the map has to be excluded from the map's own tap handling, and an
- * indicator that only reports does not earn that cost.
+ * the map, not only from the shape of one 34px glyph.
+ *
+ * It resumes on a press. This was deliberately inert once, on the reasoning that anything
+ * tappable over the map has to be excluded from the map's own tap handling and an indicator
+ * that only reports does not earn that cost — but the badge is the thing a paused player
+ * actually looks at, and reaching past it to the bar to undo a pause is a step for nothing.
+ * The cost is paid by publishing its rectangle through `refreshHudTapBounds`.
  */
 function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
   // The badge is centred, and the chip's plate reaches x=266 from the left — so when the chip is
@@ -595,7 +619,12 @@ function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
   self.pausedBadgeKey = key;
   self.pausedBadge?.destroy();
   self.pausedBadge = undefined;
-  if (key === '') return;
+  if (key === '') {
+    // Nothing floating there any more, so the map must stop skipping those pixels.
+    self.pausedBadgeBounds = [];
+    refreshHudTapBounds(self);
+    return;
+  }
 
   const width = 128;
   const height = 24;
@@ -615,6 +644,21 @@ function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
     fontSize: '11px',
     fontStyle: '700',
   }).setOrigin(0.5));
+
+  // The press target, not the plate: the badge reads at 128x24, which is well under a
+  // thumb, so the zone is grown to a comfortable height around the same centre while the
+  // drawn badge stays the size it was.
+  const TAP_HEIGHT = 44;
+  const tap = { x: x - 8, y: y + height / 2 - TAP_HEIGHT / 2, width: width + 16, height: TAP_HEIGHT };
+  badge.add(self.add.zone(tap.x, tap.y, tap.width, tap.height).setOrigin(0, 0)
+    .setInteractive({ useHandCursor: true })
+    .on('pointerup', () => {
+      // Only while it is still the paused badge: a press that lands in the frame the badge
+      // is torn down would otherwise pause a running world instead of resuming a halted one.
+      if (self.state.isStrategyPause) togglePause(self);
+    }));
+  self.pausedBadgeBounds = [tap];
+  refreshHudTapBounds(self);
   self.pausedBadge = badge;
 }
 
