@@ -170,6 +170,14 @@ Two more, cheaper:
   the middle of `POWER · INVASION · THREAT`, and then through the Build lane's subtitle. Hence
   `band: 'hud'` and `band: 'top'`; the short one holds a single line, which is better writing over
   a fight anyway.
+- **Answering a card takes three things, not one.** Answer it in state; emit `state-changed` or the
+  shell never hears and the card it drew stays up; and then **redraw**, because `page.screenshot`
+  captures the canvas as last rendered and nothing has rendered since. Miss the third and a card
+  raised by a tick is photographed for the two or three frames between its arrival and the drain —
+  a modal that opens and shuts in a tenth of a second, which is what it looks like. `closeOverlay`
+  takes the sheet down synchronously; `game.step(clock, 0)` redraws without advancing the world.
+  Worth scanning for: a flash is a frame whose JPEG size differs from *both* its neighbours, so
+  `os.path.getsize` over `out/composed` finds them all in a second.
 - **The plate belongs to the *run* of captions, not to one line.** Deriving the paper from the
   active caption's own alpha means that at a hand-over between two lines it follows the outgoing one
   down to nothing and snaps back for the incoming one — one frame of bare screen between two lines

@@ -122,11 +122,26 @@ window.__trailerInit = async () => {
     }
     st.lastStoryOutcome = undefined;
     if (st.ascent) st.ascent.pendingAftermath = undefined;
-    // Tell the interface. This is the whole of the "a card stood over the battle for the entire
-    // chapter" bug: the prompt was answered in state and the shell was never told, so the card it
-    // had already drawn stayed on the screen — over a fight that was, underneath, running fine.
-    // Nothing reported it, because as far as the drain was concerned there was no prompt pending.
-    if (answered > 0) ui.events.emit('state-changed');
+    // Tell the interface, take the sheet down, and redraw — all three, or the card is still on the
+    // film.
+    //
+    // Answering in state is only the first of three. 'state-changed' is the second: without it the
+    // shell is never told, and the card it had already drawn stays on screen over a fight that is
+    // running fine underneath — which is how a rival's tribute demand stood over the whole battle
+    // chapter, with nothing reporting it because as far as the drain was concerned no prompt was
+    // pending.
+    //
+    // The third is this redraw, and it is the one that cost a flash in the opening cut. A card
+    // raised by a tick is *drawn* during that tick; the drain answers it on the next frame and
+    // 'closeOverlay' takes it down synchronously — but the screenshot captures the canvas as last
+    // rendered, and nothing had rendered since. So a summon card stood over the country for three
+    // frames: a modal that opens and shuts for a tenth of a second, which is exactly as ugly as it
+    // sounds. A zero-delta step redraws without advancing the world by so much as a millisecond.
+    if (answered > 0) {
+      ui.events.emit('state-changed');
+      try { if (ui.closeOverlay) ui.closeOverlay(); } catch (e) { /* nothing was open */ }
+      window.__phaserGame.step(window.__clock, 0);
+    }
     return answered;
   };
   /**
@@ -188,11 +203,26 @@ window.__trailerInit = async () => {
     }
     st.lastStoryOutcome = undefined;
     if (st.ascent) st.ascent.pendingAftermath = undefined;
-    // Tell the interface. This is the whole of the "a card stood over the battle for the entire
-    // chapter" bug: the prompt was answered in state and the shell was never told, so the card it
-    // had already drawn stayed on the screen — over a fight that was, underneath, running fine.
-    // Nothing reported it, because as far as the drain was concerned there was no prompt pending.
-    if (answered > 0) ui.events.emit('state-changed');
+    // Tell the interface, take the sheet down, and redraw — all three, or the card is still on the
+    // film.
+    //
+    // Answering in state is only the first of three. 'state-changed' is the second: without it the
+    // shell is never told, and the card it had already drawn stays on screen over a fight that is
+    // running fine underneath — which is how a rival's tribute demand stood over the whole battle
+    // chapter, with nothing reporting it because as far as the drain was concerned no prompt was
+    // pending.
+    //
+    // The third is this redraw, and it is the one that cost a flash in the opening cut. A card
+    // raised by a tick is *drawn* during that tick; the drain answers it on the next frame and
+    // 'closeOverlay' takes it down synchronously — but the screenshot captures the canvas as last
+    // rendered, and nothing had rendered since. So a summon card stood over the country for three
+    // frames: a modal that opens and shuts for a tenth of a second, which is exactly as ugly as it
+    // sounds. A zero-delta step redraws without advancing the world by so much as a millisecond.
+    if (answered > 0) {
+      ui.events.emit('state-changed');
+      try { if (ui.closeOverlay) ui.closeOverlay(); } catch (e) { /* nothing was open */ }
+      window.__phaserGame.step(window.__clock, 0);
+    }
     return answered;
   };
   /**
