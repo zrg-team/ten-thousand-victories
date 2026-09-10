@@ -58,10 +58,17 @@ function printedSurface(
     g.fillStyle(PIGMENT.muc, 0.05);
     g.fillPoints(sheet.map((p) => ({ x: p.x + 1.5, y: p.y + 2.5 })), true);
   }
-  washFill(g, sheet, opts.fill ?? INK_UI.parchment, seed, opts.fillAlpha ?? 1, 0.35);
+  // The registration offset is what separates a card from the sheet under it.
+  //
+  // A Đông Hồ print is pulled colour-block first, contour-block last, and the two never land in
+  // perfect register — so a sliver of the colour sits outside its own outline. At 0.35 that sliver
+  // was sub-pixel and the card read as cream on cream. At 0.6 it is about a pixel of ground showing
+  // along two edges, which is the medium's own way of saying "this is a separate sheet" — and it
+  // costs nothing, unlike the drop shadow this replaces the need for.
+  washFill(g, sheet, opts.fill ?? INK_UI.parchment, seed, opts.fillAlpha ?? 1, 0.6);
   inkPath(g, sheet, seed + 1, {
-    width: opts.borderWidth ?? 1.5,
-    alpha: opts.borderAlpha ?? 0.72,
+    width: opts.borderWidth ?? 1.8,
+    alpha: opts.borderAlpha ?? 0.8,
     colour: opts.border ?? PIGMENT.muc,
     wobble: 0.3,
     step: 17,
@@ -845,7 +852,7 @@ export class InkUI {
       fillAlpha = 1,
       border = INK_UI.brush,
       borderAlpha = 0.86,
-      borderWidth = 1.2,
+      borderWidth = 1.8,
       radius = 8,
       cut,
       muted = false,
@@ -966,7 +973,7 @@ export class InkUI {
     else {
       const surface = { fill: opts.fill ?? INK_UI.parchment, fillAlpha: (opts.fillAlpha ?? 1) * (opts.muted ? .55 : 1),
         border: opts.border ?? INK_UI.brush, borderAlpha: (opts.borderAlpha ?? .86) * (opts.muted ? .6 : 1),
-        borderWidth: opts.borderWidth ?? 1.2, cut: opts.cut, seed: Math.round(bounds.width) };
+        borderWidth: opts.borderWidth ?? 1.8, cut: opts.cut, seed: Math.round(bounds.width) };
       const stamp = stampDesign(this.scene, `ui:card:${bounds.width}:${height}:${JSON.stringify(surface)}`,
         { left: -3, top: -3, right: bounds.width + 3, bottom: height + 3 },
         (g, x, y) => { g.translateCanvas(x, y); printedSurface(g, bounds.width, height, surface); g.translateCanvas(-x, -y); }, { pool: 'ui' });
@@ -1777,9 +1784,15 @@ function drawButtonSurface(
 
   g.translateCanvas(0, drop);
   if (variant === 'ghost') {
+    // Quiet, not absent. At the old 0.14 fill and 0.5 border this was a 1.15:1 contrast smudge —
+    // and it is the variant the back and close buttons on every prompt, lane and sheet in Dragon
+    // Ascent are drawn with, so the way out of a page was the least visible thing on it. Raised
+    // until it reads as a control, and no further: the fill is still light and partial and the
+    // border is still `softBrush`, so it stays plainly subordinate to `secondary` (opaque fill,
+    // near-black border at 0.85, 1.6 wide) sitting next to it in the same footer.
     printedSurface(g, width, height, {
-      fill: INK_UI.parchment, fillAlpha: pressed ? 0.2 : 0.14,
-      border: palette.border, borderAlpha: 0.5 * alpha, borderWidth: 1.2, seed, shadow: false,
+      fill: INK_UI.parchment, fillAlpha: pressed ? 0.55 : 0.45,
+      border: palette.border, borderAlpha: 0.72 * alpha, borderWidth: 1.2, seed, shadow: false,
     });
   } else {
     printedSurface(g, width, height, {

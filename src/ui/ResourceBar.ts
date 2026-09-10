@@ -25,6 +25,10 @@ export const BAND_HEIGHT = 4;
 export const TITLE_Y = 10;
 /** Centre line of the resource row. */
 export const ROW_Y = 36;
+/** The ledger mark beside the year, and the gap it keeps from the last letter. */
+const LEDGER_HINT_SIZE = 13;
+const LEDGER_HINT_GAP = 8;
+const LEDGER_RULE_HEIGHT = 13;
 export const BOTTOM_BAND_Y = HEADER_HEIGHT - 7;
 
 /**
@@ -48,6 +52,22 @@ const CRISIS_SEASONS = 3;
 
 export class ResourceBar extends Phaser.GameObjects.Container {
   private seasonText: Phaser.GameObjects.Text;
+  /**
+   * The mark that says the strip opens something.
+   *
+   * The ledger's only door is a press on this bar (`conquest/shell.ts`), and it was a
+   * 0.001-alpha rectangle with nothing drawn over it — reported as *"this page is very hard to
+   * open, I don't know how to click to it"*. A hand cursor fixes desktop and does nothing at
+   * all for a phone, so the affordance has to be something you can see.
+   *
+   * Off by default: only Dragon Ascent has a ledger behind the strip, and a mark promising a
+   * page that does not open is worse than no mark. `setLedgerHint` turns it on.
+   */
+  private ledgerHint?: Phaser.GameObjects.Image;
+  /** The rule between the year and the ledger's name, so the two read as separate things. */
+  private ledgerRule?: Phaser.GameObjects.Rectangle;
+  /** The ledger's own title, so the mark says where it goes rather than only that it goes. */
+  private ledgerLabel?: Phaser.GameObjects.Text;
   private resourceTexts: Record<ResourceKey, Phaser.GameObjects.Text>;
   private resourceIcons!: Record<ResourceKey, Phaser.GameObjects.Image>;
   /** Filled plate behind a store that is running out, so the crisis reads at a glance. */
@@ -96,6 +116,31 @@ export class ResourceBar extends Phaser.GameObjects.Container {
 
     this.seasonText = ui.label(12, TITLE_Y, '', 'title', { color: INK_UI_HEX.inkText, fontSize: '15px' });
     this.add(this.seasonText);
+
+    // Beside the year, because the year is the first thing read on the bar and the mark wants to
+    // be found without hunting. Scales rather than a chevron: it names what is behind the press
+    // (the books) instead of only saying that *something* is, and `balance` is the one glyph in
+    // the atlas nothing else in the interface had claimed.
+    // A glyph on its own was tried and was not enough: it says *something* is here without
+    // saying what, which still leaves the player guessing. The door is now a named one — a
+    // rule to separate it from the date, the scales, and the ledger's own title. The title is
+    // `ascent.ledger.title`, the same string the page itself is headed with, so the label and
+    // the place it opens can never drift apart.
+    this.ledgerRule = scene.add
+      .rectangle(0, TITLE_Y, 1, LEDGER_RULE_HEIGHT, PIGMENT.mucSoft, 0.45)
+      .setOrigin(0, 0.5)
+      .setVisible(false);
+    this.add(this.ledgerRule);
+    this.ledgerHint = addConquestUiIcon(scene, 'balance', LEDGER_HINT_SIZE)
+      .setOrigin(0, 0.5)
+      .setAlpha(0.9)
+      .setVisible(false);
+    this.add(this.ledgerHint);
+    this.ledgerLabel = ui.label(0, TITLE_Y, t('ascent.ledger.title'), 'caption', {
+      color: INK_UI_HEX.mutedText,
+      fontSize: '11px',
+    }).setOrigin(0, 0.5).setVisible(false);
+    this.add(this.ledgerLabel);
 
     const itemWidth = (GAME_WIDTH - 24) / RESOURCE_ORDER.length;
     this.resourceTexts = {} as Record<ResourceKey, Phaser.GameObjects.Text>;
@@ -191,6 +236,39 @@ export class ResourceBar extends Phaser.GameObjects.Container {
     };
   }
 
+  /**
+   * Show the mark that the strip opens the ledger. Ascent only — see `ledgerHint`.
+   */
+  setLedgerHint(shown: boolean): void {
+    if (!this.ledgerRule || this.ledgerRule.visible === shown) return;
+    // A failed atlas download leaves the glyph hidden on purpose (`addPrintedIcon`). The rule and
+    // the title still carry the door on their own, so only the scales are held back.
+    const glyph = this.ledgerHint?.getData('conquestUiIcon')?.source === 'generated';
+    this.ledgerRule.setVisible(shown);
+    this.ledgerHint?.setVisible(shown && glyph);
+    this.ledgerLabel?.setVisible(shown);
+    if (shown) this.placeLedgerHint();
+  }
+
+  /**
+   * Lays the rule, the scales and the title out after the year, left to right.
+   *
+   * Every step is measured off the piece before it rather than set at a fixed x: the year is not
+   * a fixed width ("Năm 6 - Đông" against "Năm 16 - Xuân"), and neither is the title, which is a
+   * translated string. A hardcoded offset would sit inside the longer of either.
+   */
+  private placeLedgerHint(): void {
+    const middle = TITLE_Y + this.seasonText.height / 2;
+    let cursor = this.seasonText.x + this.seasonText.width + LEDGER_HINT_GAP;
+    this.ledgerRule?.setPosition(cursor, middle);
+    cursor += 1 + LEDGER_HINT_GAP;
+    if (this.ledgerHint?.visible) {
+      this.ledgerHint.setPosition(cursor, middle);
+      cursor += this.ledgerHint.displayWidth + 4;
+    }
+    this.ledgerLabel?.setPosition(cursor, middle);
+  }
+
   refresh(): void {
     // Tracked so `reflow` — up to sixteen canvas measures — runs only when a label moved.
     // `setText` is guarded by Phaser; `setColor` is not, and re-rasterised four labels per tick
@@ -198,6 +276,14 @@ export class ResourceBar extends Phaser.GameObjects.Container {
     let changed = false;
     changed = writeText(this.seasonText,
       t('time.yearSeason', { year: this.gameState.year, season: seasonLabel(this.gameState.season) })) || changed;
+    // The title is re-read here rather than only at construction: the language switch lives on
+    // the menu today, so a run is never mid-flight when it changes, but a label that silently
+    // keeps the old language the day that stops being true is a bug nobody would look for.
+    if (this.ledgerLabel) changed = writeText(this.ledgerLabel, t('ascent.ledger.title')) || changed;
+    // The year's width moves with the number and the season word, and the title's with the
+    // language, so the row is laid out off the measured text rather than at fixed offsets —
+    // 'Nam 6 - Dong' against 'Nam 16 - Xuan', and 'So Thu Chi' against "The Realm's Books".
+    if (changed && this.ledgerRule?.visible) this.placeLedgerHint();
     RESOURCE_ORDER.forEach((resource) => {
       const rate = this.gameState.resourceRates[resource];
       const signedRate = rate > 0 ? `+${compactNumber(rate)}` : compactNumber(rate);

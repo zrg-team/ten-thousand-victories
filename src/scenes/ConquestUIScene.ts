@@ -133,6 +133,8 @@ export class ConquestUIScene extends Phaser.Scene {
   /** The controls' published tap-guards, so `renderActionBar` can recompose `__hudTapBounds`
    *  every refresh without the stack itself being rebuilt. */
   mapControlBounds: Array<{ x: number; y: number; width: number; height: number }> = [];
+  /** The paused badge's tap target, so the map does not also take a press meant to resume. */
+  pausedBadgeBounds: Array<{ x: number; y: number; width: number; height: number }> = [];
 
   /** Scroll areas register a global wheel handler, so they must be destroyed explicitly. */
   activeScrollAreas: InkScrollArea[] = [];
@@ -698,6 +700,7 @@ export class ConquestUIScene extends Phaser.Scene {
     this.pausedBadgeKey = '';
     this.mapControlsKey = '';
     this.mapControlBounds = [];
+    this.pausedBadgeBounds = [];
     this.battleOpeningTimer?.remove();
     this.battleOpeningTimer = undefined;
     this.reopenBattleAfterPrompt = false;
