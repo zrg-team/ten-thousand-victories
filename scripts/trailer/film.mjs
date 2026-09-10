@@ -52,8 +52,8 @@ export const CUTS = [
     },
     step: drift({ dx: 70, dy: 26 }),
     captions: [
-      { from: 0.6, to: 2.9, line: 'I was given one citadel.' },
-      { from: 3.2, to: 5.1, line: 'The country would not wait.' },
+      { from: 0.6, to: 2.6, line: 'I was given one citadel.' },
+      { from: 3.4, to: 5.1, line: 'The country would not wait.' },
     ],
   },
   // ── the realm, wide ───────────────────────────────────────────────────────────────────────────
@@ -68,8 +68,8 @@ export const CUTS = [
     },
     step: drift({ dx: -60, dy: 40 }),
     captions: [
-      { from: 0.3, to: 2.4, line: 'Forty-two provinces around it.' },
-      { from: 2.7, to: 4.5, line: 'I meant to hold them all.' },
+      { from: 0.3, to: 2.1, line: 'Forty-two provinces around it.' },
+      { from: 2.9, to: 4.5, line: 'I meant to hold them all.' },
     ],
   },
   // ── the cards: where do we press ───────────────────────────────────────────────────────────────
@@ -117,9 +117,13 @@ export const CUTS = [
         window.__phaserGame.scene.getScene('ConquestUIScene').events.emit('state-changed');
       });
     },
+    // Browsed, then taken. A still of a card fan says the game has cards; a hand crossing all four
+    // and lifting the middle one says the game is *played* — and the panel above changes with every
+    // card the browse passes, which is the draft's whole readout.
+    gestures: [{ at: 0.9, kind: 'browse-fan' }, { at: 3.4, kind: 'take-fan' }],
     captions: [
-      { from: 0.4, to: 2.7, line: 'The realm learned as it grew.' },
-      { from: 3.0, to: 5.0, line: 'I chose what it learned.' },
+      { from: 0.4, to: 2.4, line: 'The realm learned as it grew.' },
+      { from: 3.2, to: 5.0, line: 'I chose what it learned.' },
     ],
   },
   // ── the court ─────────────────────────────────────────────────────────────────────────────────
@@ -142,9 +146,16 @@ export const CUTS = [
         ui.events.emit('state-changed');
       });
     },
+    // Two sideways flicks through the three who came, then a lift on the one taken. The dots under
+    // the deck count them off, which is what makes the browse legible at a glance.
+    gestures: [
+      { at: 0.9, kind: 'swipe-next' },
+      { at: 2.1, kind: 'swipe-next' },
+      { at: 3.4, kind: 'swipe-take' },
+    ],
     captions: [
-      { from: 0.4, to: 2.6, line: 'Three answered the call.' },
-      { from: 2.9, to: 4.5, line: 'The treasury could pay one.' },
+      { from: 0.4, to: 2.3, line: 'Three answered the call.' },
+      { from: 3.1, to: 4.5, line: 'The treasury could pay one.' },
     ],
   },
   // ── the build sheet ───────────────────────────────────────────────────────────────────────────
@@ -164,8 +175,8 @@ export const CUTS = [
       });
     },
     captions: [
-      { from: 0.4, to: 2.3, line: 'I raised walls where I could.' },
-      { from: 2.6, to: 4.0, line: 'And rice where I could not.' },
+      { from: 0.4, to: 2.1, line: 'I raised walls where I could.' },
+      { from: 2.9, to: 4.1, line: 'And rice where I could not.' },
     ],
   },
 
@@ -221,8 +232,8 @@ export const CUTS = [
       });
     },
     captions: [
-      { from: 0.4, to: 3.0, line: 'We formed up. The drum fell in five.' },
-      { from: 3.3, to: 5.5, line: 'Every man on it, my own land raised.' },
+      { from: 0.4, to: 2.8, line: 'We formed up. The drum fell in five.' },
+      { from: 3.6, to: 5.5, line: 'Every man on it, my own land raised.' },
     ],
   },
   // ── the five shapes ───────────────────────────────────────────────────────────────────────────
@@ -251,8 +262,8 @@ export const CUTS = [
     seconds: 6,
     taps: [{ at: 1.2, find: 'tempo-press' }],
     captions: [
-      { from: 0.2, to: 2.6, line: 'Then I leaned on it.' },
-      { from: 3.0, to: 5.5, line: 'We were outnumbered. We usually are.' },
+      { from: 0.2, to: 2.4, line: 'Then I leaned on it.' },
+      { from: 3.2, to: 5.5, line: 'We were outnumbered. We usually are.' },
     ],
   },
 
@@ -264,8 +275,8 @@ export const CUTS = [
     seconds: 7,
     open: true,
     captions: [
-      { from: 0.4, to: 3.2, line: 'The chroniclers wrote it all down.', line2: 'Most of it is even true.' },
-      { from: 3.5, to: 6.5, line: 'There is no winning this —', line2: 'only how far I got.' },
+      { from: 0.4, to: 3.0, line: 'The chroniclers wrote it all down.', line2: 'Most of it is even true.' },
+      { from: 3.8, to: 6.5, line: 'There is no winning this —', line2: 'only how far I got.' },
     ],
   },
 
@@ -278,5 +289,33 @@ export const CUTS = [
     end: true,
   },
 ];
+
+/**
+ * The README's GIF: the moments worth 8 MB.
+ *
+ * A GIF of the whole film is 24 MB and no README should carry that, so this is a highlight reel —
+ * seconds of the finished cut, in order, concatenated. They are chosen to catch the *motion*: the
+ * draft window covers the browse across all four cards and the lift of the one taken, and the
+ * summon window covers both sideways flicks and the lift, because a still of either screen says
+ * nothing a screenshot has not already said.
+ *
+ * Times are seconds into `van-thang-trailer-1080x1920.mp4`. If a cut's length changes, these move.
+ */
+export const HIGHLIGHT = [
+  [1.2, 3.9],     // the country, drifting
+  [7.5, 9.8],     // the realm, wide
+  [16.5, 19.6],   // the draft: browse all four, take the middle
+  [21.8, 25.0],   // the summon: flick through all three, lift the one
+  [31.2, 34.2],   // the invasion column reaching the capital
+  [36.5, 39.2],   // the field
+  [43.8, 47.3],   // the shape that answers theirs
+  [56.0, 58.3],   // the Chronicle
+  [63.8, 66.3],   // the end card
+];
+
+// The two hand-played windows above are the long ones on purpose. Everything else in this film
+// reads from a single frame; the draft and the summon do not, because what they are showing is a
+// hand crossing four cards and a deck being flicked through — which is the whole difference between
+// "the game has cards" and "the game is played".
 
 export { D, easeInOut, easeOut };

@@ -76,10 +76,14 @@ function sawtooth(x, y, width, height, colour, alpha) {
  * player's own".
  */
 function caption(spec) {
-  const { line, line2, alpha } = spec;
-  if (!line || alpha <= 0) return;
+  const { line, line2, alpha, plate } = spec;
+  // The plate can be up while the lettering is at zero — that is the hand-over between two lines
+  // on the same sheet — so the band is drawn on `plate`, not on `alpha`.
+  if (!line || (alpha <= 0 && !(plate > 0))) return;
   const lines = line2 ? [line, line2] : [line];
-  return spec.band ? captionBand(lines, alpha, spec.band) : captionFloating(lines, alpha, spec.y);
+  return spec.band
+    ? captionBand(lines, alpha, spec.band, plate ?? alpha)
+    : captionFloating(lines, alpha, spec.y);
 }
 
 /**
@@ -125,7 +129,7 @@ function captionFloating(lines, alpha, y) {
  * bottom the way every band in this game is cut. It reads as a chapter rather than a subtitle, and
  * the only thing it covers is the resource header, which the map cuts have already shown.
  */
-function captionBand(lines, alpha, kind) {
+function captionBand(lines, alpha, kind, plate) {
   // Three screens, two seams. The plate has to end where the game's own layout ends, or it puts a
   // sawtooth through the middle of a line and the text shows above it in halves:
   //
@@ -152,7 +156,10 @@ function captionBand(lines, alpha, kind) {
   // So the paper arrives at its seam and stays there — over three frames, fast enough that nothing
   // underneath is ever legible through it — and the line of type slides down into it behind a clip.
   // Same read as a plate coming down, and the edge never crosses anything.
-  const paper = Math.min(1, t * 6);
+  // The paper follows the *run* of captions, not this one line, so it stays up while one line
+  // hands over to the next. It still arrives fast — three frames — so nothing underneath is ever
+  // legible through it.
+  const paper = Math.min(1, Math.max(0, plate) * 6);
   const eased = 1 - Math.pow(1 - t, 3);
 
   ctx.save();

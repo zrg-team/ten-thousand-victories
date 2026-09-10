@@ -17,8 +17,8 @@ screen was produced by the simulation that produces them in play.
 | 1 | **the country** | the realm at 1.15×, drifting, the season turning under the camera |
 | 2 | **the realm** | the whole map wide — forty-two provinces |
 | 3 | **where do we press** | the conquest card, answered on screen |
-| 4 | **choose your power** | the draft fan, four woodblock prints |
-| 5 | **the court** | a summon — three answer the call |
+| 4 | **choose your power** | the fan browsed across all four, the middle one lifted out |
+| 5 | **the court** | three champions flicked through, one lifted and posted |
 | 6 | **build** | the works sheet, and what expansion costs |
 | 7 | **the invasion** | the host at the walls, and a thumb on the lit Battle button |
 | 8 | **the field** | both hosts ranked in the shapes they hold |
@@ -36,6 +36,7 @@ Needs a dev server and an ffmpeg. ffmpeg is deliberately **not** a dependency of
 yarn dev                                                   # 5179, or pass --url
 node scripts/trailer/build-trailer.mjs                     # capture, compose, encode
 node scripts/trailer/build-trailer.mjs --stage compose     # re-letter without recapturing
+node scripts/trailer/build-trailer.mjs --stage gif         # rebuild the README's GIF
 node scripts/trailer/build-trailer.mjs --only shapes,press  # one chapter, while tuning it
 ```
 
@@ -48,6 +49,26 @@ The sidecar `out/raw/specs.json` records only what the capture alone knows — w
 belongs to, how far into it, and where a thumb went down. **The lettering is not in it.** It was
 once, and that quietly made `--stage compose` a lie: a rewritten line re-composed with the *old*
 words, because the old words were in the sidecar.
+
+## The screens that have to be *handled*
+
+Most of this film reads from a single frame. Two do not, and they are the two the game is most often
+accused of being: a card screen. A still of the draft says the game has cards; a hand crossing all
+four and lifting the middle one says the game is *played* — and the description panel above changes
+with every card the browse passes, which is the draft's whole readout. Same for the summon: two
+sideways flicks through the three who answered, the dots counting them off, then a lift on the one
+taken, and the court immediately asks where they will serve.
+
+Those are real gestures against the game's own thresholds, not animations laid over a screenshot:
+
+| | reads | takes |
+|---|---|---|
+| `CardFan` (the draft) | raises on `pointerover` — a mouse crossing it is a thumb sliding across it | an upward flick of **44** design units that beats its own sideways drift |
+| `CardStack` (the summon) | a sideways drag of **52** advances the deck | a lift of **58** that beats its own sideways travel |
+
+A gesture cannot be done between two frames the way a tap can: the browse *is* the pointer crossing
+four cards and the flick *is* the distance travelled before release, so both are laid on the
+timeline as a pointer track — one move per captured frame — and play on camera. See `gestureTrack`.
 
 ## The voice
 
@@ -149,6 +170,12 @@ Two more, cheaper:
   the middle of `POWER · INVASION · THREAT`, and then through the Build lane's subtitle. Hence
   `band: 'hud'` and `band: 'top'`; the short one holds a single line, which is better writing over
   a fight anyway.
+- **The plate belongs to the *run* of captions, not to one line.** Deriving the paper from the
+  active caption's own alpha means that at a hand-over between two lines it follows the outgoing one
+  down to nothing and snaps back for the incoming one — one frame of bare screen between two lines
+  that are meant to be on the same sheet, which reads as a hard flicker. The lettering cross-fades;
+  the plate ramps only at the two ends of the run. Captions need a gap of at least 0.7 s for the
+  text to hand over cleanly and no more than 1.5 s or they stop being one run.
 - **Do not animate the plate by sliding the plate.** The obvious version — bring the whole thing
   down from above the top edge — reintroduces the seam bug as motion: for the five frames its
   bottom edge is travelling, that edge is across the resource row, and any frame caught then shows

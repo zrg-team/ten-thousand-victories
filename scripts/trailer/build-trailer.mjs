@@ -29,7 +29,7 @@ import { chromium } from 'playwright';
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { CUTS } from './film.mjs';
+import { CUTS, HIGHLIGHT } from './film.mjs';
 import { advance, boot, frameOn, installCrank, crank, newPage, toMenu, FIRST_CHOICE, FPS } from './game.mjs';
 
 const arg = (flag, fallback) => {
@@ -42,6 +42,7 @@ const ONLY = (arg('--only', '') || '').split(',').filter(Boolean);
 const RAW = arg('--frames', 'scripts/trailer/out/raw');
 const COMPOSED = 'scripts/trailer/out/composed';
 const OUT = arg('--out', 'scripts/trailer/out/van-thang-trailer-1080x1920.mp4');
+const GIF = arg('--gif', 'docs/readme/trailer.gif');
 
 // The capture surface. 360x640 CSS at 3.25x gives 1170x2080 device pixels, and the game's own
 // design surface resolves to 390x693 there — a 9:16 sheet, so the trailer is full bleed with no
@@ -265,6 +266,51 @@ window.__trailerInit = async () => {
         x: b.x + seg * (pick + 0.5), y: b.y + b.height / 2,
         note: FORMATION_RING[pick] + ' answers ' + theirs + ' (we hold ' + battle.ourFormation + ')',
       };
+    }
+    // The draft fan's four cards. Each is a Phaser Zone of identical size inside its own card
+    // container, and the fan browses on 'pointerover' — a mouse crossing them raises each in turn,
+    // which is the same gesture a thumb sliding across the fan makes.
+    if (kind === 'fan-cards') {
+      const zones = [];
+      const walk = (obj) => {
+        if (!obj) return;
+        if (obj.type === 'Zone' && obj.input && obj.input.enabled && obj.getBounds) {
+          const r = obj.getBounds();
+          zones.push({ x: r.x + r.width / 2, y: r.y + r.height / 2, w: Math.round(r.width), h: Math.round(r.height) });
+        }
+        const kids = obj.list || (obj.getChildren && obj.getChildren());
+        if (kids) kids.forEach(walk);
+      };
+      walk(ui.modalLayer);
+      const groups = {};
+      zones.forEach((z) => { const key = z.w + 'x' + z.h; (groups[key] = groups[key] || []).push(z); });
+      const fan = Object.keys(groups).map((k) => groups[k])
+        .filter((g) => g.length >= 3)
+        .sort((a, b) => b[0].w * b[0].h - a[0].w * a[0].h)[0];
+      if (!fan) return { fail: 'no fan zones on screen' };
+      fan.sort((a, b) => a.x - b.x);
+      return { cards: fan };
+    }
+    // The summon deck. Its input is on the *scene*, not on a hit area, so there is nothing
+    // interactive to find — the thing to locate is the deck container itself, and a press anywhere
+    // inside it starts a drag.
+    if (kind === 'card-stack') {
+      let best;
+      const walk = (obj) => {
+        if (!obj) return;
+        if (obj.type === 'Container' && obj.getBounds) {
+          const r = obj.getBounds();
+          if (r.width > 300 && r.width < 392 && r.height > 190 && r.height < 400) {
+            if (!best || r.width * r.height > best.area) {
+              best = { x: r.x + r.width / 2, y: r.y + r.height / 2, area: r.width * r.height };
+            }
+          }
+        }
+        const kids = obj.list || (obj.getChildren && obj.getChildren());
+        if (kids) kids.forEach(walk);
+      };
+      walk(ui.modalLayer);
+      return best ? { x: best.x, y: best.y } : { fail: 'no card stack on screen' };
     }
     if (kind === 'option') {
       // Every prompt lays a full-screen interactive backdrop first, so a naive "topmost
@@ -490,9 +536,40 @@ async function capture() {
 
       // Taps are placed on the timeline, not in the loop, so a cut reads as a script.
       const taps = (cut.taps ?? []).map((tap) => ({ ...tap, frame: seconds(tap.at), fired: false, at: null }));
+      const moves = (cut.gestures ?? []).map((g) => ({ ...g, frame: seconds(g.at), fired: false }));
+      let track = [];                       // pointer steps still to play, in frame order
+      let held = null;                      // the fan card a browse came to rest on
       let ripple = null;
 
       for (let i = 0; i < total; i += 1) {
+        // Gestures first: they own the pointer for the frames they run over.
+        for (const move of moves) {
+          if (move.fired || i < move.frame) continue;
+          move.fired = true;
+          const found = await page.evaluate(
+            (k) => window.__target(k),
+            move.kind === 'browse-fan' ? 'fan-cards' : move.kind === 'take-fan' ? 'fan-cards' : 'card-stack',
+          );
+          if (!found || found.fail) {
+            console.log(`      ${move.kind}: ${found?.fail ?? 'nothing to touch'}`);
+            continue;
+          }
+          const anchorAt = move.kind === 'take-fan'
+            ? { card: held ?? found.cards[Math.floor((found.cards.length - 1) / 2)] }
+            : found;
+          const built = gestureTrack(move.kind, anchorAt);
+          if (built.hold) held = built.hold;
+          track = track.concat(built.steps.map((step) => ({ ...step, frame: i + step.at })));
+          if (move.kind !== 'browse-fan') ripple = { dx: anchorAt.card?.x ?? found.x, dy: anchorAt.card?.y ?? found.y, from: i };
+        }
+        const css = VIEW.width / 390;
+        for (const step of track.filter((one) => one.frame === i)) {
+          await page.mouse.move(step.x * css, step.y * css);
+          if (step.down) await page.mouse.down();
+          if (step.up) await page.mouse.up();
+        }
+        track = track.filter((one) => one.frame > i);
+
         for (const tap of taps) {
           if (tap.fired || i < tap.frame) continue;
           const at = await doTap(page, tap.find, tap.hold ?? 0);
@@ -572,6 +649,59 @@ async function doTap(page, kind, hold = 0) {
   return at;
 }
 
+/**
+ * A gesture, as a pointer track laid on the timeline.
+ *
+ * A tap can be done between two frames. A gesture cannot: browsing a fan *is* the pointer crossing
+ * four cards, and a flick *is* the distance travelled before the release — so both have to happen
+ * across frames the camera is actually recording, one move per frame, or the film shows a card
+ * changing with nothing touching it.
+ *
+ * Every step is `{ at, x, y, down, up }` in design units, `at` counted from the frame the gesture
+ * fires on. The capture loop plays whichever steps are due before it takes each shot.
+ *
+ * The thresholds are the game's own, in design units, and they are why the numbers here are what
+ * they are: `CardFan` takes a card on a rise of 44 that beats its own sideways drift, and
+ * `CardStack` advances on a sideways 52 and lifts on a rise of 58.
+ */
+function gestureTrack(kind, at) {
+  const steps = [];
+  const glide = (from, to, frames, extra = {}) => {
+    for (let f = 1; f <= frames; f += 1) {
+      const u = f / frames;
+      steps.push({ at: steps.length ? steps[steps.length - 1].at + 1 : 1, x: from.x + (to.x - from.x) * u, y: from.y + (to.y - from.y) * u, ...(f === frames ? extra : {}) });
+    }
+  };
+
+  if (kind === 'browse-fan') {
+    const cards = at.cards;
+    const middle = cards[Math.floor((cards.length - 1) / 2)];
+    // Across every card left to right, then back to rest on the middle one — the browse a thumb
+    // makes, and the reason the description panel above changes four times.
+    steps.push({ at: 0, x: cards[0].x, y: cards[0].y });
+    for (let i = 1; i < cards.length; i += 1) glide(cards[i - 1], cards[i], 7);
+    glide(cards[cards.length - 1], middle, 8);
+    return { steps, hold: middle };
+  }
+  if (kind === 'take-fan') {
+    const card = at.card;
+    steps.push({ at: 0, x: card.x, y: card.y, down: true });
+    glide(card, { x: card.x, y: card.y - 72 }, 9, { up: true });
+    return { steps };
+  }
+  if (kind === 'swipe-next') {
+    steps.push({ at: 0, x: at.x, y: at.y, down: true });
+    glide(at, { x: at.x + 78, y: at.y }, 7, { up: true });
+    return { steps };
+  }
+  if (kind === 'swipe-take') {
+    steps.push({ at: 0, x: at.x, y: at.y, down: true });
+    glide(at, { x: at.x, y: at.y - 86 }, 9, { up: true });
+    return { steps };
+  }
+  return { steps };
+}
+
 /** What the compositor is told about one frame. */
 function spec(cut, i, total, frame, ripple) {
   const u = total <= 1 ? 1 : i / (total - 1);
@@ -586,12 +716,46 @@ function spec(cut, i, total, frame, ripple) {
   if (cut.end && i > total - fadeFrames * 3) fade = Math.max(fade, 0);
   out.fade = fade;
 
-  for (const c of cut.captions ?? []) {
-    if (time < c.from - 0.35 || time > c.to + 0.35) continue;
-    const rise = Math.min(1, Math.max(0, (time - (c.from - 0.35)) / 0.35));
-    const fall = Math.min(1, Math.max(0, (c.to + 0.35 - time) / 0.35));
-    out.caption = { line: c.line, line2: c.line2, y: c.y, band: cut.band, alpha: Math.min(rise, fall) };
-    break;
+  // ── which line, and whether the plate is up ────────────────────────────────────────────────────
+  //
+  // These are two different questions and answering them as one made the plate blink.
+  //
+  // A cut with two captions has a moment where the first is leaving and the second arriving. Taking
+  // the *first* caption whose window contains the time, and deriving the paper from that one
+  // caption's alpha, meant the plate followed the outgoing line down to nothing and then snapped
+  // back at full for the incoming one — one frame of bare screen between two lines that are
+  // supposed to be on the same sheet. On the Build cut it read as a hard flicker.
+  //
+  // So: the *lettering* is whichever caption is strongest right now, cross-fading through the
+  // hand-over; the *plate* is up for the whole run of captions, and only ramps at the two ends of
+  // the run. Captions less than 1.5 s apart are one run — which is every pair in this film.
+  const RAMP = 0.35;
+  const alphaAt = (c) => Math.min(
+    Math.min(1, Math.max(0, (time - (c.from - RAMP)) / RAMP)),
+    Math.min(1, Math.max(0, (c.to + RAMP - time) / RAMP)),
+  );
+  const captions = cut.captions ?? [];
+  let strongest = null;
+  let best = 0;
+  for (const c of captions) {
+    const a = alphaAt(c);
+    if (a > best) { best = a; strongest = c; }
+  }
+  if (strongest) {
+    // The run this caption belongs to: walk out either way while the gaps stay short.
+    const at = captions.indexOf(strongest);
+    let first = at;
+    let last = at;
+    while (first > 0 && captions[first].from - captions[first - 1].to <= 1.5) first -= 1;
+    while (last < captions.length - 1 && captions[last + 1].from - captions[last].to <= 1.5) last += 1;
+    const plate = Math.min(
+      Math.min(1, Math.max(0, (time - (captions[first].from - RAMP)) / RAMP)),
+      Math.min(1, Math.max(0, (captions[last].to + RAMP - time) / RAMP)),
+    );
+    out.caption = {
+      line: strongest.line, line2: strongest.line2, y: strongest.y, band: cut.band,
+      alpha: best, plate,
+    };
   }
   if (ripple) {
     const age = (i - ripple.from) / (FPS * 0.75);
@@ -694,8 +858,50 @@ async function encode() {
   console.log(`${OUT} · ${(statSync(OUT).size / 1024 / 1024).toFixed(1)} MB · ${(count / FPS).toFixed(1)}s`);
 }
 
+/**
+ * The README's GIF.
+ *
+ * Not the whole film: 68 seconds of moving woodblock is 24 MB as a GIF whatever you do to it, and
+ * no README should carry that. `HIGHLIGHT` names the seconds worth keeping, they are concatenated
+ * with `select`, and the result is palettised at 360 wide and 12 fps.
+ *
+ * `dither=none` is the counter-intuitive part and it is worth keeping: this is flat pigment on
+ * paper, so an undithered 128-colour palette is both *smaller* — 8 MB against 24 — and cleaner
+ * than a dithered one, which would spray noise across every block of colour the print is made of.
+ */
+async function gif() {
+  const ffmpeg = findFfmpeg();
+  if (!ffmpeg) {
+    console.error('No ffmpeg. Pass --ffmpeg <path>, set $FFMPEG, or put one on PATH.');
+    process.exit(1);
+  }
+  const run = (args) => new Promise((resolve, reject) => {
+    const child = spawn(ffmpeg, args, { stdio: ['ignore', 'ignore', 'pipe'] });
+    let log = '';
+    child.stderr.on('data', (chunk) => { log += chunk.toString(); });
+    // The tail of ffmpeg's log is the only part that ever says what went wrong.
+    child.on('close', (code) => (code === 0
+      ? resolve()
+      : reject(new Error(log.split('\n').slice(-12).join(' | ')))));
+  });
+  const cut = `${OUT.replace(/\.mp4$/, '')}-highlight.mp4`;
+  const palette = `${OUT.replace(/[\/][^\/]+$/, '')}/palette.png`;
+  const select = HIGHLIGHT.map(([from, to]) => `between(t,${from},${to})`).join('+');
+  const held = HIGHLIGHT.reduce((sum, [from, to]) => sum + (to - from), 0);
+  console.log(`gif: ${HIGHLIGHT.length} windows, ${held.toFixed(1)}s -> ${GIF}`);
+  await run(['-y', '-i', OUT, '-vf', `select='${select}',setpts=N/FRAME_RATE/TB`, '-an', cut]);
+  await run(['-y', '-i', cut, '-vf', 'fps=12,scale=360:-1:flags=lanczos,palettegen=stats_mode=diff:max_colors=128', palette]);
+  await run(['-y', '-i', cut, '-i', palette,
+    '-lavfi', 'fps=12,scale=360:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=none:diff_mode=rectangle',
+    '-loop', '0', GIF]);
+  rmSync(palette, { force: true });
+  rmSync(cut, { force: true });
+  console.log(`${GIF} · ${(statSync(GIF).size / 1024 / 1024).toFixed(1)} MB`);
+}
+
 // ────────────────────────────────────────────────────────────────────────────────────────────────
 
 if (STAGE === 'capture' || STAGE === 'all') await capture();
 if (STAGE === 'compose' || STAGE === 'all') await compose();
 if (STAGE === 'encode' || STAGE === 'all') await encode();
+if (STAGE === 'gif' || STAGE === 'all') await gif();
