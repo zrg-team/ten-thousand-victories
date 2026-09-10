@@ -2804,7 +2804,7 @@ export const viAscent = {
   "ascent.screen.noGeneral": "chưa có tướng",
 
   // ── Conquer: provinces and the ways in ───────────────────────────────────
-  "ascent.conquer.title": "Ta ép hướng nào?",
+  "ascent.conquer.title": "Mở rộng bờ cõi về đâu?",
   "ascent.conquer.subtitle": "Đang giữ {held} trấn. Chọn một trấn, rồi chọn cách.",
   "ascent.conquer.subtitleFirst": "Chọn trấn đầu tiên quy về cờ hiệu của ngài.",
   "ascent.conquer.kind.wilderness": "Đất hoang — không chủ, không thành",

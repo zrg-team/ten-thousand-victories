@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Play Vạn Thắng — Ten Thousand Victories</title>
+<meta name="description" content="Vietnamese history, played one-handed. Play free in the browser, or get it on Google Play and the App Store.">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../fonts/fonts.css">
+<meta property="og:title" content="Vạn Thắng — Ten Thousand Victories">
+<meta property="og:description" content="Vietnamese history, played one-handed.">
+<meta property="og:image" content="../share/og-card.jpg">
+<style>
+  :root {
+    --paper: #e9dfc2;
+    --paper-hi: #f3ecd8;
+    --paper-lo: #d8c9a4;
+    --muc: #2a2118;
+    --muc-soft: #57493a;
+    --son: #b33a26;
+    --rule: #c9b78c;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--muc);
+    font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 2.5rem 1.25rem 4rem;
+    display: flex;
+    justify-content: center;
+  }
+  main { width: 100%; max-width: 30rem; text-align: center; }
+
+  .wordmark {
+    font-family: "Source Serif 4", Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(2.6rem, 12vw, 3.6rem);
+    letter-spacing: .01em;
+    margin: 0;
+  }
+  .sub {
+    font-size: .8rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--muc-soft);
+    margin: .35rem 0 0;
+  }
+  .pitch {
+    font-family: "Source Serif 4", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(1.15rem, 5.2vw, 1.5rem);
+    line-height: 1.35;
+    margin: 1.6rem 0 0;
+  }
+  .ask { color: var(--muc-soft); margin: .4rem 0 0; font-size: 1rem; }
+
+  .card {
+    display: block;
+    width: 100%;
+    margin: 1.75rem 0 0;
+    border-radius: 6px;
+    border: 1px solid var(--rule);
+  }
+
+  /* The sawtooth the game prints along the edge of every band. */
+  .saw {
+    height: 10px;
+    margin: 1.75rem 0;
+    background: repeating-linear-gradient(135deg, var(--muc) 0 1px, transparent 1px 7px);
+    opacity: .45;
+  }
+
+  .row { display: grid; gap: .7rem; }
+  a.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .95rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--muc);
+    background: var(--paper-hi);
+    color: var(--muc);
+    font-weight: 600;
+    font-size: 1.02rem;
+    text-decoration: none;
+  }
+  a.button:hover { background: #fff8e6; }
+  a.button.primary {
+    border-color: var(--son);
+    color: var(--son);
+    font-size: 1.12rem;
+  }
+  a.button small { display: block; font-weight: 400; font-size: .78rem; color: var(--muc-soft); }
+  .glyph { font-size: 1.15rem; line-height: 1; }
+
+  .note { color: var(--muc-soft); font-size: .84rem; margin: 1.4rem 0 0; line-height: 1.5; }
+  .seal {
+    font-family: "Source Serif 4", Georgia, serif;
+    font-style: italic;
+    color: var(--muc-soft);
+    margin: 2.2rem 0 0;
+  }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1 class="wordmark">Vạn Thắng</h1>
+  <p class="sub">Ten Thousand Victories</p>
+
+  <p class="pitch" data-en="Vietnamese history, in your hands." data-vi="Lịch sử Việt Nam, trong tay bạn.">Vietnamese history, in your hands.</p>
+  <p class="ask" data-en="How far would your reign get?" data-vi="Triều đại của bạn đi được bao xa?">How far would your reign get?</p>
+
+  <img class="card" src="../share/og-card.jpg" alt="Vạn Thắng — the realm mid-run and a battle, printed like a Đông Hồ woodblock" width="1200" height="630" loading="lazy">
+
+  <div class="saw"></div>
+
+  <div class="row">
+    <a class="button primary" href="../">
+      <span class="glyph">▶</span>
+      <span data-en="Play now, in this browser" data-vi="Chơi ngay trên trình duyệt">Play now, in this browser</span>
+    </a>
+    <a class="button" href="https://play.google.com/store/apps/details?id=zrg.team.vanthang">
+      <span class="glyph">🤖</span>
+      <span>Google Play<small data-en="Android" data-vi="Android">Android</small></span>
+    </a>
+    <a class="button" href="https://apps.apple.com/app/id6805950974">
+      <span class="glyph"></span>
+      <span>App Store<small data-en="iPhone and iPad" data-vi="iPhone và iPad">iPhone and iPad</small></span>
+    </a>
+  </div>
+
+  <p class="note"
+     data-en="The browser version is the whole game. Add it to your home screen and it plays offline."
+     data-vi="Bản trình duyệt là trọn vẹn game. Thêm vào màn hình chính là chơi được ngoại tuyến.">
+    The browser version is the whole game. Add it to your home screen and it plays offline.
+  </p>
+
+  <p class="seal">Nam quốc sơn hà Nam đế cư.</p>
+</main>
+
+<script>
+  // Vietnamese for a Vietnamese browser, English for everyone else. Both strings ship in the markup
+  // so the page reads correctly with no script at all, and there is nothing to fetch.
+  if ((navigator.language || '').toLowerCase().startsWith('vi')) {
+    document.documentElement.lang = 'vi';
+    document.title = 'Chơi Vạn Thắng — Ten Thousand Victories';
+    for (const node of document.querySelectorAll('[data-vi]')) {
+      node.textContent = node.getAttribute('data-vi');
+    }
+  }
+</script>
+</body>
+</html>

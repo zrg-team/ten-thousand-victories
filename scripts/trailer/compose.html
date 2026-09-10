@@ -9,6 +9,8 @@
 <body>
 <canvas id="sheet"></canvas>
 <script type="module">
+import { encodeQr } from '/src/utils/qr.ts';
+
 /**
  * The compositor.
  *
@@ -27,6 +29,7 @@ const PIGMENT = {
   diepLo: '#d8c9a4',
   muc: '#2a2118',
   mucSoft: '#5a4c39',
+  mucFaint: '#8c7e67',
   son: '#b33a26',
   sonDeep: '#8a2a1b',
 };
@@ -41,6 +44,19 @@ const ctx = canvas.getContext('2d', { alpha: false });
 
 const image = new Image();
 let loaded = null;
+
+/**
+ * The river emblem, the same file the launch splash preloads and the menu draws.
+ *
+ * Loaded once at start-up so the opening card can be drawn on any frame without a fetch in the
+ * middle of the composite.
+ */
+const emblem = new Image();
+const emblemReady = new Promise((resolve) => {
+  emblem.onload = () => resolve(true);
+  emblem.onerror = () => resolve(false);
+  emblem.src = '/app-emblem.webp';
+});
 
 function load(dataUrl) {
   return new Promise((resolve, reject) => {
@@ -243,9 +259,22 @@ function ripple(spec, scale, cropX, cropY) {
  */
 function endCard(alpha, lang) {
   if (alpha <= 0) return;
-  // Below the Dragon Ascent button and above the dynasty card, so the band lands on a seam
-  // rather than through the middle of a row.
-  const top = H * 0.565;
+  // High enough to take the mode button with it. Leaving *Rồng Thăng Long* stranded above the paper
+  // read as a band dropped onto a live menu; from here up the card is the wordmark, the river plate
+  // and a sheet, which is a poster rather than a screenshot with a strip over it.
+  const top = H * 0.46;
+  const say = lang === 'vi'
+    ? {
+      pitch: ['Lịch sử Việt Nam,', 'trong tay bạn.'],
+      ask: 'Triều đại của bạn đi được bao xa?',
+      scan: 'Quét để chơi',
+    }
+    : {
+      pitch: ['Vietnamese history,', 'in your hands.'],
+      ask: 'How far would your reign get?',
+      scan: 'Scan to play',
+    };
+
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.fillStyle = PIGMENT.diep;
@@ -255,42 +284,119 @@ function endCard(alpha, lang) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
-  // The Vietnamese card is the game's own README line, not a translation of the English one.
-  const say = lang === 'vi'
-    ? {
-      pitch: ['Game chiến lược roguelite,', 'vẽ theo lối tranh khắc gỗ Đông Hồ.'],
-      free: 'Miễn phí · không quảng cáo · chơi ngoại tuyến',
-      langs: 'Tiếng Việt · English',
-    }
-    : {
-      pitch: ['A grand-strategy roguelite,', 'printed like a Đông Hồ woodblock.'],
-      free: 'Free · no ads · no account · plays offline',
-      langs: 'English · Tiếng Việt',
-    };
-
   ctx.fillStyle = PIGMENT.muc;
-  ctx.font = '600 46px "Source Serif 4", Georgia, serif';
-  ctx.fillText(say.pitch[0], W / 2, top + 170);
-  ctx.fillText(say.pitch[1], W / 2, top + 228);
+  ctx.font = '700 54px "Source Serif 4", Georgia, serif';
+  ctx.fillText(say.pitch[0], W / 2, top + 96);
+  ctx.fillText(say.pitch[1], W / 2, top + 158);
+
+  ctx.fillStyle = PIGMENT.mucSoft;
+  ctx.font = '400 40px "Be Vietnam Pro", system-ui, sans-serif';
+  ctx.fillText(say.ask, W / 2, top + 232);
 
   ctx.fillStyle = PIGMENT.son;
   ctx.fillRect(W / 2 - 90, top + 288, 180, 4);
 
-  ctx.fillStyle = PIGMENT.mucSoft;
-  ctx.font = '400 38px "Be Vietnam Pro", system-ui, sans-serif';
-  ctx.fillText(say.free, W / 2, top + 356);
-  ctx.fillText(say.langs, W / 2, top + 408);
+  // The code, not a pair of store names.
+  //
+  // A trailer is watched on a screen nobody can tap — naming two stores in a video is asking the
+  // viewer to remember a name and go looking. A code is the one thing a phone camera can act on
+  // while the frame is still up, and it goes to a page that offers all three doors at once
+  // (browser, Play, App Store) rather than making the viewer pick the right shop first.
+  drawQr(PLAY_URL, W / 2, top + 350, 300, alpha);
 
+  ctx.globalAlpha = alpha;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
   ctx.fillStyle = PIGMENT.muc;
   ctx.font = '600 40px "Be Vietnam Pro", system-ui, sans-serif';
-  ctx.fillText('zrg-team.github.io/ten-thousand-victories', W / 2, top + 490);
-  ctx.font = '400 34px "Be Vietnam Pro", system-ui, sans-serif';
+  ctx.fillText(say.scan, W / 2, top + 706);
+  ctx.font = '400 32px "Be Vietnam Pro", system-ui, sans-serif';
   ctx.fillStyle = PIGMENT.mucSoft;
-  ctx.fillText('Google Play · App Store', W / 2, top + 542);
+  ctx.fillText('zrg-team.github.io/ten-thousand-victories', W / 2, top + 758);
 
   ctx.font = 'italic 600 36px "Source Serif 4", Georgia, serif';
   ctx.globalAlpha = alpha * 0.75;
-  ctx.fillText('Nam quốc sơn hà Nam đế cư.', W / 2, top + 646);
+  ctx.fillText('Nam quốc sơn hà Nam đế cư.', W / 2, top + 870);
+  ctx.restore();
+}
+
+/** Where the code points: one page, three doors — the browser, Play, the App Store. */
+const PLAY_URL = 'https://zrg-team.github.io/ten-thousand-victories/play/';
+
+/**
+ * The code, drawn by the game's own encoder rather than fetched from anywhere.
+ *
+ * `src/utils/qr.ts` is what the Support modal draws its Wise code with, so the trailer and the game
+ * agree by construction and the film has no asset to keep in step. Quiet zone included — a code
+ * printed hard against a border does not scan.
+ */
+function drawQr(text, cx, top, size, alpha) {
+  const matrix = encodeQr(text, 'M');
+  if (!matrix) return;
+  const quiet = 4;   // the spec's margin; a code printed tighter than this is a code that may not read
+  const span = matrix.size + quiet * 2;
+  const cell = size / span;
+  const x0 = cx - size / 2;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = PIGMENT.diepHi;
+  ctx.fillRect(x0, top, size, size);
+  ctx.strokeStyle = PIGMENT.mucFaint;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x0, top, size, size);
+  ctx.fillStyle = PIGMENT.muc;
+  for (let y = 0; y < matrix.size; y += 1) {
+    for (let x = 0; x < matrix.size; x += 1) {
+      if (!matrix.modules[y][x]) continue;
+      // Ceil, so neighbouring modules meet instead of leaving hairlines a scanner has to guess at.
+      ctx.fillRect(x0 + (x + quiet) * cell, top + (y + quiet) * cell, Math.ceil(cell), Math.ceil(cell));
+    }
+  }
+  ctx.restore();
+}
+
+/**
+ * The card the film opens on.
+ *
+ * A trailer's first frame is its poster — it is what a player sees before they press play, and what
+ * every thumbnail is cut from. This one opened on the dip to paper that fades the first shot in, so
+ * the poster frame was a blank sheet.
+ *
+ * It is the game's own launch splash, rebuilt here from the same parts: the river emblem, the name
+ * printed twice a couple of units apart (a woodblock pulled twice, not a drop shadow — which is why
+ * the offset is #301509 and not a grey), the gloss under it, and the rule. Same construction as
+ * `index.html`'s splash and `MenuScene.renderTitle`, so the film opens on the thing the game opens
+ * on.
+ */
+function intro(alpha) {
+  if (alpha <= 0) return;
+  const mid = H * 0.47;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = PIGMENT.diep;
+  ctx.fillRect(0, 0, W, H);
+
+  if (emblem.naturalWidth) {
+    const width = 380;
+    const height = width * (emblem.naturalHeight / emblem.naturalWidth);
+    ctx.drawImage(emblem, W / 2 - width / 2, mid - height - 40, width, height);
+  }
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const name = 'VẠN THẮNG';
+  ctx.font = '700 118px "Source Serif 4", Georgia, serif';
+  ctx.fillStyle = '#301509';
+  ctx.fillText(name, W / 2 + 5, mid + 82);      // the second pull, off register
+  ctx.fillStyle = PIGMENT.muc;
+  ctx.fillText(name, W / 2, mid + 78);
+
+  ctx.font = '400 36px "Be Vietnam Pro", system-ui, sans-serif';
+  ctx.fillStyle = PIGMENT.mucSoft;
+  ctx.fillText('T E N   T H O U S A N D   V I C T O R I E S', W / 2, mid + 168);
+
+  ctx.fillStyle = PIGMENT.son;
+  ctx.fillRect(W / 2 - 90, mid + 226, 180, 4);
   ctx.restore();
 }
 
@@ -321,7 +427,7 @@ window.__compose = async (spec) => {
   if (spec.caption) caption(spec.caption);
   if (spec.end) endCard(spec.end, spec.lang);
 
-  // The dip to paper between chapters. Last, so it takes the lettering with it.
+  // The dip to paper between chapters. After the lettering, so it takes that with it.
   if (spec.fade > 0) {
     ctx.save();
     ctx.globalAlpha = Math.min(1, spec.fade);
@@ -329,12 +435,36 @@ window.__compose = async (spec) => {
     ctx.fillRect(0, 0, W, H);
     ctx.restore();
   }
+
+  // The opening card goes on top of everything, the dip included. The first cut fades in *from*
+  // paper, so at frame 0 the dip is at full — draw the card before it and the poster frame is a
+  // blank sheet with a title underneath it.
+  if (spec.intro) intro(spec.intro);
+
   return canvas.toDataURL('image/jpeg', 0.94);
 };
 
+/**
+ * Both fonts, in both ranges, before a single frame is drawn.
+ *
+ * The self-hosted faces are split by `unicode-range` — a latin file and a vietnamese one — and the
+ * browser only fetches the file a range actually needs. `fonts.load(font)` with no sample text asks
+ * for the default range, which is the latin one, so a canvas that then draws *VẠN THẮNG* gets the
+ * latin face, misses U+1EAF, and falls back per glyph: the wordmark came out as VẠN THĂ´NG, with
+ * the acute sitting beside the breve instead of on it.
+ *
+ * Passing text is what makes the loader fetch the range that covers it. Every size the film sets
+ * is listed because `fonts.load` matches on the whole shorthand, not just the family.
+ */
+const VIET = 'VẠN THẮNG đêểọụỹ Cố thủ Thúc quân Lịch sử Việt Nam';
+await emblemReady;
 await document.fonts.ready;
-await document.fonts.load('700 56px "Source Serif 4"');
-await document.fonts.load('600 44px "Be Vietnam Pro"');
+await Promise.all([
+  ...['700 118px', '700 56px', '700 48px', '700 42px', '600 54px', '600 46px', 'italic 600 36px']
+    .map((face) => document.fonts.load(`${face} "Source Serif 4"`, VIET)),
+  ...['600 44px', '600 40px', '400 40px', '400 38px', '400 32px', '400 36px']
+    .map((face) => document.fonts.load(`${face} "Be Vietnam Pro"`, VIET)),
+]);
 window.__composeReady = true;
 </script>
 </body>

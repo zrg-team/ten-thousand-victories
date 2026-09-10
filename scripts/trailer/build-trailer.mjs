@@ -526,6 +526,30 @@ const PAGES = {
     const page = await newPage(browser, view());
     await toMenu(page, URL);
     await page.waitForTimeout(1200);
+    // No tip on the end card.
+    //
+    // The front page raises one of the fifty tips a second or three after it builds — right for a
+    // player standing at the menu, and a speech bubble across the middle of the plate for a title
+    // card. Cancelling the timer is not enough on its own: the delay is `1400 + random * 1600`
+    // against a wait of 1200, so it is a race, and the Vietnamese cut lost it — the same code
+    // photographed a clean card in English and a tip in Vietnamese.
+    //
+    // Two locks instead. `render()` rebuilds the page, which destroys a badge already standing;
+    // then the fresh timer is cancelled *and* `tipAnchor` is cleared, which is the thing both
+    // `armTipBadge` and `showTipBadge` bail on. After this there is no arrangement of timers that
+    // can put a tip on the card.
+    await page.evaluate(() => {
+      const menu = window.__phaserGame.scene.getScene('MenuScene');
+      if (!menu) return;
+      menu.tipBadgeTimer?.remove();
+      menu.tipBadgeTimer = undefined;
+      menu.render();
+      menu.tipBadgeTimer?.remove();
+      menu.tipBadgeTimer = undefined;
+      menu.tipBadgeShown = true;
+      menu.tipAnchor = undefined;
+    });
+    await page.waitForTimeout(900);
     await page.evaluate(() => {
       const game = window.__phaserGame;
       game.loop.stop();
@@ -749,6 +773,14 @@ function spec(cut, i, total, frame, ripple, timeline = []) {
   const time = i / FPS;
   const kb = cut.kenburns;
   const out = { frame, zoom: kb ? kb.from + (kb.to - kb.from) * u : 1, ax: kb?.ax ?? 0, ay: kb?.ay ?? 0 };
+
+  // The opening card, over the first second and a bit of the film. A trailer's first frame is its
+  // poster; this one was the blank sheet the first shot fades in from.
+  const INTRO_HOLD = Math.round(1.1 * FPS);
+  const INTRO_FADE = Math.round(0.7 * FPS);
+  if (frame < INTRO_HOLD + INTRO_FADE) {
+    out.intro = frame <= INTRO_HOLD ? 1 : 1 - (frame - INTRO_HOLD) / INTRO_FADE;
+  }
 
   // The dip to paper: only at a chapter's edge, so the cuts inside a chapter stay hard and quick.
   const fadeFrames = 7;

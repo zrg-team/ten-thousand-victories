@@ -53,7 +53,7 @@ export const CUTS = [
     },
     step: drift({ dx: 70, dy: 26 }),
     captions: [
-      { from: 0.7, to: 4.6, line: 'I was given one citadel,', line2: 'and the country would not wait.',
+      { from: 2.1, to: 4.9, line: 'I was given one citadel,', line2: 'and the country would not wait.',
         vi: { line: 'Ngày ta đăng cơ, chỉ một tòa thành.', line2: 'Giang sơn hối hả, chẳng đợi ai.' } },
     ],
   },
@@ -97,7 +97,7 @@ export const CUTS = [
     taps: [{ at: 2.6, find: 'option', hold: 0.9 }],
     captions: [
       { from: 0.7, to: 4.1, line: 'My ministers asked me', line2: 'where we should press.',
-        vi: { line: 'Triều đình hỏi ta', line2: 'nên ép hướng nào.' } },
+        vi: { line: 'Triều đình hỏi ta', line2: 'nên mở rộng về đâu.' } },
     ],
   },
   // ── the power draft ───────────────────────────────────────────────────────────────────────────
