@@ -1258,6 +1258,7 @@ export const enAscent = {
   "ascent.march.loss": "{army} crossed {land}: lost {n} soldiers on the march.",
   "ascent.march.safe": "{army} crossed {land} undetected: no marching losses.",
   // ── Supply lines: what the shape of the realm is worth ──
+  "ascent.order.contested": "{land} is being taken. No order reaches it until the province is held again.",
   "ascent.supply.cutToast": "{land} is cut off from the capital. It now delivers 45% of what it makes.",
   "ascent.supply.restoredToast": "The road to {land} is open again. It delivers in full.",
   "ascent.supply.row": "Supply",
@@ -3429,6 +3430,7 @@ export const viAscent = {
   "ascent.march.loss": "{army} qua {land}: mất {n} quân trên đường hành quân.",
   "ascent.march.safe": "{army} qua {land} không bị phát hiện: không mất quân.",
   // ── Đường tiếp vận ──
+  "ascent.order.contested": "{land} đang bị chiếm. Lệnh không tới được cho tới khi giữ lại được phủ.",
   "ascent.supply.cutToast": "{land} đã bị cắt đường về kinh. Nay chỉ nộp được 45% sản vật.",
   "ascent.supply.restoredToast": "Đường về {land} đã thông. Nộp đủ như cũ.",
   "ascent.supply.row": "Tiếp vận",

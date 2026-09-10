@@ -24,7 +24,7 @@ import {
 import { progressCourt } from '../CourtSystem';
 import { tickDiplomacy } from '../DiplomacySystem';
 import { tickAllyColumns } from './AllySupport';
-import { refreshPlayerVisibility } from '../LandSystem';
+import { provinceIsFalling, refreshPlayerVisibility } from '../LandSystem';
 import {
   dissolveGarrisonLevies, resolvePendingBattle, tickAutoDefend, tickInvasions, tickSieges,
 } from '../empire/InvasionSystem';
@@ -316,8 +316,15 @@ export function advanceAscentTick(state: GameState): void {
   // back in. A levy is a host for the length of one battle and no longer — see
   // `raiseGarrisonLevy`. Reading only `activeBattle` here would send home the militia standing in
   // a general's line on another front, mid-fight.
+  //
+  // The one exception is ground an enemy is in the act of taking. That province fights for nobody
+  // (`battleMembership`), so its turnout is not "standing in a line" — it is a host with no side,
+  // and leaving it in `state.armies` until the realm next falls quiet left a phantom garrison on
+  // ground already lost. It goes home on its own, whatever else is being fought.
   if (liveBattleCount(state) === 0 && !state.pendingBattle) {
     dissolveGarrisonLevies(state);
+  } else {
+    dissolveGarrisonLevies(state, (army) => provinceIsFalling(state, army.landId));
   }
 
   settleOwnedLands(state);

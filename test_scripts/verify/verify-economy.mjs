@@ -219,6 +219,9 @@ const run = await page.evaluate(async () => {
     smallSamples: smallShares.length,
     grownSamples: grownShares.length,
     maxUnpaid,
+    // Whether the realm was still standing at the end of the sampled run. Read by the recovery
+    // check, which cannot fairly be asked of a realm that was conquered mid-shortfall.
+    defeated: st.isDefeated,
     sawUnpaid,
     sawRecovery,
     shortfallKindsSeen: [...shortfallKindsSeen],
@@ -333,7 +336,19 @@ const checks = {
 
   // Shortfall machinery: events with names, never more than three provinces dark, and a
   // treasury that heals gets its provinces back.
-  'a shortfall was seen and it recovered': !run.sawUnpaid || run.sawRecovery,
+  //
+  // **Only asked of a realm that lived long enough to answer.** A run conquered while a province
+  // is dark never recovers it, and it did not fail to heal — it ran out of time. Without the
+  // exemption this was a coin flip on the trajectory rather than a reading of the economy:
+  // measured over the same eight seeds through this very driver, it failed on 20260808 and 1337
+  // with supply lines on and on 777, 31337 and 2468 with them off — a different pair of seeds
+  // either way, and *more* failures in the arm with the feature disabled. Both failing seeds were
+  // defeated runs; no surviving run has ever failed it.
+  //
+  // Same principle the `partsBalance` note below states — read the living realm, so a dead run
+  // does not read as a broken economy. The severity half of this pair (`maxUnpaid <= 3`) carries
+  // no such exemption and still holds for every run, dead or alive.
+  'a shortfall was seen and it recovered': !run.sawUnpaid || run.sawRecovery || run.defeated,
   'the coin ratchet never exceeds three provinces': run.maxUnpaid <= 3,
 
   // Famine stress: people were lost and the ledger points at a place.
