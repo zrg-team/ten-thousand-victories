@@ -107,17 +107,55 @@ export const CUTS = [
     page: 'run',
     seconds: 5.5,
     async stage(page, ctx) {
-      await page.evaluate(async () => {
+      // Deal for a hand whose readout keeps its print.
+      //
+      // A preference, not a repair. The readout draws the card's woodblock in whatever room is left
+      // under the text and needs 46 units for it; on a 693-unit sheet a long description often
+      // leaves less. That used to matter — the panel was sized to the room it was *allowed*, so a
+      // hand without a print framed a hand's worth of blank paper and read as a picture that had
+      // failed to load. `showPowerDraft` cuts the panel to its content now, so any hand looks
+      // right, and this only asks for the one that also has the picture in it.
+      //
+      // On this sheet none of them do, and that is fine: it deals its fourteen and takes the last.
+      // Left in because it costs a second and would pick the better hand on any sheet with the room
+      // — and because removing it would deal a different hand than the cut on the README.
+      const dealt = await page.evaluate(async () => {
         const st = window.__mandateState;
-        st.pendingAscentPrompt = undefined;
-        st.ascent.promptQueue = [];
+        const ui = window.__phaserGame.scene.getScene('ConquestUIScene');
         const { offerPowerDraft } = await import('/src/systems/ascent/PowerDraftSystem.ts');
         const { drainAscentPrompts } = await import('/src/systems/ascent/AscentState.ts');
-        st.ascent.pendingLevelUps = Math.max(1, st.ascent.pendingLevelUps ?? 0);
-        offerPowerDraft(st);
-        drainAscentPrompts(st);
-        window.__phaserGame.scene.getScene('ConquestUIScene').events.emit('state-changed');
+        // By width, not by position. Every card in the hand carries a print of its own, so a search
+        // for "any print" finds one on attempt 1 and stops — which is what it did, leaving the
+        // readout as empty as before. The readout's print spans the panel (~350 design units); a
+        // card's is a thumbnail inside a 110-unit card. Nothing else on the sheet is that wide.
+        const readoutHasPrint = () => {
+          let found = false;
+          const walk = (obj) => {
+            if (!obj || found) return;
+            if (obj.getData && obj.getData('storyPrint') && obj.getBounds && obj.getBounds().width > 250) {
+              found = true;
+            }
+            const kids = obj.list || (obj.getChildren && obj.getChildren());
+            if (kids) kids.forEach(walk);
+          };
+          walk(ui.modalLayer);
+          return found;
+        };
+        for (let attempt = 1; attempt <= 14; attempt += 1) {
+          st.pendingAscentPrompt = undefined;
+          st.ascent.promptQueue = [];
+          st.ascent.pendingLevelUps = Math.max(1, st.ascent.pendingLevelUps ?? 0);
+          offerPowerDraft(st);
+          drainAscentPrompts(st);
+          ui.events.emit('state-changed');
+          // A frame of real time, so the shell rebuilds the prompt before it is read; a
+          // zero-delta step redraws what is there and would read the *previous* hand's panel.
+          window.__tick(1000 / 30);
+          if (readoutHasPrint()) return attempt;
+        }
+        return 0;
       });
+      if (!dealt) console.log('      draft: no hand had room for its print on this sheet — any hand reads fine');
     },
     // Browsed, then taken. A still of a card fan says the game has cards; a hand crossing all four
     // and lifting the middle one says the game is *played* — and the panel above changes with every
