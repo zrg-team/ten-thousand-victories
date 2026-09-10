@@ -18,6 +18,7 @@
  *   menu    the front page, for the end card
  */
 
+const FPS = 30;
 const D = 390;                       // design units across; the whole game is laid out against it
 const easeInOut = (u) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
 const easeOut = (u) => 1 - Math.pow(1 - u, 3);
@@ -52,8 +53,8 @@ export const CUTS = [
     },
     step: drift({ dx: 70, dy: 26 }),
     captions: [
-      { from: 0.6, to: 2.6, line: 'I was given one citadel.', vi: { line: 'Ngày ta đăng cơ,', line2: 'trong tay chỉ một tòa thành.' } },
-      { from: 3.4, to: 5.1, line: 'The country would not wait.', vi: { line: 'Giang sơn hối hả, chẳng đợi ai.' } },
+      { from: 2.1, to: 4.9, line: 'I was given one citadel,', line2: 'and the country would not wait.',
+        vi: { line: 'Ngày ta đăng cơ, chỉ một tòa thành.', line2: 'Giang sơn hối hả, chẳng đợi ai.' } },
     ],
   },
   // ── the realm, wide ───────────────────────────────────────────────────────────────────────────
@@ -68,8 +69,8 @@ export const CUTS = [
     },
     step: drift({ dx: -60, dy: 40 }),
     captions: [
-      { from: 0.3, to: 2.1, line: 'Forty-two provinces around it.', vi: { line: 'Ta phải mở rộng giang sơn,' } },
-      { from: 2.9, to: 4.5, line: 'I meant to hold them all.', vi: { line: 'cho xứng tầm tiên đế.' } },
+      { from: 0.7, to: 4.1, line: 'Forty-two provinces around it.', line2: 'I meant to hold them all.',
+        vi: { line: 'Ta phải mở rộng giang sơn,', line2: 'cho xứng tầm tiên đế.' } },
     ],
   },
   // ── the cards: where do we press ───────────────────────────────────────────────────────────────
@@ -95,8 +96,8 @@ export const CUTS = [
     // Held, not tapped: the card says so itself — *hold a card to choose it*.
     taps: [{ at: 2.6, find: 'option', hold: 0.9 }],
     captions: [
-      { from: 0.4, to: 4.4, line: 'My ministers asked me', line2: 'where we should press.',
-        vi: { line: 'Triều đình hỏi ta', line2: 'nên ép hướng nào.' } },
+      { from: 0.7, to: 4.1, line: 'My ministers asked me', line2: 'where we should press.',
+        vi: { line: 'Triều đình hỏi ta', line2: 'nên mở rộng về đâu.' } },
     ],
   },
   // ── the power draft ───────────────────────────────────────────────────────────────────────────
@@ -106,25 +107,63 @@ export const CUTS = [
     page: 'run',
     seconds: 5.5,
     async stage(page, ctx) {
-      await page.evaluate(async () => {
+      // Deal for a hand whose readout keeps its print.
+      //
+      // A preference, not a repair. The readout draws the card's woodblock in whatever room is left
+      // under the text and needs 46 units for it; on a 693-unit sheet a long description often
+      // leaves less. That used to matter — the panel was sized to the room it was *allowed*, so a
+      // hand without a print framed a hand's worth of blank paper and read as a picture that had
+      // failed to load. `showPowerDraft` cuts the panel to its content now, so any hand looks
+      // right, and this only asks for the one that also has the picture in it.
+      //
+      // On this sheet none of them do, and that is fine: it deals its fourteen and takes the last.
+      // Left in because it costs a second and would pick the better hand on any sheet with the room
+      // — and because removing it would deal a different hand than the cut on the README.
+      const dealt = await page.evaluate(async () => {
         const st = window.__mandateState;
-        st.pendingAscentPrompt = undefined;
-        st.ascent.promptQueue = [];
+        const ui = window.__phaserGame.scene.getScene('ConquestUIScene');
         const { offerPowerDraft } = await import('/src/systems/ascent/PowerDraftSystem.ts');
         const { drainAscentPrompts } = await import('/src/systems/ascent/AscentState.ts');
-        st.ascent.pendingLevelUps = Math.max(1, st.ascent.pendingLevelUps ?? 0);
-        offerPowerDraft(st);
-        drainAscentPrompts(st);
-        window.__phaserGame.scene.getScene('ConquestUIScene').events.emit('state-changed');
+        // By width, not by position. Every card in the hand carries a print of its own, so a search
+        // for "any print" finds one on attempt 1 and stops — which is what it did, leaving the
+        // readout as empty as before. The readout's print spans the panel (~350 design units); a
+        // card's is a thumbnail inside a 110-unit card. Nothing else on the sheet is that wide.
+        const readoutHasPrint = () => {
+          let found = false;
+          const walk = (obj) => {
+            if (!obj || found) return;
+            if (obj.getData && obj.getData('storyPrint') && obj.getBounds && obj.getBounds().width > 250) {
+              found = true;
+            }
+            const kids = obj.list || (obj.getChildren && obj.getChildren());
+            if (kids) kids.forEach(walk);
+          };
+          walk(ui.modalLayer);
+          return found;
+        };
+        for (let attempt = 1; attempt <= 14; attempt += 1) {
+          st.pendingAscentPrompt = undefined;
+          st.ascent.promptQueue = [];
+          st.ascent.pendingLevelUps = Math.max(1, st.ascent.pendingLevelUps ?? 0);
+          offerPowerDraft(st);
+          drainAscentPrompts(st);
+          ui.events.emit('state-changed');
+          // A frame of real time, so the shell rebuilds the prompt before it is read; a
+          // zero-delta step redraws what is there and would read the *previous* hand's panel.
+          window.__tick(1000 / 30);
+          if (readoutHasPrint()) return attempt;
+        }
+        return 0;
       });
+      if (!dealt) console.log('      draft: no hand had room for its print on this sheet — any hand reads fine');
     },
     // Browsed, then taken. A still of a card fan says the game has cards; a hand crossing all four
     // and lifting the middle one says the game is *played* — and the panel above changes with every
     // card the browse passes, which is the draft's whole readout.
     gestures: [{ at: 0.9, kind: 'browse-fan' }, { at: 3.4, kind: 'take-fan' }],
     captions: [
-      { from: 0.4, to: 2.4, line: 'The realm learned as it grew.', vi: { line: 'Giang sơn lớn đến đâu, học đến đó.' } },
-      { from: 3.2, to: 5.0, line: 'I chose what it learned.', vi: { line: 'Học gì là do ta chọn.' } },
+      { from: 0.7, to: 4.6, line: 'The realm learned as it grew,', line2: 'and I chose what it learned.',
+        vi: { line: 'Giang sơn lớn đến đâu, học đến đó;', line2: 'học gì là do ta chọn.' } },
     ],
   },
   // ── the court ─────────────────────────────────────────────────────────────────────────────────
@@ -155,8 +194,8 @@ export const CUTS = [
       { at: 3.4, kind: 'swipe-take' },
     ],
     captions: [
-      { from: 0.4, to: 2.3, line: 'Three answered the call.', vi: { line: 'Ba người đến ứng mộ.' } },
-      { from: 3.1, to: 4.5, line: 'The treasury could pay one.', vi: { line: 'Ngân khố chỉ nuôi nổi một.' } },
+      { from: 0.7, to: 4.1, line: 'Three answered the call.', line2: 'The treasury could pay one.',
+        vi: { line: 'Ba người đến ứng mộ,', line2: 'ngân khố chỉ nuôi nổi một.' } },
     ],
   },
   // ── the build sheet ───────────────────────────────────────────────────────────────────────────
@@ -176,8 +215,8 @@ export const CUTS = [
       });
     },
     captions: [
-      { from: 0.4, to: 2.1, line: 'I raised walls where I could.', vi: { line: 'Chỗ nào xây được thành, ta xây.' } },
-      { from: 2.9, to: 4.1, line: 'And rice where I could not.', vi: { line: 'Chỗ nào không, thì trồng lúa.' } },
+      { from: 0.7, to: 3.6, line: 'I raised walls where I could,', line2: 'and rice where I could not.',
+        vi: { line: 'Chỗ nào xây được thành, ta xây;', line2: 'chỗ nào không, thì trồng lúa.' } },
     ],
   },
 
@@ -201,7 +240,7 @@ export const CUTS = [
     step: drift({ dx: 40, dy: -18 }),
     taps: [{ at: 4.4, find: 'battle-button' }],
     captions: [
-      { from: 0.3, to: 3.6, line: 'Then the north came down,', line2: 'the way it always does.',
+      { from: 0.7, to: 4.1, line: 'Then the north came down,', line2: 'the way it always does.',
         vi: { line: 'Rồi phương Bắc kéo xuống,', line2: 'như xưa nay vẫn thế.' } },
     ],
   },
@@ -234,8 +273,8 @@ export const CUTS = [
       });
     },
     captions: [
-      { from: 0.4, to: 2.8, line: 'We formed up. The drum fell in five.', vi: { line: 'Hai bên dàn trận. Trống điểm năm hồi.' } },
-      { from: 3.6, to: 5.5, line: 'Every man on it, my own land raised.', vi: { line: 'Từng người lính ấy, đất ta nuôi cả.' } },
+      { from: 0.7, to: 5.1, line: 'We formed up. The drum fell in five.', line2: 'Every man on it, my own land raised.',
+        vi: { line: 'Hai bên dàn trận, trống điểm năm hồi.', line2: 'Từng người lính ấy, đất ta nuôi cả.' } },
     ],
   },
   // ── the five shapes ───────────────────────────────────────────────────────────────────────────
@@ -250,8 +289,8 @@ export const CUTS = [
     // player reads it off the words over their line.
     taps: [{ at: 2.6, find: 'shape-any' }],
     captions: [
-      { from: 0.3, to: 2.4, line: 'They showed me what they held.', vi: { line: 'Chúng để lộ thế đang giữ.' } },
-      { from: 3.4, to: 6.5, line: 'I answered with what breaks it.', vi: { line: 'Ta đáp bằng thế khắc nó.' } },
+      { from: 0.7, to: 6.1, line: 'They showed me what they held.', line2: 'I answered with what breaks it.',
+        vi: { line: 'Chúng để lộ thế đang giữ;', line2: 'ta đáp bằng thế khắc nó.' } },
     ],
   },
   // ── the tempo dial ────────────────────────────────────────────────────────────────────────────
@@ -264,8 +303,8 @@ export const CUTS = [
     seconds: 6,
     taps: [{ at: 1.2, find: 'tempo-press' }],
     captions: [
-      { from: 0.2, to: 2.4, line: 'Then I leaned on it.', vi: { line: 'Rồi ta thúc quân.' } },
-      { from: 3.2, to: 5.5, line: 'We were outnumbered. We usually are.', vi: { line: 'Quân ta ít hơn. Xưa nay vẫn ít hơn.' } },
+      { from: 0.7, to: 5.1, line: 'Then I leaned on it.', line2: 'We were outnumbered. We usually are.',
+        vi: { line: 'Rồi ta thúc quân.', line2: 'Quân ta ít hơn — xưa nay vẫn ít hơn.' } },
     ],
   },
 
@@ -277,9 +316,9 @@ export const CUTS = [
     seconds: 7,
     open: true,
     captions: [
-      { from: 0.4, to: 3.0, line: 'The chroniclers wrote it all down.', line2: 'Most of it is even true.',
+      { from: 0.7, to: 3.3, line: 'The chroniclers wrote it all down.', line2: 'Most of it is even true.',
         vi: { line: 'Sử quan chép lại tất cả.', line2: 'Phần nhiều là thật.' } },
-      { from: 3.8, to: 6.5, line: 'There is no winning this —', line2: 'only how far I got.',
+      { from: 4.3, to: 6.3, line: 'There is no winning this —', line2: 'only how far I got.',
         vi: { line: 'Không có chiến thắng cuối cùng —', line2: 'chỉ có đi được bao xa.' } },
     ],
   },
@@ -321,5 +360,62 @@ export const HIGHLIGHT = [
 // reads from a single frame; the draft and the summon do not, because what they are showing is a
 // hand crossing four cards and a deck being flicked through — which is the whole difference between
 // "the game has cards" and "the game is played".
+
+/**
+ * Where every caption sits on the *film*, not on its own cut.
+ *
+ * This is the difference between a caption track and a strobe. Worked out per cut, the plate rises
+ * with a cut's first caption and falls with its last — so at every boundary it went down and came
+ * straight back up, nineteen times in sixty-eight seconds, with gaps of a tenth to three tenths of
+ * a second. On screen that is not a caption arriving, it is the top of the picture flickering.
+ *
+ * So the runs are computed across the whole film: consecutive captions on the *same plate height*
+ * and less than `JOIN` apart are one plate, which comes down once at the end of them all. The three
+ * card screens become one continuous sheet, and so do the three cuts of the fight. Where the plate
+ * height changes — a lane page, a battle — it comes down and back up, and that reads as the chapter
+ * change it is.
+ *
+ * Built from the sidecar rather than from `CUTS` alone, so a partial capture (`--only`) still lines
+ * its captions up against the frames that actually exist.
+ */
+export const RAMP = 0.5 * FPS;
+const JOIN = 2.0 * FPS;
+
+export function captionTimeline(specs) {
+  const byId = new Map(CUTS.map((cut) => [cut.id, cut]));
+  const startOf = new Map();
+  const order = [];
+  for (const one of specs) {
+    if (startOf.has(one.cut)) continue;
+    startOf.set(one.cut, one.frame - one.i);
+    order.push(one.cut);
+  }
+  const entries = [];
+  for (const id of order) {
+    const cut = byId.get(id);
+    if (!cut) continue;
+    const start = startOf.get(id);
+    for (const caption of cut.captions ?? []) {
+      entries.push({
+        caption, band: cut.band, y: caption.y,
+        from: start + caption.from * FPS,
+        to: start + caption.to * FPS,
+      });
+    }
+  }
+  // The run each one belongs to: walk out both ways while the plate is the same height and the
+  // gap is short enough that taking the paper away would read as a blink rather than as a pause.
+  entries.forEach((entry, at) => {
+    let first = at;
+    let last = at;
+    while (first > 0 && entries[first - 1].band === entry.band
+      && entries[first].from - entries[first - 1].to <= JOIN) first -= 1;
+    while (last < entries.length - 1 && entries[last + 1].band === entry.band
+      && entries[last + 1].from - entries[last].to <= JOIN) last += 1;
+    entry.runFrom = entries[first].from;
+    entry.runTo = entries[last].to;
+  });
+  return entries;
+}
 
 export { D, easeInOut, easeOut };

@@ -83,6 +83,30 @@ belongs to, how far into it, and where a thumb went down. **The lettering is not
 once, and that quietly made `--stage compose` a lie: a rewritten line re-composed with the *old*
 words, because the old words were in the sidecar.
 
+## Pacing: one caption a cut, and a plate that runs
+
+Reported as *"the text at the top shows too fast, then hides and shows, very messed up"*, and the
+measurement agreed: **20 caption events in 68 seconds, and 19 gaps between them of which most were
+0.0–0.3 s.** The plate went down and came straight back up nineteen times. That is not a caption
+track, it is the top of the picture flickering.
+
+Two changes, both in the numbers rather than in the drawing:
+
+- **One caption a cut.** The pairs were never two thoughts — they were one thought split in half
+  because the short plate could only hold a line. It can hold two now (at 42px rather than 48), so
+  each cut carries a single caption that holds for three and a half to five seconds instead of two
+  that swap in the middle of it. Twenty events became twelve.
+- **The runs are computed across the film, not per cut** (`captionTimeline` in `film.mjs`).
+  Consecutive captions on the same plate height and less than two seconds apart are *one plate*.
+  The three card screens share one sheet for fifteen seconds; the three cuts of the fight share one
+  for eighteen. Six plate appearances in the whole film, with a clean six-tenths pause between them
+  where the chapter actually changes.
+
+The subtle half: **the plate must be emitted when its run covers the frame, not when a caption is
+lit.** Gate it on the lettering and the sheet vanishes for the six tenths of a second between two
+lines of the same run and comes back for the second one — the exact blink the timeline exists to
+remove, reintroduced one level down. A frame in that gap carries the run's entry at zero lettering.
+
 ## The screens that have to be *handled*
 
 Most of this film reads from a single frame. Two do not, and they are the two the game is most often
@@ -217,6 +241,10 @@ Two more, cheaper:
   that are meant to be on the same sheet, which reads as a hard flicker. The lettering cross-fades;
   the plate ramps only at the two ends of the run. Captions need a gap of at least 0.7 s for the
   text to hand over cleanly and no more than 1.5 s or they stop being one run.
+- **The compositor holds an HMR socket too.** It is served by the dev server like any other page,
+  and a compose is two minutes long — so any write anywhere in the repo during one (editing a
+  caption, saving the driver) pushes a full reload and the run dies on `Execution context was
+  destroyed` a frame or two in. It is armed against reload now, the way the game pages already were.
 - **Do not animate the plate by sliding the plate.** The obvious version — bring the whole thing
   down from above the top edge — reintroduces the seam bug as motion: for the five frames its
   bottom edge is travelling, that edge is across the resource row, and any frame caught then shows

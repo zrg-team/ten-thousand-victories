@@ -86,13 +86,10 @@ export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentProm
   const describe = (index: number, merged = false): void => {
     info.removeAll(true);
     const view = views[index];
-    info.add(self.ui.panel({ x: 0, y: 0, width: content.width, height: infoHeight },
-      { border: view.evolutionReady ? INK_UI.gold : RARITY_COLOR[view.rarity], borderWidth: 1.4, fillAlpha: 0.55 }));
-    const rail = self.add.graphics();
-    rail.fillStyle(RARITY_COLOR[view.rarity], 1);
-    rail.fillRect(1.5, 6, 4, infoHeight - 12);
-    info.add(rail);
-
+    // The panel is drawn at the end, once its own contents have said how tall they are. See the
+    // note beside `printHeight` below: sized to `infoHeight` up front, it reserves room for a print
+    // it may not have space to draw, and what is left is a bordered box with four lines at the top
+    // and a hand's worth of blank paper under them.
     let cursor = 10;
     const title = self.ui.label(14, cursor, `${view.name}  ·  ${view.stackLabel}`, 'label',
       { fontSize: '13px', wordWrap: { width: content.width - 28 } });
@@ -173,8 +170,31 @@ export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentProm
       cursor += hint.height + 6;
     }
     const printHeight = Math.min(152, infoHeight - cursor - 16);
-    if (printHeight >= 46) addStoryPrint(self, info, powerStoryPrint(view.id),
-      {x:14, y:cursor + 6, width:content.width - 28, height:printHeight});
+    const printed = printHeight >= 46 && Boolean(addStoryPrint(self, info, powerStoryPrint(view.id),
+      {x:14, y:cursor + 6, width:content.width - 28, height:printHeight}));
+
+    /**
+     * The panel closes over what is actually there.
+     *
+     * `infoHeight` is the room the readout is *allowed*, not the room it needs. It is filled by a
+     * print under the text — but only when 46 units survive the copy, and on a 16:9 sheet (a design
+     * height of 693 against the 844 this was laid out on) they often do not: the lanes above the fan
+     * and the fan's own 48% leave the readout around 185 units, and a description with a next-level
+     * line under it eats them. Sized to `infoHeight` regardless, the panel then framed a hand's
+     * worth of blank paper and read as a picture that had failed to load — reported as *it seems
+     * broken*, and it did.
+     *
+     * So the sheet is cut to the copy when there is no print, and left at full height when there is
+     * — a print always wants its margin. Drawn last and pushed to the back, because a panel is the
+     * paper the rest is printed on.
+     */
+    const panelHeight = printed ? infoHeight : Math.min(infoHeight, cursor + 12);
+    const rail = self.add.graphics();
+    rail.fillStyle(RARITY_COLOR[view.rarity], 1);
+    rail.fillRect(1.5, 6, 4, panelHeight - 12);
+    info.addAt(rail, 0);
+    info.addAt(self.ui.panel({ x: 0, y: 0, width: content.width, height: panelHeight },
+      { border: view.evolutionReady ? INK_UI.gold : RARITY_COLOR[view.rarity], borderWidth: 1.4, fillAlpha: 0.55 }), 0);
   };
 
   // An evolution-ready card sits raised by default — the fan opens on the headline. With no
