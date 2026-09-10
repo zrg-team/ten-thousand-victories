@@ -22,8 +22,6 @@
     "ipa:check": "node scripts/ios.mjs --check",
     "apk": "node scripts/gradle.mjs assembleRelease",
     "aab": "node scripts/gradle.mjs bundleRelease",
-    "start": "expo start --dev-client",
-    "link": "expo start --dev-client --tunnel",
     "prebuild": "expo prebuild --clean",
     "run:ios": "expo run:ios",
     "run:android": "expo run:android"

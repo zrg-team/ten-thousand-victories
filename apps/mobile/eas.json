@@ -4,13 +4,9 @@
     "appVersionSource": "local"
   },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "channel": "development"
-    },
     "preview": {
       "distribution": "internal",
+      "env": { "EAS_BUILD_NO_EXPO_GO_WARNING": "true" },
       "android": {
         "buildType": "apk"
       },
@@ -27,6 +23,7 @@
       "channel": "simulator"
     },
     "production": {
+      "env": { "EAS_BUILD_NO_EXPO_GO_WARNING": "true" },
       "android": {
         "buildType": "app-bundle"
       },
