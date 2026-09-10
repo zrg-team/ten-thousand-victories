@@ -87,6 +87,22 @@ function caption(spec) {
 }
 
 /**
+ * Sets a line at `size`, or at whatever smaller size makes it fit the sheet.
+ *
+ * The game's own InkUI does this to every label it draws and the reason is the same here: a caption
+ * is written in two languages and the shorter one is not always the English. Vietnamese carries its
+ * diacritics in the same advance width but its words are rarely the same length, so a line that sat
+ * comfortably in one language can run off the paper in the other. Measuring costs nothing and means
+ * a caption can never be written badly enough to overflow.
+ */
+function fitFont(text, size, family, maxWidth) {
+  ctx.font = `700 ${size}px ${family}`;
+  const width = ctx.measureText(text).width;
+  if (width <= maxWidth) return;
+  ctx.font = `700 ${Math.floor(size * (maxWidth / width))}px ${family}`;
+}
+
+/**
  * Over open ground: no bar, just the letters carrying their own paper.
  *
  * The halo is what makes this work over a print. The line is stroked wide in dieellip underneath
@@ -103,7 +119,7 @@ function captionFloating(lines, alpha, y) {
   ctx.textBaseline = 'middle';
   lines.forEach((text, i) => {
     const at = top + i * lead;
-    ctx.font = '700 56px "Source Serif 4", Georgia, serif';
+    fitFont(text, 56, '"Source Serif 4", Georgia, serif', W - 120);
     ctx.lineJoin = 'round';
     ctx.strokeStyle = PIGMENT.diep;
     ctx.globalAlpha = alpha * 0.92;
@@ -179,7 +195,7 @@ function captionBand(lines, alpha, kind, plate) {
   ctx.textBaseline = 'middle';
   ctx.fillStyle = PIGMENT.muc;
   lines.forEach((text, i) => {
-    ctx.font = '700 48px "Source Serif 4", Georgia, serif';
+    fitFont(text, 48, '"Source Serif 4", Georgia, serif', W - 96);
     ctx.fillText(text, W / 2, first + i * lead);
   });
   ctx.restore();

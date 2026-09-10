@@ -52,8 +52,8 @@ export const CUTS = [
     },
     step: drift({ dx: 70, dy: 26 }),
     captions: [
-      { from: 0.6, to: 2.6, line: 'I was given one citadel.', vi: { line: 'Ta được trao một tòa thành.' } },
-      { from: 3.4, to: 5.1, line: 'The country would not wait.', vi: { line: 'Giang sơn thì không đợi ai.' } },
+      { from: 0.6, to: 2.6, line: 'I was given one citadel.', vi: { line: 'Ngày ta đăng cơ,', line2: 'trong tay chỉ một tòa thành.' } },
+      { from: 3.4, to: 5.1, line: 'The country would not wait.', vi: { line: 'Giang sơn hối hả, chẳng đợi ai.' } },
     ],
   },
   // ── the realm, wide ───────────────────────────────────────────────────────────────────────────
@@ -68,8 +68,8 @@ export const CUTS = [
     },
     step: drift({ dx: -60, dy: 40 }),
     captions: [
-      { from: 0.3, to: 2.1, line: 'Forty-two provinces around it.', vi: { line: 'Bốn mươi hai trấn quanh nó.' } },
-      { from: 2.9, to: 4.5, line: 'I meant to hold them all.', vi: { line: 'Ta định giữ bằng hết.' } },
+      { from: 0.3, to: 2.1, line: 'Forty-two provinces around it.', vi: { line: 'Ta phải mở rộng giang sơn,' } },
+      { from: 2.9, to: 4.5, line: 'I meant to hold them all.', vi: { line: 'cho xứng tầm tiên đế.' } },
     ],
   },
   // ── the cards: where do we press ───────────────────────────────────────────────────────────────
@@ -123,7 +123,7 @@ export const CUTS = [
     // card the browse passes, which is the draft's whole readout.
     gestures: [{ at: 0.9, kind: 'browse-fan' }, { at: 3.4, kind: 'take-fan' }],
     captions: [
-      { from: 0.4, to: 2.4, line: 'The realm learned as it grew.', vi: { line: 'Nước lớn đến đâu, học đến đó.' } },
+      { from: 0.4, to: 2.4, line: 'The realm learned as it grew.', vi: { line: 'Giang sơn lớn đến đâu, học đến đó.' } },
       { from: 3.2, to: 5.0, line: 'I chose what it learned.', vi: { line: 'Học gì là do ta chọn.' } },
     ],
   },
@@ -235,7 +235,7 @@ export const CUTS = [
     },
     captions: [
       { from: 0.4, to: 2.8, line: 'We formed up. The drum fell in five.', vi: { line: 'Hai bên dàn trận. Trống điểm năm hồi.' } },
-      { from: 3.6, to: 5.5, line: 'Every man on it, my own land raised.', vi: { line: 'Lính trên trận ấy, đất ta nuôi cả.' } },
+      { from: 3.6, to: 5.5, line: 'Every man on it, my own land raised.', vi: { line: 'Từng người lính ấy, đất ta nuôi cả.' } },
     ],
   },
   // ── the five shapes ───────────────────────────────────────────────────────────────────────────

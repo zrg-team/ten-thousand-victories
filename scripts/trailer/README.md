@@ -60,6 +60,19 @@ words the line above it is using, which no translation of "I answered with what 
 have found. If you add a caption, add its `vi` beside it; the English is the fallback, and a
 fallback showing through is the sign one is missing.
 
+**The first Vietnamese draft was a translation and a native reader could hear it.** *Ta được trao
+một tòa thành* — "I was given one citadel" — is grammatical and nobody says it, because nobody
+*hands* a king a citadel; the reign starts where a reign starts, so it is *Ngày ta đăng cơ, trong
+tay chỉ một tòa thành*. *Giang sơn thì không đợi ai* was the English clause reassembled; *giang sơn
+hối hả* is the thing a Vietnamese speaker actually says about a country that will not sit still. And
+the wide shot stopped being an inventory (*bốn mươi hai trấn quanh nó*) and became the duty it
+should always have been: *Ta phải mở rộng giang sơn, cho xứng tầm tiên đế.* If this needs changing
+again, change it against the ear, not against the English.
+
+Lines are fitted rather than trusted (`fitFont`): the same caption is written twice in two languages
+and the shorter one is not always the English, so anything wider than the sheet is set down a size
+instead of running off the paper.
+
 `--stage` splits the work into three because the captions get rewritten far more often than the
 gameplay gets recaptured: `capture` drives the game into `out/raw`, `compose` crops, letters and
 dips into `out/composed`, `encode` makes the mp4. A full run is about nine minutes; a re-letter is
