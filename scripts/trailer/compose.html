@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>trailer compositor</title>
+<link rel="stylesheet" href="/fonts/fonts.css" />
+<style>html,body{margin:0;background:#2a2118}canvas{display:block}</style>
+</head>
+<body>
+<canvas id="sheet"></canvas>
+<script type="module">
+/**
+ * The compositor.
+ *
+ * The capture stage photographs the game at 1170x2080 and knows nothing about lettering. This page
+ * takes one of those frames and lays the film over it: the crop (a slow push in or out, done here
+ * so the game camera never has to re-bake the ground for a zoom), the dip to paper between cuts,
+ * the caption, and the ink ring where a thumb went down.
+ *
+ * Everything is drawn in the game's own materials — dieellip paper, muc soot, soi son red, Source
+ * Serif for the lettering — because a caption set in a UI font over a woodblock print looks like a
+ * subtitle track, not like part of the game.
+ */
+const PIGMENT = {
+  diep: '#e9dfc2',
+  diepHi: '#f3ecd8',
+  diepLo: '#d8c9a4',
+  muc: '#2a2118',
+  mucSoft: '#5a4c39',
+  son: '#b33a26',
+  sonDeep: '#8a2a1b',
+};
+
+const W = 1080;
+const H = 1920;
+const SRC_W = 1170;                  // what the capture stage hands us
+const canvas = document.getElementById('sheet');
+canvas.width = W;
+canvas.height = H;
+const ctx = canvas.getContext('2d', { alpha: false });
+
+const image = new Image();
+let loaded = null;
+
+function load(dataUrl) {
+  return new Promise((resolve, reject) => {
+    image.onload = () => { loaded = dataUrl; resolve(); };
+    image.onerror = reject;
+    image.src = dataUrl;
+  });
+}
+
+/** The sawtooth the game prints along the edge of every band. */
+function sawtooth(x, y, width, height, colour, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = colour;
+  const step = height * 1.5;
+  for (let at = x; at < x + width; at += step) {
+    ctx.beginPath();
+    ctx.moveTo(at, y + height);
+    ctx.lineTo(at + step / 2, y);
+    ctx.lineTo(at + step, y + height);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/**
+ * A caption, set on the paper rather than in a bar.
+ *
+ * The halo is what makes this work over a printed ground: the same line is stroked wide in paper
+ * underneath itself, twice, so the letters carry their own sheet and never need a band drawn over
+ * the gameplay. A soi son rule sits under the block, which is the mark the game uses to say "the
+ * player's own".
+ */
+function caption(spec) {
+  const { line, line2, alpha } = spec;
+  if (!line || alpha <= 0) return;
+  const lines = line2 ? [line, line2] : [line];
+  return spec.band === 'top' ? captionBand(lines, alpha) : captionFloating(lines, alpha, spec.y);
+}
+
+/**
+ * Over open ground: no bar, just the letters carrying their own paper.
+ *
+ * The halo is what makes this work over a print. The line is stroked wide in dieellip underneath
+ * itself, twice, so it never needs a band drawn over the country. A soi son rule closes the block —
+ * the mark this game reserves for the player's own.
+ */
+function captionFloating(lines, alpha, y) {
+  const top = H * (y ?? 0.735);
+  const lead = 68;
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  lines.forEach((text, i) => {
+    const at = top + i * lead;
+    ctx.font = '700 56px "Source Serif 4", Georgia, serif';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = PIGMENT.diep;
+    ctx.globalAlpha = alpha * 0.92;
+    ctx.lineWidth = 22;
+    ctx.strokeText(text, W / 2, at);
+    ctx.lineWidth = 12;
+    ctx.strokeText(text, W / 2, at);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = PIGMENT.muc;
+    ctx.fillText(text, W / 2, at);
+  });
+  ctx.globalAlpha = alpha * 0.85;
+  ctx.fillStyle = PIGMENT.son;
+  ctx.fillRect(W / 2 - 54, top + lines.length * lead - 22, 108, 3);
+  ctx.restore();
+}
+
+/**
+ * Over a screen that is already full — a card, a sheet, a field with two dials under it.
+ *
+ * There is no empty corner on those, and a halo over the middle of a card hides the one thing the
+ * cut is there to show. So the line goes on a sheet of its own at the top edge, sawtooth along the
+ * bottom the way every band in this game is cut. It reads as a chapter rather than a subtitle, and
+ * the only thing it covers is the resource header, which the map cuts have already shown.
+ */
+function captionBand(lines, alpha) {
+  const lead = 58;
+  // Never shorter than the resource header it stands in for. A one-line caption on a band cut to
+  // one line leaves the bottom half of the header showing under it, which reads as a mistake
+  // rather than as a caption; never taller than the header either, or it cuts the battle screen's
+  // own title in half.
+  const height = Math.max(152, 36 + lines.length * lead);
+  const first = height / 2 - ((lines.length - 1) * lead) / 2;
+  // The paper arrives three times faster than the lettering does. A band that fades in at the same
+  // rate as its own text spends half a second translucent, and a translucent sheet of paper with
+  // the resource header showing through it reads as a rendering fault rather than as a caption.
+  const sheet = Math.min(1, alpha * 3);
+  ctx.save();
+  ctx.globalAlpha = sheet;
+  ctx.fillStyle = PIGMENT.diep;
+  ctx.fillRect(0, 0, W, height);
+  sawtooth(0, height, W, 15, PIGMENT.muc, sheet * 0.45);
+  ctx.globalAlpha = alpha;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = PIGMENT.muc;
+  lines.forEach((text, i) => {
+    ctx.font = '700 48px "Source Serif 4", Georgia, serif';
+    ctx.fillText(text, W / 2, first + i * lead);
+  });
+  ctx.restore();
+}
+
+/** Where a thumb went down: two rings of soi son opening and fading, the way the game marks a tap. */
+function ripple(spec, scale, cropX, cropY) {
+  const { dx, dy, age } = spec;
+  if (age > 1) return;
+  const x = (dx * 3 - cropX) * scale;
+  const y = (dy * 3 - cropY) * scale;
+  ctx.save();
+  for (let ring = 0; ring < 2; ring += 1) {
+    const u = Math.max(0, Math.min(1, age - ring * 0.22));
+    if (u <= 0 || u >= 1) continue;
+    ctx.globalAlpha = (1 - u) * 0.85;
+    ctx.strokeStyle = ring === 0 ? PIGMENT.son : PIGMENT.sonDeep;
+    ctx.lineWidth = 6 - ring * 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 22 + u * 92, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  if (age < 0.3) {
+    ctx.globalAlpha = (1 - age / 0.3) * 0.5;
+    ctx.fillStyle = PIGMENT.son;
+    ctx.beginPath();
+    ctx.arc(x, y, 20, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/**
+ * The end card.
+ *
+ * The front page already carries the wordmark, the subtitle, the river plate and its falling
+ * leaves — so this does not cover it with a title of its own. It lays a paper band over the bottom
+ * third instead, which is where the page keeps its links, its language row and its build number,
+ * and puts the three lines a trailer has to end on there.
+ */
+function endCard(alpha) {
+  if (alpha <= 0) return;
+  // Below the Dragon Ascent button and above the dynasty card, so the band lands on a seam
+  // rather than through the middle of a row.
+  const top = H * 0.565;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = PIGMENT.diep;
+  ctx.fillRect(0, top, W, H - top);
+  sawtooth(0, top, W, 18, PIGMENT.muc, 0.45);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  ctx.fillStyle = PIGMENT.muc;
+  ctx.font = '600 46px "Source Serif 4", Georgia, serif';
+  ctx.fillText('A grand-strategy roguelite,', W / 2, top + 170);
+  ctx.fillText('printed like a Đông Hồ woodblock.', W / 2, top + 228);
+
+  ctx.fillStyle = PIGMENT.son;
+  ctx.fillRect(W / 2 - 90, top + 288, 180, 4);
+
+  ctx.fillStyle = PIGMENT.mucSoft;
+  ctx.font = '400 38px "Be Vietnam Pro", system-ui, sans-serif';
+  ctx.fillText('Free · no ads · no account · plays offline', W / 2, top + 356);
+  ctx.fillText('English · Tiếng Việt', W / 2, top + 408);
+
+  ctx.fillStyle = PIGMENT.muc;
+  ctx.font = '600 40px "Be Vietnam Pro", system-ui, sans-serif';
+  ctx.fillText('zrg-team.github.io/ten-thousand-victories', W / 2, top + 490);
+  ctx.font = '400 34px "Be Vietnam Pro", system-ui, sans-serif';
+  ctx.fillStyle = PIGMENT.mucSoft;
+  ctx.fillText('Google Play · App Store', W / 2, top + 542);
+
+  ctx.font = 'italic 600 36px "Source Serif 4", Georgia, serif';
+  ctx.globalAlpha = alpha * 0.75;
+  ctx.fillText('Nam quốc sơn hà Nam đế cư.', W / 2, top + 646);
+  ctx.restore();
+}
+
+/**
+ * One composed frame.
+ *
+ * `zoom` crops the source rather than scaling the game: at 1.0 the whole 1170-wide capture is
+ * fitted to the 1080-wide sheet (a downscale, so it stays crisp) and at 1.083 the crop is the
+ * sheet 1:1. That is the whole travel available, and it is enough for a push that reads without
+ * ever softening a letter.
+ */
+window.__compose = async (spec) => {
+  if (spec.frame !== loaded) await load(spec.frame);
+  const zoom = spec.zoom ?? 1;
+  const cropW = SRC_W / zoom;
+  const cropH = cropW * (H / W);
+  const cropX = (image.width - cropW) * (0.5 + (spec.ax ?? 0));
+  const cropY = (image.height - cropH) * (0.5 + (spec.ay ?? 0));
+  const scale = W / cropW;
+
+  ctx.fillStyle = PIGMENT.diep;
+  ctx.fillRect(0, 0, W, H);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(image, cropX, cropY, cropW, cropH, 0, 0, W, H);
+
+  if (spec.ripple) ripple(spec.ripple, scale, cropX, cropY);
+  if (spec.caption) caption(spec.caption);
+  if (spec.end) endCard(spec.end);
+
+  // The dip to paper between chapters. Last, so it takes the lettering with it.
+  if (spec.fade > 0) {
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, spec.fade);
+    ctx.fillStyle = PIGMENT.diep;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+  return canvas.toDataURL('image/jpeg', 0.94);
+};
+
+await document.fonts.ready;
+await document.fonts.load('700 56px "Source Serif 4"');
+await document.fonts.load('600 44px "Be Vietnam Pro"');
+window.__composeReady = true;
+</script>
+</body>
+</html>
