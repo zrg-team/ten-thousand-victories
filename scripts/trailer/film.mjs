@@ -52,7 +52,8 @@ export const CUTS = [
     },
     step: drift({ dx: 70, dy: 26 }),
     captions: [
-      { from: 0.6, to: 4.9, line: 'A country that ticks whether', line2: 'you are watching or not.' },
+      { from: 0.6, to: 2.9, line: 'I was given one citadel.' },
+      { from: 3.2, to: 5.3, line: 'The country would not wait.' },
     ],
   },
   // ── the realm, wide ───────────────────────────────────────────────────────────────────────────
@@ -67,14 +68,14 @@ export const CUTS = [
     },
     step: drift({ dx: -60, dy: 40 }),
     captions: [
-      { from: 0.3, to: 2.4, line: 'One citadel to start.' },
-      { from: 2.7, to: 4.8, line: 'Forty-two provinces,', line2: 'generated fresh every run.' },
+      { from: 0.3, to: 2.4, line: 'Forty-two provinces around it.' },
+      { from: 2.7, to: 4.8, line: 'I meant to hold them all.' },
     ],
   },
   // ── the cards: where do we press ───────────────────────────────────────────────────────────────
   {
     id: 'conquer',
-    band: 'top',
+    band: 'hud',
     page: 'run',
     seconds: 5,
     async stage(page, ctx) {
@@ -94,13 +95,13 @@ export const CUTS = [
     // Held, not tapped: the card says so itself — *hold a card to choose it*.
     taps: [{ at: 2.6, find: 'option', hold: 0.9 }],
     captions: [
-      { from: 0.4, to: 2.9, line: 'Every decision arrives as a card', line2: 'you answer with a thumb.' },
+      { from: 0.4, to: 4.6, line: 'My ministers asked me', line2: 'where we should press.' },
     ],
   },
   // ── the power draft ───────────────────────────────────────────────────────────────────────────
   {
     id: 'draft',
-    band: 'top',
+    band: 'hud',
     page: 'run',
     seconds: 5.5,
     async stage(page, ctx) {
@@ -117,14 +118,14 @@ export const CUTS = [
       });
     },
     captions: [
-      { from: 0.4, to: 2.7, line: 'Level up and choose one', line2: 'of four — they stack for good.' },
-      { from: 3.0, to: 5.3, line: 'Fifty-two powers.', line2: 'Every one a woodblock print.' },
+      { from: 0.4, to: 2.7, line: 'The realm learned as it grew.' },
+      { from: 3.0, to: 5.3, line: 'I chose what it learned.' },
     ],
   },
   // ── the court ─────────────────────────────────────────────────────────────────────────────────
   {
     id: 'summon',
-    band: 'top',
+    band: 'hud',
     page: 'run',
     seconds: 5,
     async stage(page, ctx) {
@@ -142,14 +143,14 @@ export const CUTS = [
       });
     },
     captions: [
-      { from: 0.4, to: 2.6, line: 'Three answer the call.', line2: 'One will serve.' },
-      { from: 2.9, to: 4.8, line: '127 champions — and many', line2: 'of them are real.' },
+      { from: 0.4, to: 2.6, line: 'Three answered the call.' },
+      { from: 2.9, to: 4.8, line: 'The treasury could pay one.' },
     ],
   },
   // ── the build sheet ───────────────────────────────────────────────────────────────────────────
   {
     id: 'build',
-    band: 'top',
+    band: 'hud',
     page: 'run',
     seconds: 4.5,
     async stage(page, ctx) {
@@ -163,7 +164,7 @@ export const CUTS = [
       });
     },
     captions: [
-      { from: 0.4, to: 4.3, line: 'Walls buy defence. Farms buy runway.', line2: 'Every province taken raises the heat.' },
+      { from: 0.4, to: 4.3, line: 'I raised walls where I could,', line2: 'and rice where I could not.' },
     ],
   },
 
@@ -187,7 +188,7 @@ export const CUTS = [
     step: drift({ dx: 40, dy: -18 }),
     taps: [{ at: 4.4, find: 'battle-button' }],
     captions: [
-      { from: 0.3, to: 3.6, line: 'Every year and a half,', line2: 'a bigger host arrives.' },
+      { from: 0.3, to: 3.6, line: 'Then the north came down,', line2: 'the way it always does.' },
     ],
   },
   // ── the field ─────────────────────────────────────────────────────────────────────────────────
@@ -219,8 +220,8 @@ export const CUTS = [
       });
     },
     captions: [
-      { from: 0.4, to: 3.0, line: 'Both hosts form up.', line2: 'The drum falls in five.' },
-      { from: 3.3, to: 5.8, line: 'Nothing here is a sprite — the ranks', line2: 'stand in the shape they are holding.' },
+      { from: 0.4, to: 3.0, line: 'We formed up. The drum fell in five.' },
+      { from: 3.3, to: 5.8, line: 'Every man on it, my own land raised.' },
     ],
   },
   // ── the five shapes ───────────────────────────────────────────────────────────────────────────
@@ -235,8 +236,8 @@ export const CUTS = [
     // player reads it off the words over their line.
     taps: [{ at: 2.6, find: 'shape-any' }],
     captions: [
-      { from: 0.3, to: 2.4, line: 'Five shapes. Each one beats', line2: 'the two that follow it.' },
-      { from: 3.4, to: 6.8, line: 'They telegraph what they hold.', line2: 'You answer it.' },
+      { from: 0.3, to: 2.4, line: 'They showed me what they held.' },
+      { from: 3.4, to: 6.8, line: 'I answered with what breaks it.' },
     ],
   },
   // ── the tempo dial ────────────────────────────────────────────────────────────────────────────
@@ -249,21 +250,21 @@ export const CUTS = [
     seconds: 6,
     taps: [{ at: 1.2, find: 'tempo-press' }],
     captions: [
-      { from: 0.2, to: 2.6, line: 'Then lean on it.' },
-      { from: 3.0, to: 5.8, line: 'Outnumbered is the normal', line2: 'condition of this country.' },
+      { from: 0.2, to: 2.6, line: 'Then I leaned on it.' },
+      { from: 3.0, to: 5.8, line: 'We were outnumbered. We usually are.' },
     ],
   },
 
   // ── the Chronicle ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'chronicle',
-    band: 'top',
+    band: 'hud',
     page: 'story',
     seconds: 7,
     open: true,
     captions: [
-      { from: 0.4, to: 3.2, line: 'Forty-nine stories out of', line2: 'real Vietnamese history.' },
-      { from: 3.5, to: 6.8, line: 'Cast with your heroes, your provinces,', line2: 'and paid for out of your treasury.' },
+      { from: 0.4, to: 3.2, line: 'The chroniclers wrote it all down.', line2: 'Most of it is even true.' },
+      { from: 3.5, to: 6.8, line: 'There is no winning this —', line2: 'only how far I got.' },
     ],
   },
 

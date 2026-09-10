@@ -41,7 +41,27 @@ node scripts/trailer/build-trailer.mjs --only shapes,press  # one chapter, while
 
 `--stage` splits the work into three because the captions get rewritten far more often than the
 gameplay gets recaptured: `capture` drives the game into `out/raw`, `compose` crops, letters and
-dips into `out/composed`, `encode` makes the mp4. A full run is about twelve minutes.
+dips into `out/composed`, `encode` makes the mp4. A full run is about nine minutes; a re-letter is
+two.
+
+The sidecar `out/raw/specs.json` records only what the capture alone knows — which cut a frame
+belongs to, how far into it, and where a thumb went down. **The lettering is not in it.** It was
+once, and that quietly made `--stage compose` a lie: a rewritten line re-composed with the *old*
+words, because the old words were in the sidecar.
+
+## The voice
+
+The captions are a king's account of his own reign, not a list of what the game does. *I was given
+one citadel. The country would not wait. My ministers asked me where we should press. Three answered
+the call; the treasury could pay one. Then the north came down, the way it always does.* It closes
+on the only honest thing a roguelite can promise — *there is no winning this, only how far I got.*
+
+This is deliberate and it is worth keeping. A trailer that narrates its own feature list asks the
+viewer to evaluate a product; one that speaks from inside the fiction asks them to want the reign.
+The screens underneath are already saying what the systems are — the card says *Summon a Champion*,
+the dock says *SPEARS · CHARGE · SPREAD*, the header says *INVASION 8 · LIVE* — so a caption that
+repeats them in different words is spending the only three seconds it has on something the picture
+already did.
 
 | file | |
 |---|---|
@@ -122,6 +142,11 @@ Two more, cheaper:
   so the fill that runs round the card plays on camera.
 - **`HELPERS` is a template literal.** A nested backtick closes it — including one inside a comment.
   Twice.
+- **The caption band has to end on a HUD seam, and there are two of them.** The map and the card
+  screens carry two rows — resources, then the power strip — and the seam is at 272. The fight
+  carries one row and its own header starts straight under it, so the seam is at 140. One height
+  for both put a sawtooth through the middle of `POWER · INVASION · THREAT`. Hence `band: 'hud'`
+  and `band: 'top'`; the short one holds a single line, which is better writing over a fight anyway.
 
 ### Auditioning the fight
 

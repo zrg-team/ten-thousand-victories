@@ -79,7 +79,7 @@ function caption(spec) {
   const { line, line2, alpha } = spec;
   if (!line || alpha <= 0) return;
   const lines = line2 ? [line, line2] : [line];
-  return spec.band === 'top' ? captionBand(lines, alpha) : captionFloating(lines, alpha, spec.y);
+  return spec.band ? captionBand(lines, alpha, spec.band) : captionFloating(lines, alpha, spec.y);
 }
 
 /**
@@ -123,13 +123,20 @@ function captionFloating(lines, alpha, y) {
  * bottom the way every band in this game is cut. It reads as a chapter rather than a subtitle, and
  * the only thing it covers is the resource header, which the map cuts have already shown.
  */
-function captionBand(lines, alpha) {
+function captionBand(lines, alpha, kind) {
+  // Two heights, because there are two HUDs and a band that ends anywhere else cuts a row of the
+  // game in half — which is what it looked like: a sawtooth straight through POWER · INVASION ·
+  // THREAT, with the strip showing through the paper above it.
+  //
+  //   'hud'  272 — the map and the card screens carry two rows: the resources, then the power
+  //                strip. The seam is under both.
+  //   'top'  140 — the fight carries one. Its own header band starts immediately under the
+  //                resources, so anything taller cuts the commander's plate.
+  //
+  // The short band holds one line and the tall one holds two; that is a real constraint on the
+  // writing, and single-line captions over a fight are better anyway.
+  const height = kind === 'hud' ? 272 : 140;
   const lead = 58;
-  // Never shorter than the resource header it stands in for. A one-line caption on a band cut to
-  // one line leaves the bottom half of the header showing under it, which reads as a mistake
-  // rather than as a caption; never taller than the header either, or it cuts the battle screen's
-  // own title in half.
-  const height = Math.max(152, 36 + lines.length * lead);
   const first = height / 2 - ((lines.length - 1) * lead) / 2;
   // The paper arrives three times faster than the lettering does. A band that fades in at the same
   // rate as its own text spends half a second translucent, and a translucent sheet of paper with

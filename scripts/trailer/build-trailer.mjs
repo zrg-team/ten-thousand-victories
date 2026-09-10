@@ -522,7 +522,9 @@ async function capture() {
           type: 'jpeg',
           quality: 95,
         });
-        specs.push(spec(cut, i, total, frame, ripple));
+        // Only what the capture alone knows. The lettering is *not* baked in here — see the note
+        // on `compose` — so `--stage compose` really can re-letter without recapturing.
+        specs.push({ frame, cut: cut.id, i, total, ripple: ripple ? { ...ripple } : undefined });
         frame += 1;
         await crank(page, 1, cut.speed ?? 1);
       }
@@ -605,7 +607,18 @@ function spec(cut, i, total, frame, ripple) {
 // ── compose ─────────────────────────────────────────────────────────────────────────────────────
 
 async function compose() {
-  const specs = JSON.parse(readFileSync(`${RAW}/specs.json`, 'utf8'));
+  /**
+   * The captions are derived here, not read back.
+   *
+   * They used to be computed at capture time and written into `specs.json`, which quietly made
+   * `--stage compose` a lie: rewriting a line in `film.mjs` and re-composing re-lettered the film
+   * with the *old* words, because the old words were in the sidecar. The frames on disk are the
+   * only thing capture is authoritative about; everything a caption needs — the text, the band,
+   * the fades — comes from the film, every time.
+   */
+  const byId = new Map(CUTS.map((cut) => [cut.id, cut]));
+  const specs = JSON.parse(readFileSync(`${RAW}/specs.json`, 'utf8'))
+    .map((one) => spec(byId.get(one.cut), one.i, one.total, one.frame, one.ripple));
   rmSync(COMPOSED, { recursive: true, force: true });
   mkdirSync(COMPOSED, { recursive: true });
   const browser = await chromium.launch();
