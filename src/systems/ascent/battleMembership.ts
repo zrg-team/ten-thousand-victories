@@ -1,5 +1,6 @@
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { liveBattles } from './fronts';
+import { provinceIsFalling } from '../LandSystem';
 import type { Army, AscentBattle, GameState } from '../../state/types';
 
 /**
@@ -78,8 +79,22 @@ export function enrolArrivals(state: GameState, battle: AscentBattle): { ours: n
   // the flip must not sweep a relief column that has just walked in into the fight it came to undo.
   const stillOurs = !land || land.ownerId === PLAYER_KINGDOM_ID || battle.role === 'offence';
 
+  /**
+   * On ground already being claimed, the province itself fights for nobody.
+   *
+   * `raiseGarrisonLevy` refuses to *raise* one on carried ground, which is what stops the forty
+   * conjured men — but a levy mustered for the fight that was lost is still standing there, and
+   * `dissolveGarrisonLevies` only runs on a tick with no live field anywhere. So the leftover
+   * militia was swept into the next field as its whole battle line: measured on seed 4242, a
+   * "defence" of 801 walls-and-militia at a province an enemy column had held since tick 130,
+   * wiped to nothing in a single beat. A retake is fought by the men the player marched in, and
+   * by them alone — see `defenderPower`, which zeroes the same term for the hidden roll.
+   */
+  const falling = battle.role !== 'offence' && provinceIsFalling(state, battle.landId);
+
   for (const army of state.armies) {
     if (hostHeadcount(army) <= 0) continue;
+    if (falling && army.isLevy) continue;
     if (army.kingdomId === PLAYER_KINGDOM_ID) {
       if (stillOurs && army.landId === battle.landId && !ours.has(army.id)) {
         ours.add(army.id);

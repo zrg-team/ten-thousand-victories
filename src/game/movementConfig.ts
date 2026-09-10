@@ -1,5 +1,6 @@
 import { ARMY_NO_PROVISION_SPEED_PENALTY } from './gameplayConfig';
-import type { Army, Land, TerrainSummary, UnitType } from '../state/types';
+import { OWN_GROUND_MARCH_BONUS } from './ascentConfig';
+import type { Army, GameState, Land, TerrainSummary, UnitType } from '../state/types';
 
 /** Relative march speed for each unit type. Lower values move slower. */
 export const UNIT_SPEED: Record<UnitType, number> = {
@@ -56,7 +57,20 @@ export function getLandMovementCost(land: Land): number {
   return weighted / total;
 }
 
-/** Ticks required for an army to march onto the given land. */
-export function getLegTicks(army: Army, targetLand: Land): number {
-  return Math.max(1, Math.round((BASE_MOVE_TICKS * getLandMovementCost(targetLand)) / getArmySpeed(army)));
+/**
+ * Ticks required for an army to march onto the given land.
+ *
+ * `state` is optional only so a caller with none in hand still compiles; pass it wherever it
+ * exists. It has to reach **every** call site together — `WarSystem` sets `order.legRequired` from
+ * this and `ArmyRenderer.legPace` divides the route's length by it to pace the marker, so a site
+ * that keeps the old answer puts the figure on the map out of step with the clock it is walking.
+ */
+export function getLegTicks(army: Army, targetLand: Land, state?: GameState): number {
+  // Our own roads, our own fords, our own granaries at the end of the day. Dragon Ascent only, and
+  // symmetric — an invader marching home across its own ground gets the same relief, which is why
+  // the test is `army.kingdomId` rather than "is the player". The result floors at one season, so
+  // this buys nothing on plains and buys back a season on forest, hills and mountains.
+  const home = state?.gameMode === 'ascent' && targetLand.ownerId === army.kingdomId;
+  const cost = getLandMovementCost(targetLand) * (home ? OWN_GROUND_MARCH_BONUS : 1);
+  return Math.max(1, Math.round((BASE_MOVE_TICKS * cost) / getArmySpeed(army)));
 }

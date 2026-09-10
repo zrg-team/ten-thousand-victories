@@ -18,7 +18,7 @@ import {
   SIEGE_RENEW_SHARE,
   waveMatchFactor,
 } from '../../game/ascentConfig';
-import { findLand, getAcquisitionTicksRequired } from '../LandSystem';
+import { findLand, getAcquisitionTicksRequired, hostileClaimAt, provinceIsFalling } from '../LandSystem';
 import {
   armyPower,
   attackLand,
@@ -811,18 +811,29 @@ export function tickInvasions(state: GameState): void {
  * with it — no contact, no roll, no field. It counts as a besieger from then on (`tickSieges` reads
  * hosts on the province), and a relief host of ours arriving finds every column enrolled against
  * it (`enrolArrivals` takes every hostile host on the ground). Relief is the one thing that lifts
- * this: with a field host of ours standing there the contact is a fight, as it always was. No
- * second siege order is laid — `progressSiegeOrders` would flip the province twice and announce
- * its fall twice. Dragon Ascent only; the other modes have no siege clock of this kind.
+ * this: a host that *marched here* makes the contact a fight, as it always was. No second siege
+ * order is laid — `progressSiegeOrders` would flip the province twice and announce its fall twice.
+ * Dragon Ascent only; the other modes have no siege clock of this kind.
+ *
+ * **Which is not the same as "a host of ours is standing here".** That was the first reading, and
+ * it left the reported defect alive at the one province the game marches hosts back into. Two of
+ * ours can be on carried ground without having relieved anything: the beaten defenders, when
+ * `retreatDefenders` finds no friendly neighbour to fall back to, and the host Twice-Born reforms
+ * onto the seat. Both are remnants of the fight that was just lost, and reading either as a rescue
+ * re-opened the fight against them — *"same capital, I lost a fight but other fights still
+ * happen"*. `presentAtClaim` is the roster taken the moment the claim was laid, so anyone on it is
+ * a survivor and anyone else walked here afterwards.
  */
 function joinsStandingSiege(state: GameState, army: Army, land: Land): boolean {
   if (state.gameMode !== 'ascent' || state.ascent?.arena) return false;
-  const standing = state.siegeOrders.some(
+  const standing = state.siegeOrders.find(
     (order) => order.landId === land.id && order.attackerKingdomId !== PLAYER_KINGDOM_ID && order.armyId !== army.id,
   );
   if (!standing) return false;
+  const stranded = new Set(standing.presentAtClaim ?? []);
   const relieved = state.armies.some(
-    (other) => other.kingdomId === PLAYER_KINGDOM_ID && other.landId === land.id && !other.isLevy && totalUnits(other) > 0,
+    (other) => other.kingdomId === PLAYER_KINGDOM_ID && other.landId === land.id && !other.isLevy
+      && totalUnits(other) > 0 && !stranded.has(other.id),
   );
   if (relieved) return false;
   army.landId = land.id;
@@ -861,6 +872,9 @@ export function siegeTicksFor(land: Land): number {
  */
 function holdAtTheWalls(state: GameState, army: Army, record: InvasionRecord, land: Land): boolean {
   if (state.gameMode !== 'ascent' || land.ownerId !== PLAYER_KINGDOM_ID) return false;
+  // Walls already carried. Opening a fresh investment clock here would count a second siege of
+  // ground that is mid-claim, and print two countdowns for one province on the war board.
+  if (provinceIsFalling(state, land.id)) return false;
   // The arena is one matchup and nothing else; a siege clock there is four seasons of an empty
   // screen. Raids are a smash-and-run by definition and keep their old immediacy.
   if (state.ascent?.arena || record.intent === 'raid') return false;
@@ -909,6 +923,15 @@ export function tickSieges(state: GameState): void {
   for (const land of state.lands) {
     const siege = land.siege;
     if (!siege) continue;
+
+    // The walls were carried while this clock was still counting. A claim and an investment clock
+    // are different countdowns on the same province and can never both be true: the assault has
+    // happened. `stillPressed` below would keep this one alive for ever — the besieger is standing
+    // right there — so the stale clock is cleared before it is asked about.
+    if (provinceIsFalling(state, land.id)) {
+      land.siege = undefined;
+      continue;
+    }
 
     /**
      * Is anybody still actually besieging this place?
@@ -1003,7 +1026,7 @@ function advanceInvader(state: GameState, army: Army, record: InvasionRecord, st
   }
 
   const stepLand = findLand(state, step);
-  const legRequired = stepLand ? getLegTicks(army, stepLand) : 1;
+  const legRequired = stepLand ? getLegTicks(army, stepLand, state) : 1;
   state.movementOrders = state.movementOrders.filter((order) => order.armyId !== army.id);
   // A one-tick leg would mean the marker never renders mid-march, so the tween never plays.
   if (legRequired <= 1) {
@@ -1144,6 +1167,23 @@ export function raiseGarrisonLevy(state: GameState, land: Land): Army | undefine
   // In the arena the two hosts are exactly what the player dialled in. A province turning out
   // several thousand militia on top of them would answer a different question entirely.
   if (state.ascent?.arena) return undefined;
+
+  /**
+   * Ground already being claimed turns nobody out — **and this is the whole of the blank fight.**
+   *
+   * Reported: *it is a blank fighting because the land is occupied*. A province whose walls have
+   * just been carried has `localSoldiers` at 0, `wallsBreached` set and its garrison spent, so the
+   * levy this function raised was the `GARRISON_LEVY_FLOOR` minimum out of nothing — forty
+   * conjured men, put on a field against thousands, losing in a handful of beats. That is not a
+   * defence, it is a cutscene with a dice roll.
+   *
+   * Returning nothing does more than skip the militia. `raiseDefenceField` bails when it can find
+   * no battle line at all, so with no levy and no host of ours on the ground, **no field can open
+   * on carried ground in the first place** — the fix and the guard are one line. A fight happens
+   * there only when the player sends an army, and then it is that army against the occupier, with
+   * the province taking no part on either side.
+   */
+  if (provinceIsFalling(state, land.id)) return undefined;
 
   // Drawn from the walls as well as the militia, because militia alone is almost always nothing.
   //
@@ -1490,6 +1530,31 @@ function resolveInvaderBattle(
     });
   };
   // Fire Arrows: the volley lands before the lines meet, so it is spent on the approach whether
+  /**
+   * A column that arrives to find the ground already being claimed joins it, and does not roll.
+   *
+   * `joinsStandingSiege` turns most of these back at contact, but it is a gate on the *march*, and
+   * a settlement can reach this function without passing it. The measured route: two columns make
+   * contact on the same tick, the second one's `maybeRequestBattleDecision` files a `pendingBattle`
+   * and yields, the first one then wins and lays the claim — and at the end of the tick the pending
+   * fight is offered to `beginBattle`, which now correctly refuses to open a field on carried
+   * ground, so the fallback settles it here by dispatch instead. Three such dispatches across eight
+   * seeds in `verify-lost-ground`, each one a roll for a province that had already fallen.
+   *
+   * Gated on `!forced` and on the claim belonging to *another* host, and both halves matter. A
+   * forced settlement is a fight that has already been played on screen and is only being written
+   * down — and a **retake** is exactly that: a watched field on falling ground whose victory is
+   * what lifts the claim. Bailing out here would file the retake as a join and leave the enemy's
+   * clock running through a battle the player just won.
+   */
+  if (!forced) {
+    const standing = hostileClaimAt(state, land.id);
+    if (standing && standing.armyId !== army.id) {
+      army.landId = land.id;
+      return;
+    }
+  }
+
   // the defence then holds or breaks. Applied ahead of the preview so the odds the battle
   // resolves on are the odds after the arrows have fallen.
   const volley = openingVolleyShare(state);
@@ -1558,7 +1623,10 @@ function resolveInvaderBattle(
      * fight uses, so a second host reaching the same ground this wave meets a province the first
      * one already bled. The odds the share is read from are the ones the roll was made at.
      */
+    // Not on ground already being claimed: its walls took no part in this fight (see
+    // `defenderPower`), so it cannot be billed for holding a line it never stood in.
     if (state.gameMode === 'ascent' && land.ownerId === PLAYER_KINGDOM_ID && !forced
+      && !provinceIsFalling(state, land.id)
       && !state.armies.some((a) => a.isLevy && a.landId === land.id)) {
       const share = hiddenDefenceLossShare(preview.attackerPower, preview.defenderPower);
       const militiaDead = Math.round(land.localSoldiers * share);
@@ -1635,6 +1703,19 @@ function resolveInvaderBattle(
   // The walls are carried: the assault clock has nothing left to count.
   land.siege = undefined;
 
+  // A claim already stands here: walk on and wait with it rather than laying a second one.
+  //
+  // `joinsStandingSiege` turns most columns back before they ever reach this line, but it is a
+  // gate on *contact*, and a fight that opens by another door — a field the player commanded, a
+  // dispatch settled on ground claimed the same tick — arrives here anyway. Two orders on one
+  // province is the worst shape this bug takes: `progressSiegeOrders` would flip the ground twice
+  // and announce its fall twice. `verify-lost-ground` asserts it never happens.
+  if (hostileClaimAt(state, land.id)) {
+    army.landId = land.id;
+    filed('we-rout');
+    return;
+  }
+
   // Conquest: occupy and lay siege; progressSiegeOrders flips ownership.
   const fromLandId = army.landId;
   army.landId = land.id;
@@ -1645,6 +1726,17 @@ function resolveInvaderBattle(
     fromLandId,
     progress: 0,
     required: getAcquisitionTicksRequired(land),
+    /**
+     * Whoever of ours is still standing here now the field is decided — the remnant that could
+     * not fall back, not a rescue. `joinsStandingSiege` reads this to tell the two apart; see
+     * `SiegeOrder.presentAtClaim`. Captured after `retreatDefenders` has already moved everyone
+     * it could move, which is what makes the list mean "stranded".
+     */
+    presentAtClaim: state.armies
+      .filter((other) => other.kingdomId === PLAYER_KINGDOM_ID
+        && other.landId === land.id && !other.isLevy)
+      .map((other) => other.id),
+    openedTurn: state.turn,
   });
   state.message = t('empire.invade.besiege', { kingdom: kingdomName(state, record.kingdomId), land: land.name });
   filed('we-rout');

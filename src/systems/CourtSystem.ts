@@ -2,6 +2,7 @@ import { PLAYER_KINGDOM_ID } from '../game/constants';
 import { heroTemplates } from '../data/heroes';
 import { politicsCardTemplates } from '../data/politicsCards';
 import { createHeroDraft } from './HeroSystem';
+import { provinceIsFalling } from './LandSystem';
 import { eraSeatBonus } from './empire/MandateSystem';
 import type {
   CourtModifier,
@@ -507,7 +508,9 @@ export function removeHeroFromPosition(state: GameState, positionId: CourtPositi
 export function assignHeroToLand(state: GameState, heroId: string, landId: string): boolean {
   const hero = state.heroes.find((candidate) => candidate.id === heroId);
   const land = state.lands.find((candidate) => candidate.id === landId);
-  if (!hero || !land || land.ownerId !== PLAYER_KINGDOM_ID) {
+  // Not onto ground being taken. A governor posted to a province in the middle of falling is a
+  // champion handed to the enemy along with the district a season or two later.
+  if (!hero || !land || land.ownerId !== PLAYER_KINGDOM_ID || provinceIsFalling(state, landId)) {
     return false;
   }
 

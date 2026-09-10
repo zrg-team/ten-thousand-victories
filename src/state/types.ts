@@ -181,6 +181,24 @@ export interface Land {
 }
 
 /** A host standing at a province's walls, waiting out the siege clock before it assaults. */
+/**
+ * How well a province of ours is joined to the rest of the realm (Dragon Ascent only).
+ *
+ * Computed in one pass over `Land.neighbors` by `src/systems/ascent/SupplySystem.ts` and cached on
+ * `AscentState.supply`. Declared here rather than in that file so `AscentState` can name it without
+ * the state module importing a system module.
+ */
+export interface SupplyReading {
+  /** Hops to the capital across owned ground. `Infinity` when no route home exists. */
+  hops: number;
+  /** Provinces in the connected owned block this one belongs to, including itself. */
+  block: number;
+  /** Share of its output the province actually delivers, `SUPPLY_CUT_OFF_FACTOR`..1. */
+  factor: number;
+  /** No route home at all. The reading the map wash and the inspect card draw on. */
+  cutOff: boolean;
+}
+
 export interface LandSiege {
   /** The invader that opened the clock. Other hosts arriving later wait out the same one. */
   attackerId: string;
@@ -922,6 +940,22 @@ export interface SiegeOrder {
   fromLandId: string;
   progress: number;
   required: number;
+  /**
+   * Who of ours was already standing on the ground when the claim was laid.
+   *
+   * The same idea as `LandSiege.presentAtOpen`, and for a sharper reason. `joinsStandingSiege`
+   * lets a *relief march* re-open the fight, and read that as "any host of ours is here" it was
+   * satisfied by two hosts that had never marched anywhere: the beaten defenders, whom
+   * `retreatDefenders` leaves in place when the province has no friendly neighbour to fall back
+   * to, and the one Twice-Born reforms onto the seat. Both are standing there at the instant the
+   * claim is pushed, so capturing the roster here tells a rescue apart from a remnant.
+   *
+   * Optional: saves written before the claiming window have no roster, and are read as empty —
+   * which restores the old, looser behaviour for that one run rather than crashing it.
+   */
+  presentAtClaim?: string[];
+  /** Turn the claim was laid, for the clock the province card and the war board print. */
+  openedTurn?: number;
 }
 
 export type AcquisitionMethod = 'bribe' | 'diplomacy' | 'intimidation' | 'settle' | 'occupy' | 'conquest';
@@ -2364,6 +2398,16 @@ export interface AscentBattle {
   /** Identity of the engagement, so the screen opens itself once per fight and not per beat. */
   key?: string;
   /**
+   * This field was stood up to win back ground that is already being claimed.
+   *
+   * `reconcileFronts` ends any defence whose province is falling — that is what stops a lost
+   * capital from carrying three more fights — and without this flag it would end the retake in
+   * the same sweep, one tick after the player pressed for it. Stamped from the *ground* in
+   * `raiseDefenceField` rather than from which door was used, so both `openFieldAt` and
+   * `beginBattle` mark it the same way.
+   */
+  retake?: boolean;
+  /**
    * The hosts on each side, by id. Membership is explicit rather than "whoever stands on the
    * province": the invader that opens a defence is standing on the *adjacent* land when contact
    * is made, and an assault's own hosts stand on their origin. Enrolment happens per beat (see
@@ -2726,6 +2770,19 @@ export interface AscentState {
   /** Consecutive ticks the capital has been in enemy hands. Resets the moment it is retaken. */
   capitalLostTicks: number;
   /**
+   * Per-province supply reading, keyed by land id — hops home, block size, delivered share.
+   * See `src/systems/ascent/SupplySystem.ts`, which is the only writer.
+   *
+   * Derived, not authored: `refreshAllLandOutputs` recomputes the whole map every time it runs and
+   * overwrites this wholesale, so it can never disagree with the outputs it was used to compute.
+   * It lives on state rather than in a module cache so the renderer and the inspect card can read
+   * it on every frame without repeating the walk, and so a save reloads with it already right.
+   *
+   * Optional: a save written before supply lines has none, and `landSupply` reads a missing entry
+   * as fully supplied, which is exactly the old behaviour.
+   */
+  supply?: Record<string, SupplyReading>;
+  /**
    * The player has asked for story beats to wait for them instead of interrupting play.
    *
    * Off by default. When set, the DecisionDirector never raises a story-beat prompt: the
@@ -2752,6 +2809,15 @@ export interface AscentState {
   laneStats: AscentLaneStats;
   wavesSurvived: number;
   heroesSummoned: number;
+  /**
+   * Fights led and fights won, per champion, for the whole reign.
+   *
+   * Accumulated in `tallyCommand` as each engagement is filed, because `battleHistory` is a capped
+   * ring and cannot be counted at the end. Read by the Reckoning to name the general who carried
+   * the run. Optional: a save written before it exists reads as no tally, and the screen simply
+   * names nobody rather than failing.
+   */
+  commandTally?: Record<string, { fought: number; won: number }>;
   /**
    * Rubbings the cabinet's in-run faucets paid *this reign* — the tenth-wave milestone and the
    * deeds. A receipt, not a wallet: the rubbings themselves are in `mandate:cabinet:v1`, which

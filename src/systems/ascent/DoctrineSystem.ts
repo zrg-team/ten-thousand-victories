@@ -1,5 +1,6 @@
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { cabinetRuleMult } from '../../state/cabinet';
+import { provinceIsFalling } from '../LandSystem';
 import type { Army, GameState, Land } from '../../state/types';
 
 /**
@@ -100,8 +101,13 @@ export function tryReformBrokenHost(state: GameState, defender: Army): boolean {
   if (!ascent || doctrine(state, 'twice-born') <= 0) return false;
   if (ascent.twiceBornWave === ascent.wave) return false;
 
+  // Not onto a seat that is already being claimed. The ground is still nominally ours, so the
+  // lookup used to succeed — and reforming there spent the once-per-wave card to put a host on a
+  // province about to flip, where it then read as "relief" and re-opened the fight it had just
+  // lost. A rally point has to be somewhere the realm still holds.
   const capital = state.lands.find(
-    (land: Land) => land.id === ascent.capitalLandId && land.ownerId === PLAYER_KINGDOM_ID,
+    (land: Land) => land.id === ascent.capitalLandId && land.ownerId === PLAYER_KINGDOM_ID
+      && !provinceIsFalling(state, land.id),
   );
   if (!capital) return false;
 

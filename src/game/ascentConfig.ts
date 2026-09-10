@@ -382,13 +382,19 @@ export const ASCENT_TUNING = {
   ambitionCardMult: 1,
   /** Overrides `TENURE_MILITIA_SIZING_SHARE` when not 1 (a harness sweep of the dividend). */
   tenureMilitiaSizingShare: 1,
+  /**
+   * Scales how far a supply factor falls below 1 — the haulage toll and the cut-off penalty at
+   * once. 0 makes every province deliver whole (the pre-supply-lines economy); 2 doubles the bite.
+   * Read at the single site in `SupplySystem.supplyFactor`.
+   */
+  supplyPenaltyMult: 1,
   // Seeded from `window.__ascentTuning` at module load, set by a harness's `addInitScript`
   // BEFORE navigation. Assigning into the object after boot is not enough: under the dev server
   // the page's bundle and a harness's `import('/src/...')` can be two instances of this module
   // (the dual-instance trap), and the first A/B run wrote the override into the one the engine
   // never reads — four arms came out identical to the decimal. A hook read at load time reaches
   // every instance.
-  ...((globalThis as { __ascentTuning?: Partial<Record<'shadowShareMult' | 'ambitionCardMult' | 'tenureMilitiaSizingShare', number>> }).__ascentTuning ?? {}),
+  ...((globalThis as { __ascentTuning?: Partial<Record<'shadowShareMult' | 'ambitionCardMult' | 'tenureMilitiaSizingShare' | 'supplyPenaltyMult', number>> }).__ascentTuning ?? {}),
 };
 
 /**
@@ -2008,6 +2014,18 @@ export const BATTLE_DEPTH_NEAR = 1.12;
  */
 export const GARRISON_LEVY_FLOOR = 40;
 /**
+ * What a province still delivers while it is being taken from you.
+ *
+ * Between losing the fight and losing the flag a province sits in a 2-6 season claim (see
+ * `hostileClaimAt`), and it used to pay full gold, food and supplies right up to the tick it
+ * flipped — the walls carried, an enemy host camped in the district, the tax cart arriving on
+ * time. A quarter rather than nothing: an occupied province is not administered, but the realm
+ * does not stop eating what is already in its barns, and a hard cut to zero makes losing ground
+ * a cliff the player cannot read on the ledger. It is also the pressure that makes a retake
+ * worth paying for while the clock runs.
+ */
+export const CLAIM_OUTPUT_SHARE = 0.25;
+/**
  * Battle power of one levy man: the levy's unit mix (0.6 spear / 0.25 bow / 0.15 heavy → 1.18)
  * at its morale and supply of 80 each. A garrison levy is sized by dividing the province's
  * `defenderPower` garrison term by this, so a fought battle and the odds roll agree on what the
@@ -2789,3 +2807,75 @@ export const ARMY_REFIT_TICKS: Record<'equip' | 'reinforce' | 'drill', number> =
 };
 /** Seasons a manual supply column takes to reach its host. The host may act while it comes. */
 export const ARMY_RESUPPLY_TICKS = 2;
+
+// ── Supply lines: what the shape of the realm is worth ──────────────────────────────────────────
+
+/**
+ * How much of its output a province delivers, by hops from the capital along **owned** ground.
+ *
+ * Index is the hop count, and the last entry is the floor for anything further out. The realm
+ * pays to haul what a province makes, and the bill grows with the distance it travels: goods off
+ * the capital's own doorstep arrive whole, goods from the far march arrive short.
+ *
+ * The first three entries are 1 on purpose. A compact realm — which is every realm for the first
+ * dozen waves — should feel exactly as it does today; the toll is a consequence of *sprawl*, not
+ * a tax on expanding at all, and a penalty that bit at two provinces would have made the opening
+ * worse without teaching anything.
+ */
+export const SUPPLY_HOP_FACTORS = [1, 1, 1, 0.92, 0.92, 0.85];
+
+/**
+ * What a province delivers when no route home exists at all.
+ *
+ * Not zero, and deliberately: a severed province is still a place with fields and people, and
+ * zeroing it would make the map's most dramatic event — a corridor cut — read as "this province
+ * was destroyed" rather than "this province cannot get its goods to me". Under half is enough to
+ * be an emergency; nothing is enough to be a bug report.
+ *
+ * Note this compounds with the trade network, which a cut-off province also loses most of (see
+ * `getTradeNetworkMult`). The combined figure is what `/funscore` grades, not this number alone.
+ */
+export const SUPPLY_CUT_OFF_FACTOR = 0.45;
+
+/**
+ * Provinces a realm must hold before the haulage bill applies at all.
+ *
+ * A ratchet guard, and it is the same one `UNPAID_WITHHOLD_SHARE`'s three-province cap and Hạn
+ * điền exist to be: this mode's economy must not punish a realm for being *small*, because a realm
+ * that is small is usually a realm that is losing, and a penalty that lands hardest there turns a
+ * bad wave into an unrecoverable one with no move left to make.
+ *
+ * Measured over eight seeds: without this, the one seed whose realm was cut in two died at turn
+ * 356 instead of 401 and never recovered a single unpaid province — the shape penalty compounding
+ * a collapse rather than shaping an expansion. Seven of the eight were unaffected either way,
+ * which is the other half of the reading: this rule is meant for realms with enough ground for
+ * their shape to be a *choice*.
+ */
+export const SUPPLY_MIN_REALM_LANDS = 4;
+
+/**
+ * What a neighbouring province is worth to this one's trade, by who holds it.
+ *
+ * Roads run both ways, but customs posts do not. Our own ground moves goods freely; a neutral
+ * district with a village is a market to sell into across a border; empty ground is a road to
+ * nowhere; a rival's border is very nearly shut.
+ *
+ * These replace a binary "is it ours" that scored a neighbouring market town, an empty moor and a
+ * hostile kingdom identically at zero — so the ground a province sat on could not be read off the
+ * map, and a well-placed province was worth no more than a badly-placed one.
+ */
+export const SUPPLY_NEIGHBOR_WEIGHTS = {
+  own: 1,
+  neutralVillage: 0.55,
+  neutralWild: 0.3,
+  rival: 0.15,
+} as const;
+
+/**
+ * Terrain-cost multiplier for a leg marched onto ground the host's own crown holds.
+ *
+ * Our roads, our fords, our granaries at the end of the day's march. `getLegTicks` floors at one
+ * season and rounds, so this changes nothing on plains — it buys back a season on forest, hills
+ * and mountains, which is exactly where a maintained road is the difference.
+ */
+export const OWN_GROUND_MARCH_BONUS = 0.7;

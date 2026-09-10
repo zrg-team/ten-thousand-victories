@@ -59,7 +59,7 @@ import {
   applyAttackOutcome, armyPower, compositionMatchup, issueMoveOrder, terrainDefenseMultiplier,
 } from '../WarSystem';
 import { occupyEmptyLand } from '../AcquisitionSystem';
-import { findLand } from '../LandSystem';
+import { findLand, provinceIsFalling } from '../LandSystem';
 import { defenceCommanderOf } from './landCommand';
 import { landGarrisonPower } from './PowerSystem';
 import { battleLine, enrolArrivals, hostHeadcount, ourHosts, theirHosts } from './battleMembership';
@@ -531,6 +531,10 @@ function raiseDefenceField(
     ...emptyBattle(pending),
     role: 'defence',
     key: watchKey,
+    // Read off the ground, not off which door was used: `openFieldAt` and `beginBattle` both land
+    // here, and a fight on ground already being claimed is a retake however it was reached.
+    // `reconcileFronts` needs this or it ends the fight the player just pressed for.
+    retake: provinceIsFalling(state, pending.landId),
   };
   enrolArrivals(state, draft);
   if (theirHosts(state, draft).length === 0) return false;
@@ -2204,8 +2208,22 @@ export function delegateBattle(state: GameState, delegated: boolean, standing = 
 export function reconcileFronts(state: GameState): void {
   const ascent = state.ascent;
   if (!ascent) return;
+  /**
+   * Ground that is gone, or ground that is going.
+   *
+   * The ownership half was the original rule and it has a blind spot 2-6 seasons wide: a province
+   * whose walls have been carried is still flagged as ours until `progressSiegeOrders` turns it,
+   * so every other field standing on it kept beating away underneath a claim. That is the reported
+   * *"same capital — I lost a fight but other fights still happen"*, and it is why the fall of the
+   * seat could be announced while three more engagements were live on the same tile.
+   *
+   * A retake is the deliberate exception. It is the one defence that is *supposed* to be fought on
+   * falling ground, so ending it here would cancel the fight one tick after the player asked for
+   * it — the flag exists for exactly this line.
+   */
   const lost = (battle: AscentBattle): boolean => battle.role !== 'offence'
-    && findLand(state, battle.landId)?.ownerId !== PLAYER_KINGDOM_ID;
+    && (findLand(state, battle.landId)?.ownerId !== PLAYER_KINGDOM_ID
+      || (provinceIsFalling(state, battle.landId) && !battle.retake));
   const said = (battle: AscentBattle): void => {
     battle.over = true;
     pushToast(state, t('ascent.battle.groundLost', { land: battle.landName }), 'threat');

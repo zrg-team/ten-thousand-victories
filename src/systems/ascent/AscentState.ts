@@ -10,6 +10,7 @@ import {
   WAVE_GRACE_TICKS,
   xpToNextLevel,
 } from '../../game/ascentConfig';
+import { provinceIsFalling } from '../LandSystem';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { canSpend } from '../ResourceSystem';
 import { RESTORE_CARD_GAP_TICKS } from '../../game/ascentConfig';
@@ -349,7 +350,13 @@ function restoreCardEarly(state: GameState, prompt: AscentPrompt): boolean {
 function restoreCardDead(state: GameState, prompt: AscentPrompt): boolean {
   if (prompt.kind !== 'restore-land') return false;
   const land = state.lands.find((one) => one.id === prompt.landId);
-  return !land || land.ownerId !== PLAYER_KINGDOM_ID;
+  // Ownership is the *late* half of this test, and on its own it is two to six seasons late.
+  // A province whose walls have been carried is still flagged ours for the whole claim, so the
+  // card sailed through this guard and asked the throne to fund masonry on a district an enemy
+  // host was standing in — reported against the capital: *it shows a modal confirming I lost, but
+  // it still asks me to rebuild*. Dead either way: the answer to falling ground is a retake, and
+  // retaking raises its own card.
+  return !land || land.ownerId !== PLAYER_KINGDOM_ID || provinceIsFalling(state, prompt.landId);
 }
 
 function musterCardDead(state: GameState, prompt: AscentPrompt): boolean {

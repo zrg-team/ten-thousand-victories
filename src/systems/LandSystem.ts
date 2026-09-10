@@ -1,7 +1,7 @@
 import { registryTallies } from './decree/rules';
 import { isEndlessMode, PLAYER_KINGDOM_ID } from '../game/constants';
 import { ENEMY_SPOT_RADIUS } from '../game/ascentConfig';
-import type { GameState, Land } from '../state/types';
+import type { GameState, Land, SiegeOrder } from '../state/types';
 import { t } from '../i18n';
 
 /** Larger, better-defended, more developed districts take longer to siege or settle. */
@@ -120,6 +120,39 @@ export function getAcquisitionOrder(state: GameState, landId: string) {
 
 export function getSiegeOrder(state: GameState, landId: string) {
   return state.siegeOrders.find((order) => order.landId === landId);
+}
+
+/**
+ * The claim standing on a province of ours whose walls are already carried, or nothing.
+ *
+ * **The window nothing knew about.** Winning a fight at a province does not take it: the winner
+ * walks onto the ground and `resolveInvaderBattle` lays a `SiegeOrder`, and the flag turns 2-6
+ * seasons later in `progressSiegeOrders`. For that whole stretch `land.ownerId` is still the
+ * player's — so every guard in the game that asks "is this still ours?" answered yes about ground
+ * that was already lost. Reported, all three from this one gap: *other fights still happen at the
+ * same place*, *it is a blank fight because the land is occupied*, and *it still asks me to
+ * rebuild*.
+ *
+ * So the window gets a name. A falling province stays ours on the map and keeps a quarter of its
+ * yield, but it is frozen to orders, raises no militia, opens no new fight of its own, and can be
+ * won back by an army the player sends — see `provinceIsFalling`'s callers.
+ *
+ * Mode-gated **here**, not at the call sites, because `applyAttackOutcome` lays hostile claims on
+ * player ground in the classic modes too, and sixteen callers each remembering the gate is sixteen
+ * chances to forget it. Dragon Ascent only; everywhere else this is always undefined.
+ */
+export function hostileClaimAt(state: GameState, landId: string): SiegeOrder | undefined {
+  if (state.gameMode !== 'ascent') return undefined;
+  const land = findLand(state, landId);
+  if (!land || land.ownerId !== PLAYER_KINGDOM_ID) return undefined;
+  return state.siegeOrders.find(
+    (order) => order.landId === landId && order.attackerKingdomId !== PLAYER_KINGDOM_ID,
+  );
+}
+
+/** True while `landId` is ours on the map and already being taken. See `hostileClaimAt`. */
+export function provinceIsFalling(state: GameState, landId: string): boolean {
+  return hostileClaimAt(state, landId) !== undefined;
 }
 
 export function checkVictory(state: GameState): void {

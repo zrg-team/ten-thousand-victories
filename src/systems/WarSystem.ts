@@ -38,7 +38,7 @@ import {
   RETAKE_POWER_BONUS,
 } from '../game/ascentConfig';
 import { extendCampaign } from './empire/InvasionSystem';
-import { checkVictory, findLand, getAcquisitionTicksRequired, getSiegeOrder, isAdjacent, refreshPlayerVisibility } from './LandSystem';
+import { checkVictory, findLand, getAcquisitionTicksRequired, getSiegeOrder, hostileClaimAt, isAdjacent, provinceIsFalling, refreshPlayerVisibility } from './LandSystem';
 import {
   applyResourceDelta,
   canSpend,
@@ -376,7 +376,22 @@ function defenderPower(state: GameState, targetLand: Land): number {
   const standingLevy = state.gameMode === 'ascent'
     ? state.armies.find((army) => army.isLevy && army.kingdomId === targetLand.ownerId && army.landId === targetLand.id)
     : undefined;
-  const garrison = standingLevy ? armyPower(state, standingLevy) : garrisonPower(state, targetLand);
+  /**
+   * Ground already being claimed brings no walls and no militia to the roll.
+   *
+   * *The defence of the land should not affect any side* — the province has been carried, its
+   * garrison is spent and its walls are in enemy hands, so counting them for the nominal owner
+   * gives the defender a rampart nobody is standing on. Whoever fights here fights with the men
+   * they marched in with, which is what makes a retake a real trade instead of a formality.
+   *
+   * The same suppression as `raiseGarrisonLevy`'s, at the other seam, so the hidden roll and the
+   * watched field agree about what is on the ground. `garrisonPower` itself is deliberately left
+   * alone: it feeds the HUD's holding power, wave sizing and the enemy's read of how soft a
+   * province is, and zeroing it there would tell the wave director this ground is free.
+   */
+  const garrison = provinceIsFalling(state, targetLand.id)
+    ? 0
+    : standingLevy ? armyPower(state, standingLevy) : garrisonPower(state, targetLand);
 
   /**
    * **Every host present, in Dragon Ascent.**
@@ -521,7 +536,7 @@ export function findLandPath(
 export function getTotalPathTicks(state: GameState, army: Army, path: string[]): number {
   return path.reduce((sum, landId) => {
     const land = findLand(state, landId);
-    return sum + (land ? getLegTicks(army, land) : 0);
+    return sum + (land ? getLegTicks(army, land, state) : 0);
   }, 0);
 }
 
@@ -577,7 +592,7 @@ export function issueMoveOrder(state: GameState, armyId: string, targetLandId: s
     armyId,
     path,
     progress: marchStartProgress(state),
-    legRequired: getLegTicks(army, firstLand),
+    legRequired: getLegTicks(army, firstLand, state),
     hostileTransit,
     hostileCrossed: 0,
   });
@@ -832,7 +847,7 @@ export function issueHuntOrder(state: GameState, armyId: string, quarryArmyId: s
     armyId,
     path,
     progress: marchStartProgress(state),
-    legRequired: firstLand ? getLegTicks(army, firstLand) : 1,
+    legRequired: firstLand ? getLegTicks(army, firstLand, state) : 1,
     pursueArmyId: quarryArmyId,
   });
 
@@ -877,7 +892,7 @@ function repathPursuit(state: GameState, army: Army, order: MovementOrder): bool
   // Re-pathing restarts the leg: the host turns rather than teleporting its accumulated progress
   // onto a different road.
   order.progress = 0;
-  order.legRequired = firstLand ? getLegTicks(army, firstLand) : 1;
+  order.legRequired = firstLand ? getLegTicks(army, firstLand, state) : 1;
   return true;
 }
 
@@ -962,7 +977,7 @@ export function progressMovementOrders(state: GameState): boolean {
       }
       army.landId = nextLandId;
       const onward = findLand(state, order.path[0]);
-      order.legRequired = onward ? getLegTicks(army, onward) : 1;
+      order.legRequired = onward ? getLegTicks(army, onward, state) : 1;
       continue;
     }
 
@@ -995,7 +1010,7 @@ export function progressMovementOrders(state: GameState): boolean {
       state.message = t('msg.arrives', { army: army.name, land: nextLand.name });
     } else {
       const nextTarget = findLand(state, order.path[0]);
-      order.legRequired = nextTarget ? getLegTicks(army, nextTarget) : 1;
+      order.legRequired = nextTarget ? getLegTicks(army, nextTarget, state) : 1;
     }
   }
 
@@ -1586,7 +1601,13 @@ export function attackLand(state: GameState, armyId: string, targetLandId: strin
   }
 
   if (getSiegeOrder(state, targetLandId)) {
-    state.message = t('msg.alreadyUnderSiege', { land: targetLand.name });
+    // Both refusals stand — a province mid-claim is not assaultable by either side — but they are
+    // different situations and used to read as one. "{land} is already under siege" is nonsense
+    // said about *our own* province being taken from us; the answer there is that winning it back
+    // is a fight on the field, not an assault order.
+    state.message = hostileClaimAt(state, targetLandId)
+      ? t('ascent.falling.retakeHere', { land: targetLand.name })
+      : t('msg.alreadyUnderSiege', { land: targetLand.name });
     return false;
   }
 
@@ -1663,6 +1684,14 @@ export function applyAttackOutcome(
       fromLandId,
       progress: 0,
       required: siegeTicks,
+      // Filled the same way the invader's twin fills it (`resolveInvaderBattle`), so the two
+      // creators of a claim cannot drift apart. Inert when the attacker is the player — nothing
+      // reads the roster off a claim of ours — but a second shape is how this kind of thing rots.
+      presentAtClaim: state.armies
+        .filter((other) => other.kingdomId === targetLand.ownerId
+          && other.landId === targetLand.id && !other.isLevy)
+        .map((other) => other.id),
+      openedTurn: state.turn,
     });
     state.message = t('msg.victoryAt', { land: targetLand.name, ticks: siegeTicks, tickLabel: tickLabel(siegeTicks) });
     state.latestBattleResult = {
@@ -1805,6 +1834,40 @@ export function progressSiegeOrders(state: GameState): boolean {
   for (const battle of liveBattles(state)) {
     for (const id of [...(battle.ourArmyIds ?? []), ...(battle.theirArmyIds ?? [])]) {
       fought.add(`${battle.landId}:${id}`);
+    }
+  }
+
+  /**
+   * A claim whose besieger is no longer there to press it.
+   *
+   * **Without this a province could not be won back at all.** The clock counted the seasons and
+   * flipped the flag on schedule whether or not the host taking the ground still existed, so
+   * beating the occupier changed nothing: the field was won, the men marched home, and the
+   * province fell anyway two seasons later. There was no answer to *send armies to take it back*
+   * because taking it back was not wired to anything.
+   *
+   * Three ways an order goes stale: the host was despawned, it was ground down to nobody, or it
+   * walked off the land it was taking. Deliberately not `cancelSiege` — that one needs the army
+   * to exist so it can march it back to `fromLandId`, which is meaningless for a host that is
+   * dead. Ascent only, so the classic modes keep their byte-identical fingerprint.
+   *
+   * A safety net rather than the main road: a retake won through `finishBattle` already lifts the
+   * siege in `resolveBattleRecord`, and a wiped host is filtered by `despawnInvasion`. This
+   * catches the third case — a besieger emptied without any battle record being filed.
+   */
+  if (state.gameMode === 'ascent') {
+    const stale = state.siegeOrders.filter((order) => {
+      const army = state.armies.find((candidate) => candidate.id === order.armyId);
+      return !army || totalUnits(army) <= 0 || army.landId !== order.landId;
+    });
+    for (const order of stale) {
+      const land = findLand(state, order.landId);
+      if (land && order.attackerKingdomId !== PLAYER_KINGDOM_ID && land.ownerId === PLAYER_KINGDOM_ID) {
+        pushToast(state, t('ascent.falling.lifted', { land: land.name }), 'reward');
+      }
+    }
+    if (stale.length > 0) {
+      state.siegeOrders = state.siegeOrders.filter((order) => !stale.includes(order));
     }
   }
 

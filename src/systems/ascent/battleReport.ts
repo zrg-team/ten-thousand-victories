@@ -25,6 +25,7 @@
  */
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { liveBattles } from './fronts';
+import { provinceIsFalling } from '../LandSystem';
 import type { AscentBattleRecord, GameState } from '../../state/types';
 
 /** How many finished fights the run keeps. The dispatch reads back through them. */
@@ -42,6 +43,7 @@ export function recordEngagement(state: GameState, record: AscentBattleRecord): 
   const history = (ascent.battleHistory ??= []);
   history.push(record);
   tallyBlood(state, record);
+  tallyCommand(state, record);
   raiseAftermath(state);
   if (history.length > HISTORY_KEPT) history.splice(0, history.length - HISTORY_KEPT);
 }
@@ -54,6 +56,29 @@ export function recordEngagement(state: GameState, record: AscentBattleRecord): 
  * Headcount is what the Reckoning wants and what a player recognises, and it is already in every
  * record; nobody was adding it up.
  */
+/**
+ * What each champion's command actually amounted to, kept as it happens.
+ *
+ * The Reckoning wanted to name the general who carried the reign — *list the heroes that stood
+ * with you, and highlight the one who fought the most* — and the number was already in every
+ * record and thrown away, exactly as the butcher's bill above it was. It could not simply be
+ * counted at the end either: `battleHistory` is a ring capped at `HISTORY_KEPT`, so by the last
+ * wave a long run has forgotten the first forty fights a founder led.
+ *
+ * Keyed by hero id rather than by host, because a champion outlives the armies they are given,
+ * and kept on run state rather than on the `Hero` so a commander who dies still counted. Wins use
+ * the same reading as `defencesHeld` above: the enemy routed, or was spent against us.
+ */
+function tallyCommand(state: GameState, record: AscentBattleRecord): void {
+  const ascent = state.ascent;
+  const heroId = record.generalHeroId;
+  if (!ascent || !heroId) return;
+  const tally = (ascent.commandTally ??= {});
+  const entry = (tally[heroId] ??= { fought: 0, won: 0 });
+  entry.fought += 1;
+  if (record.outcome === 'they-rout' || record.outcome === 'spent') entry.won += 1;
+}
+
 function tallyBlood(state: GameState, record: AscentBattleRecord): void {
   const score = state.campaignScore;
   if (!score) return;
@@ -120,6 +145,13 @@ export interface AscentFront {
   theirMen: number;
   ourMen: number;
   besieged: boolean;
+  /**
+   * The walls are carried and the flag has not turned yet — a *hostile* claim on ground still
+   * ours. `besieged` is true for any claim including our own siege of someone else; this is the
+   * one that means the player is losing this province right now, and it is what the board and the
+   * province card label. See `hostileClaimAt`.
+   */
+  falling: boolean;
   /**
    * Seasons the walls hold before the host at them storms (`land.siege`), when one is standing
    * there. Distinct from `besieged`, which is the clock that runs *after* an assault is won.
@@ -233,10 +265,14 @@ export function contestedFronts(state: GameState): AscentFront[] {
     // On a field being fought, the fight's own reading of our strength — it counts the levy that
     // turned out and the relief that marched in, which a tile scan of standing hosts does not.
     const fight = liveBattles(state).find((battle) => battle.landId === landId);
+    // The militia is counted everywhere except on ground already being claimed, where it takes no
+    // part on either side (`defenderPower`, `raiseGarrisonLevy`). Printing it there would promise
+    // the player a garrison that will not turn out when they press the row.
+    const falling = provinceIsFalling(state, landId);
     const ourMen = fight ? Math.round(fight.ourNow) : state.armies
       .filter((army) => army.kingdomId === PLAYER_KINGDOM_ID && army.landId === landId)
       .reduce((n, army) => n + army.units.spearmen + army.units.archers + army.units.heavyInfantry, 0)
-      + (land?.localSoldiers ?? 0);
+      + (falling ? 0 : land?.localSoldiers ?? 0);
     return {
       landId,
       landName: land?.name ?? landId,
@@ -244,6 +280,7 @@ export function contestedFronts(state: GameState): AscentFront[] {
       theirMen: entry.theirMen,
       ourMen,
       besieged: state.siegeOrders.some((order) => order.landId === landId),
+      falling,
       ...(land?.siege ? { assaultTicks: land.siege.ticksLeft } : {}),
       live: fighting.has(landId),
       commanded: landId === commandedLand,

@@ -479,11 +479,100 @@ ${fall}` : fall,
       .setOrigin(0.5, 0));
     cursor += 16;
 
+    const named = (self.state.memorials ?? []).map((entry) => entry.name).filter(Boolean);
+
+    /**
+     * ── The champions who stood with you ──────────────────────────────────
+     *
+     * The shelf line above counts them — *heroes summoned: 7* — and a count is not a company.
+     * Asked for directly: *list the heroes that stood with you, with faces and their role in
+     * court, and highlight the general who fought the most battles.* The faces are the point: a
+     * reign is remembered by who was in it, and the run's last page named nobody at all.
+     *
+     * **Paid for out of what is left, never out of `FLOOR`.** The tiles above derive their height
+     * from `gridRoom`, so adding this band to the budget would drive that negative and overflow a
+     * page that must not scroll. It takes the gap between the shelf line and the controls, draws
+     * one row, and at the 620 clamp (`tight`) it is simply absent — the same rule the shelf line
+     * and the enshrined names already follow. `captureScreen` crops at `buttonY - 4`, so a band
+     * that respects `avail` is inside the photograph by construction.
+     */
+    const roster = self.state.heroes.filter((hero) => hero.id !== 'king');
+    const reserve = named.length > 0 ? 24 : 0;
+    const avail = buttonY - cursor - reserve - 6;
+    if (roster.length > 0 && avail >= 52) {
+      const tally = ascent?.commandTally ?? {};
+      const led = (hero: { id: string }) => tally[hero.id] ?? { fought: 0, won: 0 };
+      // The one who carried the reign: most fields led, and where two led the same number, the one
+      // who won more of them. Only ever named when they actually led something — a run whose
+      // fights were all settled by dispatch under nobody has no first soldier, and inventing one
+      // out of the roster order would be a caption that means nothing.
+      const best = roster
+        .filter((hero) => led(hero).fought > 0)
+        .sort((a, b) => (led(b).fought - led(a).fought) || (led(b).won - led(a).won))[0];
+      // Posted first, unposted last, and the standout ahead of all of it. `heroPostingLabel` is
+      // the same reading the roster page uses, so the band and the lane cannot disagree about
+      // where somebody is.
+      const rank = (hero: typeof roster[number]) => (hero === best ? -1 : hero.assignedTo ? 0 : 1);
+      const ordered = roster.slice().sort((a, b) => rank(a) - rank(b) || led(b).fought - led(a).fought);
+
+      const faceH = Math.max(26, Math.min(52, avail - 18));
+      const faceW = Math.round(faceH * 0.82);
+      // The cell is as wide as a *name*, not as wide as a face. Sized to the portrait alone it was
+      // 36 points, and "Trần Quốc Toản" wrapped to three stacked lines that ran into the band under
+      // it — the names are the half of this band that does the work.
+      const cellW = Math.max(faceW, 54);
+      const gap = 6;
+      const perRow = Math.max(1, Math.floor((content.width + gap) / (cellW + gap)));
+      const shown = ordered.slice(0, ordered.length > perRow ? perRow - 1 : perRow);
+      const spare = ordered.length - shown.length;
+
+      self.modalLayer.add(self.ui.label(content.x + content.width / 2, cursor,
+        best
+          ? t('ascent.over.mostBattles', {
+            name: heroName(best), fought: led(best).fought, won: led(best).won,
+          })
+          : t('ascent.over.champions'),
+        'caption', { fontSize: '9px', align: 'center', wordWrap: { width: content.width - 8 } })
+        .setOrigin(0.5, 0));
+      cursor += 12;
+
+      const rowW = (shown.length + (spare > 0 ? 1 : 0)) * (cellW + gap) - gap;
+      let x = content.x + Math.round((content.width - rowW) / 2);
+      for (const hero of shown) {
+        const face = renderHeroFaceInBox(self, hero,
+          { x: x + Math.round((cellW - faceW) / 2), y: cursor, width: faceW, height: faceH });
+        self.modalLayer.add(face);
+        // A gold rule under the first soldier, because a face in a row of faces cannot say by
+        // itself that it is the one the caption is about.
+        if (hero === best) {
+          const rule = self.add.rectangle(x + cellW / 2, cursor + faceH + 1, faceW - 2, 2, INK_UI.gold)
+            .setOrigin(0.5, 0);
+          self.modalLayer.add(rule);
+        }
+        // One line, trimmed tail-first — never wrapped. The band's height is fixed before the
+        // names are measured, so a name allowed to wrap grows *downwards* into the controls.
+        const name = self.ui.label(x + cellW / 2, cursor + faceH + 4, heroName(hero), 'caption',
+          { fontSize: '8px', align: 'center' }).setOrigin(0.5, 0);
+        let shown = heroName(hero);
+        while (shown.length > 2 && name.width > cellW) {
+          shown = shown.slice(0, -1);
+          name.setText(`${shown.trimEnd()}…`);
+        }
+        self.modalLayer.add(name);
+        x += cellW + gap;
+      }
+      if (spare > 0) {
+        self.modalLayer.add(self.ui.label(x + cellW / 2, cursor + Math.round(faceH / 2) - 4,
+          t('ascent.over.moreHeroes', { n: spare }), 'caption',
+          { fontSize: '10px', align: 'center' }).setOrigin(0.5, 0));
+      }
+      cursor += faceH + 16;
+    }
+
     // The dead this reign put up a shrine to, by name. `state.memorials` is not the Chronicle's
     // sixty-entry ring and is never evicted — a shrine the record forgets is not a shrine. It is
     // the one line here whose height nothing bounds (a long reign enshrines several names and it
     // wraps), so it is only printed when there is room above the controls for it to wrap into.
-    const named = (self.state.memorials ?? []).map((entry) => entry.name).filter(Boolean);
     if (named.length > 0 && cursor + 24 < buttonY) {
       const line = self.ui.label(content.x + content.width / 2, cursor,
         t('ascent.over.enshrined', { names: named.join(' · ') }), 'caption',

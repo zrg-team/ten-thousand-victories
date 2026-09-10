@@ -43,6 +43,7 @@ import {
 import { launchOffMapInvasion } from '../empire/InvasionSystem';
 import { pushToast } from '../empire/notifications';
 import { getPlayerTroops } from '../ResourceSystem';
+import { provinceIsFalling } from '../LandSystem';
 import { getEmpirePower } from '../DiplomacySystem';
 import { armyPower } from '../WarSystem';
 import { ambitionHeat } from './AmbitionSystem';
@@ -420,8 +421,24 @@ function landValue(state: GameState, land: Land): number {
 /** Assigns each host without one a plan, and a province to carry it out on. */
 function assignPlans(state: GameState): void {
   const records = state.invasions ?? [];
-  const owned = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID);
-  if (owned.length === 0) return;
+  const held = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID);
+  if (held.length === 0) return;
+
+  /**
+   * Ground a column of ours is already taking is not fresh prey.
+   *
+   * A province mid-claim has no walls left standing and no militia (`landGarrisonPower` reads it
+   * as nearly free), so it sorted to the top of every "softest target" list and the next wave was
+   * pointed straight back at ground that was already falling — three columns converging on a
+   * province one of them had taken, which is what the player saw as fights that would not stop.
+   *
+   * **The fallback is load-bearing.** With no target at all a host stands still holding one of the
+   * `MAX_LIVE_INVADER_HOSTS` slots the wave director counts before it sends the next wave; five of
+   * those deadlocked a whole run once already (see `tickInvasions`'s no-road note). So if every
+   * province the realm holds is falling, the filter yields and they go back to being targets.
+   */
+  const pool = held.filter((land) => !provinceIsFalling(state, land.id));
+  const owned = pool.length > 0 ? pool : held;
 
   // Targets already claimed by another host, so flankers genuinely spread rather than stacking.
   const taken = new Set(
@@ -537,7 +554,12 @@ function reconsider(state: GameState): void {
       if (record.retreatTicks >= ENEMY_RETREAT_HYSTERESIS_TICKS && record.plan !== 'withdrawing') {
         // Rather than dying to attrition against a province it cannot take, the host looks for
         // softer ground. Only if there is none does it turn for home.
-        const owned = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID);
+        // Same rule as `assignPlans`: a province already being claimed reads as the softest
+        // ground on the map precisely because it has already been beaten, and re-pointing a
+        // beaten host at it piles a third column onto a fight that is over.
+        const held = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID);
+        const pool = held.filter((land) => !provinceIsFalling(state, land.id));
+        const owned = pool.length > 0 ? pool : held;
         const softer = owned
           .filter((land) => land.id !== target.id)
           .sort((a, b) => landGarrisonPower(state, a) - landGarrisonPower(state, b))[0];

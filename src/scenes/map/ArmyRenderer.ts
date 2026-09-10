@@ -708,7 +708,7 @@ export class ArmyRenderer {
 
   /** Milliseconds per world unit for a full leg to `land`, from the order the state would give it. */
   private legPace(state: GameState, army: Army, land: Land, leg: MarchLeg): number {
-    return (getLegTicks(army, land) * tickMs(state)) / Math.max(1, leg.route.getLength());
+    return (getLegTicks(army, land, state) * tickMs(state)) / Math.max(1, leg.route.getLength());
   }
 
   /**
