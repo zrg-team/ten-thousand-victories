@@ -1309,14 +1309,45 @@ export function raiseEnemyGarrisonLevy(state: GameState, land: Land): Army | und
  * `repairProvincialDefence` rebuilds over the following seasons. A second wave landing on a mauled
  * province now meets a mauled province.
  */
-export function dissolveGarrisonLevies(state: GameState): void {
-  const levies = state.armies.filter((army) => army.isLevy);
+export function dissolveGarrisonLevies(state: GameState, only?: (army: Army) => boolean): void {
+  /**
+   * `only` narrows the sweep to some of the levies instead of all of them.
+   *
+   * The caller's ordinary gate is "nothing is being fought anywhere", which is right for the
+   * general case: militia standing in a line that is still fighting must not be sent home
+   * mid-beat. But under multi-front war that gate can stay shut for a long time, and a levy
+   * raised for a fight that was *lost* then stands for ever on ground an enemy is claiming —
+   * measured on the claiming window's staged seed, a 595-man militia host of ours parked on
+   * district-19 with no live fight on it at all. `battleMembership` already refuses to enlist it
+   * (see the `falling && army.isLevy` guard there), so it is a host with no side and no purpose.
+   *
+   * The narrow sweep exists for exactly that case. It is deliberately *not* widened to "any levy
+   * whose own front has ended": dissolving those promptly also charges their provinces promptly
+   * and stops a lingering levy handing its militia back to a province that has since regrown,
+   * which measured 85 -> 77.2 on `/funscore` — a real subsidy the mode is tuned around, and not
+   * something to remove as a side effect of fixing a phantom army.
+   */
+  // A fight live on the levy's own province still has it in the line — never send that one home.
+  const engaged = new Set<string>();
+  for (const battle of liveBattles(state)) engaged.add(battle.landId);
+  if (state.pendingBattle) engaged.add(state.pendingBattle.landId);
+  const goingHome = (army: Army) => army.isLevy
+    && !engaged.has(army.landId)
+    && (!only || only(army));
+
+  const levies = state.armies.filter(goingHome);
   if (levies.length === 0) return;
   for (const levy of levies) {
     const land = findLand(state, levy.landId);
     // Only if the province is still ours — a levy that lost its home has nowhere to go back to,
     // and walls that changed hands are the new owner's problem.
     if (!land || land.ownerId !== PLAYER_KINGDOM_ID) continue;
+    // Ground an enemy is in the act of taking: the watch is scattered, not stood down. It is
+    // struck from the army list (below) but nothing is paid back and nothing is charged — the
+    // province is in the middle of losing a defence it has already been billed for, and handing
+    // its militia back to a district about to change hands would be restoring a watch that is not
+    // there. See `hostileClaimAt`.
+    if (provinceIsFalling(state, land.id)) continue;
     const survivors = totalUnits(levy);
     const mustered = Math.max(1, levy.levyMustered ?? survivors);
     const lostShare = Math.max(0, Math.min(1, 1 - survivors / mustered));
@@ -1338,7 +1369,7 @@ export function dissolveGarrisonLevies(state: GameState): void {
     // See `chargeProvinceForDefence`.
     chargeProvinceForDefence(state, land, lostShare, militiaDead);
   }
-  state.armies = state.armies.filter((army) => !army.isLevy);
+  state.armies = state.armies.filter((army) => !goingHome(army));
 }
 
 /**

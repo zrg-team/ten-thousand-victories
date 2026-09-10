@@ -30,6 +30,9 @@ import {
   setLandSpecialization,
 } from '../ResourceSystem';
 import { assignHeroToLand, getLandGovernorEffects } from '../CourtSystem';
+import { provinceIsFalling } from '../LandSystem';
+import { pushToast } from '../empire/notifications';
+import { t } from '../../i18n';
 import { enqueueAscentPrompt } from './AscentState';
 import { defenceCommanderOf } from './landCommand';
 import type {
@@ -112,7 +115,19 @@ function setupOrder(state: GameState, owned: Land[]): { land: Land; focus: keyof
 }
 
 function ownedLands(state: GameState): Land[] {
-  return state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID);
+  // Ground an enemy is in the act of taking is out of the throne's hands, and every verb this
+  // card offers runs through a guard that says so — `setLandSpecialization` and
+  // `assignHeroToLand` both refuse a falling province. Drafting a card for one produced a card
+  // whose buttons did nothing: `resolveProvinceOrder` returned false, `resolveAscentPrompt` left
+  // it standing, and the player got a dead tap with no explanation.
+  //
+  // It was not a rare corner either. The `undefended` reason picks `mostExposed`, i.e. the
+  // province with the most foreign neighbours — exactly the one most likely to be under a claim
+  // when the card is raised. Measured by `verify-ascent`, which reported `province-order` as an
+  // unanswerable prompt on the shipped seed.
+  return state.lands.filter(
+    (land) => land.ownerId === PLAYER_KINGDOM_ID && !provinceIsFalling(state, land.id),
+  );
 }
 
 /**
@@ -289,6 +304,19 @@ export function offerProvinceOrder(state: GameState): boolean {
  */
 export function resolveProvinceOrder(state: GameState, landId: string, choiceId: string): boolean {
   if (choiceId === 'hold') return true;
+
+  // The card was raised for ground that has since come under a claim. Filtering the draft pool
+  // stops this being raised in the first place, but a card already standing when the host arrives
+  // still has to be answerable — `resolveAscentPrompt` leaves a false return on screen, so without
+  // this the province's own misfortune wedged the card that was about to improve it.
+  //
+  // Answered rather than refused, and said out loud. A tap that reports why it changed nothing is
+  // a decision the player can learn from; a tap that silently does nothing is the bug.
+  if (provinceIsFalling(state, landId)) {
+    const land = state.lands.find((candidate) => candidate.id === landId);
+    pushToast(state, t('ascent.order.contested', { land: land?.name ?? '' }), 'threat');
+    return true;
+  }
 
   const [verb, value] = choiceId.split(':');
   if (verb === 'focus') {
