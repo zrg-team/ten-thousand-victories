@@ -14,7 +14,7 @@
 
 <br>
 
-<a href="https://zrg-team.github.io/ten-thousand-victories/"><img src="docs/readme/play-badge.png" alt="Play the full game, free — no ads" width="470"></a>
+<a href="https://zrg-team.github.io/ten-thousand-victories/"><img src="public/share/play-badge.png" alt="Play the full game, free — no ads" width="470"></a>
 
 <sub>Install it from the browser — add to home screen, and it plays offline, full screen, with no store and no account.</sub>
 
@@ -26,9 +26,14 @@
 
 <br>
 
-<img src="docs/readme/trailer.gif" alt="Twenty-five seconds of a real run: the country ticking under a drifting camera, the realm wide, a power draft of woodblock cards, a champion summoned, an invasion column reaching the capital, two hosts ranked in their shapes on the field, and a Chronicle beat under its own print" width="330">
+<table>
+  <tr>
+    <td align="center" width="30%"><img src="docs/readme/trailer.gif" alt="Twenty-five seconds of a real run on a phone: the country ticking under a drifting camera, a power draft of woodblock cards, a champion summoned, an invasion reaching the capital, two hosts ranked in their shapes, and a Chronicle beat under its own print" width="100%"><br><sub><b>On a phone</b> — one column, one thumb</sub></td>
+    <td align="center" width="70%"><img src="docs/readme/trailer-desktop.gif" alt="The same run on a desktop: one slim bar of chrome, the map filling the window, and the battle on a hanging scroll with the field running its full width" width="100%"><br><sub><b>On a desktop</b> — the map takes the window</sub></td>
+  </tr>
+</table>
 
-<sub>Twenty-five seconds of an actual run. Nothing here is a mock-up — every frame is the game, played. <a href="README.vi.md">Bản tiếng Việt</a> has its own cut.</sub>
+<sub>Twenty-five seconds of an actual run, cut twice because the game lays itself out twice. Nothing here is a mock-up — every frame is the game, played. <a href="README.vi.md">Bản tiếng Việt</a> has its own cuts.</sub>
 
 <br>
 

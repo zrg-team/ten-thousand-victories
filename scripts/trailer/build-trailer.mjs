@@ -47,19 +47,39 @@ const ONLY = (arg('--only', '') || '').split(',').filter(Boolean);
  * it rather than translated into it. Everything downstream is named for it, so the two live side by
  * side and one never overwrites the other's frames.
  */
+/**
+ * Which sheet the film is cut on — the phone column or the desktop's wide surface.
+ *
+ *   phone    360x640 at 3.25x = 1170x2080 device px. `GAME_HEIGHT` is taken from the window's
+ *            aspect, so the game lays out at 390x693: a 9:16 column, full bleed, no letterbox.
+ *   desktop  1920x1080 at 1x. `DESKTOP_DESIGN_HEIGHT` is a constant 760, so the sheet is 1351x760
+ *            and one design unit is 1.42 px. The HUD is a single top bar, the lanes dock, and the
+ *            map fills the window — which is the whole reason for a second cut.
+ *
+ * The desktop page must *ask* for its layout on the URL: see `toMenu`.
+ */
+const SURFACES = {
+  phone: { width: 360, height: 640, scale: 3.25, out: [1080, 1920], seam: 272, seamShort: 140 },
+  // One bar, one seam. The desktop chrome is a single row about 64 design units tall, so unlike the
+  // phone there is no second HUD row and no lane page that starts higher — every screen shares it.
+  desktop: { width: 1920, height: 1080, scale: 1, layout: 'desktop', out: [1920, 1080], seam: 68, seamShort: 68 },
+};
+const SURFACE = arg('--surface', 'phone');
+const LANDSCAPE_FILM = SURFACE === 'desktop';
+const VIEW = SURFACES[SURFACE] ?? SURFACES.phone;
+const view = () => ({ ...VIEW, lang: LANG });
+
 const LANG = arg('--lang', 'en');
-const SUFFIX = LANG === 'en' ? '' : `-${LANG}`;
+const SUFFIX = `${SURFACE === 'phone' ? '' : `-${SURFACE}`}${LANG === 'en' ? '' : `-${LANG}`}`;
 const RAW = arg('--frames', `scripts/trailer/out/raw${SUFFIX}`);
 const COMPOSED = `scripts/trailer/out/composed${SUFFIX}`;
-const OUT = arg('--out', `scripts/trailer/out/van-thang-trailer${SUFFIX}-1080x1920.mp4`);
+const OUT = arg('--out', `scripts/trailer/out/van-thang-trailer${SUFFIX}-${VIEW.out[0]}x${VIEW.out[1]}.mp4`);
 const GIF = arg('--gif', `docs/readme/trailer${SUFFIX}.gif`);
 
 // The capture surface. 360x640 CSS at 3.25x gives 1170x2080 device pixels, and the game's own
 // design surface resolves to 390x693 there — a 9:16 sheet, so the trailer is full bleed with no
 // letterbox anywhere. The 90 spare pixels of width are the push-in's whole travel: the compositor
 // crops them back to 1080 rather than zooming the map camera, which would re-bake the ground.
-const VIEW = { width: 360, height: 640, scale: 3.25 };
-const view = () => ({ ...VIEW, lang: LANG });
 const SEED = 20260901;
 /**
  * The fight is auditioned separately from the realm, and for a different quality.
@@ -409,7 +429,7 @@ async function settleCranked(page, maxFrames = 900) {
 const PAGES = {
   async run(browser) {
     const page = await newPage(browser, view());
-    await boot(page, URL, SEED, 'ascent');
+    await boot(page, URL, SEED, 'ascent', VIEW.layout);
     const state = await advance(page, 65, { seed: SEED });
     console.log(`   run: ${JSON.stringify(state)}`);
     // `advance` sinks the tick accumulator so a photograph stays still. A film wants the opposite:
@@ -423,7 +443,7 @@ const PAGES = {
   },
   async battle(browser) {
     const page = await newPage(browser, view());
-    await boot(page, URL, BATTLE_SEED, 'ascent');
+    await boot(page, URL, BATTLE_SEED, 'ascent', VIEW.layout);
     const state = await advance(page, 400, { stopOnBattle: true, battleAfter: BATTLE_AFTER, seed: BATTLE_SEED });
     console.log(`   battle: ${JSON.stringify(state)}`);
     if (!state.battle) throw new Error('no fight opened — re-audition the battleAfter threshold');
@@ -464,7 +484,7 @@ const PAGES = {
   },
   async story(browser) {
     const page = await newPage(browser, view());
-    await toMenu(page, URL);
+    await toMenu(page, URL, VIEW.layout);
     await page.evaluate(FIRST_CHOICE);
     // A headless run to the first Chronicle beat that carries an authored woodblock print, handed
     // to the real scene. Sixteen of the forty-nine do; the rest are drawn by the scene's own ink,
@@ -524,7 +544,7 @@ const PAGES = {
   },
   async menu(browser) {
     const page = await newPage(browser, view());
-    await toMenu(page, URL);
+    await toMenu(page, URL, VIEW.layout);
     await page.waitForTimeout(1200);
     // No tip on the end card.
     //
@@ -592,6 +612,8 @@ async function capture() {
       return at;
     };
     ctx.drain = (p) => p.evaluate(() => window.__drain());
+    // Asked once per page: every tap and gesture below converts design units through it.
+    const css = await designToCss(page);
 
     for (const cut of wanted.filter((c) => c.page === group)) {
       const total = seconds(cut.seconds);
@@ -627,7 +649,6 @@ async function capture() {
           track = track.concat(built.steps.map((step) => ({ ...step, frame: i + step.at })));
           if (move.kind !== 'browse-fan') ripple = { dx: anchorAt.card?.x ?? found.x, dy: anchorAt.card?.y ?? found.y, from: i };
         }
-        const css = VIEW.width / 390;
         for (const step of track.filter((one) => one.frame === i)) {
           await page.mouse.move(step.x * css, step.y * css);
           if (step.down) await page.mouse.down();
@@ -637,7 +658,7 @@ async function capture() {
 
         for (const tap of taps) {
           if (tap.fired || i < tap.frame) continue;
-          const at = await doTap(page, tap.find, tap.hold ?? 0);
+          const at = await doTap(page, tap.find, tap.hold ?? 0, css);
           // A miss is usually a timing accident rather than a wrong target — a card was up for a
           // beat, or the dock was between rebuilds — so a tap keeps trying for a second before it
           // gives up, instead of silently not happening.
@@ -686,12 +707,29 @@ async function capture() {
 }
 
 /** Puts a thumb on a real button, and says where it went so the compositor can mark it. */
-async function doTap(page, kind, hold = 0) {
+/**
+ * How many CSS pixels one design unit is, on whichever sheet this page laid out.
+ *
+ * Every widget this film touches reports itself in design units, and Playwright clicks in CSS
+ * pixels. On the phone the sheet is the 390 column, so the factor was written as `VIEW.width / 390`
+ * — which on the desktop's 1351-unit surface is out by 3.5x, and would put every tap and every
+ * gesture somewhere off the right of the screen. Asked of the running game instead.
+ */
+async function designToCss(page) {
+  const sheet = await page.evaluate(async () => {
+    try {
+      return (await import('/src/game/constants.ts')).surfaceWidth();
+    } catch {
+      return 390;
+    }
+  });
+  return VIEW.width / sheet;
+}
+
+async function doTap(page, kind, hold = 0, css = VIEW.width / 390) {
   const at = await page.evaluate((k) => window.__target(k), kind);
   if (!at || at.fail) return at?.fail ? { fail: at.fail } : null;
   if (at.note) console.log(`      tap ${kind}: ${at.note}`);
-  // Design units to CSS pixels: the sheet is 390 wide inside a 360-wide viewport.
-  const css = VIEW.width / 390;
   // A hold is not a long tap here: several of this game's cards are answered by *holding* the row
   // ("Hold a card to choose it"), and the fill that runs round the card while the thumb is down is
   // drawn by the scene on its own clock. So the press goes down here and the release is scheduled
@@ -854,7 +892,7 @@ async function compose() {
   rmSync(COMPOSED, { recursive: true, force: true });
   mkdirSync(COMPOSED, { recursive: true });
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
+  const page = await browser.newPage({ viewport: { width: VIEW.out[0], height: VIEW.out[1] } });
   page.on('pageerror', (e) => console.log(`compositor: ${e.message}`));
   // The compositor is served by the dev server too, so it holds an HMR socket like any other page —
   // and a compose is two minutes long. Any write anywhere in the repo during it (editing a caption,
@@ -867,7 +905,7 @@ async function compose() {
       Object.defineProperty(Location.prototype, 'reload', { value: () => {}, configurable: true });
     } catch { /* the socket block is the load-bearing half */ }
   });
-  await page.goto(`${URL}/scripts/trailer/compose.html`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${URL}/scripts/trailer/compose.html?w=${VIEW.out[0]}&h=${VIEW.out[1]}&seam=${VIEW.seam}&seamShort=${VIEW.seamShort}&src=${VIEW.width * VIEW.scale}`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.__composeReady === true, null, { timeout: 30000 });
 
   const started = Date.now();
@@ -1047,6 +1085,16 @@ async function encode() {
  * paper, so an undithered 128-colour palette is both *smaller* — 8 MB against 24 — and cleaner
  * than a dithered one, which would spray noise across every block of colour the print is made of.
  */
+/**
+ * How wide the GIF is drawn, which is not the same number for the two films.
+ *
+ * 360 is right for the phone column — a 360x640 card on a README page. The same 360 on a 16:9 frame
+ * is 360x203, which is a thumbnail of a strategy screen: the HUD is unreadable and the hosts on the
+ * field are four pixels tall. A landscape still needs roughly twice the width to carry the same
+ * detail, and costs about the same bytes because there is less motion per pixel.
+ */
+const GIF_WIDTH = LANDSCAPE_FILM ? 720 : 360;
+
 async function gif() {
   const ffmpeg = findFfmpeg();
   if (!ffmpeg) {
@@ -1068,9 +1116,9 @@ async function gif() {
   const held = HIGHLIGHT.reduce((sum, [from, to]) => sum + (to - from), 0);
   console.log(`gif: ${HIGHLIGHT.length} windows, ${held.toFixed(1)}s -> ${GIF}`);
   await run(['-y', '-i', OUT, '-vf', `select='${select}',setpts=N/FRAME_RATE/TB`, '-an', cut]);
-  await run(['-y', '-i', cut, '-vf', 'fps=12,scale=360:-1:flags=lanczos,palettegen=stats_mode=diff:max_colors=128', palette]);
+  await run(['-y', '-i', cut, '-vf', `fps=12,scale=${GIF_WIDTH}:-1:flags=lanczos,palettegen=stats_mode=diff:max_colors=128`, palette]);
   await run(['-y', '-i', cut, '-i', palette,
-    '-lavfi', 'fps=12,scale=360:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=none:diff_mode=rectangle',
+    '-lavfi', `fps=12,scale=${GIF_WIDTH}:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=none:diff_mode=rectangle`,
     '-loop', '0', GIF]);
   rmSync(palette, { force: true });
   rmSync(cut, { force: true });

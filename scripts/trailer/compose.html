@@ -34,9 +34,21 @@ const PIGMENT = {
   sonDeep: '#8a2a1b',
 };
 
-const W = 1080;
-const H = 1920;
-const SRC_W = 1170;                  // what the capture stage hands us
+/**
+ * The sheet this compositor is working on, handed over by the driver.
+ *
+ * There are two films — a 1080x1920 phone column and a 1920x1080 desktop surface — and everything
+ * with a number in it below is derived from these rather than written down twice. `seam` is where
+ * the game's own chrome ends and the caption plate may not go past: two HUD rows on the phone's
+ * map and prompt screens, one row on the desktop, where every screen shares the same bar.
+ */
+const params = new URLSearchParams(location.search);
+const W = Number(params.get('w')) || 1080;
+const H = Number(params.get('h')) || 1920;
+const SEAM = Number(params.get('seam')) || 272;
+const SEAM_SHORT = Number(params.get('seamShort')) || 140;
+const SRC_W = Number(params.get('src')) || 1170;   // what the capture stage hands us
+const LANDSCAPE = W > H;
 const canvas = document.getElementById('sheet');
 canvas.width = W;
 canvas.height = H;
@@ -161,7 +173,8 @@ function captionFloating(lines, alpha, y) {
  * bottom the way every band in this game is cut. It reads as a chapter rather than a subtitle, and
  * the only thing it covers is the resource header, which the map cuts have already shown.
  */
-function captionBand(lines, alpha, kind, plate) {
+function captionBand(rawLines, alpha, kind, plate) {
+  let lines = rawLines;
   // Three screens, two seams. The plate has to end where the game's own layout ends, or it puts a
   // sawtooth through the middle of a line and the text shows above it in halves:
   //
@@ -172,12 +185,20 @@ function captionBand(lines, alpha, kind, plate) {
   //
   // The short plate holds one line. That is a real constraint on the writing and a good one: a
   // single line over a fight is better than two.
-  const height = kind === 'hud' ? 272 : 140;
+  const height = kind === 'hud' ? SEAM : SEAM_SHORT;
+  // On the wide sheet the two halves of a caption are one line, not two.
+  //
+  // The desktop chrome is a single 68-unit bar and the plate may not go past it — below it are the
+  // notices, and a band deep enough for two lines of 48px clips the first one. But the sheet is
+  // 1920 wide, so a caption that needed two lines in a 1080 column has room to say itself in one.
+  if (LANDSCAPE && lines.length > 1) lines = [lines.join('  ·  ')];
   // The short plate can hold two lines, but not at the tall plate's size — 140 units is the seam
   // and the type has to live inside it. This is what lets a cut carry one caption that holds for
   // four seconds instead of two that swap in the middle of it.
-  const twoUp = kind !== 'hud' && lines.length > 1;
-  const size = twoUp ? 42 : 48;
+  // On the desktop the plate is one shallow bar, so two lines never fit in it — and the sheet is
+  // wider, so a line that needed two on a phone fits on one here anyway.
+  const twoUp = !LANDSCAPE && kind !== 'hud' && lines.length > 1;
+  const size = LANDSCAPE ? 36 : (twoUp ? 42 : 48);
   const lead = twoUp ? 50 : 58;
   const first = height / 2 - ((lines.length - 1) * lead) / 2;
   const t = Math.min(1, Math.max(0, alpha));
@@ -250,6 +271,84 @@ function ripple(spec, scale, cropX, cropY) {
 }
 
 /**
+ * The end card on the wide sheet.
+ *
+ * The desktop front page is already a poster — a full-bleed river plate with the wordmark on a
+ * hanging scroll at the right — so this does not cover it the way the phone's band covers a column
+ * of buttons. It lays one sheet of paper over the left half, where the plate is landscape and has
+ * room, and leaves the scroll standing. Text and code sit side by side because the space is wide:
+ * stacking them here would leave two thirds of the panel empty.
+ */
+function endCardWide(alpha, lang) {
+  const say = lang === 'vi'
+    ? {
+      pitch: ['Lịch sử Việt Nam,', 'trong tay bạn.'],
+      ask: 'Triều đại của bạn đi được bao xa?',
+      scan: 'Quét để chơi',
+    }
+    : {
+      pitch: ['Vietnamese history,', 'in your hands.'],
+      ask: 'How far would your reign get?',
+      scan: 'Scan to play',
+    };
+
+  const x = Math.round(W * 0.06);
+  const width = Math.round(W * 0.56);
+  const height = Math.round(H * 0.52);
+  const y = Math.round((H - height) / 2);
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = PIGMENT.diep;
+  ctx.fillRect(x, y, width, height);
+  ctx.strokeStyle = PIGMENT.muc;
+  ctx.globalAlpha = alpha * 0.55;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x + 6, y + 6, width - 12, height - 12);
+  ctx.globalAlpha = alpha;
+  sawtooth(x, y + height, width, 14, PIGMENT.muc, alpha * 0.4);
+
+  // The code on the left, the words to its right.
+  const qr = Math.round(height * 0.52);
+  const qrX = x + 44;
+  const qrY = y + Math.round((height - qr) / 2) - 14;
+  drawQr(PLAY_URL, qrX + qr / 2, qrY, qr, alpha);
+
+  ctx.globalAlpha = alpha;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = PIGMENT.muc;
+  ctx.font = '600 30px "Be Vietnam Pro", system-ui, sans-serif';
+  ctx.fillText(say.scan, qrX + qr / 2, qrY + qr + 34);
+
+  const textX = qrX + qr + 56;
+  const right = x + width - 40;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = PIGMENT.muc;
+  ctx.font = '700 54px "Source Serif 4", Georgia, serif';
+  ctx.fillText(say.pitch[0], textX, y + 150);
+  ctx.fillText(say.pitch[1], textX, y + 212);
+
+  ctx.fillStyle = PIGMENT.son;
+  ctx.fillRect(textX, y + 262, 150, 4);
+
+  ctx.fillStyle = PIGMENT.mucSoft;
+  ctx.font = '400 32px "Be Vietnam Pro", system-ui, sans-serif';
+  ctx.fillText(say.ask, textX, y + 316);
+
+  ctx.fillStyle = PIGMENT.muc;
+  ctx.font = '600 28px "Be Vietnam Pro", system-ui, sans-serif';
+  ctx.fillText('zrg-team.github.io/ten-thousand-victories', textX, y + height - 96);
+
+  ctx.font = 'italic 600 28px "Source Serif 4", Georgia, serif';
+  ctx.fillStyle = PIGMENT.mucSoft;
+  ctx.globalAlpha = alpha * 0.75;
+  ctx.fillText('Nam quốc sơn hà Nam đế cư.', textX, y + height - 52);
+  ctx.restore();
+  void right;
+}
+
+/**
  * The end card.
  *
  * The front page already carries the wordmark, the subtitle, the river plate and its falling
@@ -259,6 +358,7 @@ function ripple(spec, scale, cropX, cropY) {
  */
 function endCard(alpha, lang) {
   if (alpha <= 0) return;
+  if (LANDSCAPE) return endCardWide(alpha, lang);
   // High enough to take the mode button with it. Leaving *Rồng Thăng Long* stranded above the paper
   // read as a band dropped onto a live menu; from here up the card is the wordmark, the river plate
   // and a sheet, which is a poster rather than a screenshot with a strip over it.
@@ -370,14 +470,14 @@ function drawQr(text, cx, top, size, alpha) {
  */
 function intro(alpha) {
   if (alpha <= 0) return;
-  const mid = H * 0.47;
+  const mid = H * (LANDSCAPE ? 0.44 : 0.47);
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.fillStyle = PIGMENT.diep;
   ctx.fillRect(0, 0, W, H);
 
   if (emblem.naturalWidth) {
-    const width = 380;
+    const width = LANDSCAPE ? 250 : 380;
     const height = width * (emblem.naturalHeight / emblem.naturalWidth);
     ctx.drawImage(emblem, W / 2 - width / 2, mid - height - 40, width, height);
   }
@@ -385,18 +485,18 @@ function intro(alpha) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   const name = 'VẠN THẮNG';
-  ctx.font = '700 118px "Source Serif 4", Georgia, serif';
+  ctx.font = `700 ${LANDSCAPE ? 92 : 118}px "Source Serif 4", Georgia, serif`;
   ctx.fillStyle = '#301509';
-  ctx.fillText(name, W / 2 + 5, mid + 82);      // the second pull, off register
+  ctx.fillText(name, W / 2 + 4, mid + (LANDSCAPE ? 68 : 82));      // the second pull, off register
   ctx.fillStyle = PIGMENT.muc;
-  ctx.fillText(name, W / 2, mid + 78);
+  ctx.fillText(name, W / 2, mid + (LANDSCAPE ? 64 : 78));
 
-  ctx.font = '400 36px "Be Vietnam Pro", system-ui, sans-serif';
+  ctx.font = `400 ${LANDSCAPE ? 28 : 36}px "Be Vietnam Pro", system-ui, sans-serif`;
   ctx.fillStyle = PIGMENT.mucSoft;
-  ctx.fillText('T E N   T H O U S A N D   V I C T O R I E S', W / 2, mid + 168);
+  ctx.fillText('T E N   T H O U S A N D   V I C T O R I E S', W / 2, mid + (LANDSCAPE ? 132 : 168));
 
   ctx.fillStyle = PIGMENT.son;
-  ctx.fillRect(W / 2 - 90, mid + 226, 180, 4);
+  ctx.fillRect(W / 2 - 90, mid + (LANDSCAPE ? 180 : 226), 180, 4);
   ctx.restore();
 }
 

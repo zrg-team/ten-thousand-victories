@@ -14,7 +14,7 @@
 
 <br>
 
-<a href="https://zrg-team.github.io/ten-thousand-victories/"><img src="docs/readme/play-badge-vi.png" alt="Chơi trọn game, miễn phí — không quảng cáo" width="489"></a>
+<a href="https://zrg-team.github.io/ten-thousand-victories/"><img src="public/share/play-badge-vi.png" alt="Chơi trọn game, miễn phí — không quảng cáo" width="489"></a>
 
 <sub>Cài từ trình duyệt — thêm vào màn hình chính là chơi được ngoại tuyến, toàn màn hình, không cần cửa hàng hay tài khoản.</sub>
 
@@ -26,9 +26,14 @@
 
 <br>
 
-<img src="docs/readme/trailer-vi.gif" alt="Hai lăm giây của một ván chơi thật, chơi bằng tiếng Việt: giang sơn nhích dưới ống kính, bản đồ mở rộng, ván bài quyền lực in khắc gỗ, một tướng được chiêu mộ, đại quân kéo tới chân thành, hai đạo quân dàn thế trên trận địa, và một trang Chiến ký dưới bức tranh của riêng nó" width="330">
+<table>
+  <tr>
+    <td align="center" width="30%"><img src="docs/readme/trailer-vi.gif" alt="Hai lăm giây của một ván chơi thật trên điện thoại, chơi bằng tiếng Việt: giang sơn nhích dưới ống kính, ván bài quyền lực in khắc gỗ, một tướng được chiêu mộ, đại quân kéo tới chân thành, hai đạo quân dàn thế trên trận địa" width="100%"><br><sub><b>Trên điện thoại</b> — một cột, một ngón tay</sub></td>
+    <td align="center" width="70%"><img src="docs/readme/trailer-desktop-vi.gif" alt="Vẫn ván chơi ấy trên máy tính: thanh trạng thái mỏng, bản đồ chiếm trọn cửa sổ, trận đánh trải hết bề ngang trên một bức trục cuốn" width="100%"><br><sub><b>Trên máy tính</b> — bản đồ chiếm trọn cửa sổ</sub></td>
+  </tr>
+</table>
 
-<sub>Hai lăm giây trích từ một ván chơi thật, chơi bằng tiếng Việt. Không dàn dựng — từng khung hình đều là game đang chạy.</sub>
+<sub>Hai lăm giây trích từ một ván chơi thật, chơi bằng tiếng Việt — dựng hai bản, vì game tự bày ra theo hai cách. Không dàn dựng: từng khung hình đều là game đang chạy.</sub>
 
 <br>
 

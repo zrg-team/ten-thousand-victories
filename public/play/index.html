@@ -7,9 +7,19 @@
 <meta name="description" content="Vietnamese history, played one-handed. Play free in the browser, or get it on Google Play and the App Store.">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../fonts/fonts.css">
+<meta name="theme-color" content="#e9dfc2">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://zrg-team.github.io/ten-thousand-victories/play/">
 <meta property="og:title" content="Vạn Thắng — Ten Thousand Victories">
 <meta property="og:description" content="Vietnamese history, played one-handed.">
-<meta property="og:image" content="../share/og-card.jpg">
+<!-- Absolute, with its size declared: a scraper resolves neither a relative path nor an unknown
+     aspect ratio, and a card with no declared ratio is the one that comes back letterboxed.
+     Written out rather than `%SITE_URL%` — this file lives in `public/`, which vite copies byte for
+     byte, so the placeholder the root index.html uses would ship here as five literal characters. -->
+<meta property="og:image" content="https://zrg-team.github.io/ten-thousand-victories/share/og-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   :root {
     --paper: #e9dfc2;
@@ -26,11 +36,26 @@
     background: var(--paper);
     color: var(--muc);
     font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    padding: 2.5rem 1.25rem 4rem;
+    padding-block: 2.5rem 3.5rem;
+    padding-inline: 1.25rem;
     display: flex;
     justify-content: center;
   }
-  main { width: 100%; max-width: 30rem; text-align: center; }
+
+  /* One column on a phone — masthead, the shot, then the way in. On a wide window the shot moves
+     beside the column instead of under it: a 1200x630 still stacked in a 30rem sheet is a stamp,
+     and the same still in its own half is the game. */
+  main {
+    width: 100%;
+    max-width: 30rem;
+    text-align: center;
+    display: grid;
+    row-gap: 1.6rem;
+    grid-template-areas: "head" "shot" "act";
+  }
+  .head { grid-area: head; }
+  .shot { grid-area: shot; margin: 0; }
+  .act  { grid-area: act; }
 
   .wordmark {
     font-family: "Source Serif 4", Georgia, serif;
@@ -51,14 +76,20 @@
     font-weight: 600;
     font-size: clamp(1.15rem, 5.2vw, 1.5rem);
     line-height: 1.35;
-    margin: 1.6rem 0 0;
+    margin: 1.4rem 0 0;
   }
   .ask { color: var(--muc-soft); margin: .4rem 0 0; font-size: 1rem; }
 
+  /* `height:auto` is the fix, not the decoration: the width/height attributes below are mapped to
+     presentational CSS, so a bare `width:100%` left the 630px height in force and the card was
+     stretched on every phone. The attributes stay, because they are what reserves the right box
+     before the file lands; the ratio repeats them for anything that ignores them. */
   .card {
     display: block;
     width: 100%;
-    margin: 1.75rem 0 0;
+    height: auto;
+    aspect-ratio: 1200 / 630;
+    object-fit: cover;
     border-radius: 6px;
     border: 1px solid var(--rule);
   }
@@ -66,18 +97,32 @@
   /* The sawtooth the game prints along the edge of every band. */
   .saw {
     height: 10px;
-    margin: 1.75rem 0;
+    margin: 0 0 1.5rem;
     background: repeating-linear-gradient(135deg, var(--muc) 0 1px, transparent 1px 7px);
     opacity: .45;
   }
 
-  .row { display: grid; gap: .7rem; }
+  /* The play button is the README's banner, the same file, so the button a reader met on GitHub is
+     the button they meet here. It is a drawn swallow-tailed proclamation — no border, no plate, and
+     nothing framing it: the banner already has its own edge. */
+  .play { display: block; }
+  .play img {
+    display: block;
+    width: 100%;
+    max-width: 25rem;
+    height: auto;
+    margin-inline: auto;
+    transition: transform .12s ease-out;
+  }
+  .play:hover img { transform: translateY(-1px) scale(1.012); }
+
+  .stores { display: grid; gap: .7rem; margin-top: 1rem; }
   a.button {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .5rem;
-    padding: .95rem 1rem;
+    gap: .55rem;
+    padding: .85rem 1rem;
     border-radius: 8px;
     border: 1.5px solid var(--muc);
     background: var(--paper-hi);
@@ -85,60 +130,90 @@
     font-weight: 600;
     font-size: 1.02rem;
     text-decoration: none;
+    text-align: left;
   }
   a.button:hover { background: #fff8e6; }
-  a.button.primary {
-    border-color: var(--son);
-    color: var(--son);
-    font-size: 1.12rem;
-  }
   a.button small { display: block; font-weight: 400; font-size: .78rem; color: var(--muc-soft); }
-  .glyph { font-size: 1.15rem; line-height: 1; }
+  a.button svg { flex: none; width: 1.25rem; height: 1.25rem; fill: currentColor; }
 
-  .note { color: var(--muc-soft); font-size: .84rem; margin: 1.4rem 0 0; line-height: 1.5; }
+  .note { color: var(--muc-soft); font-size: .84rem; margin: 1.3rem 0 0; line-height: 1.5; }
   .seal {
     font-family: "Source Serif 4", Georgia, serif;
     font-style: italic;
     color: var(--muc-soft);
-    margin: 2.2rem 0 0;
+    margin: 1.8rem 0 0;
   }
   [hidden] { display: none !important; }
+
+  @media (min-width: 62rem) {
+    body { align-items: center; min-height: 100vh; padding-block: 3rem; }
+    main {
+      max-width: 68rem;
+      text-align: left;
+      grid-template-columns: minmax(0, 27rem) minmax(0, 1fr);
+      grid-template-areas: "head shot" "act shot";
+      column-gap: 3.5rem;
+      row-gap: 1.9rem;
+      align-content: center;
+    }
+    .shot { align-self: center; }
+    .wordmark { font-size: 4.2rem; }
+    .pitch { font-size: 1.6rem; margin-top: 1.6rem; }
+    .play img { margin-inline: 0; }
+    .stores { grid-template-columns: 1fr 1fr; }
+    a.button { justify-content: flex-start; }
+    .seal { text-align: left; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .play img, .play:hover img { transition: none; transform: none; }
+  }
 </style>
 </head>
 <body>
 <main>
-  <h1 class="wordmark">Vạn Thắng</h1>
-  <p class="sub">Ten Thousand Victories</p>
+  <header class="head">
+    <h1 class="wordmark">Vạn Thắng</h1>
+    <p class="sub">Ten Thousand Victories</p>
 
-  <p class="pitch" data-en="Vietnamese history, in your hands." data-vi="Lịch sử Việt Nam, trong tay bạn.">Vietnamese history, in your hands.</p>
-  <p class="ask" data-en="How far would your reign get?" data-vi="Triều đại của bạn đi được bao xa?">How far would your reign get?</p>
+    <p class="pitch" data-en="Vietnamese history, in your hands." data-vi="Lịch sử Việt Nam, trong tay bạn.">Vietnamese history, in your hands.</p>
+    <p class="ask" data-en="How far would your reign get?" data-vi="Triều đại của bạn đi được bao xa?">How far would your reign get?</p>
+  </header>
 
-  <img class="card" src="../share/og-card.jpg" alt="Vạn Thắng — the realm mid-run and a battle, printed like a Đông Hồ woodblock" width="1200" height="630" loading="lazy">
+  <figure class="shot">
+    <img class="card" src="../share/og-card.jpg" alt="Vạn Thắng — the realm mid-run and a battle, printed like a Đông Hồ woodblock" width="1200" height="630">
+  </figure>
 
-  <div class="saw"></div>
+  <section class="act">
+    <div class="saw"></div>
 
-  <div class="row">
-    <a class="button primary" href="../">
-      <span class="glyph">▶</span>
-      <span data-en="Play now, in this browser" data-vi="Chơi ngay trên trình duyệt">Play now, in this browser</span>
+    <a class="play" href="../">
+      <img src="../share/play-badge.png"
+           data-vi-src="../share/play-badge-vi.png"
+           alt="Play the full game — free, no ads, in your browser"
+           data-vi-alt="Chơi trọn game — miễn phí, không quảng cáo, ngay trên trình duyệt"
+           width="1410" height="267" data-vi-width="1470">
     </a>
-    <a class="button" href="https://play.google.com/store/apps/details?id=zrg.team.vanthang">
-      <span class="glyph">🤖</span>
-      <span>Google Play<small data-en="Android" data-vi="Android">Android</small></span>
-    </a>
-    <a class="button" href="https://apps.apple.com/app/id6805950974">
-      <span class="glyph"></span>
-      <span>App Store<small data-en="iPhone and iPad" data-vi="iPhone và iPad">iPhone and iPad</small></span>
-    </a>
-  </div>
 
-  <p class="note"
-     data-en="The browser version is the whole game. Add it to your home screen and it plays offline."
-     data-vi="Bản trình duyệt là trọn vẹn game. Thêm vào màn hình chính là chơi được ngoại tuyến.">
-    The browser version is the whole game. Add it to your home screen and it plays offline.
-  </p>
+    <div class="stores">
+      <a class="button" href="https://play.google.com/store/apps/details?id=zrg.team.vanthang">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22.018 13.298l-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594zM1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087L1.337.924zm12.207 10.065l3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179l11.04 10.973zm0 2.067l-11 10.933c.298.036.612-.016.9-.181l13.335-7.545-3.235-3.207z"/></svg>
+        <span>Google Play<small data-en="Android" data-vi="Android">Android</small></span>
+      </a>
+      <a class="button" href="https://apps.apple.com/app/id6805950974">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+        <span>App Store<small data-en="iPhone and iPad" data-vi="iPhone và iPad">iPhone and iPad</small></span>
+      </a>
+    </div>
 
-  <p class="seal">Nam quốc sơn hà Nam đế cư.</p>
+    <p class="note"
+       data-en="The browser version is the whole game — it plays on a phone and on a desktop, and it fits itself to whichever you opened it on. Add it to your home screen and it plays offline."
+       data-vi="Bản trình duyệt là trọn vẹn game — chơi được trên điện thoại lẫn máy tính, và tự bày lại cho vừa màn hình bạn đang mở. Thêm vào màn hình chính là chơi được ngoại tuyến.">
+      The browser version is the whole game — it plays on a phone and on a desktop, and it fits itself to whichever you opened it on. Add it to your home screen and it plays offline.
+    </p>
+
+    <p class="seal">Nam quốc sơn hà Nam đế cư.</p>
+  </section>
 </main>
 
 <script>
@@ -149,6 +224,14 @@
     document.title = 'Chơi Vạn Thắng — Ten Thousand Victories';
     for (const node of document.querySelectorAll('[data-vi]')) {
       node.textContent = node.getAttribute('data-vi');
+    }
+    // The banner is drawn art with its words baked in, so the Vietnamese one is a different file.
+    for (const img of document.querySelectorAll('[data-vi-src]')) {
+      img.src = img.getAttribute('data-vi-src');
+      if (img.hasAttribute('data-vi-alt')) img.alt = img.getAttribute('data-vi-alt');
+      // The Vietnamese banner is a wider file — say so, or the box reserved before it loads is the
+      // English one's and the page nudges when it lands.
+      if (img.hasAttribute('data-vi-width')) img.width = Number(img.getAttribute('data-vi-width'));
     }
   }
 </script>
