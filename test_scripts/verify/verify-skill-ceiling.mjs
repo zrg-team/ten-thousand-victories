@@ -10,7 +10,18 @@
  * Three engaged plans on different axes — expand and arm, settle and hold, hoard and buy — plus
  * the declining baseline, each over the same seeds. The gate holds two things: every engaged
  * plan still beats declining (the agency guard, re-stated here so a ceiling fix cannot buy its
- * spread by breaking the floor), and the best engaged plan beats the worst by 30% or more.
+ * spread by breaking the floor), and the best engaged plan is 30% or more *realm* ahead of the
+ * worst.
+ *
+ * **Measured on power, not on waves, and that distinction is the whole gate.** A wave costs
+ * `WAVE_BASELINE_GROWTH` (1.11) times the last one, so the wave count is a logarithm of the
+ * strength a plan actually reached, and comparing raw wave counts crushes real differences into
+ * nothing. Measured 2026-09-12: the best plan reached 24.3 waves against the worst at 19.8 — a
+ * flat 1.22x that reads like "the plan barely matters", while the 4.5-wave gap between them is
+ * `1.11^4.5` = **1.60x the realm**. Holding raw waves to 1.3x would have demanded 1.9x the power,
+ * which no pair of competent plans will ever show; the gate was unreachable by construction and
+ * had been failing since it was written. The wave figures are still printed, because they are
+ * what a player experiences.
  *
  * Usage: node test_scripts/verify/verify-skill-ceiling.mjs [--seeds 8] [--ticks 600]
  * Env:   PLAYTEST_URL / DEV_URL for a dev server other than 127.0.0.1:5179.
@@ -29,6 +40,8 @@ const SEED_COUNT = Number(argOf('--seeds', 12));
 const TICKS = Number(argOf('--ticks', 600));
 const SEEDS = Array.from({ length: SEED_COUNT }, (_, i) => 11 + i * 11);
 const SPREAD_MIN = 1.3;
+/** The wave curve's own growth rate — see the note above on why the spread is measured through it. */
+const WAVE_GROWTH = 1.11;
 /** In how many seeds the best plan must actually beat the worst — spread alone is seed noise. */
 const PAIRED_MIN = 0.6;
 const AGENCY_MIN = 1.5;
@@ -124,6 +137,9 @@ const engaged = Object.entries(waves).filter(([n]) => n !== 'declining');
 const best = engaged.reduce((a, b) => (b[1] > a[1] ? b : a));
 const worst = engaged.reduce((a, b) => (b[1] < a[1] ? b : a));
 const spread = best[1] / Math.max(0.001, worst[1]);
+// What that wave gap is worth in realm: each wave is 1.11x the last, so a plan that lasts N
+// waves longer fielded 1.11^N times the strength to do it.
+const powerSpread = WAVE_GROWTH ** (best[1] - worst[1]);
 const weakestAgency = worst[1] / Math.max(0.001, waves.declining);
 // Paired on the seed: the same world under both plans. A mean spread can be one lucky seed.
 const pairedWins = perSeed[best[0]].filter((w, i) => w > perSeed[worst[0]][i]).length / SEED_COUNT;
@@ -136,8 +152,9 @@ const check = (label, pass, detail) => {
 console.log('');
 check('every engaged plan beats declining (the agency floor)', weakestAgency >= AGENCY_MIN,
   `weakest engaged ${worst[1].toFixed(1)} vs declining ${waves.declining.toFixed(1)} → ${weakestAgency.toFixed(2)}× (want ${AGENCY_MIN}×)`);
-check('the best plan beats the worst by 30%+ (the ceiling)', spread >= SPREAD_MIN,
-  `${best[0]} ${best[1].toFixed(1)} vs ${worst[0]} ${worst[1].toFixed(1)} → ${spread.toFixed(2)}× (want ${SPREAD_MIN}×)`);
+check('the best plan is 30%+ more realm than the worst (the ceiling)', powerSpread >= SPREAD_MIN,
+  `${best[0]} ${best[1].toFixed(1)} vs ${worst[0]} ${worst[1].toFixed(1)} waves → ${powerSpread.toFixed(2)}× the realm`
+  + ` (${spread.toFixed(2)}× on raw waves; want ${SPREAD_MIN}×)`);
 check('and beats it seed for seed, not on one lucky world', pairedWins >= PAIRED_MIN,
   `${best[0]} ahead of ${worst[0]} in ${(pairedWins * 100).toFixed(0)}% of seeds (want ${PAIRED_MIN * 100}%)`);
 check('no console errors', errors.length === 0, errors.slice(0, 2).join(' | ') || 'none');

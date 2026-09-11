@@ -150,14 +150,84 @@ while (Date.now() < deadline) {
     } else if (POLICY === 'random') {
       index = Math.floor(Math.random() * Math.max(1, hits.length));
     }
-    const target = hits[Math.min(index, hits.length - 1)];
-    if (target) {
+    /**
+     * **A card whose first row does not commit it must still be answered.**
+     *
+     * The driver always tapped `hits[0]`, the topmost hit area, on the reasoning that it is the
+     * option a player reads first. That is true of a card whose rows *are* the options, and false
+     * of a sheet that is built out of settings with its commit pinned at the foot — the Coronation
+     * is the whole first minute of the game and its top row is the founder's sex. Measured, the
+     * session spent sixty seconds flipping that toggle: 85 "decisions", wave 0, one screenshot,
+     * and every later screen unreachable. The harness that exists to catch a control that does
+     * nothing was itself looping on one.
+     *
+     * So the tap is now a *search*: start where the policy points, and if the card is still up
+     * afterwards try the next candidate, bottom-first — a pinned foot is the last thing swept.
+     * It still fails loudly when nothing on the card advances, which is the bug worth catching.
+     */
+    /**
+     * **A card whose first row does not commit it must still be answered.**
+     *
+     * The driver always tapped `hits[0]`, the topmost hit area, on the reasoning that it is the
+     * option a player reads first. True of a card whose rows *are* the options; false of a sheet
+     * built out of settings with its commit pinned at the foot. The Coronation is the whole first
+     * minute of the game and its top row is the founder's sex — measured, the session spent sixty
+     * seconds flipping that toggle: 85 "decisions", wave 0, one screenshot, every later screen
+     * unreachable. The harness that exists to catch a control that does nothing was looping on one.
+     *
+     * Two things this has to get right, and the first attempt at it got neither:
+     *
+     *  - **Re-read the hit areas between presses.** A sheet that redraws itself on a stepper tap
+     *    (`replaceLanePage`) invalidates every coordinate swept before it.
+     *  - **A rite is not one card.** The Coronation walks founder → name → title under a single
+     *    prompt kind, so "did `kind` change" reports no progress for three presses that are all
+     *    progress. The pinned foot is what carries a sheet like that forward, so press it and
+     *    keep pressing until the prompt is actually gone.
+     */
+    let target;
+    let advanced = false;
+    let signature = JSON.stringify(now.onCard ?? []);
+    let stalled = 0;
+    for (let attempt = 0; attempt < 14; attempt += 1) {
+      const live = attempt === 0 ? hits : await targets();
+      if (live.length === 0) break;
+      /**
+       * The policy's own pick first, then **the pinned foot, every time**.
+       *
+       * Not alternating between the last two swept: both feet share a y, so the sweep's order
+       * between them is insertion order, and "one then the other" presses *Back* on every second
+       * attempt. Measured, that walked the rite forward and back and left it on step two after
+       * eight presses. Only a card that has stopped responding at all is worth trying elsewhere.
+       */
+      const pick = attempt === 0
+        ? Math.min(index, live.length - 1)
+        : stalled >= 2 ? Math.max(0, live.length - 2) : live.length - 1;
+      target = live[pick];
+      if (!target) continue;
       // Held, not clicked: `optionCard` refuses a press shorter than CARD_HOLD_MS (70ms), and
       // `mouse.click`'s zero-length press is exactly the brush that guard exists to ignore. A
       // zero-delay driver looped on the first appointment card 375 times in eight minutes while
       // reporting 377 "decisions". 120ms is where a deliberate human tap rests.
       await page.mouse.click(target.x, target.y, { delay: 120 });
       await page.waitForTimeout(420);
+      const after = await look();
+      if (!after.kind || after.kind !== now.kind) { advanced = true; break; }
+      // A rite walks several steps under one prompt kind, so the card's own words are the only
+      // honest reading of whether a press did anything.
+      const next = JSON.stringify(after.onCard ?? []);
+      if (next === signature) stalled += 1; else { stalled = 0; signature = next; }
+    }
+    if (target && !advanced) {
+      // Every way into this card was pressed and it is still up. Worth failing loudly for.
+      note('STUCK', { kind: now.kind, hits: hits.length });
+      await page.screenshot({ path: `${OUT}/stuck-${now.kind}.png` });
+      break;
+    }
+    if (target) {
+      // Held, not clicked, in the search above: `optionCard` refuses a press shorter than
+      // CARD_HOLD_MS (70ms), and `mouse.click`'s zero-length press is exactly the brush that guard
+      // exists to ignore. A zero-delay driver looped on the first appointment card 375 times in
+      // eight minutes while reporting 377 "decisions". 120ms is where a deliberate human tap rests.
     } else {
       // Nothing tappable on an open card is a bug worth failing loudly for.
       note('STUCK', { kind: now.kind, modalObjects: now.modalObjects });
