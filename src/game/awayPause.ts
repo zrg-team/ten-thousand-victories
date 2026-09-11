@@ -19,8 +19,10 @@ import type { GameState } from '../state/types';
  * **Write it down.** Leaving is also the last moment anyone gets: a backgrounded tab is exactly
  * what a phone reclaims memory from, and it is killed without ever running another line of the
  * game's code. The snapshot goes to its own slot (`autosaveSnapshot`) so the player's own save is
- * never overwritten by a glance at a notification, and the menu's Continue reads whichever slot
- * is newer — so a run lost to a device that ran out of memory is one button away.
+ * never overwritten by a glance at a notification, and it is never loaded behind their back
+ * either: coming back to the foreground deletes it (`arrive`), so one that is still there when
+ * the game next opens means the device — not the player — ended the run, and the front page asks
+ * about it rather than resuming it.
  *
  * Nothing here belongs to a scene. `MapScene` installs it because it owns the live state and its
  * shutdown is where the listeners come off; ConquestScene inherits both.

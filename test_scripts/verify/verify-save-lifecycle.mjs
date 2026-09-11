@@ -64,6 +64,22 @@ try {
     finally { Storage.prototype.setItem = setItem; }
     const manual = raw(s.SAVE_SNAPSHOT_KEY);
     assert(Boolean(s.loadSnapshot()) && raw(s.AUTOSAVE_SNAPSHOT_KEY) === recovery, 'menu preview does not consume recovery');
+    // Continue reads the player's own save and nothing else. It used to read whichever slot was
+    // newer, which is how pressing Continue could hand back a state nobody had chosen to keep.
+    // Pinned rather than left to the clock: the two writes above can land in the same
+    // millisecond, and this is a check about which slot wins, not about how fast the loop is.
+    const newer = JSON.parse(recovery);
+    newer.savedAt = '2099-01-01T00:00:00.000Z';
+    localStorage.setItem(s.AUTOSAVE_SNAPSHOT_KEY, JSON.stringify(newer));
+    assert(s.loadSnapshot().savedAt === JSON.parse(manual).savedAt, 'Continue reads the manual slot even when the automatic one is newer');
+    assert(s.pendingAutosave()?.savedAt === newer.savedAt, 'a newer automatic slot is still offered through the sheet');
+    // And the other way round: a manual save clears this slot on its way past, so an automatic
+    // one left behind older than the player's own save is a leftover, not an offer.
+    const stranded = JSON.parse(recovery);
+    stranded.savedAt = '2000-01-01T00:00:00.000Z';
+    localStorage.setItem(s.AUTOSAVE_SNAPSHOT_KEY, JSON.stringify(stranded));
+    assert(!s.pendingAutosave() && !raw(s.AUTOSAVE_SNAPSHOT_KEY), 'an automatic slot older than the manual save is dropped, not offered');
+    localStorage.setItem(s.AUTOSAVE_SNAPSHOT_KEY, recovery);
     s.resumeSaveSession(state);
     assert(!raw(s.AUTOSAVE_SNAPSHOT_KEY) && raw(s.SAVE_SNAPSHOT_KEY) === manual, 'successful resume consumes only recovery');
     s.autosaveSnapshot(state); s.endSaveSession(state);
@@ -122,20 +138,25 @@ try {
   });
   await ready('MenuScene');
   check((await slots()).manual && !(await slots()).auto, 'exit without saving preserves manual save and clears recovery despite pagehide');
-  // Continue through the actual menu button, with a newer automatic snapshot.
+  // Continue through the actual menu button, with a NEWER automatic snapshot sitting beside the
+  // player's own save. Continue is the player's save; the snapshot has its own sheet and is not
+  // reachable from this line at all. Starting the run drops it, because the player has now said
+  // which run they wanted.
   await page.evaluate(() => {
     const s = window.__save, snapshot = s.loadSnapshot();
     snapshot.savedAt = '2000-01-01T00:00:00.000Z';
+    snapshot.state.year = 777;
     localStorage.setItem(s.SAVE_SNAPSHOT_KEY, JSON.stringify(snapshot));
-    snapshot.state.year = 999;
-    s.autosaveSnapshot(snapshot.state);
+    s.autosaveSnapshot({ ...structuredClone(snapshot.state), year: 999 });
     const menu = window.__phaserGame.scene.getScene('MenuScene');
     menu.copilot?.destroy(); menu.copilot = undefined; menu.closeModal(); menu.render();
   });
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   await clickText('MenuScene', 'Continue');
   await ready('ConquestUIScene');
-  check(await page.evaluate(() => window.__mandateState.year === 999) && !(await slots()).auto, 'real Continue resumes newest snapshot and consumes it');
+  check(await page.evaluate(() => window.__mandateState.year === 777), 'real Continue resumes the player\'s own save, not the newer automatic one');
+  check(!(await slots()).auto, 'starting a run drops the automatic snapshot');
+  await page.evaluate(() => { window.__mandateState.year = 999; });
   const failedExit = await page.evaluate(() => {
     const world = window.__phaserGame.scene.getScene('ConquestScene');
     window.__save.autosaveSnapshot(world.state);
