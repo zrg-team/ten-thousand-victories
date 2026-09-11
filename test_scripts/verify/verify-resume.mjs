@@ -10,9 +10,11 @@
  *   C. a WebGL context lost and then restored: the faces baked through `saveTexture` are repainted
  *      (`game/gpuBakes.ts`) and the frame comes back whole.
  *   D. a WebGL context lost and NEVER restored: the page must write the run down, reload itself,
- *      and carry the player straight back into the run with the reason in the header strip.
+ *      and then ASK — landing on the front page with the run on offer, never resuming by itself.
+ *   E. a cold open after the app was killed: the same sheet, and "Not now" keeps the run for the
+ *      next open without ever putting it on the Continue line, which is the player's own save.
  *
- * D navigates, so it runs last.
+ * D and E navigate, so they run last.
  *
  *   node test_scripts/verify/verify-resume.mjs
  *   DEV_URL=http://127.0.0.1:5199 node test_scripts/verify/verify-resume.mjs
@@ -159,6 +161,9 @@ const newErrorsC = errors.filter((e) => !/simulated throw inside a step/.test(e)
 check('C: no errors across loss and restore', newErrorsC.length === 0, newErrorsC.slice(0, 3).join(' | '));
 
 // ── D. context lost and never restored ────────────────────────────────────────────────────
+// The page comes back on its own — and stops at the front page. Booting straight into a save is
+// what put players into runs they never opened (a reload that happened on the menu found the
+// manual save and started it), so the reload writes the run down and then asks.
 console.log('\n=== D. context lost, never restored ===');
 const runBefore = await page.evaluate(() => {
   const world = window.__phaserGame.scene.getScenes(true).find((s) => s.state && Array.isArray(s.state.lands));
@@ -168,86 +173,146 @@ const navigated = page.waitForEvent('load', { timeout: 15000 }).then(() => true)
 await page.evaluate(() => window.__loseExt.loseContext());
 const reloaded = await navigated;
 check('D: the page reloaded itself within the watchdog window', reloaded);
-let landed = false;
-let after = null;
-if (reloaded) {
-  try {
-    await page.waitForFunction(() => window.__phaserGame?.scene.isActive('ConquestScene'), null, { timeout: 30000 });
-    await page.waitForTimeout(1000);
-    landed = true;
-    after = await page.evaluate(() => {
-      const world = window.__phaserGame.scene.getScenes(true).find((s) => s.state && Array.isArray(s.state.lands));
-      return {
-        seed: world?.state.mapConfig?.seed ?? null,
-        wave: world?.state.ascent?.wave ?? null,
-        message: world?.state.message ?? null,
-        reason: window.__health ? window.__health().reloadReason : null,
-      };
-    });
-  } catch (err) {
-    errors.push(`D: ${err.message.split('\n')[0]}`);
-  }
-}
-check('D: the menu carried the player back into the run', landed && after?.seed === runBefore.seed,
-  landed ? `seed ${runBefore.seed} -> ${after.seed}, wave ${runBefore.wave} -> ${after.wave}` : 'never reached ConquestScene');
-check('D: the reload reason names the lost context', after?.reason?.cause === 'context-lost', JSON.stringify(after?.reason ?? null));
-// `pushToast` writes `state.message` and the event log. The classic UIScene prints the message
-// in its header strip; Ascent's `WhisperLine` only voices log entries that carry a story ref, so
-// there the notice lives in the log (the bell) — this asserts the state, not a strip.
-check('D: the run carries the notice', typeof after?.message === 'string' && after.message.length > 0, after?.message ?? '');
-if (landed) {
-  const afterD = await frame('5-after-reload');
-  check('D: the restored run draws a frame', afterD > 24, `${afterD} distinct samples`);
-}
 
-// ── E. a cold open after the run was lost ─────────────────────────────────────────────────
-// No reason flag this time — the way a killed app or a closed tab comes back. The automatic
-// snapshot written on the way out is the only trace, and the front page must ASK, not assume.
-console.log('\n=== E. cold open with a lost run: the offer ===');
-if (landed) {
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await bootToMenu();
-  await page.waitForTimeout(600);
-  const offer = await page.evaluate(() => {
-    const scene = window.__phaserGame.scene.getScene('MenuScene');
-    const find = (id) => scene.modalObjects.find((o) => o.getData?.('resumeOffer') === id);
-    const button = find('continue');
-    const later = find('later');
-    if (!button) return null;
+/** The resume sheet's two buttons in page pixels, or null when no sheet is up. */
+const resumeOffer = () => page.evaluate(() => {
+  const scene = window.__phaserGame.scene.getScene('MenuScene');
+  if (!scene?.modalObjects) return null;
+  const find = (id) => scene.modalObjects.find((o) => o.getData?.('resumeOffer') === id);
+  const point = (button) => {
     const box = button.getData('visualBounds');
-    return { x: button.x + box.width / 2, y: button.y + box.height / 2, hasLater: Boolean(later), objects: scene.modalObjects.length };
-  });
-  check('E: the front page offers the lost run in a modal', offer !== null && offer.hasLater, JSON.stringify(offer));
-  const offerFrame = await frame('6-offer');
+    return { x: button.x + box.width / 2, y: button.y + box.height / 2 };
+  };
+  const primary = find('continue');
+  const later = find('later');
+  if (!primary) return null;
+  return { continue: point(primary), later: later ? point(later) : null };
+});
+/** Whether the front page shows a Continue line at all — it reads the player's own save only. */
+const continueLine = () => page.evaluate(() => {
+  const scene = window.__phaserGame.scene.getScene('MenuScene');
+  const walk = (list) => (list ?? []).some((o) => o.getData?.('menuLink') === 'continue' || walk(o.list));
+  return walk(scene?.children?.list);
+});
+const worldSeed = () => page.evaluate(() => {
+  const world = window.__phaserGame.scene.getScenes(true).find((s) => s.state && Array.isArray(s.state.lands));
+  return world?.state.mapConfig?.seed ?? null;
+});
+
+let landed = false;
+if (reloaded) {
+  await bootToMenu();
+  await page.waitForTimeout(900);
+  const offer = await resumeOffer();
+  const inRun = await page.evaluate(() => window.__phaserGame.scene.isActive('ConquestScene'));
+  const reason = await page.evaluate(() => (window.__health ? window.__health().reloadReason : null));
+  check('D: the reload stops at the front page instead of resuming itself', !inRun);
+  check('D: the lost run is offered in a sheet', offer !== null && offer.later !== null, JSON.stringify(offer));
+  check('D: the reload reason names the lost context', reason?.cause === 'context-lost', JSON.stringify(reason ?? null));
+  // Nothing was ever saved by hand in this run, so there is nothing for Continue to point at.
+  check('D: the snapshot is not put on the Continue line', (await continueLine()) === false);
   if (offer) {
-    await page.mouse.click(offer.x, offer.y);
-    let resumed = false;
+    await frame('5-offer-after-reload');
+    await page.mouse.click(offer.continue.x, offer.continue.y);
     try {
       await page.waitForFunction(() => window.__phaserGame?.scene.isActive('ConquestScene'), null, { timeout: 30000 });
-      resumed = true;
+      await page.waitForTimeout(900);
+      landed = true;
     } catch (err) {
-      errors.push(`E: ${err.message.split('\n')[0]}`);
+      errors.push(`D: ${err.message.split('\n')[0]}`);
     }
-    const seedE = resumed ? await page.evaluate(() => {
+    const after = landed ? await page.evaluate(() => {
       const world = window.__phaserGame.scene.getScenes(true).find((s) => s.state && Array.isArray(s.state.lands));
-      return world?.state.mapConfig?.seed ?? null;
+      return { seed: world?.state.mapConfig?.seed ?? null, wave: world?.state.ascent?.wave ?? null, message: world?.state.message ?? null };
     }) : null;
-    check('E: tapping Continue resumes the same run', resumed && seedE === runBefore.seed, `seed ${runBefore.seed} -> ${seedE}, offer frame ${offerFrame} distinct`);
+    check('D: taking the offer lands in the same run', landed && after?.seed === runBefore.seed,
+      landed ? `seed ${runBefore.seed} -> ${after.seed}, wave ${runBefore.wave} -> ${after.wave}` : 'never reached ConquestScene');
+    check('D: the resumed run carries the notice', typeof after?.message === 'string' && after.message.length > 0, after?.message ?? '');
+    if (landed) {
+      const afterD = await frame('6-after-resume');
+      check('D: the restored run draws a frame', afterD > 24, `${afterD} distinct samples`);
+    }
   }
-  // Back on the front page inside the same page life, the question is not asked again.
-  if (offer) {
+}
+
+// ── E. a cold open after the app was killed ───────────────────────────────────────────────
+// No reason flag this time — the way a killed app or a closed tab comes back. And a save the
+// player DID make, sitting beside it, to prove the two are never mixed up.
+console.log('\n=== E. cold open with a lost run beside a real save ===');
+if (landed) {
+  const saved = await page.evaluate(async () => {
+    const save = await import('/src/state/save.ts');
+    const world = window.__phaserGame.scene.getScenes(true).find((s) => s.state && Array.isArray(s.state.lands));
+    // The player's own save, deliberately made OLDER than the snapshot the kill will leave.
+    const manual = save.saveSnapshot(world.state);
+    const aged = JSON.parse(localStorage.getItem(save.SAVE_SNAPSHOT_KEY));
+    aged.savedAt = '2000-01-01T00:00:00.000Z';
+    localStorage.setItem(save.SAVE_SNAPSHOT_KEY, JSON.stringify(aged));
+    // Now the device takes the app away mid-run, and the player never comes back to it.
+    world.state.ascent.wave += 7;
+    window.dispatchEvent(new Event('pagehide'));
+    return { seed: manual.state.mapConfig.seed, auto: Boolean(localStorage.getItem(save.AUTOSAVE_SNAPSHOT_KEY)) };
+  });
+  check('E: the kill left a snapshot beside the older manual save', saved.auto);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await bootToMenu();
+  await page.waitForTimeout(900);
+  const offerE = await resumeOffer();
+  check('E: the front page asks about the lost run', offerE !== null && offerE.later !== null);
+  check("E: the player's own save still has its Continue line", (await continueLine()) === true);
+  await frame('7-offer-cold-open');
+
+  if (offerE) {
+    // "Not now" lowers the sheet and nothing else: no run starts, and the snapshot is kept.
+    await page.mouse.click(offerE.later.x, offerE.later.y);
+    await page.waitForTimeout(500);
+    const afterLater = await page.evaluate(async () => {
+      const save = await import('/src/state/save.ts');
+      return {
+        inRun: window.__phaserGame.scene.isActive('ConquestScene'),
+        modal: window.__phaserGame.scene.getScene('MenuScene').modalObjects.length,
+        kept: Boolean(save.pendingAutosave()),
+        // The one that matters: Continue is the player's save, never the newer snapshot.
+        continueIsManual: save.loadSnapshot()?.savedAt === '2000-01-01T00:00:00.000Z',
+      };
+    });
+    check('E: declining starts nothing', !afterLater.inRun && afterLater.modal === 0);
+    check('E: declining keeps the run for the next open', afterLater.kept);
+    check("E: Continue is the player's own save, never the newer snapshot", afterLater.continueIsManual);
+
+    // The sheet is not raised twice in one page life — but a fresh open asks again.
     await page.evaluate(() => {
       const g = window.__phaserGame;
-      for (const key of ['ConquestUIScene', 'ConquestScene']) g.scene.stop(key);
+      g.scene.stop('MenuScene');
       g.scene.start('MenuScene');
     });
     await bootToMenu();
-    await page.waitForTimeout(400);
-    const again = await page.evaluate(() => {
+    await page.waitForTimeout(500);
+    check('E: the offer is not repeated on a later visit to the front page', (await resumeOffer()) === null);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await bootToMenu();
+    await page.waitForTimeout(900);
+    check('E: a fresh open asks again', (await resumeOffer()) !== null);
+
+    // Taking the player's own save instead is the other intent, and it must drop the snapshot:
+    // they have said which run they want.
+    await page.evaluate(async () => {
       const scene = window.__phaserGame.scene.getScene('MenuScene');
-      return scene.modalObjects.some((o) => o.getData?.('resumeOffer'));
+      scene.closeModal();
+      const save = await import('/src/state/save.ts');
+      scene.startGame(save.loadSnapshot().state);
     });
-    check('E: the offer is not repeated on a later visit to the front page', again === false);
+    try {
+      await page.waitForFunction(() => window.__phaserGame?.scene.isActive('ConquestScene'), null, { timeout: 30000 });
+      await page.waitForTimeout(1000);
+    } catch (err) {
+      errors.push(`E: ${err.message.split('\n')[0]}`);
+    }
+    const resumedSeed = await worldSeed();
+    const dropped = await page.evaluate(async () => !(await import('/src/state/save.ts')).pendingAutosave());
+    check('E: loading the manual save loads the manual save', resumedSeed === saved.seed,
+      `expected ${saved.seed}, got ${resumedSeed}`);
+    check('E: playing again drops the snapshot nobody chose', dropped);
   }
 } else {
   check('E: skipped — D never landed in the run', false);

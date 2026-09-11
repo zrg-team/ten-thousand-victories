@@ -260,22 +260,26 @@ fresh.on('pageerror', (e) => errors.push(`PAGEERROR(resume) ${e.message}`));
 await fresh.goto(`${BASE}/?capture=1`, { waitUntil: 'domcontentloaded' });
 await fresh.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 40000 });
 await fresh.waitForTimeout(1200);
+// The run the device took has exactly one door, and it is this sheet — not the Continue line,
+// which is the player's own save and here has never been written. So the button is found by the
+// tag the sheet stamps on it rather than by scraping the page for the word.
 const pressed = await fresh.evaluate(() => {
   const scene = window.__phaserGame.scene.getScene('MenuScene');
-  const hits = [];
-  const walk = (root, ox, oy) => {
-    for (const child of root.list ?? []) {
-      if (child.type === 'Text' && child.text?.includes('Continue') && child.visible) {
-        hits.push({ x: ox + child.x, y: oy + child.y });
-      }
-      if (child.list) walk(child, ox + (child.x ?? 0), oy + (child.y ?? 0));
-    }
-  };
-  walk({ list: scene.children.list }, 0, 0);
-  return hits[0] ?? null;
+  const button = scene.modalObjects?.find((o) => o.getData?.('resumeOffer') === 'continue');
+  if (!button) return null;
+  const box = button.getData('visualBounds');
+  return { x: button.x + box.width / 2, y: button.y + box.height / 2 };
 });
-check('the menu offers Continue after the run was taken', Boolean(pressed),
-  pressed ? `at ${Math.round(pressed.x)},${Math.round(pressed.y)}` : 'no Continue row found');
+check('the menu offers the taken run in a sheet', Boolean(pressed),
+  pressed ? `at ${Math.round(pressed.x)},${Math.round(pressed.y)}` : 'no resume sheet found');
+// And it is offered nowhere else: a snapshot on the Continue line is a run the player never
+// saved being handed back to them as though they had.
+const onLine = await fresh.evaluate(() => {
+  const scene = window.__phaserGame.scene.getScene('MenuScene');
+  const walk = (list) => (list ?? []).some((o) => o.getData?.('menuLink') === 'continue' || walk(o.list));
+  return walk(scene.children.list);
+});
+check('the taken run is not put on the Continue line', onLine === false);
 if (pressed) {
   await fresh.mouse.click(pressed.x, pressed.y);
   await fresh.waitForTimeout(3000);

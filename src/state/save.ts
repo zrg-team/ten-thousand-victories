@@ -15,8 +15,14 @@ export const SAVE_SNAPSHOT_KEY = 'mandate:snapshot:v1';
  * backgrounded tab is not a request to overwrite it. Sharing one key meant glancing at a message
  * during a fresh run silently destroyed the run saved deliberately the night before.
  *
- * `loadSnapshot` reads whichever of the two is newer, so Continue still means "where I was" and
- * neither slot can hide the other.
+ * The two are never mixed. `loadSnapshot` — what Continue, the lineage card and the flag preview
+ * read — sees ONLY the player's own save, so pressing Continue can never hand back something
+ * they did not save. This slot is reachable through exactly one door: the sheet
+ * `pendingAutosave` raises on the way in, which the player has to answer.
+ *
+ * It used to be read by whoever asked for "the newest save", which is how a crash on the front
+ * page could drop the player into a run — and how Continue could hand back a state they never
+ * chose to keep.
  */
 export const AUTOSAVE_SNAPSHOT_KEY = 'mandate:autosave:v1';
 
@@ -134,17 +140,27 @@ export function pendingAutosave(): SaveSnapshot | undefined {
   const automatic = readSlot(AUTOSAVE_SNAPSHOT_KEY);
   if (!automatic) return undefined;
   const manual = readSlot(SAVE_SNAPSHOT_KEY);
-  if (manual && Date.parse(manual.savedAt) >= Date.parse(automatic.savedAt)) return undefined;
+  // A manual save clears this slot on its way past, so an automatic one that is older than the
+  // player's own save is a leftover from a version that did not — or from a write that raced it.
+  // Either way the player has since said what they wanted kept, so it is dropped rather than
+  // offered back to them.
+  if (manual && Date.parse(manual.savedAt) >= Date.parse(automatic.savedAt)) {
+    removeSlot(AUTOSAVE_SNAPSHOT_KEY);
+    return undefined;
+  }
   return automatic;
 }
 
-/** The newer of the two slots — the player's own save, and the one the game took for them. */
+/**
+ * The save the PLAYER made. Never the automatic slot.
+ *
+ * Continue, the lineage card's door back into the live reign and the front page's flag preview
+ * all read this, and all three mean the same thing: the run the player chose to keep. The run
+ * the device took from them is a different question with a different answer — `pendingAutosave`,
+ * asked once, through a sheet.
+ */
 export function loadSnapshot(): SaveSnapshot | undefined {
-  const manual = readSlot(SAVE_SNAPSHOT_KEY);
-  const automatic = readSlot(AUTOSAVE_SNAPSHOT_KEY);
-  if (!manual) return automatic;
-  if (!automatic) return manual;
-  return Date.parse(automatic.savedAt) > Date.parse(manual.savedAt) ? automatic : manual;
+  return readSlot(SAVE_SNAPSHOT_KEY);
 }
 
 function readSlot(key: string): SaveSnapshot | undefined {

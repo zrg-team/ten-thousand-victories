@@ -76,7 +76,8 @@ const KNOCK_GAP_MS = 300;
  * Two things follow. The view is remounted under a new `key` rather than reloaded, because Android
  * leaves the dead one unusable and a `reload()` on it does nothing. And the page is told why, in
  * the same `sessionStorage` slot `src/game/resilience.ts` writes before its own reloads, so
- * `MenuScene` carries the player straight back into the run the game autosaved on the way out.
+ * `MenuScene` offers the run the game autosaved on the way out — in a sheet the player answers,
+ * never resumed for them.
  */
 const RELOAD_REASON_KEY = 'mandate:reload-reason:v1';
 function reloadReasonScript(count: number): string {

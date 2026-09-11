@@ -27,8 +27,10 @@ import { gpuBakeCount } from './gpuBakes';
  * a lost context has stayed lost for a few seconds *while the page is visible* — a loss in the
  * background is timed from the moment the player is back, not from when the phone took the GPU.
  * Every reload writes the run down first (`autosaveSnapshot`) and leaves a reason in
- * `sessionStorage`, which `MenuScene` reads to carry the player straight back into the run and
- * say why in the header strip.
+ * `sessionStorage`, which `MenuScene` reads to lead with on the sheet it raises over the front
+ * page. It offers the run; it does not resume it. A reload can happen with nobody playing — a
+ * context lost while the menu is up — and booting itself into a save is not a thing the player
+ * asked for.
  *
  * `?noresilience=1` turns the watchdogs off, for a harness that deliberately stops the loop.
  */

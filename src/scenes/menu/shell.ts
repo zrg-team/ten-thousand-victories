@@ -80,39 +80,34 @@ export function create(self: MenuScene): void {
   // them about the layer, anything still loose is adopted before the frame it first appears in.
   self.events.on(Phaser.Scenes.Events.PRE_RENDER, self.adoptModal, self);
   /**
-   * The page reloaded itself to get its picture back — a GL context the phone never returned,
-   * a loop a throw had killed (`game/resilience.ts`) — or the shell restarted a web view whose
-   * process the OS took. The run was written down on the way out, so the player is carried
-   * straight back into it, with one line in the header strip saying why.
+   * The two ways a run is taken rather than put down, and one answer for both.
    *
-   * Once. A second reload for the same cause lands here instead, with the note moved onto the
-   * Continue line: a run that dies on its own resume frame must not become a reload loop.
+   * The page reloaded itself to get its picture back — a GL context the phone never returned, a
+   * loop a throw had killed (`game/resilience.ts`), a web view whose process the shell had to
+   * restart — or the app was simply killed while backgrounded and this is a cold open with no
+   * reason flag at all. Either way the only trace is the automatic snapshot, and either way the
+   * player is ASKED.
+   *
+   * It used to carry them straight back in on a reload, reading "the newest save" to decide
+   * where to. Two things were wrong with that. A reload that happened on the front page — a lost
+   * context while nobody was playing — found the manual save from days ago and started it: the
+   * game booting, by itself, into a run the player had not opened. And the state it resumed was
+   * whichever slot was newer, so even mid-run it could be a save they never asked to keep.
+   *
+   * So: no auto-resume, ever. The reason, when there is one, becomes the line the sheet leads
+   * with, and the notice still goes into the run — at the moment they accept it, not before.
    */
   const reloaded = takeReloadReason();
-  if (reloaded) {
-    const snapshot = loadSnapshot();
-    if (snapshot && reloaded.count <= 1) {
-      pushToast(snapshot.state, t('menu.reloaded.notice'), 'info');
-      // A beat later, never inside create: `scene.start` from here would tear the menu down
-      // under the listeners the rest of this method is still attaching.
-      self.time.delayedCall(80, () => {
-        if (self.scene.isActive()) startGame(self, snapshot.state);
-      });
-    } else if (snapshot) {
-      self.reloadNote = t('menu.reloaded.continueNote');
-    }
-  }
+  const unfinished = !continueOffered ? pendingAutosave() : undefined;
+  // Nothing to offer, but the page did come back on its own: say so on the Continue line, which
+  // is the player's own save and the only run there is left to point at.
+  if (reloaded && !unfinished && loadSnapshot()) self.reloadNote = t('menu.reloaded.continueNote');
   render(self);
-  // The other way a run gets lost: the phone reclaimed the whole app, the tab was closed, the
-  // process died — a cold open with no reason flag, only the automatic snapshot the away pause
-  // wrote on the way out. Asked once per page life, on the way in, rather than left to be
-  // noticed on the Continue line. Not while the reload path above is already re-entering.
-  if (!reloaded && !continueOffered) {
-    const unfinished = pendingAutosave();
-    if (unfinished) {
-      continueOffered = true;
-      offerContinue(self, unfinished);
-    }
+  // After the page, so the sheet stands on top of it. Once per page life — a new page load,
+  // which is what a killed app comes back through, starts the latch false again.
+  if (unfinished) {
+    continueOffered = true;
+    offerContinue(self, unfinished, reloaded?.cause);
   }
   // The service worker finishes caching, or a new build lands, minutes after this page was
   // drawn. Redrawing on the change is what lets the front page raise its notice and the settings
@@ -417,15 +412,25 @@ function renderTitle(self: MenuScene): void {
 }
 
 /**
- * "Continue your last game?" — the sheet a lost run comes back through.
+ * "Continue your last game?" — the one door the automatic snapshot has.
  *
- * A modal rather than an auto-resume: the player did not choose to leave, so they should be
- * the one to choose to go back — a run dropped into their hands the instant the app opens is a
+ * A sheet rather than an auto-resume: the player did not choose to leave, so they should be the
+ * one to choose to go back — a run dropped into their hands the instant the app opens is a
  * surprise, and on a phone that opened by accident it is a surprise with a wave landing in it.
- * Both buttons keep the snapshot; "Not now" only lowers the sheet, and the Continue line under
- * it still holds the same run.
+ *
+ * The player's own save is never offered here. It has a door already, on the front page, and it
+ * is a door they know they left something behind: mixing the two is how "Continue" came to mean
+ * a state nobody had saved.
+ *
+ * Both buttons keep the snapshot. "Not now" only lowers the sheet — the run is asked about again
+ * on the next cold open, and is dropped for good the moment the player says what they want
+ * instead: starting a run (`resumeSaveSession`), saving, or leaving one deliberately.
  */
-function offerContinue(self: MenuScene, snapshot: NonNullable<ReturnType<typeof pendingAutosave>>): void {
+function offerContinue(
+  self: MenuScene,
+  snapshot: NonNullable<ReturnType<typeof pendingAutosave>>,
+  cause?: string,
+): void {
   const BODY_WIDTH = 300;
   const body = self.add.text(0, 0, t('menu.resume.body', { note: snapshotLabel(snapshot) }), {
     color: '#2a2118',
@@ -441,7 +446,9 @@ function offerContinue(self: MenuScene, snapshot: NonNullable<ReturnType<typeof 
   // does not use, because `contentBounds` is measured back off one whether or not it is drawn.
   const modal = self.ui.modal({
     title: t('menu.resume.title'),
-    subtitle: t('menu.resume.subtitle'),
+    // A page that reloaded itself knows why, and saying so is the difference between "the game
+    // is offering me an old save" and "the game caught this for me".
+    subtitle: cause ? t('menu.resume.subtitleCrash') : t('menu.resume.subtitle'),
     onClose: () => self.closeModal(),
     height: 104 + 66 + 20 + body.height + 18 + ROW * 2 + GAP,
   });
@@ -460,6 +467,9 @@ function offerContinue(self: MenuScene, snapshot: NonNullable<ReturnType<typeof 
   const primary = { x: buttonX, y: cursor, width: buttonWidth, height: ROW };
   self.modalObjects.push(self.ui.button(primary, t('menu.resume.continue'), () => {
     self.closeModal();
+    // The notice rides in with the run, not ahead of it: the player accepted this state, so the
+    // line explaining where it came from belongs on the screen they land on.
+    if (cause) pushToast(snapshot.state, t('menu.reloaded.notice'), 'info');
     startGame(self, snapshot.state);
   }, { variant: 'primary', fontSize: '14px' })
     // Read by `verify-resume.mjs`, which taps the offer rather than calling into the scene.
