@@ -1,7 +1,7 @@
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { applyResourceDelta } from '../../systems/ResourceSystem';
 import { pick, playerLands } from '../../systems/story/StorySystem';
-import { leaveEcho, reinforceHosts, windfall } from '../../systems/story/effects';
+import { leaveEcho, reinforceHosts, bounty, windfall } from '../../systems/story/effects';
 import { pushToast } from '../../systems/empire/notifications';
 import { storyText } from '../../i18n/story';
 import type { StoryTemplate } from '../../systems/story/types';
@@ -264,7 +264,7 @@ export const reedBanner: StoryTemplate = {
       weight: 8,
       terminal: true,
       effect: (ctx) => {
-        windfall(ctx, { humans: 60 });
+        bounty(ctx, { humans: 60 });
         ctx.state.court.stability = Math.max(0, ctx.state.court.stability - 4);
         ctx.note('stability', -4);
       },
@@ -827,7 +827,7 @@ export const reedBanner: StoryTemplate = {
               hero.stats.renown = Math.min(100, hero.stats.renown + 12);
               hero.traits = [...(hero.traits ?? []), 'Unifier'];
             }
-            applyResourceDelta(ctx.state, { gold: 220, humans: 400 });
+            bounty(ctx, { gold: 220, humans: 400 });
           },
         },
       ],

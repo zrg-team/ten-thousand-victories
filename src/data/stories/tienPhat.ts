@@ -9,7 +9,7 @@ import {
   shiftWaveClock,
   standing,
   truce,
-  windfall,
+  bounty, windfall,
 } from '../../systems/story/effects';
 import type { GameState, Kingdom } from '../../state/types';
 import type { StoryTemplate } from '../../systems/story/types';
@@ -357,7 +357,7 @@ export const tienPhat: StoryTemplate = {
       effect: (ctx) => {
         sabotageIncoming(ctx, 0.6);
         shiftWaveClock(ctx, 8);
-        windfall(ctx, { gold: 300, supplies: 200 });
+        bounty(ctx, { gold: 300, supplies: 200 });
       },
     },
     {
@@ -450,7 +450,7 @@ export const tienPhat: StoryTemplate = {
       terminal: true,
       effect: (ctx) => {
         returnHostFromAbroad(ctx, 0.6);
-        windfall(ctx, { gold: 600, supplies: 400 });
+        bounty(ctx, { gold: 600, supplies: 400 });
         // Permanent hostility: you are holding their ground now.
         opinion(ctx, -40, ctx.story.cast.kingdomId);
         standing(ctx, -18);
@@ -662,7 +662,7 @@ export const tienPhat: StoryTemplate = {
       terminal: true,
       effect: (ctx) => {
         truce(ctx, ctx.story.cast.kingdomId, 45);
-        windfall(ctx, { gold: -250 });
+        bounty(ctx, { gold: -250 });
       },
     },
   ],

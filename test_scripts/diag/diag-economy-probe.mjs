@@ -180,7 +180,7 @@ const results = await page.evaluate(async ({ seeds, ticks, open, samples, polici
         for (const { tg, land } of targets) {
           const open = tg.methods.filter((m) => !m.blockedReason);
           const pick = ['settle', 'occupy', 'diplomacy', 'bribe', 'intimidation'].find((m) => open.some((o) => o.method === m
-            && (m !== 'bribe' || (getBribeSuccessChance(land) >= 0.5 && getGoldBribeCost(state, land) <= state.resources.gold * 0.6))));
+            && (m !== 'bribe' || (getBribeSuccessChance(state, land) >= 0.5 && getGoldBribeCost(state, land) <= state.resources.gold * 0.6))));
           if (!pick) continue;
           const result = executeConquestMethod(state, land.id, pick);
           if (result.attempted) { handClaims += 1; break; }
@@ -258,7 +258,7 @@ const results = await page.evaluate(async ({ seeds, ticks, open, samples, polici
           if (cheap('settle')) return 'settle';
           if (cheap('occupy')) return 'occupy';
           if (cheap('diplomacy')) return 'diplomacy';
-          if (cheap('bribe') && land && share(getGoldBribeCost(state, land)) <= 0.6 && getBribeSuccessChance(land) >= 0.5) return 'bribe';
+          if (cheap('bribe') && land && share(getGoldBribeCost(state, land)) <= 0.6 && getBribeSuccessChance(state, land) >= 0.5) return 'bribe';
           if (cheap('intimidation')) return 'intimidation';
           return 'back';
         }

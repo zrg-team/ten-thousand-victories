@@ -26,7 +26,8 @@ import {
 } from '../../game/constants';
 import { ASCENT_HUD_HEIGHT } from '../../ui/ascent/AscentHud';
 import { laneIsDocked, placeModalLayer } from './hudSheet';
-import { refreshAscentLaneState } from '../../systems/ascent/ConquestSystem';
+import { CLAIM_METHODS, buildMethodOptions, refreshAscentLaneState } from '../../systems/ascent/ConquestSystem';
+import { claimBlockedReason } from '../../systems/AcquisitionSystem';
 import { countOpenDoors } from '../../systems/story/StorySystem';
 import { contestedFronts, realmUnderAttack } from '../../systems/ascent/battleReport';
 import { INK_UI, InkUI } from '../../ui/InkUI';
@@ -1006,7 +1007,11 @@ function renderInspect(self: ConquestUIScene): void {
       governor?.id ?? '-', getLandSpecialization(land),
       // Likewise the supply reading: a corridor cut while this card is open changes the row, the
       // border and three of the numbers above, and none of the existing terms would have moved.
-      supplyKey(self.state, land)].join(':');
+      supplyKey(self.state, land),
+      // And the claim cap, because the button below now states it. A claim opened or finished
+      // elsewhere changes which ways into this province are live; without this term the card
+      // keeps offering an envoy the realm no longer has, or hides one it just got back.
+      land.ownerId === PLAYER_KINGDOM_ID ? '-' : String(claimBlockedReason(self.state) ?? '')].join(':');
   if (key === self.inspectKey) return;
   self.inspectKey = key;
   for (const object of self.inspectObjects) object.destroy();
@@ -1146,12 +1151,42 @@ function renderInspect(self: ConquestUIScene): void {
         ),
       ]
     : [
-        self.ui.button(
-          { x: 14 + dock, y: buttonY, width: GAME_WIDTH - 28, height: INSPECT_BUTTON_HEIGHT },
-          t('ascent.conquer.claimThis', { land: land.name }),
-          () => self.events.emit('ui:ascent-conquer', land.id),
-          { variant: 'primary', fontSize: '13px' },
-        ),
+        /**
+         * **The cap has to be legible from here, or it is not a cap.**
+         *
+         * Reported: *the claim limit blocks in some menus but not others, especially tapping a
+         * land directly.* Both halves were true, and they were different bugs. The Build lane
+         * shut its claim browser whenever an envoy slot was committed — hiding provinces a host
+         * could still have marched on — while this button, the other way into the same sheet,
+         * said nothing about the cap at all and opened onto a sheet where force was still live.
+         * So the player met a limit in one place, tapped through it in another, and neither
+         * screen explained which rule was in force.
+         *
+         * The rule is: **envoys and coin are capped; a host you command is not.** This button
+         * now says which of those is on the table before it is pressed — the sheet behind it is
+         * unchanged, and `buildMethodOptions` remains the single arbiter of what is open.
+         */
+        (() => {
+          const methods = buildMethodOptions(self.state, land);
+          const openMethods = methods.filter((method) => !method.blockedReason);
+          // Only force left, and only because the envoys are spoken for: say so on the button
+          // rather than letting the sheet be the first place the player learns it.
+          const forceOnly = openMethods.length > 0
+            && openMethods.every((method) => !CLAIM_METHODS.has(method.method))
+            && methods.some((method) => CLAIM_METHODS.has(method.method));
+          const shut = openMethods.length === 0;
+          return self.ui.button(
+            { x: 14 + dock, y: buttonY, width: GAME_WIDTH - 28, height: INSPECT_BUTTON_HEIGHT },
+            shut
+              ? t('ascent.conquer.noWayIn', { land: land.name })
+              : forceOnly
+                ? t('ascent.conquer.forceOnly', { land: land.name })
+                : t('ascent.conquer.claimThis', { land: land.name }),
+            // Shut means shut: no handler, so the press cannot open a sheet of greyed rows.
+            shut ? () => undefined : () => self.events.emit('ui:ascent-conquer', land.id),
+            { variant: shut ? 'disabled' : 'primary', fontSize: '13px' },
+          );
+        })(),
       ];
   for (const control of controls) {
     (control as Phaser.GameObjects.Container).setDepth(120);

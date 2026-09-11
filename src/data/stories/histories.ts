@@ -32,7 +32,7 @@ import {
   suppressPowerCard,
   temper,
   terrainWork,
-  windfall,
+  bounty, windfall,
 } from '../../systems/story/effects';
 import { storyText } from '../../i18n/story';
 import type { StoryTemplate } from '../../systems/story/types';
@@ -120,7 +120,7 @@ export const sixtyFiveCitadels: StoryTemplate = {
           cost: { food: 220 },
           apply: (ctx) => {
             // Help without owning it. Smaller, and nobody comes looking for you afterwards.
-            windfall(ctx, { humans: 300 });
+            bounty(ctx, { humans: 300 });
             standing(ctx, 6);
             ctx.remember('quiet', 1);
           },
@@ -1210,7 +1210,7 @@ export const theAssembly: StoryTemplate = {
           apply: (ctx) => {
             ctx.remember('allowed', 1);
             // R3. The bribe money stays in the treasury. The vote goes however the vote goes.
-            windfall(ctx, { gold: 180 });
+            bounty(ctx, { gold: 180 });
             ctx.heat(4);
           },
         },
@@ -1342,7 +1342,7 @@ export const riceRiot: StoryTemplate = {
             ctx.remember('ignored', 1);
             // R3. Hunger sends people home, they say. The stores stay shut and full, and that
             // is the whole of what this buys.
-            windfall(ctx, { food: 200 });
+            bounty(ctx, { food: 200 });
             ctx.heat(5);
           },
         },

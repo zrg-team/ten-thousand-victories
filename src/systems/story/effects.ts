@@ -3,6 +3,7 @@ import { addCourtModifier } from '../CourtSystem';
 import { addOpinionModifier } from '../DiplomacySystem';
 import { t } from '../../i18n';
 import { applyResourceDelta } from '../ResourceSystem';
+import { scaledGain } from '../ascent/priceScale';
 import { pushToast } from '../empire/notifications';
 import { launchPunitiveHost } from '../ascent/EnemyCommandDirector';
 import { findPowerCard } from '../../data/ascentCards';
@@ -462,11 +463,43 @@ export function population(ctx: StoryCtx, factor: number, land?: Land): void {
 
 // ── Resources ───────────────────────────────────────────────────────────────
 
+/**
+ * Exactly this many. **Not scaled, ever** — see `bounty` for the other meaning.
+ *
+ * Two kinds of caller depend on that literalness and would break if this scaled:
+ *
+ *  - bags already computed from live state — `{ gold: -take }` where `take` is a share of the
+ *    treasury, or `{ humans: men }` counted off a host. Scaling those scales a proportion twice.
+ *  - repayments and settlements that must match a figure fixed earlier in the same story.
+ *
+ * So the choice is made in the vocabulary rather than in a wrapper: an author writing `windfall`
+ * is saying *this number*, and one writing `bounty` is saying *this much, to a realm like ours*.
+ */
 export function windfall(ctx: StoryCtx, bag: Partial<ResourceBag>): void {
   applyResourceDelta(ctx.state, bag);
   for (const [key, value] of Object.entries(bag)) {
     if (value) ctx.note(key, value);
   }
+}
+
+/**
+ * A one-time reward or forfeit, worth what it should be worth to a realm this size.
+ *
+ * The authored figure is the floor and the opening pays exactly it; a realm four times richer
+ * pays or is paid roughly three times as much. Use this for a purse, a gift, a fine, a haul —
+ * anything the story hands over once.
+ *
+ * **Do not use it for a per-season effect.** A recurring grant is permanent, stacks, and
+ * multiplies against a growing realm, and scaling one is how a card becomes an engine —
+ * `stipend`, `debt` and `exactTribute` all stay flat on purpose. Nor for a bag whose value was
+ * computed from live state, or one paired with a recurring counterweight: scaling the gain half
+ * of `debaseCurrency` while its repayment stayed flat would turn a loan into a gift.
+ *
+ * What lands is what the Chronicle records — `ctx.note` sees the scaled figure, so the outcome
+ * sheet never quotes a number the treasury did not move by.
+ */
+export function bounty(ctx: StoryCtx, bag: Partial<ResourceBag>): void {
+  windfall(ctx, scaledGain(ctx.state, bag));
 }
 
 /** The treasury is seized. All of it, which is the only version of this worth writing. */
@@ -477,6 +510,11 @@ export function seizeTreasury(ctx: StoryCtx): number {
   return taken;
 }
 
+/**
+ * **Per-season, so never scaled.** A recurring grant is permanent, stacks, and multiplies against
+ * a realm that is itself growing — scaling one is how a card becomes an engine. Only one-time
+ * sums wear the realm's scale, through `bounty`. Do not "fix" this to match them.
+ */
 /** A debt that services itself every season until it is done with you. */
 export function debt(ctx: StoryCtx, perSeason: number, seasons: number): void {
   addCourtModifier(ctx.state, {
@@ -488,6 +526,11 @@ export function debt(ctx: StoryCtx, perSeason: number, seasons: number): void {
   ctx.note('debt', perSeason);
 }
 
+/**
+ * **Per-season, so never scaled.** A recurring grant is permanent, stacks, and multiplies against
+ * a realm that is itself growing — scaling one is how a card becomes an engine. Only one-time
+ * sums wear the realm's scale, through `bounty`. Do not "fix" this to match them.
+ */
 /** A standing gain for a while — a trade route, a tribute redirected, a good harvest. */
 export function stipend(ctx: StoryCtx, bag: Partial<ResourceBag>, seasons: number, label: string): void {
   addCourtModifier(ctx.state, {
@@ -588,6 +631,11 @@ export function civilWar(ctx: StoryCtx, kingdomId?: string): boolean {
   return true;
 }
 
+/**
+ * **Per-season, so never scaled.** A recurring grant is permanent, stacks, and multiplies against
+ * a realm that is itself growing — scaling one is how a card becomes an engine. Only one-time
+ * sums wear the realm's scale, through `bounty`. Do not "fix" this to match them.
+ */
 /** Tribute imposed on *them*, collected automatically for a while. */
 export function exactTribute(ctx: StoryCtx, perSeason: number, seasons: number): void {
   stipend(ctx, { gold: perSeason }, seasons, ctx.rival()?.name ?? 'Cống');

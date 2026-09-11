@@ -136,7 +136,7 @@ const played = await page.evaluate(async ([seeds, turns]) => {
           if (v && st.resources.gold >= Acq.getGoldBribeCost(st, v) + 90) Acq.bribeLand(st, v.id);
           else {
             const empty = adj.find((l) => !l.hasVillage);
-            if (empty && st.resources.humans > Acq.getSettleHumansCost() + 260) Acq.settleLand(st, empty.id);
+            if (empty && st.resources.humans > Acq.getSettleHumansCost(st, empty) + 260) Acq.settleLand(st, empty.id);
           }
         }
 

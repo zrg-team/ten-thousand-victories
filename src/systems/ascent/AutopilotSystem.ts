@@ -603,7 +603,7 @@ function autoPurchaseVillage(state: GameState): boolean {
   for (const land of candidates) {
     const cost = getGoldBribeCost(state, land);
     if (cost > state.resources.gold * share) continue;
-    if (getBribeSuccessChance(land) < AUTO_CLAIM_MIN_CHANCE) continue;
+    if (getBribeSuccessChance(state, land) < AUTO_CLAIM_MIN_CHANCE) continue;
     // Asked, not taken. Only the first affordable province is ever put up — a proposal the
     // pacing gates turn down is the whole tick's answer, because the next candidate would meet
     // exactly the same gates.

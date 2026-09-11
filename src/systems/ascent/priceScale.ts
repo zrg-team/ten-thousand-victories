@@ -30,6 +30,8 @@
  * systems all read it, and `ResourceSystem` <-> `CourtSystem` already form an import cycle.
  */
 import {
+  GAIN_SCALE_EXPONENT,
+  GAIN_SCALE_MAX,
   PRICE_SCALE_BASE_GROSS,
   PRICE_SCALE_EXPONENT,
   PRICE_SCALE_MAX,
@@ -142,6 +144,64 @@ export function scaledCost(state: GameState, cost: Partial<ResourceBag>): Partia
     if (value === undefined) continue;
     const scale = key === 'gold' || key === 'food' || key === 'supplies' ? scales[key] : 1;
     out[key] = scale === 1 ? value : Math.ceil(value * scale);
+  }
+  return out;
+}
+
+/**
+ * What a **one-time** reward or forfeit is worth to a realm this size.
+ *
+ * Income only, and deliberately so: it reads the *gross* line from the books, never the hoard.
+ * A wealth term here would mean that sitting on gold made every windfall larger, which is the
+ * runaway the cost side's wealth factor exists to prevent.
+ *
+ * `humans` has no line in the ledger, so it borrows the gold scale. Flagged rather than hidden:
+ * if a realm's people ever get their own gross line, this should read it.
+ */
+export function gainScale(state: GameState, store: keyof ResourceBag): number {
+  if (state.gameMode !== 'ascent' || !state.ascent) return 1;
+  const ledger = state.ascentLedger;
+  const gross = store === 'humans' || store === 'gold'
+    ? realmGrossGold(state)
+    : Math.max(0, ledger?.[store].gross ?? 0);
+  if (gross <= PRICE_SCALE_BASE_GROSS) return 1;
+  return Math.min(GAIN_SCALE_MAX, Math.pow(gross / PRICE_SCALE_BASE_GROSS, GAIN_SCALE_EXPONENT));
+}
+
+/**
+ * A one-time bag, worth what it should be worth to this realm. **Never a per-season bag.**
+ *
+ * Three rules, each of which was a bug before it was a rule:
+ *
+ *  - **Route by sign.** A gain wears `gainScale` (income only); a forfeit wears the full
+ *    `scaledCost` (income x hoard), so a rich realm is punished harder rather than shrugging.
+ *    Flooring naively on the signed value — `max(-220, -660)` — returns the *smaller* penalty and
+ *    quietly makes every story blow free late in a run, which is how this was first written.
+ *  - **Floor on magnitude.** The authored figure is the minimum in either direction, so a realm
+ *    poorer than the opening is never paid less than the number the author wrote.
+ *  - **Refuse a mixed-sign bag.** `{ supplies: -25, gold: 55 }` is an exchange *rate*, not a
+ *    reward. Scaling its halves by different factors silently rewrites the rate — measured, the
+ *    same barter swings between 160-for-65 and 40-for-195 depending which factor bites. Such a
+ *    bag is returned untouched; a caller that means to scale a trade must say which side sets it.
+ */
+export function scaledGain(state: GameState, bag: Partial<ResourceBag>): Partial<ResourceBag> {
+  if (state.gameMode !== 'ascent' || !state.ascent) return bag;
+  const values = Object.values(bag).filter((value): value is number => typeof value === 'number');
+  const mixed = values.some((value) => value > 0) && values.some((value) => value < 0);
+  if (mixed) return bag;
+
+  const out: Partial<ResourceBag> = {};
+  for (const [key, value] of Object.entries(bag) as [keyof ResourceBag, number | undefined][]) {
+    if (value === undefined) continue;
+    if (value === 0) { out[key] = 0; continue; }
+    const scale = value > 0
+      ? gainScale(state, key)
+      // A forfeit is a price: the hoard pays for being one.
+      : (key === 'gold' ? realmPriceScale(state)
+        : key === 'humans' ? 1
+          : storePriceScale(state, key));
+    const scaled = Math.round(Math.abs(value) * scale);
+    out[key] = Math.sign(value) * Math.max(Math.abs(value), scaled);
   }
   return out;
 }

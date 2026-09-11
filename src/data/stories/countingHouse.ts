@@ -1,3 +1,5 @@
+import { PRICE_SCALE_BASE_GROSS } from '../../game/ascentConfig';
+import { heldSeasons } from '../../systems/ascent/priceScale';
 import { applyResourceDelta } from '../../systems/ResourceSystem';
 import { pick } from '../../systems/story/StorySystem';
 import type { StoryTemplate } from '../../systems/story/types';
@@ -13,19 +15,35 @@ import type { StoryTemplate } from '../../systems/story/types';
  * would have. That silence is the design: an outcome the player avoided without ever being told
  * there was one is worth more than a warning they were allowed to read.
  */
+/**
+ * Every gate in this story is a reading of the purse, and all of them were absolute gold figures.
+ *
+ * Four hundred coins is a hoard worth somebody's attention to a realm grossing sixty a season and
+ * a fortnight's income to one grossing eight hundred — so from roughly wave ten every gate here
+ * stood permanently open, and the story's own pacing (*the hoard builds back up, and so does the
+ * counting*) stopped working. They are read in **seasons of the realm's own income** instead,
+ * which at the founding is exactly the old figure over the base gross of 120 and goes on asking
+ * the same question afterwards.
+ */
+const HOARD_COUNTED = 400 / PRICE_SCALE_BASE_GROSS;
+const HOARD_TEMPTING = 500 / PRICE_SCALE_BASE_GROSS;
+const HOARD_NOTICED = 620 / PRICE_SCALE_BASE_GROSS;
+const HOARD_DEEP = 900 / PRICE_SCALE_BASE_GROSS;
+const PURSE_THIN = 300 / PRICE_SCALE_BASE_GROSS;
+
 export const countingHouse: StoryTemplate = {
   id: 'counting-house',
   record: 'ngoai-truyen',
   pressure: (ctx) => {
     if (ctx.recall('spentInPublic') >= 2) return 'da-voi';
-    if (ctx.state.resources.gold >= 900) return 'day-len';
-    if (ctx.state.resources.gold >= 620) return 'van-ngoi-day';
+    if (heldSeasons(ctx.state, 'gold') >= HOARD_DEEP) return 'day-len';
+    if (heldSeasons(ctx.state, 'gold') >= HOARD_NOTICED) return 'van-ngoi-day';
     return undefined;
   },
   seedWeight: 2,
   minTurn: 16,
   seed: (state) => {
-    if (state.resources.gold < 620) return undefined;
+    if (heldSeasons(state, 'gold') < HOARD_NOTICED) return undefined;
     const clerk = pick(state.heroes.filter(
       (hero) => hero.id !== 'king' && hero.stats.loyalty < 55,
     ));
@@ -64,7 +82,7 @@ export const countingHouse: StoryTemplate = {
       quiet: 3,
       repeatable: true,
       maxTimes: 4,
-      when: (ctx) => ctx.state.resources.gold >= 400,
+      when: (ctx) => heldSeasons(ctx.state, 'gold') >= HOARD_COUNTED,
       opening: { on: 'treasury', actionKey: 'tieuBot' },
       options: [
         {
@@ -90,7 +108,7 @@ export const countingHouse: StoryTemplate = {
       volume: 'whisper',
       weight: 6,
       quiet: 1,
-      when: (ctx) => ctx.state.resources.gold >= 620,
+      when: (ctx) => heldSeasons(ctx.state, 'gold') >= HOARD_NOTICED,
       salience: (ctx) => (ctx.age >= 2 ? 6 : -20),
       heat: 2,
       tone: 'info',
@@ -99,7 +117,7 @@ export const countingHouse: StoryTemplate = {
       id: 'the-ledger-is-copied',
       volume: 'whisper',
       weight: 3,
-      when: (ctx) => ctx.said('somebody-is-counting') && ctx.state.resources.gold >= 620,
+      when: (ctx) => ctx.said('somebody-is-counting') && heldSeasons(ctx.state, 'gold') >= HOARD_NOTICED,
       quiet: 6,
       salience: (ctx) => ctx.story.temperature,
       heat: 2.5,
@@ -111,7 +129,7 @@ export const countingHouse: StoryTemplate = {
       band: 'shrine',
       weight: 5,
       quiet: 4,
-      when: (ctx) => ctx.said('somebody-is-counting') && ctx.state.resources.gold >= 400,
+      when: (ctx) => ctx.said('somebody-is-counting') && heldSeasons(ctx.state, 'gold') >= HOARD_COUNTED,
       salience: (ctx) => 3 + ctx.story.temperature * 0.5,
       options: [
         {
@@ -119,7 +137,11 @@ export const countingHouse: StoryTemplate = {
           cost: { gold: 300 },
           apply: (ctx) => {
             // Safe, and it earns nothing. The abbot is a careful man.
-            ctx.remember('sheltered', 300);
+            //
+            // What was *actually* lodged, not the figure written above: story prices wear the
+            // realm's scaled purse, so a late-run deposit is several times 300. Remembering the
+            // literal would have the abbot hand back a third of what he was given.
+            ctx.remember('sheltered', ctx.paid?.gold ?? 300);
             // Cost-only before this: three hundred gold went out and the card said nothing back.
             // What it buys is a ledger anybody may come and read, which is worth something in a
             // court that has been counting the treasury behind your back.
@@ -150,7 +172,7 @@ export const countingHouse: StoryTemplate = {
       weight: 4,
       terminal: true,
       tone: 'info',
-      when: (ctx) => ctx.state.resources.gold < 300 && ctx.recall('sheltered') === 0,
+      when: (ctx) => heldSeasons(ctx.state, 'gold') < PURSE_THIN && ctx.recall('sheltered') === 0,
       salience: () => 8,
     },
     {
@@ -176,7 +198,7 @@ export const countingHouse: StoryTemplate = {
       tone: 'threat',
       when: (ctx) => ctx.story.temperature >= 7
         && ctx.said('the-ledger-is-copied')
-        && ctx.state.resources.gold >= 500
+        && heldSeasons(ctx.state, 'gold') >= HOARD_TEMPTING
         && ctx.recall('sheltered') === 0,
       salience: () => 12,
       effect: (ctx) => {

@@ -1,6 +1,6 @@
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { applyResourceDelta } from '../../systems/ResourceSystem';
-import { terrainWork } from '../../systems/story/effects';
+import { bounty, terrainWork } from '../../systems/story/effects';
 import { livingRivals, pick, playerLands } from '../../systems/story/StorySystem';
 import { pushToast } from '../../systems/empire/notifications';
 import { storyText } from '../../i18n/story';
@@ -265,7 +265,7 @@ export const riverStakes: StoryTemplate = {
       salience: (ctx) => (ctx.age - 55) * 0.2,
       effect: (ctx) => {
         // Paid the surveyors and never read the survey.
-        applyResourceDelta(ctx.state, { gold: -30 });
+        bounty(ctx, { gold: -30 });
       },
     },
   ],

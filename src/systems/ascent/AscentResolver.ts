@@ -224,6 +224,12 @@ export function resolveAscentPrompt(state: GameState, choiceId: string): boolean
       // claim cadence will offer the province again on its own if it is still worth having.
       // Re-raising here instead put a second sheet up on the very next tick, which is the
       // back-to-back pacing the mode is explicit about not doing.
+      //
+      // It must still *say* something, though. Closing mute is how a cap comes to look like
+      // a dead button: the guard that refused this lives in `buildMethodOptions`, not in the
+      // primitive, so none of the four starters ever ran and none of them wrote the message
+      // they write when they refuse. The reason is already in hand — carry it.
+      if (!attempt.attempted && attempt.reason) state.message = attempt.reason;
       handled = true;
       break;
     }

@@ -11,7 +11,7 @@ const r = await page.evaluate(async () => {
   const cap = st.lands.find(l => l.ownerId==='dai-viet');
   const neigh = cap.neighbors.map(id => st.lands.find(l => l.id===id)).filter(Boolean);
   const info = neigh.map(l => ({ name:l.name, type:l.type, owner:l.ownerId, hasVillage:l.hasVillage, localSoldiers:l.localSoldiers, defense:l.defense, visible:l.isVisible, explored:l.isExplored,
-    bribeCost: ACQ.getGoldBribeCost(st, l), bribeChance: Math.round(ACQ.getBribeSuccessChance(l)*100), settleHumans: ACQ.getSettleHumansCost() }));
+    bribeCost: ACQ.getGoldBribeCost(st, l), bribeChance: Math.round(ACQ.getBribeSuccessChance(st, l)*100), settleHumans: ACQ.getSettleHumansCost(st, l) }));
   // try each method on each neighbor, capture result + message
   const tries = [];
   for (const l of neigh) {

@@ -71,7 +71,34 @@ export function showBuildScreen(self: ConquestUIScene): void {
     (target) => target.methods.some((method) => !method.blockedReason),
   );
   const claimBlocked = claimBlockedReason(state);
-  const canClaim = !claimBlocked && openTargets.length > 0;
+  /**
+   * **The browser opens whenever anything can be done, not only when an envoy is free.**
+   *
+   * This used to be `!claimBlocked && openTargets.length > 0`, which shut the door on the whole
+   * screen the moment the realm's claim parties were committed — including on provinces a host
+   * could have marched onto that same season, since siege and occupation spend no claim slot.
+   * Reported as the other half of "the limit blocks in some menus but not others": the player was
+   * refused here and then took the province straight off the map, and neither screen said why.
+   *
+   * `openTargets` already asks the right question — it counts provinces with *any* unblocked
+   * method, and `buildMethodOptions` has stamped the cap onto the envoy rows before we see them.
+   * So the cap still greys every envoy inside the browser; it just no longer hides the door.
+   */
+  const canClaim = openTargets.length > 0;
+  /**
+   * What the claim control says, computed once for both the page row and the sheet's footer.
+   *
+   * This file's standing rule is that those two "say the same thing about the same provinces, and
+   * two readings could disagree by a tick" — they had drifted into two expressions of it, and only
+   * one of them mentioned the cap.
+   */
+  const claimActionHint = openTargets.length === 0
+    ? claimBlocked ?? t('ascent.claim.startNone')
+    // Both facts, when both are true: the envoys are spoken for, and there are still N ways in.
+    // Printing only the first reads as "nothing can be done" under a control that opens.
+    : claimBlocked
+      ? `${claimBlocked} · ${t('ascent.claim.startHint', { n: openTargets.length })}`
+      : t('ascent.claim.startHint', { n: openTargets.length });
   const { addRow, addHeading, addWidget, finish } = self.laneList(
     t('action.build'),
     t('ascent.screen.buildBody', { lands: lands.length }),
@@ -84,9 +111,7 @@ export function showBuildScreen(self: ConquestUIScene): void {
         build: (holder, width) => {
           holder.add(self.ui.button(
             { x: 0, y: 0, width, height: CLAIM_ACTION_HEIGHT },
-            canClaim
-              ? `${t('ascent.claim.start')} · ${t('ascent.claim.startHint', { n: openTargets.length })}`
-              : `${t('ascent.claim.start')} · ${claimBlocked ?? t('ascent.claim.startNone')}`,
+            `${t('ascent.claim.start')} · ${claimActionHint}`,
             () => { if (canClaim) showClaimTargets(self); },
             { variant: canClaim ? 'primary' : 'disabled', fontSize: '13px' },
           ));
@@ -134,23 +159,22 @@ export function showBuildScreen(self: ConquestUIScene): void {
     );
   }
 
-  // The cap on the heading is the whole answer for this row. `1/1` means no claim can be opened,
-  // so the control that opens one is shut — greyed, no handler, and carrying the reason.
+  // **The row is shut only when there is genuinely nothing to do.**
   //
-  // It asked whether any province was within reach, which is a different question and left the
-  // row jade and tappable at the cap, leading to a browser of provinces whose every method was
-  // greyed. Then it asked whether *any* method was open, which is closer but still not this
-  // question: siege and occupation spend no claim slot, so force kept the row alive at `1/1` and
-  // the screen went on offering an envoy under a heading that said there were none. A limit the
-  // player can tap straight through is not a limit. Force is still reachable the classic way, by
-  // selecting the province on the map — the inspect card raises the same sheet.
+  // Three readings have stood here. First "is any province within reach", which left the row
+  // tappable at the cap and led to a browser where every method was greyed. Then "is any method
+  // open", which was closer. Then "is an envoy free", which over-corrected: siege and occupation
+  // spend no claim slot, so that reading hid provinces a host could have marched on that same
+  // season — and the player, refused here, took one straight off the map instead. A limit that
+  // blocks in one screen and not another teaches nothing; it just looks broken.
+  //
+  // So: the row opens whenever any way in exists, and the *subtitle* carries the cap. The rule
+  // the whole screen is teaching is that envoys and coin are capped and a host is not, and the
+  // player should be able to read that off this one line.
   addRow(
     {
       title: t('ascent.claim.start'),
-      subtitle: claimBlocked
-        ?? (openTargets.length > 0
-          ? t('ascent.claim.startHint', { n: openTargets.length })
-          : t('ascent.claim.startNone')),
+      subtitle: claimActionHint,
       border: canClaim ? INK_UI.jade : INK_UI.softBrush,
       muted: !canClaim,
     },

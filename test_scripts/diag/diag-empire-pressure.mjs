@@ -196,7 +196,7 @@ const PLAY = async ([seed, turns, difficulty, fix, expand]) => {
             }
           }
         }
-        if (!done && empty.length > 0 && st.resources.humans > Acq.getSettleHumansCost() + 260) {
+        if (!done && empty.length > 0 && st.resources.humans > Acq.getSettleHumansCost(st, empty[0]) + 260) {
           Acq.settleLand(st, empty[0].id);
         }
       }

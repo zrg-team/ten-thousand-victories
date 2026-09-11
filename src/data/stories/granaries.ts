@@ -1,3 +1,4 @@
+import { bounty } from '../../systems/story/effects';
 import { applyResourceDelta } from '../../systems/ResourceSystem';
 import { pick, playerLands } from '../../systems/story/StorySystem';
 import type { StoryTemplate } from '../../systems/story/types';
@@ -133,6 +134,10 @@ export const granaries: StoryTemplate = {
       quiet: 3,
       repeatable: true,
       maxTimes: 4,
+      // An absolute figure on purpose, unlike the counting house's gold gates. Grain is bounded
+      // where coin is not: anything above `STORE_WASTE_SEASONS` of use rots, and the markets sell
+      // what would rot, so a granary settles in the hundreds instead of climbing with the realm.
+      // Two hundred therefore goes on meaning "enough to be worth arguing about".
       when: (ctx) => ctx.recall('reforms') >= 1 && ctx.state.resources.food >= 200,
       opening: { on: 'treasury', actionKey: 'guiThoc' },
       options: [
@@ -171,7 +176,7 @@ export const granaries: StoryTemplate = {
           apply: (ctx) => {
             ctx.bump('reforms');
             // Genuinely good. That is why it is taken, and why the story works.
-            applyResourceDelta(ctx.state, { gold: 90 });
+            bounty(ctx, { gold: 90 });
             for (const land of playerLands(ctx.state)) {
               land.loyalty = Math.max(0, land.loyalty - 4);
             }
@@ -206,7 +211,7 @@ export const granaries: StoryTemplate = {
           historicity: 'annal',
           apply: (ctx) => {
             ctx.bump('reforms');
-            applyResourceDelta(ctx.state, { gold: 110, supplies: 60 });
+            bounty(ctx, { gold: 110, supplies: 60 });
             for (const land of playerLands(ctx.state)) {
               land.loyalty = Math.max(0, land.loyalty - 7);
             }
@@ -323,7 +328,7 @@ export const granaries: StoryTemplate = {
           historicity: 'annal',
           cost: { gold: 200 },
           apply: (ctx) => {
-            applyResourceDelta(ctx.state, { food: 260 });
+            bounty(ctx, { food: 260 });
             for (const land of playerLands(ctx.state)) {
               land.loyalty = Math.min(100, land.loyalty + 5);
             }
@@ -365,7 +370,7 @@ export const granaries: StoryTemplate = {
         && ctx.age >= 30,
       salience: () => 6,
       effect: (ctx) => {
-        applyResourceDelta(ctx.state, { supplies: 90 });
+        bounty(ctx, { supplies: 90 });
         const hero = ctx.hero();
         if (hero) hero.stats.administration = Math.min(100, hero.stats.administration + 8);
       },

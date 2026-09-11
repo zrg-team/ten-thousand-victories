@@ -19,7 +19,7 @@ import {
   standing,
   temper,
   terrainWork,
-  windfall,
+  bounty, windfall,
 } from '../../systems/story/effects';
 import type { StoryTemplate } from '../../systems/story/types';
 import type { GameState, Land } from '../../state/types';
@@ -599,7 +599,7 @@ export const tienPhat: StoryTemplate = {
       effect: (ctx) => {
         grantPowerCard(ctx, 'tien-phat');
         disperseIncoming(ctx, 0.4);
-        windfall(ctx, { supplies: 120 });
+        bounty(ctx, { supplies: 120 });
         ctx.leaveEcho(ctx.rival()?.name ?? '');
       },
     },

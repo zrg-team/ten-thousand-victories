@@ -10,7 +10,7 @@ import {
   monument,
   population,
   reinforceHosts,
-  windfall,
+  bounty, windfall,
 } from '../../systems/story/effects';
 import type { StoryTemplate } from '../../systems/story/types';
 
@@ -397,7 +397,7 @@ export const thanhGiong: StoryTemplate = {
       in: ['cho-gao'],
       weight: 6,
       quiet: 1,
-      effect: (ctx) => { windfall(ctx, { food: -40 }); },
+      effect: (ctx) => { bounty(ctx, { food: -40 }); },
     },
     {
       id: 'lang-bat-dau-so',
@@ -496,7 +496,7 @@ export const thanhGiong: StoryTemplate = {
       in: ['giu-lang'],
       weight: 5,
       quiet: 1,
-      effect: (ctx) => { windfall(ctx, { food: -60 }); },
+      effect: (ctx) => { bounty(ctx, { food: -60 }); },
     },
     {
       id: 'giu-hay-tha',
@@ -674,7 +674,7 @@ export const thanhGiong: StoryTemplate = {
       tone: 'reward',
       effect: (ctx) => {
         loyaltyFloor(ctx, 62, ctx.land());
-        windfall(ctx, { humans: 260 });
+        bounty(ctx, { humans: 260 });
       },
     },
     {

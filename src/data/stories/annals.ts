@@ -28,7 +28,7 @@ import {
   temper,
   terrainWork,
   truce,
-  windfall,
+  bounty, windfall,
 } from '../../systems/story/effects';
 import { storyText } from '../../i18n/story';
 import type { StoryTemplate } from '../../systems/story/types';
@@ -249,7 +249,7 @@ export const noThan: StoryTemplate = {
             const rival = ctx.rival();
             ctx.remember('married', 1);
             truce(ctx, rival?.id, 40);
-            windfall(ctx, { gold: 260, supplies: 90 });
+            bounty(ctx, { gold: 260, supplies: 90 });
           },
         },
         {
@@ -549,14 +549,14 @@ export const paperMoney: StoryTemplate = {
             // It was, in fact, made a capital offence. It did not help.
             ctx.remember('enforced', 1);
             for (const land of playerLands(ctx.state)) land.loyalty = Math.max(10, land.loyalty - 14);
-            windfall(ctx, { gold: 320 });
+            bounty(ctx, { gold: 320 });
           },
         },
         {
           id: 'withdraw-them',
           apply: (ctx) => {
             ctx.remember('withdrawn', 1);
-            windfall(ctx, { gold: -220 });
+            bounty(ctx, { gold: -220 });
             ctx.state.court.stability = Math.min(100, ctx.state.court.stability + 10);
           },
         },
@@ -663,7 +663,7 @@ export const luyThay: StoryTemplate = {
       tone: 'threat',
       weight: 80,
       when: (ctx) => ctx.recall(brokenKey('wall')) === 1,
-      effect: (ctx) => { windfall(ctx, { supplies: -120 }); },
+      effect: (ctx) => { bounty(ctx, { supplies: -120 }); },
     },
   ],
 };
@@ -788,7 +788,7 @@ export const vanMieu: StoryTemplate = {
         {
           id: 'find-him-a-quiet-post',
           apply: (ctx) => {
-            windfall(ctx, { gold: 120 });
+            bounty(ctx, { gold: 120 });
             ctx.state.court.stability = Math.min(100, ctx.state.court.stability + 8);
           },
         },
@@ -1138,7 +1138,7 @@ export const theDykes: StoryTemplate = {
           id: 'the-harvest-comes-first',
           apply: (ctx) => {
             ctx.remember('gambled', 1);
-            windfall(ctx, { food: 140, gold: 60 });
+            bounty(ctx, { food: 140, gold: 60 });
             ctx.heat(2);
           },
         },
