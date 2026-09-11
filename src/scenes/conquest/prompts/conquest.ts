@@ -14,6 +14,7 @@ import { GAME_HEIGHT, PLAYER_KINGDOM_ID } from '../../../game/constants';
 import { cardStack, powerCardView, skipRefundAmount } from '../../../systems/ascent/PowerDraftSystem';
 import { findPowerCard } from '../../../data/ascentCards';
 import { cabinetCard, cabinetLevel, combineCost, openingHand } from '../../../state/cabinet';
+import { getClaimFailures } from '../../../systems/AcquisitionSystem';
 import { buildAllConquestTargets, methodActorLine, methodHasActor }
   from '../../../systems/ascent/ConquestSystem';
 import { buildHeroPickerRows, buildHostPickerRows } from '../../../ui/heroPickerRows';
@@ -27,7 +28,7 @@ import { staggerIn } from '../../../ui/animations';
 import { motionMs } from '../../../game/lifeSettings';
 import { formatResourceList, heroName, t } from '../../../i18n';
 import { resourceChips, seasonsChip, type CostChip } from '../../../ui/costChips';
-import type { AscentPrompt, ConquestMethodOption, ConquestTarget } from '../../../state/types';
+import type { GameState, AscentPrompt, ConquestMethodOption, ConquestTarget } from '../../../state/types';
 import { PROMPT_FOOTER_HEIGHT, RARITY_COLOR } from '../constants';
 import { promptFoot } from './frame';
 import type { ConquestUIScene } from '../../ConquestUIScene';
@@ -360,6 +361,20 @@ function methodPriceChips(option: ConquestMethodOption): CostChip[] {
   ];
 }
 
+/**
+ * What this province remembers about being offered money, for the bribe card's body.
+ *
+ * Only ever on the coin row: the escalation and the bar live on `claimAttempts`, which nothing
+ * else on this sheet reads. A province that has turned the crown down twice asks half again as
+ * much each time and is likelier to refuse again — all of it happening invisibly, so the price
+ * looked like noise until the card went grey.
+ */
+function memoryLine(state: GameState, option: ConquestMethodOption, target: ConquestTarget): string | undefined {
+  if (option.method !== 'bribe') return undefined;
+  const refused = getClaimFailures(state, target.landId);
+  return refused > 0 ? t('ascent.conquer.refusedBefore', { n: refused }) : undefined;
+}
+
 /** What the province is like afterwards: the loyalty it lands on, and the odds of getting it. */
 function methodOutcomeTag(option: ConquestMethodOption): string {
   return [
@@ -411,7 +426,15 @@ export function showConquerMethod(self: ConquestUIScene, target: ConquestTarget,
         title: t(`ascent.method.${option.method}` as Parameters<typeof t>[0]),
         // Description in the wrapping body slot, numbers on the single-line note slot —
         // the reverse clipped the second line of every two-line description.
-        body: `${t(`ascent.method.${option.method}.d` as Parameters<typeof t>[0])}${actorLine ? `\n${actorLine}` : ''}`,
+        // The description, then whichever extra lines this method has: who would carry it out,
+        // and — for coin — what this province already remembers about being offered it. Without
+        // the memory line an escalating price reads as randomness right up until the door shuts,
+        // and a player cannot tell a dear province from an offended one.
+        body: [
+          t(`ascent.method.${option.method}.d` as Parameters<typeof t>[0]),
+          actorLine,
+          memoryLine(self.state, option, target),
+        ].filter(Boolean).join('\n'),
         // How productive the province is on the day it changes hands. This is the axis the
         // six methods actually differ on, and until loyalty was given teeth it was invisible
         // *and* inert — so the sheet read as six prices for one outcome.

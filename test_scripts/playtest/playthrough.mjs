@@ -77,7 +77,7 @@ const out = await page.evaluate(async () => {
           .sort((a, b) => ACQ.getGoldBribeCost(st, a) - ACQ.getGoldBribeCost(st, b));
         for (const c of cands) {
           if (st.resources.gold >= ACQ.getGoldBribeCost(st, c) && ACQ.bribeLand(st, c.id)) { decisions.expanded++; break; }
-          if (st.resources.humans >= ACQ.getSettleHumansCost() + 200 && ACQ.settleLand(st, c.id)) { decisions.expanded++; break; }
+          if (st.resources.humans >= ACQ.getSettleHumansCost(st, c) + 200 && ACQ.settleLand(st, c.id)) { decisions.expanded++; break; }
         }
       }
 

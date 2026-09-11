@@ -63,7 +63,7 @@ const out = await page.evaluate(async () => {
       if (st.acquisitionOrders.length < 2) {
         const ownedIds = new Set(owned().map((l) => l.id));
         const cands = st.lands.filter((l) => l.ownerId === 'neutral' && l.neighbors.some((n) => ownedIds.has(n))).sort((a, b) => ACQ.getGoldBribeCost(st, a) - ACQ.getGoldBribeCost(st, b));
-        for (const c of cands) { if (st.resources.gold >= ACQ.getGoldBribeCost(st, c) && ACQ.bribeLand(st, c.id)) { acts++; break; } if (st.resources.humans >= ACQ.getSettleHumansCost() + 200 && ACQ.settleLand(st, c.id)) { acts++; break; } }
+        for (const c of cands) { if (st.resources.gold >= ACQ.getGoldBribeCost(st, c) && ACQ.bribeLand(st, c.id)) { acts++; break; } if (st.resources.humans >= ACQ.getSettleHumansCost(st, c) + 200 && ACQ.settleLand(st, c.id)) { acts++; break; } }
       }
       for (const land of owned()) { if (RES.getBuildOrder(st, land.id)) continue; if (st.resources.gold < 55) break; let did = false; for (const type of ['farm', 'market', 'barracks', 'wall', 'communalHall']) { if (RES.buildDistrictBuilding(st, land.id, type)) { acts++; did = true; break; } } if (!did) { for (let i = 0; i < land.buildings.length; i++) { if (RES.upgradeDistrictBuilding(st, land.id, i)) { acts++; break; } } } }
       for (const p of EDICT.allProjects()) { if (!EDICT.projectBlockedReason(st, p)) { if (EDICT.enactProject(st, p.id)) acts++; } }

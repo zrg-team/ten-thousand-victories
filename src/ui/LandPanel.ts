@@ -198,7 +198,7 @@ export class LandPanel {
         return acts;
       }
 
-      const bribeChance = Math.round(getBribeSuccessChance(land) * 100);
+      const bribeChance = Math.round(getBribeSuccessChance(this.state, land) * 100);
       const acts: LandAction[] = [];
 
       if (armyInAdjacentOwnedLand) {

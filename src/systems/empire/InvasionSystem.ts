@@ -10,6 +10,8 @@ import {
   LEVY_POWER_PER_MAN,
   MAX_HOSTS_PER_KINGDOM,
   PASSING_REPORT_MEN,
+  PILLAGE_FOOD,
+  PILLAGE_GOLD,
   RELIEF_GOLD_REWARD,
   RELIEF_LOYALTY_REWARD,
   SIEGE_DEFENSE_PER_TICK,
@@ -19,6 +21,7 @@ import {
   waveMatchFactor,
 } from '../../game/ascentConfig';
 import { findLand, getAcquisitionTicksRequired, hostileClaimAt, provinceIsFalling } from '../LandSystem';
+import { scaledGain } from '../ascent/priceScale';
 import {
   armyPower,
   attackLand,
@@ -981,8 +984,12 @@ export function tickSieges(state: GameState): void {
     if (!siege.relieved && arrived) {
       siege.relieved = true;
       land.loyalty = Math.min(100, land.loyalty + RELIEF_LOYALTY_REWARD);
-      applyResourceDelta(state, { gold: RELIEF_GOLD_REWARD });
-      pushToast(state, t('ascent.siege.relieved', { land: land.name, gold: RELIEF_GOLD_REWARD }), 'reward');
+      // Forty gold was a real thank-you to a realm grossing sixty a season and a rounding error
+      // to one grossing eight hundred. Scaled as the one-time sum it is — and the notice prints
+      // what was actually paid, which the constant had stopped matching the moment it scaled.
+      const relief = scaledGain(state, { gold: RELIEF_GOLD_REWARD }).gold ?? RELIEF_GOLD_REWARD;
+      applyResourceDelta(state, { gold: relief });
+      pushToast(state, t('ascent.siege.relieved', { land: land.name, gold: relief }), 'reward');
       // The cabinet's deed: the first relief march the account ever completes pays a rubbing.
       if (grantDeed('first-relief')) {
         noteRubbing(state);
@@ -1835,8 +1842,13 @@ function awardDefenderXp(state: GameState, land: Land, defenderPower: number): v
 
 function pillage(state: GameState, land: Land): void {
   land.loyalty = Math.max(15, land.loyalty - 22);
-  const lootGold = Math.min(state.resources.gold, 25);
-  const lootFood = Math.min(state.resources.food, 35);
+  // A sack worth taking. Flat 25 gold and 35 grain was nothing to a grown realm, so being
+  // pillaged stopped costing anything worth avoiding — and a loss that cannot be felt is not a
+  // threat. Scaled as a forfeit (which wears the hoard as well as the income: a rich realm has
+  // more to lose), then clamped to what is actually in the stores.
+  const taken = scaledGain(state, { gold: -PILLAGE_GOLD, food: -PILLAGE_FOOD });
+  const lootGold = Math.min(state.resources.gold, Math.abs(taken.gold ?? PILLAGE_GOLD));
+  const lootFood = Math.min(state.resources.food, Math.abs(taken.food ?? PILLAGE_FOOD));
   applyResourceDelta(state, { gold: -lootGold, food: -lootFood });
   if (land.buildings.length > 0) {
     land.buildings.splice(Math.floor(Math.random() * land.buildings.length), 1);

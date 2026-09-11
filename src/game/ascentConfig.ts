@@ -836,6 +836,34 @@ export const PRICE_WEALTH_STORE_FLOOR = 600;
 /** A season's use below which a store's hoard is measured against this instead, so an empty ledger cannot divide by nothing. */
 export const PRICE_WEALTH_STORE_USE_FLOOR = 20;
 
+/**
+ * What a *one-time* reward is worth to a realm this size — the other half of the scaled purse.
+ *
+ * Two rounds scaled what things cost and never touched what anything paid, so the Chronicle, the
+ * cards and the spoils stayed at the figures they were authored with. Reported as *"in late game
+ * the numbers are too small and I don't care about them"*: a 260-gold windfall is worth 2.7
+ * seasons of income to a founding realm and one season to a realm grossing 780.
+ *
+ * The curve is chosen against **two** yardsticks, which pull in opposite directions:
+ *
+ *  - *Seasons of income* — is the payout still a meaningful slice of a season? Argues for a
+ *    steep exponent.
+ *  - *Buying power* — `gainScale / costScale`, i.e. `(gross/BASE)^(GAIN - PRICE)`. Argues for a
+ *    shallow one: at exponent 1.0 a late reward buys **twice** what an early one did, which is
+ *    the original complaint arriving from the reward side instead of the cost side.
+ *
+ * 0.75 against the price curve's 0.6 splits them: a reward keeps 63% of its season-weight
+ * instead of 37%, and buying power drifts only 32% across a long run. The cap earns its keep
+ * here too — 6 binds at 1,308 gross, which a run reaches, where on the price curve it would
+ * need 2,377 and never bind at all.
+ *
+ * **One-time only.** A per-season grant is never scaled: it is permanent, it stacks, and it
+ * multiplies against a realm that is itself growing. See `scaledGain`.
+ */
+export const GAIN_SCALE_EXPONENT = 0.75;
+export const GAIN_SCALE_MAX = 6;
+
+
 // ── The stores: grain rots, goods spoil, the markets sell ───────────────────
 /**
  * Seasons of the realm's own use a store may hold before the excess wastes, and the share of that
@@ -1335,6 +1363,11 @@ export const PASSING_PLAN: Readonly<Record<string, number>> = {
 export const PASSING_REPORT_MEN = 12;
 
 export const RELIEF_GOLD_REWARD = 40;
+
+/** What a pillaged province loses, before the realm's scale and the stores on hand. */
+export const PILLAGE_GOLD = 25;
+export const PILLAGE_FOOD = 35;
+
 /**
  * Attacker's edge when retaking ground the realm lost, and the waves it decays over.
  *
@@ -2714,6 +2747,30 @@ export const AUTO_CLAIM_INTERVAL_TICKS = 12;
  * `AUTO_CLAIM_INTERVAL_TICKS` to begin with, so this is spent on top of that gap, not inside it.
  */
 export const CLAIM_DECLINE_TICKS = 10;
+
+/**
+ * What a province's nobles remember about being offered money — see `AscentState.claimAttempts`.
+ *
+ * Reported as *"claiming with money is too easy"*, and it was: the price never moved, the odds
+ * never moved, and the 25% floor on the roll meant a large enough purse took anything in roughly
+ * four attempts. These four numbers turn a repeated bribe from a waiting game into a decision
+ * with a closing door.
+ *
+ * Every one of them is deliberately generous on the first refusal and harsh on the third: the
+ * first is bad luck, the third is a province that has made up its mind.
+ */
+/** What each previous refusal multiplies the asking price by. Compounds: 1.6, 2.56, 4.1. */
+export const CLAIM_FAIL_ESCALATION = 1.6;
+/** Points of success chance lost per previous refusal, before the usual floor. */
+export const CLAIM_FAIL_CHANCE_PENALTY = 0.08;
+/** Refusals after which coin is not heard at all for a while. */
+export const CLAIM_FAIL_LIMIT = 3;
+/**
+ * Seasons coin is refused once the limit is reached, *multiplied by the failure count* — so each
+ * further cycle of trying and failing shuts the door for longer. Envoy, intimidation and force
+ * are never barred, so the province always has a way in and the run can never wedge.
+ */
+export const CLAIM_BAR_TICKS = 12;
 
 /**
  * Gold the autopilot will not spend on buildings — a reroll's worth, and now a host's.

@@ -255,6 +255,57 @@ check('a realm grossing five times the base pays more, sub-linearly',
   purse.rich.scale > 2 && purse.rich.scale < 3.2 && purse.rich.farm > purse.opening.farm * 2 && purse.rich.bribe > purse.opening.bribe * 2 && purse.rich.muster > purse.opening.muster * 2,
   `scale ${purse.rich.scale}, farm ${purse.opening.farm}->${purse.rich.farm}, village ${purse.opening.bribe}->${purse.rich.bribe}, host ${purse.opening.muster}->${purse.rich.muster}`);
 check('the classic modes pay 1', purse.empireScale === 1, `${purse.empireScale}`);
+
+// ── 6: the scaled gain ────────────────────────────────────────────────────────────────────────
+//
+// The other half of the purse, and until now the half nothing measured. Every reward in Dragon
+// Ascent was unpinned: a search of the whole suite for an exact assertion on a payout figure
+// returned nothing, only direction checks. The gain curve could have shipped arbitrarily wrong
+// and every harness would have stayed green.
+const gain = await page.evaluate(async () => {
+  const GS = await import('/src/state/GameState.ts');
+  const P = await import('/src/systems/ascent/priceScale.ts');
+  const st = GS.createAscentGameState({ seaSides: 1, difficulty: 'normal' });
+  const openingReward = P.scaledGain(st, { gold: 260 }).gold;
+  const openingFine = P.scaledGain(st, { gold: -220 }).gold;
+  st.ascentLedger.gold.gross = 600;
+  st.ascentLedger.food.gross = 300;
+  st.resources.gold = 1800;
+  for (let i = 0; i < 40; i += 1) P.tickPriceScale(st);
+  const rich = {
+    reward: P.scaledGain(st, { gold: 260 }).gold,
+    fine: P.scaledGain(st, { gold: -220 }).gold,
+    gainScale: P.gainScale(st, 'gold'),
+    priceScale: P.realmPriceScale(st),
+    // An exchange must keep the rate its author wrote.
+    barter: P.scaledGain(st, { supplies: -25, gold: 55 }),
+    // A realm poorer than the opening is never paid less than the authored figure.
+    zero: P.scaledGain(st, { gold: 0 }).gold,
+  };
+  const empire = GS.createEmpireGameState({ seaSides: 1, difficulty: 'normal' });
+  return { openingReward, openingFine, rich, empireReward: P.scaledGain(empire, { gold: 260 }).gold };
+});
+console.log(`
+=== THE SCALED GAIN ===
+  founding: reward ${gain.openingReward} fine ${gain.openingFine}`
+  + `
+  grossing 600: reward ${gain.rich.reward} fine ${gain.rich.fine} (gain ${gain.rich.gainScale.toFixed(2)} vs price ${gain.rich.priceScale.toFixed(2)})`);
+check('the founding is paid exactly what the author wrote', gain.openingReward === 260 && gain.openingFine === -220,
+  `${gain.openingReward} / ${gain.openingFine}`);
+check('a richer realm is paid more for the same deed', gain.rich.reward > gain.openingReward * 1.5,
+  `${gain.openingReward} -> ${gain.rich.reward}`);
+// The penalty must grow too. Flooring on the signed value returns max(-220, -660) = -220, which
+// leaves every story blow flat forever and makes being punished free late in a run.
+check('and fined more for the same failure', gain.rich.fine < gain.openingFine * 1.5,
+  `${gain.openingFine} -> ${gain.rich.fine}`);
+// Rewards must not outrun prices, or "late resources are meaningless" returns from the other side.
+check('rewards grow slower than nothing but faster than prices, modestly',
+  gain.rich.gainScale > gain.rich.priceScale && gain.rich.gainScale / gain.rich.priceScale < 1.5,
+  `gain ${gain.rich.gainScale.toFixed(2)} vs price ${gain.rich.priceScale.toFixed(2)}`);
+check('an exchange keeps the rate its author wrote',
+  gain.rich.barter.supplies === -25 && gain.rich.barter.gold === 55, JSON.stringify(gain.rich.barter));
+check('the classic modes are paid exactly the authored figure', gain.empireReward === 260, `${gain.empireReward}`);
+
 check('no console errors', errors.length === 0, errors.slice(0, 3).join(' | '));
 
 await browser.close();

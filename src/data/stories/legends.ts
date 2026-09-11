@@ -29,7 +29,7 @@ import {
   temper,
   terrainWork,
   tiltDraft,
-  windfall,
+  bounty, windfall,
   withholdTax,
 } from '../../systems/story/effects';
 import { storyText } from '../../i18n/story';
@@ -784,7 +784,7 @@ export const theSickness: StoryTemplate = {
           apply: (ctx) => {
             ctx.remember('ignored', 1);
             // R3. Every plague ends, and nothing was spent on this one.
-            windfall(ctx, { gold: 120, supplies: 60 });
+            bounty(ctx, { gold: 120, supplies: 60 });
             ctx.heat(4);
           },
         },
@@ -954,7 +954,7 @@ export const mountainAndWater: StoryTemplate = {
       in: ['duoc-mua'],
       weight: 8,
       terminal: true,
-      effect: (ctx) => { windfall(ctx, { food: 120 }); },
+      effect: (ctx) => { bounty(ctx, { food: 120 }); },
     },
     {
       id: 'the-water-comes-up-every-year',
@@ -1010,6 +1010,9 @@ export const mountainAndWater: StoryTemplate = {
       tone: 'reward',
       quiet: 14,
       when: (ctx) => ctx.recall('dyke') === 1,
+      // `windfall`, not `bounty`, and deliberately: this fragment is `repeatable` with no
+      // `maxTimes`, so it pays three times a run. A scaled grant on a repeating fragment is a
+      // faucet, which is the one thing the one-time rule exists to prevent.
       effect: (ctx) => { windfall(ctx, { food: 30 }); },
     },
     {
@@ -1103,7 +1106,7 @@ export const saltRoad: StoryTemplate = {
             // Bandits most of the time. An army the rest, and that is worth knowing early.
             if (Math.random() < 0.65) {
               ctx.remember('bandits', 1);
-              windfall(ctx, { supplies: 90 });
+              bounty(ctx, { supplies: 90 });
               const freed = grantStoryHero(ctx, { trait: 'Ransomed', loyalty: 82 });
               announce(ctx, storyText('salt-road.send-someone-up-the-road.bandits', { hero: freed.name }), 'reward');
             } else {

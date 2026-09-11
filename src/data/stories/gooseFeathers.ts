@@ -2,7 +2,7 @@ import { applyResourceDelta } from '../../systems/ResourceSystem';
 import { livingRivals, pick, playerLands } from '../../systems/story/StorySystem';
 import { pushToast } from '../../systems/empire/notifications';
 import { launchPunitiveHost } from '../../systems/ascent/EnemyCommandDirector';
-import { opinion } from '../../systems/story/effects';
+import { bounty, opinion } from '../../systems/story/effects';
 import { storyText } from '../../i18n/story';
 import { generateHero } from '../heroFactory';
 import type { StoryTemplate } from '../../systems/story/types';
@@ -283,7 +283,7 @@ export const gooseFeathers: StoryTemplate = {
         }
         const rival = ctx.rival();
         if (rival) launchPunitiveHost(ctx.state, rival.id);
-        applyResourceDelta(ctx.state, { gold: -60 });
+        bounty(ctx, { gold: -60 });
       },
     },
   ],

@@ -146,6 +146,17 @@ export interface StoryCtx {
   speaking?: string;
 
   /**
+   * What the answer just cost, as actually charged.
+   *
+   * Story prices wear the realm's scaled purse, so the figure the treasury moved by is not the
+   * figure written in the option's `cost`. Any story that pays a sum back — an amount lodged with
+   * a temple, a loan settled, a deposit returned — must read it from here, or it returns the
+   * authored literal against a scaled deposit and quietly makes the player poorer for having
+   * trusted it. Set immediately before `apply` runs; undefined for an option that costs nothing.
+   */
+  paid?: Partial<ResourceBag>;
+
+  /**
    * Books what this answer actually did, so the player can be told.
    *
    * The story card has only ever printed a *price* (`option.cost`), never a result — which is why

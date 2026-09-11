@@ -1,10 +1,18 @@
 import { NEUTRAL_OWNER_ID, PLAYER_KINGDOM_ID } from '../game/constants';
 import { getAcquisitionOrder, findLand, isLandVisibleToPlayer, refreshPlayerVisibility } from './LandSystem';
-import { applyResourceDelta, canSpend, refreshAllLandOutputs } from './ResourceSystem';
+import { applyResourceDelta, canSpend, landPopulationCapacity, refreshAllLandOutputs } from './ResourceSystem';
 import { getCourtBonuses } from './CourtSystem';
 import { extraClaimSlots } from './ascent/DoctrineSystem';
-import { realmIncomeScale, realmPriceScale, storePriceScale } from './ascent/priceScale';
-import { ASCENT_SETTLE_CAPACITY_DIVISOR, EARLY_WAVE_GRACE, OPENING_CLAIM_PARTIES } from '../game/ascentConfig';
+import { realmGrossGold, realmIncomeScale, realmPriceScale, storePriceScale } from './ascent/priceScale';
+import {
+  ASCENT_SETTLE_CAPACITY_DIVISOR,
+  CLAIM_BAR_TICKS,
+  CLAIM_FAIL_CHANCE_PENALTY,
+  CLAIM_FAIL_ESCALATION,
+  CLAIM_FAIL_LIMIT,
+  EARLY_WAVE_GRACE,
+  OPENING_CLAIM_PARTIES,
+} from '../game/ascentConfig';
 import type { AcquisitionMethod, AcquisitionOrder, Army, GameState, Hero, Land, ResourceBag } from '../state/types';
 import { formatResourceList, heroName, t } from '../i18n';
 
@@ -14,6 +22,23 @@ const BASE_TRUST = 40;
 const INTIMIDATION_REQUIRED = 100;
 const RESIST_FACTOR = 4;
 const MIN_INTIMIDATION_RATIO = 0.5;
+/**
+ * What a province's own worth adds to its asking price.
+ *
+ * Weighted so the *yield* terms dominate a developed town and `CLAIM_BASE_PRICE` still carries a
+ * bare one — the opening must keep paying roughly what it paid before, which
+ * `verify-setup-phase` pins. Population is deliberately the gentlest of the three: people make a
+ * place worth having, but pricing them steeply would make the largest provinces unbuyable rather
+ * than expensive, and force is supposed to be the alternative, not the only answer.
+ */
+const CLAIM_BASE_PRICE = 14;
+/** What the classic economies have always paid before the per-province terms. Do not touch. */
+const CLAIM_BASE_PRICE_CLASSIC = 20;
+const CLAIM_WORTH_PER_GOLD = 1.6;
+const CLAIM_WORTH_PER_YIELD = 0.9;
+const CLAIM_WORTH_PER_HEAD = 0.05;
+/** Seasons of the realm's gross income a province can never cost less than. */
+const CLAIM_INCOME_SEASONS = 0.5;
 const BRIBE_SUCCESS_BASE = 85;
 const BRIBE_NOBLE_PENALTY = 0.9;
 const BRIBE_MIN_CHANCE = 0.25;
@@ -22,6 +47,8 @@ const DIPLOMACY_TRUST_THRESHOLD_BASE = 65;
 const DIPLOMACY_SUPPLIES_BASE = 10;
 const DIPLOMACY_ASSIGNMENT_PREFIX = 'diplomacy-';
 const SETTLE_HUMANS_BASE = 80;
+/** Share of what the ground could eventually hold that must walk there to begin with. */
+const SETTLE_CAPACITY_SHARE = 0.22;
 const SETTLE_TICKS_BASE = 4;
 
 const BUILDING_ACQUISITION_BONUS: Partial<Record<string, Partial<ResourceBag>>> = {
@@ -56,9 +83,32 @@ export function getClaimSlots(state: GameState): number {
   return 1 + extraClaimSlots(state) + getCourtBonuses(state).claimSlotBonus + founding;
 }
 
-/** Claims the player currently has in flight. Bot-owned orders are not the player's problem. */
+/**
+ * The methods that spend one of the realm's claim parties.
+ *
+ * Keyed on `AcquisitionMethod` — the shape an *order* carries — and deliberately not shared with
+ * the conquest sheet's `CLAIM_METHODS`, which is keyed on `AscentConquestMethod` and spells the
+ * military verb `siege` where an order says `conquest`. The two sets overlap without being the
+ * same, and one list serving both would silently mis-file whichever name it did not know.
+ */
+const SLOTTED_METHODS: ReadonlySet<AcquisitionMethod> = new Set<AcquisitionMethod>([
+  'bribe', 'diplomacy', 'intimidation', 'settle',
+]);
+
+/**
+ * Claims the player currently has in flight. Bot-owned orders are not the player's problem.
+ *
+ * **An occupation is not a claim.** `occupyEmptyLand` files an order like everything else but
+ * checks no slot before it does — walking a host onto empty ground is bookkeeping, not an envoy.
+ * Counting it here meant that bookkeeping silently ate the realm's only party: the player was
+ * told "all committed" while nothing was committed to anyone, and the Build lane shut its claim
+ * browser on the strength of it. The cap is on envoys and coin; the army is the player's own
+ * business, and neither half of that rule may be enforced without the other.
+ */
 export function getPlayerClaimCount(state: GameState): number {
-  return state.acquisitionOrders.filter((order) => order.buyerId === PLAYER_KINGDOM_ID).length;
+  return state.acquisitionOrders.filter(
+    (order) => order.buyerId === PLAYER_KINGDOM_ID && SLOTTED_METHODS.has(order.method),
+  ).length;
 }
 
 /**
@@ -143,6 +193,47 @@ export function getLandTrust(land: Land, kingdomId: string): number {
   return land.trust[kingdomId] ?? BASE_TRUST;
 }
 
+/**
+ * What this province remembers about being offered money. Zero outside Dragon Ascent, where the
+ * ledger does not exist and the classic modes must keep behaving exactly as they did.
+ */
+export function getClaimFailures(state: GameState, landId: string): number {
+  if (state.gameMode !== 'ascent') return 0;
+  return state.ascent?.claimAttempts?.[landId]?.failures ?? 0;
+}
+
+/** Seasons until this province will hear coin again, or 0 if it will hear it now. */
+export function getClaimBarSeasons(state: GameState, landId: string): number {
+  if (state.gameMode !== 'ascent') return 0;
+  const until = state.ascent?.claimAttempts?.[landId]?.barredUntil ?? 0;
+  return Math.max(0, until - state.turn);
+}
+
+/** True while the nobles here refuse to discuss money at all. */
+export function isClaimBarred(state: GameState, landId: string): boolean {
+  return getClaimBarSeasons(state, landId) > 0;
+}
+
+/**
+ * Records a refused bribe against the province, and shuts the door once it has said no enough.
+ *
+ * The bar lengthens with the failure count rather than resetting it: a province that has turned
+ * the crown down three times, waited out the bar and been refused again is not back where it
+ * started. Only coin is barred — `bribeOption` is the sole reader — so envoy, intimidation and
+ * force stay open and no province can ever be locked away.
+ */
+function noteClaimRefusal(state: GameState, landId: string): void {
+  const ascent = state.ascent;
+  if (state.gameMode !== 'ascent' || !ascent) return;
+  ascent.claimAttempts ??= {};
+  const record = ascent.claimAttempts[landId] ?? { failures: 0 };
+  record.failures += 1;
+  if (record.failures >= CLAIM_FAIL_LIMIT) {
+    record.barredUntil = state.turn + CLAIM_BAR_TICKS * record.failures;
+  }
+  ascent.claimAttempts[landId] = record;
+}
+
 export function getNoblePower(land: Land): number {
   return land.localSoldiers
     + land.buildings.length * 4
@@ -150,17 +241,67 @@ export function getNoblePower(land: Land): number {
     + Math.floor(land.population / 20);
 }
 
-export function getBribeSuccessChance(land: Land): number {
-  const raw = (BRIBE_SUCCESS_BASE - getNoblePower(land) * BRIBE_NOBLE_PENALTY) / 100;
+/**
+ * The odds coin carries here, *after* what the province already thinks of the offer.
+ *
+ * Takes `state` because a refusal is remembered now: each previous one costs
+ * `CLAIM_FAIL_CHANCE_PENALTY` before the usual floor. Without it the 25% floor made repetition a
+ * waiting game — a purse large enough took any province in about four tries, whatever it did.
+ */
+export function getBribeSuccessChance(state: GameState, land: Land): number {
+  const refused = getClaimFailures(state, land.id);
+  const raw = (BRIBE_SUCCESS_BASE - getNoblePower(land) * BRIBE_NOBLE_PENALTY) / 100
+    - refused * CLAIM_FAIL_CHANCE_PENALTY;
   return Math.min(BRIBE_MAX_CHANCE, Math.max(BRIBE_MIN_CHANCE, raw));
 }
 
+/**
+ * What the nobles of a village ask to hand it over.
+ *
+ * Three things set it, and only the third was here before:
+ *
+ *  - **What the province is worth.** Its own yield and its people. Reported as *"it should be
+ *    based on the economy of the land and the number of people"* — and the old formula read
+ *    neither. It priced walls, slots and the watch, so a rich market town and a bare hamlet with
+ *    the same garrison cost the same, and the most valuable ground on the board was routinely the
+ *    cheapest thing on the sheet.
+ *  - **What it has already refused.** `CLAIM_FAIL_ESCALATION` compounds per refusal, so a second
+ *    attempt is half again as dear and a fourth is four times the first. The gold spent on a
+ *    failure also *lowers* the treasury's wealth factor, which used to make the next attempt
+ *    fractionally cheaper — the escalation is what turns that the right way round.
+ *  - **What the crown can afford.** The scaled purse (Dragon Ascent; exactly 1 elsewhere).
+ */
 export function getGoldBribeCost(state: GameState, land: Land): number {
   const bonuses = getCourtBonuses(state);
-  // The scaled purse (Dragon Ascent; 1 elsewhere): the nobles of a village ask more of a rich
-  // crown, so buying ground stays a decision after the treasury has outgrown a flat price.
-  return Math.ceil((20 + land.defense * 0.5 + land.buildingCapacity * 2 + land.localSoldiers * 1.5)
-    * bonuses.acquisitionCostMult * realmPriceScale(state));
+  // Dragon Ascent only, like every other term added this round: the classic economies are held
+  // byte-identical (`verify-modes-regression`), so they keep the flat 20 and the old shape exactly.
+  const ascent = state.gameMode === 'ascent';
+  const worth = ascent
+    ? land.outputs.gold * CLAIM_WORTH_PER_GOLD
+      + (land.outputs.food + land.outputs.supplies) * CLAIM_WORTH_PER_YIELD
+      + land.population * CLAIM_WORTH_PER_HEAD
+    : 0;
+  const base = (ascent ? CLAIM_BASE_PRICE : CLAIM_BASE_PRICE_CLASSIC) + worth
+    + land.defense * 0.5 + land.buildingCapacity * 2 + land.localSoldiers * 1.5;
+  const refused = Math.pow(CLAIM_FAIL_ESCALATION, getClaimFailures(state, land.id));
+  const priced = base * bonuses.acquisitionCostMult * realmPriceScale(state) * refused;
+  if (!ascent) return Math.ceil(priced);
+  /**
+   * **Never below a season of the realm's own income.**
+   *
+   * The per-province terms above fixed *which* province costs what; they could not fix the fact
+   * that a fixed base wears a sub-linear price curve (`^0.6`) while income grows faster than it.
+   * Measured on a played run, a province cost 0.40 seasons of income at season 40 and **0.14** at
+   * season 120 — the most important purchase in the game, the one compounding asset on the board,
+   * costing a fifth of what a single season brought in. Coin on the claim card was decoration.
+   *
+   * Same shape the war card has used since it was written (`fortifyCost`): a floor in seasons of
+   * income, so a crown pays a crown's price for a province. It wears the court's discount and the
+   * province's own refusals like the quoted price does, and the founding never feels it — the
+   * opening grosses about sixty a season against a village asking near seventy.
+   */
+  const floor = realmGrossGold(state) * CLAIM_INCOME_SEASONS * bonuses.acquisitionCostMult * refused;
+  return Math.ceil(Math.max(priced, floor));
 }
 
 export function getDiplomacyThreshold(land: Land): number {
@@ -175,8 +316,20 @@ export function getDiplomacySuppliesCost(state: GameState, land: Land): number {
     * realmIncomeScale(state) * storePriceScale(state, 'supplies'));
 }
 
-export function getSettleHumansCost(): number {
-  return SETTLE_HUMANS_BASE;
+/**
+ * Settlers enough to make something of the ground.
+ *
+ * A flat eighty people was the whole price of a province from the founding to the fall — real at
+ * the opening, and nothing at all against a realm of forty thousand. It now scales with **the
+ * ground being settled**, not with the realm's wealth: a wide, fertile site asks for more hands
+ * than a thin one, which is both true and the one way of pricing people that does not break the
+ * rule that a man is a man. `landPopulationCapacity` is what the province can eventually hold,
+ * so the ask is a share of the place it is meant to become.
+ */
+export function getSettleHumansCost(state: GameState, land?: Land): number {
+  if (!land || state?.gameMode !== 'ascent') return SETTLE_HUMANS_BASE;
+  const capacity = landPopulationCapacity(state, land);
+  return Math.max(SETTLE_HUMANS_BASE, Math.round(capacity * SETTLE_CAPACITY_SHARE));
 }
 
 export function getSettleTicks(state: GameState, land: Land): number {
@@ -294,9 +447,12 @@ export function bribeLand(state: GameState, landId: string): boolean {
 
   applyResourceDelta(state, { gold: -cost });
 
-  const successChance = getBribeSuccessChance(land);
+  const successChance = getBribeSuccessChance(state, land);
   if (Math.random() > successChance) {
     land.trust[PLAYER_KINGDOM_ID] = Math.max(0, getLandTrust(land, PLAYER_KINGDOM_ID) - 25);
+    // The province remembers. The next offer here is dearer, likelier to fail, and after enough
+    // of them will not be heard at all — see `noteClaimRefusal`.
+    noteClaimRefusal(state, landId);
     state.message = t('msg.bribeRefused', { land: land.name });
     return false;
   }
@@ -443,7 +599,7 @@ export function settleLand(state: GameState, landId: string): boolean {
     return false;
   }
 
-  const humansCost = getSettleHumansCost();
+  const humansCost = getSettleHumansCost(state, land);
   if (!canSpend(state, { humans: humansCost })) {
     state.message = t('msg.needHumansSettlers', { cost: humansCost });
     return false;

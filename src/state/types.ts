@@ -2863,6 +2863,20 @@ export interface AscentState {
    */
   routedGround?: Record<string, number>;
   /**
+   * What each province remembers about being bought.
+   *
+   * A refused bribe used to cost the gold and nothing else: the price did not move, the odds did
+   * not move, and with a floor of 25% on the roll a determined purse took any province in about
+   * four attempts. Worse, the gold *spent* lowered the treasury's own wealth factor, so every
+   * failure made the next attempt fractionally **cheaper** — the one memory the system had ran
+   * backwards.
+   *
+   * `failures` never resets, so a province turned down repeatedly asks more each cycle and stays
+   * shut for longer each time. `barredUntil` is the season coin will be heard again; envoy,
+   * intimidation and force are untouched by it, so a province can never be locked out entirely.
+   */
+  claimAttempts?: Record<string, { failures: number; barredUntil?: number }>;
+  /**
    * The standing answer to *who holds the dials* — remembered across fights.
    *
    * **Default: the generals.** A run is a realm, not a duel: waves land on three provinces at

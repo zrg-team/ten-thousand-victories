@@ -1,6 +1,7 @@
 import { BOSS_EVERY_N_WAVES, MUSTER_TICKS, WAVE_INTERVAL_TICKS } from '../../game/ascentConfig';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { applyResourceDelta, canSpend } from '../ResourceSystem';
+import { scaledCost } from '../ascent/priceScale';
 import { pushToast } from '../empire/notifications';
 import { enqueueAscentPrompt } from '../ascent/AscentState';
 import { storyTemplate, storyTemplates } from '../../data/stories';
@@ -23,7 +24,7 @@ import type {
   StoryVolume,
   StoryWatch,
 } from '../../state/types';
-import type { StoryCtx, StoryFragment, StoryOutcome, StoryTemplate, StoryWorldDelta } from './types';
+import type { StoryCtx, StoryFragment, StoryOption, StoryOutcome, StoryTemplate, StoryWorldDelta } from './types';
 
 /**
  * The Chronicle.
@@ -881,8 +882,8 @@ export function offerStoryBeat(state: GameState): boolean {
     advisorKey: advisor ? `${story.templateId}.${fragment.id}.advice` : undefined,
     options: (fragment.options ?? []).map((option) => ({
       id: option.id,
-      cost: option.cost,
-      affordable: (!option.cost || canSpend(state, option.cost))
+      cost: storyOptionCost(state, option),
+      affordable: (!option.cost || canSpend(state, storyOptionCost(state, option) ?? {}))
         && (option.enabled ? option.enabled(ctx) : true),
       blockedKey: option.blockedKey,
     })),
@@ -932,14 +933,17 @@ export function resolveStoryBeat(state: GameState, storyId: string, fragmentId: 
     publishOutcome(state, story, fragment, ctx);
     return true;
   }
-  if (option.cost && !canSpend(state, option.cost)) return false;
+  const paid = storyOptionCost(state, option);
+  if (paid && !canSpend(state, paid)) return false;
   if (option.enabled && !option.enabled(ctx)) return false;
 
   if (option.cost) {
     applyResourceDelta(state, Object.fromEntries(
-      Object.entries(option.cost).map(([key, value]) => [key, -(value ?? 0)]),
+      Object.entries(paid ?? {}).map(([key, value]) => [key, -(value ?? 0)]),
     ));
-    noteCost(ctx, option.cost);
+    // The Chronicle records what was taken, not what was written: `noteCost` quoting the authored
+    // figure while the treasury moved by the scaled one made the outcome sheet lie about the price.
+    noteCost(ctx, paid ?? {});
   }
   // Echo: remember *when* this was answered, so a later fragment can quote the season back.
   ctx.remember('echoTurn', state.turn);
@@ -947,6 +951,9 @@ export function resolveStoryBeat(state: GameState, storyId: string, fragmentId: 
   // How historical the run has been, as ordinary memory numbers, so a fragment can gate on it
   // with the same `when` machinery as everything else rather than a second engine.
   if (option.historicity) ctx.bump(option.historicity === 'annal' ? 'su' : 'lech');
+  // What the treasury actually moved by. A story that pays a sum back must read this rather
+  // than the authored figure: the deposit was scaled, and the literal no longer matches it.
+  ctx.paid = paid;
   option.apply(ctx);
   // The trunk moves *after* the effect, so an `apply` that reads the current node still sees the
   // one the player was answering from.
@@ -1010,6 +1017,21 @@ function noteTurn(ctx: StoryCtx, story: ActiveStory, from: string, to: string): 
  * A card that says only what it costs is the entire complaint this exists to answer, so the two
  * halves belong in one record: what you paid, and what it bought.
  */
+/**
+ * What an option actually asks for, here and now.
+ *
+ * Story prices were authored flat and charged flat, so a card asking 300 gold was a real decision
+ * at the founding and loose change to a realm grossing 780 a season. They wear the same scaled
+ * purse every other routine price already wears — and exactly 1 in the classic modes.
+ *
+ * **Every reader must go through this.** The sheet quotes a price, the drain re-checks whether it
+ * is still affordable, and the resolver charges it; three readings of `option.cost` where one is
+ * scaled and two are not is a card that quotes one number and takes another.
+ */
+function storyOptionCost(state: GameState, option: StoryOption): Partial<ResourceBag> | undefined {
+  return option.cost ? scaledCost(state, option.cost) : undefined;
+}
+
 function noteCost(ctx: StoryCtx, cost: Partial<ResourceBag>): void {
   for (const [key, value] of Object.entries(cost)) {
     if (value) ctx.note(key, -value);
@@ -1077,7 +1099,8 @@ export function openingView(state: GameState, opening: StoryOpening): { cost?: P
   const fragment = template?.fragments.find((candidate) => candidate.id === opening.fragmentId);
   const option = fragment?.options?.[0];
   if (!option) return { affordable: true };
-  return { cost: option.cost, affordable: !option.cost || canSpend(state, option.cost) };
+  const cost = storyOptionCost(state, option);
+  return { cost, affordable: !cost || canSpend(state, cost) };
 }
 
 /** Takes an opening. The story reads it and moves on; nothing confirms anything. */
@@ -1091,19 +1114,23 @@ export function takeOpening(state: GameState, storyId: string, fragmentId: strin
   ctx.speaking = fragment.id;
   const option = fragment.options?.[0];
   if (option) {
-    if (option.cost && !canSpend(state, option.cost)) return false;
+    const paid = storyOptionCost(state, option);
+    if (paid && !canSpend(state, paid)) return false;
     if (option.enabled && !option.enabled(ctx)) return false;
     if (option.cost) {
       applyResourceDelta(state, Object.fromEntries(
-        Object.entries(option.cost).map(([key, value]) => [key, -(value ?? 0)]),
+        Object.entries(paid ?? {}).map(([key, value]) => [key, -(value ?? 0)]),
       ));
-      noteCost(ctx, option.cost);
+      noteCost(ctx, paid ?? {});
     }
     ctx.remember('echoTurn', state.turn);
     // The card writes this and the door never did, so a fragment could not tell whether a
     // standing offer had been taken or merely gone quiet.
     ctx.remember(`chose_${option.id}`, 1);
     if (option.historicity) ctx.bump(option.historicity === 'annal' ? 'su' : 'lech');
+    // What the treasury actually moved by. A story that pays a sum back must read this rather
+    // than the authored figure: the deposit was scaled, and the literal no longer matches it.
+    ctx.paid = paid;
     option.apply(ctx);
     // A repeatable offering — Thánh Gióng's granary, say — names its own node in `to`, so taking
     // it leaves the story exactly where it was and the door can be opened again.
@@ -1182,8 +1209,8 @@ export function heldBeatOptions(
   const ctx = makeCtx(state, story, worldDelta(state, state.storyWatch ?? snapshot(state)));
   return (fragment.options ?? []).map((option) => ({
     id: option.id,
-    cost: option.cost,
-    affordable: (!option.cost || canSpend(state, option.cost))
+    cost: storyOptionCost(state, option),
+    affordable: (!option.cost || canSpend(state, storyOptionCost(state, option) ?? {}))
       && (option.enabled ? option.enabled(ctx) : true),
     blockedKey: option.blockedKey,
   }));

@@ -15,7 +15,7 @@ import {
   sabotageIncoming,
   stipend,
   temper,
-  windfall,
+  bounty, windfall,
 } from '../../systems/story/effects';
 import { generateHero } from '../heroFactory';
 import type { Army } from '../../state/types';
@@ -332,7 +332,7 @@ export const theBoyWithTheOrange: StoryTemplate = {
         raisePatronHost(ctx, { soldiers: 1000, name: 'Cờ Riêng', at: home, rations: 260 });
         // A thousand of his household are a thousand off your muster roll, and the roll is what
         // binds a levy. The banner costs you before it is worth anything.
-        applyResourceDelta(ctx.state, { humans: -300 });
+        bounty(ctx, { humans: -300 });
         ctx.note('humans', -300);
         ctx.remember('banner', 1);
         // A name from an earlier run, planted here so the whisper at Hàm Tử can use it —
@@ -392,7 +392,7 @@ export const theBoyWithTheOrange: StoryTemplate = {
           apply: (ctx) => {
             // A private army with no column in the Ministry's book. The stores you did not have
             // to issue are felt this season; the cost is that nobody in the hall will own it.
-            windfall(ctx, { supplies: 40 });
+            bounty(ctx, { supplies: 40 });
             ctx.state.court.stability = Math.max(0, ctx.state.court.stability - 4);
             ctx.note('stability', -4);
             ctx.remember('tu-lo', 1);

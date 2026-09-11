@@ -1,5 +1,6 @@
 import { writtenCodeSeverity } from './decree/rules';
 import { applyResourceDelta, canSpend, progressBuildOrders, refreshAllLandOutputs } from './ResourceSystem';
+import { scaledGain } from './ascent/priceScale';
 import { createHeroDraft } from './HeroSystem';
 import { getBuildingLevelCap } from './empire/MandateSystem';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
@@ -84,7 +85,7 @@ export function choosePoliticsCard(state: GameState, choiceId: string): boolean 
     return false;
   }
 
-  const cost = getChoiceResourceCost(choice.effects);
+  const cost = getChoiceResourceCost(state, choice.effects);
   if (Object.keys(cost).length > 0 && !canSpend(state, cost)) {
     state.message = t('msg.needChoiceCost', { cost: formatResourceList(cost) });
     return false;
@@ -111,7 +112,14 @@ export function choosePoliticsCard(state: GameState, choiceId: string): boolean 
  */
 export function applyCourtEffect(state: GameState, label: string, effect: CourtEffect): void {
   if (effect.resourceDelta) {
-    applyResourceDelta(state, effect.resourceDelta);
+    // A `resourceDelta` is the one-shot half of a card — paid or taken once, on the tap — so it
+    // wears the realm's scale like any other one-time sum. Its sibling `resourceRateModifier` is
+    // per-season and stays exactly as authored: a recurring grant is permanent, stacks, and
+    // multiplies against a realm that is itself growing, which is how a card becomes an engine.
+    //
+    // `scaledGain` passes a mixed-sign bag straight through, so a card that trades one store for
+    // another keeps the exchange rate its author wrote.
+    applyResourceDelta(state, scaledGain(state, effect.resourceDelta));
   }
 
   const modifier = createModifier(label, effect);
@@ -186,9 +194,10 @@ export function applyCourtEffect(state: GameState, label: string, effect: CourtE
   refreshAllLandOutputs(state);
 }
 
-function getChoiceResourceCost(effect: CourtEffect): Partial<ResourceBag> {
+/** What a choice asks for, as it will actually be charged — see `applyCourtEffect`. */
+function getChoiceResourceCost(state: GameState, effect: CourtEffect): Partial<ResourceBag> {
   const cost: Partial<ResourceBag> = {};
-  for (const [key, value] of Object.entries(effect.resourceDelta ?? {})) {
+  for (const [key, value] of Object.entries(scaledGain(state, effect.resourceDelta ?? {}))) {
     if ((value ?? 0) < 0) {
       cost[key as keyof ResourceBag] = Math.abs(value ?? 0);
     }

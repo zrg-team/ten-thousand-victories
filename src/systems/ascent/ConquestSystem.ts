@@ -11,6 +11,7 @@ import {
   bribeLand,
   claimBlockedReason,
   getBribeSuccessChance,
+  getClaimBarSeasons,
   getDiplomacySuppliesCost,
   getDiplomacyThreshold,
   getGoldBribeCost,
@@ -56,6 +57,8 @@ export function ensureAscentLaneState(state: GameState): void {
   ascent.laneState ??= { conquer: 'ready', court: 'ready', world: 'ready', lastDecisionTurn: {} };
   ascent.laneState.lastDecisionTurn ??= {};
   ascent.conquestPlans ??= [];
+  // Old saves predate the claim ledger; an absent record simply means nobody has been refused yet.
+  ascent.claimAttempts ??= {};
   ascent.decisionPressure ??= 0;
   ascent.idleTicks ??= 0;
   ascent.promptCooldowns ??= {};
@@ -259,23 +262,37 @@ export function buildMethodOptions(state: GameState, land: Land): ConquestMethod
   return options;
 }
 
-/** The methods that occupy one of the realm's claim slots. */
-const CLAIM_METHODS: ReadonlySet<string> = new Set(['bribe', 'diplomacy', 'intimidation', 'settle']);
+/** How many past conquest attempts are worth keeping. Only the last few are ever read. */
+const CONQUEST_PLAN_HISTORY = 40;
+
+/**
+ * The methods that occupy one of the realm's claim slots.
+ *
+ * Exported so the map's province card can grey the same rows the sheet greys. Two readings of
+ * "is this a claim?" in two files is how the cap came to block the Build lane and not the map.
+ */
+export const CLAIM_METHODS: ReadonlySet<string> = new Set(['bribe', 'diplomacy', 'intimidation', 'settle']);
 
 function bribeOption(state: GameState, land: Land): ConquestMethodOption {
   const cost = getGoldBribeCost(state, land);
-  const chance = Math.round(getBribeSuccessChance(land) * 100);
+  const chance = Math.round(getBribeSuccessChance(state, land) * 100);
+  const barred = getClaimBarSeasons(state, land.id);
   return {
     method: 'bribe',
     cost: { gold: cost },
     ticks: 1,
     loyalty: 68,
     chance,
-    // The gold is spent before the roll and is lost on refusal, so an unaffordable bribe is a
-    // hard block rather than a gamble the player can talk themselves into.
-    blockedReason: state.resources.gold < cost
-      ? t('ascent.conquer.needGold', { cost, have: Math.floor(state.resources.gold) })
-      : undefined,
+    // Barred first: a province that has refused the crown enough times will not discuss money
+    // at all, and saying "you cannot afford it" about an offer nobody will hear is the wrong
+    // sentence. Only coin is shut — the envoy, the threat and the host are all still on the sheet.
+    blockedReason: barred > 0
+      ? t('ascent.conquer.coinRefused', { n: barred })
+      // The gold is spent before the roll and is lost on refusal, so an unaffordable bribe is a
+      // hard block rather than a gamble the player can talk themselves into.
+      : state.resources.gold < cost
+        ? t('ascent.conquer.needGold', { cost, have: Math.floor(state.resources.gold) })
+        : undefined,
   };
 }
 
@@ -322,7 +339,7 @@ function intimidationOption(state: GameState, land: Land): ConquestMethodOption 
 }
 
 function settleOption(state: GameState, land: Land): ConquestMethodOption {
-  const cost = getSettleHumansCost();
+  const cost = getSettleHumansCost(state, land);
   return {
     method: 'settle',
     cost: { humans: cost },
@@ -505,6 +522,13 @@ export function executeConquestMethod(
     status: ok ? 'executing' : 'blocked',
     reason,
   });
+  // One entry per attempt, and nothing ever read more than the last handful — `main.ts` slices
+  // the final five for the text renderer and that is the only consumer. Left unbounded it rode
+  // into `localStorage` on every save (`normalizeSnapshotState` structuredClones the whole state),
+  // so a long run's refused taps quietly ate the save quota. Keep a readable tail, drop the rest.
+  if (ascent.conquestPlans.length > CONQUEST_PLAN_HISTORY) {
+    ascent.conquestPlans = ascent.conquestPlans.slice(-CONQUEST_PLAN_HISTORY);
+  }
   ascent.laneState.lastDecisionTurn.conquer = state.turn;
 
   if (ok) {
