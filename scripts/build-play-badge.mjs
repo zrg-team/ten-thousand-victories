@@ -22,7 +22,7 @@
  * Rendered in Chromium at 3x and displayed at its CSS width, because a README is read on a retina
  * laptop as often as not and a 1x button is the one blurred thing on the page.
  *
- * Usage: node scripts/build-play-badge.mjs [--out docs/readme]
+ * Usage: node scripts/build-play-badge.mjs [--out public/share]
  */
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
@@ -32,7 +32,7 @@ const arg = (flag, fallback) => {
   return at >= 0 ? process.argv[at + 1] : fallback;
 };
 
-const OUT = arg('--out', 'docs/readme');
+const OUT = arg('--out', 'public/share');
 const SCALE = 3;
 
 // From src/ui/ink/palette.ts, which is where the banner reads them too. Derive, do not invent.
