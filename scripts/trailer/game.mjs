@@ -80,8 +80,17 @@ export async function newPage(browser, { width, height, scale, lang = 'en' }) {
   return page;
 }
 
-export async function toMenu(page, url) {
-  await page.goto(`${url}/?capture=1`, { waitUntil: 'domcontentloaded' });
+/**
+ * `layout` is not optional for the desktop film.
+ *
+ * `platform/layout.ts` resolves the sheet in four steps, and step four — a landscape window with a
+ * fine pointer — deliberately excludes `navigator.webdriver`, because a hundred harnesses open
+ * headless Chromium in landscape and must not wake up measuring a different game. A driven browser
+ * that wants the wide sheet has to ask for it by rule one, on the URL.
+ */
+export async function toMenu(page, url, layout) {
+  const ask = layout ? `&layout=${layout}` : '';
+  await page.goto(`${url}/?capture=1${ask}`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(
     () => typeof window.__startBenchGame === 'function' && window.__phaserGame?.scene.isActive('MenuScene'),
     null, { timeout: 30000 },
@@ -95,8 +104,8 @@ export async function toMenu(page, url) {
  * README's map shot photograph a nine-province realm one afternoon and a one-province realm the
  * next.
  */
-export async function boot(page, url, seed, mode = 'ascent') {
-  await toMenu(page, url);
+export async function boot(page, url, seed, mode = 'ascent', layout) {
+  await toMenu(page, url, layout);
   await page.evaluate(([s, m]) => window.__startBenchGame(s, m), [seed, mode]);
   const key = mode === 'ascent' ? 'ConquestScene' : 'MapScene';
   await page.waitForFunction((k) => window.__phaserGame.scene.isActive(k), key, { timeout: 30000 });
@@ -206,7 +215,13 @@ export async function frameOn(page, { zoom = 1.2, season, landId, yNudge = 0, sc
     scene.setMapZoom(zoom);
     const cam = scene.cameras.main;
     cam.removeBounds();
-    const designW = 390;
+    // The sheet, read off the running game rather than assumed.
+    //
+    // This was `390` — the phone column — which is right on a phone and wrong on the desktop, where
+    // the world camera is the whole 1351-unit sheet (`constants.worldCameraWidth`). Framed against
+    // 390 on a wide surface the centre lands a third of the way in, which is how the first desktop
+    // frame put the capital off the left edge.
+    const designW = cam.width / (cam.zoom / zoom);
     const designH = cam.height / (cam.zoom / zoom);
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     cam.scrollX = clamp(wx - designW / (2 * zoom), 0, Math.max(0, scene.worldWidth - designW / zoom));

@@ -40,6 +40,41 @@ node scripts/trailer/build-trailer.mjs --stage gif         # rebuild the README'
 node scripts/trailer/build-trailer.mjs --only shapes,press  # one chapter, while tuning it
 ```
 
+## Two surfaces, two films
+
+```sh
+node scripts/trailer/build-trailer.mjs                      # the phone column, 1080x1920
+node scripts/trailer/build-trailer.mjs --surface desktop    # the wide sheet,   1920x1080
+```
+
+The game lays itself out twice, so it is cut twice. `--surface desktop` captures at 1920x1080 with
+`DESKTOP_DESIGN_HEIGHT` fixed at 760, which makes the sheet 1351x760 and one design unit 1.42 px:
+one slim bar of chrome instead of two HUD rows, prompts in a centred column with the country dimmed
+behind them, and the fight on a hanging scroll with the field running the full width.
+
+**The page has to ask for the layout.** `platform/layout.ts` resolves the sheet in four steps and
+the fourth — a landscape window with a fine pointer — deliberately excludes `navigator.webdriver`,
+because a hundred harnesses open headless Chromium in landscape and must not wake up measuring a
+different game. So `toMenu` puts `?layout=desktop` on the URL; without it the wide viewport still
+lays out as a phone column.
+
+Three numbers that were the phone's and had to stop being:
+
+- **The camera is framed against the sheet, not against 390.** On the desktop the world camera is
+  the whole 1351-unit surface, so centring on 390 puts the capital off the left edge.
+- **A design unit is not `VIEW.width / 390` CSS pixels.** On the wide sheet that is out by 3.5x and
+  puts every tap and every gesture off the right of the screen. `designToCss` asks the game.
+- **The caption plate is 68 units, one line.** The desktop chrome is a single bar with the notices
+  starting directly beneath it, so a band deep enough for two lines of 48px clips the first notice.
+  The sheet is wide enough that both halves of a caption fit on one line, joined by a middot.
+
+The end card follows the same logic: the desktop front page is already a poster — a full-bleed river
+plate with the wordmark on a hanging scroll at the right — so the card lays one sheet of paper over
+the left half, code and words side by side, and leaves the scroll standing.
+
+The GIF width follows the surface too (720 for landscape against 360 for the column): the same 360
+on a 16:9 frame is a 360x203 thumbnail with an unreadable HUD and hosts four pixels tall.
+
 ## Two languages, two films
 
 ```sh
