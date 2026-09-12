@@ -1,6 +1,7 @@
 import { pick } from '../../systems/story/StorySystem';
 import {
   commitHostAbroad,
+  grantPowerCard,
   monument,
   opinion,
   plunderSupply,
@@ -305,6 +306,20 @@ export const tienPhat: StoryTemplate = {
         shiftWaveClock(ctx, 6);
         standing(ctx, 12);
         monument(ctx, { defense: 10, stability: 10 }, ctx.land());
+        /**
+         * **Thơ Thần — the card this ending was always meant to hand over.**
+         *
+         * `tho-than` is `storyOnly`, and when `nam-quoc` was folded into this template the grant
+         * did not come with it: the card has existed in `POWER_CARDS`, with both its strings and
+         * its cabinet entry, reachable by nothing at all. `verify-card-coverage` is the sweep that
+         * found it and the gate that keeps it found.
+         *
+         * Here, and only here: the poem was read from the shrine on this bank while the line
+         * held, and terms were offered instead of a pursuit. That is this branch — `giang-hoa`
+         * out of `giu-song`, the annal reading — and the card works on the enemy's heart, which
+         * is what the reading did.
+         */
+        grantPowerCard(ctx, 'tho-than');
       },
     },
     {

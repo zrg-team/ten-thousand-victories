@@ -543,7 +543,16 @@ part('topknot-side', 41, 'hair', `<ellipse cx="-11" cy="${TOP - 3}" rx="9" ry="7
 // the form the tenth century wore before a court had an opinion about it. Drawn at the jaw's
 // edge because that is where it actually shows on a frontal bust; put on the crown it is just
 // `topknot` again.
-part('knot-nape', 41, 'hair',
+/**
+ * The soldier's nape knot — **behind the head**, like every other thing worn at the nape.
+ *
+ * Its ellipse sits at x 25, level with the jaw. At 41 it painted in *front* of the face, which
+ * put a brown spiral on the sitter's right cheek — on every man the Đinh and Lý wardrobes gave
+ * this knot to. `bun-nape-right`/`-left`, the women's equivalent, have always been at 29 with the
+ * note that showing only the outer crescent "keeps it behind the jaw instead of turning it into a
+ * beard"; this is the same knot on the same nape and belongs on the same side of the head.
+ */
+part('knot-nape', 29, 'hair',
   `<ellipse cx="25" cy="${CHIN - 4}" rx="9.5" ry="8.5" fill="#ffffff"/>
    <path d="M 16 ${CHIN - 14} q 11 -3 14 4" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round"/>`);
 part('topknot-wrapped', 41, 'hair',
@@ -665,15 +674,27 @@ part('hair-ribbon', 42, 'none',
   `<path d="M -18 ${TOP + 4} q 18 -8 36 0" stroke="${SON}" stroke-width="3" fill="none"/>
    <path d="M 16 ${TOP + 3} q 8 6 3 14" stroke="${SON}" stroke-width="2.4" fill="none"/>`);
 part('hair-cord', 42, 'none', `<path d="M -16 ${TOP - 2} q 16 -6 32 0" stroke="${CREAM}" stroke-width="2.2" fill="none" opacity=".9"/>`);
+/**
+ * The pin that holds a nape chignon — **behind the head, like the chignon it holds.**
+ *
+ * It runs from x ±18 out to a bead at ±32, at the height of the jaw. At layer 42 — with the
+ * ornaments that sit in the hair on top of the crown — that put it in *front* of the face, and a
+ * gold needle crossing a cheek horizontally reads as a pipe in the sitter's mouth: it is on the
+ * roster contact sheets, on the generated sheets, and it was reported as a face whose parts do
+ * not fit each other. `bun-nape-*`, the búi tó này pins, has always been at 29 for exactly this
+ * reason — "showing only one outer crescent keeps it behind the jaw" — and the pin belongs on the
+ * same side of the head as the hair it is stuck through. What shows is the bead past the
+ * silhouette, which is all a frontal portrait should ever show of it.
+ */
 const napePin = (side, jewel = false) => {
   const startX = side * 18, endX = side * 31;
   return `<path d="M ${startX} ${CHIN - 17} L ${endX} ${CHIN - 11}" stroke="${jewel ? GOLD_DEEP : GOLD}" stroke-width="1.7" stroke-linecap="round"/>
     <circle cx="${side * 32}" cy="${CHIN - 10.5}" r="${jewel ? 2.5 : 1.8}" fill="${jewel ? JADE : GOLD}"/>`;
 };
-part('hairpin-nape-right', 42, 'none', napePin(1));
-part('hairpin-nape-right-jade', 42, 'none', napePin(1, true));
-part('hairpin-nape-left', 42, 'none', napePin(-1));
-part('hairpin-nape-left-jade', 42, 'none', napePin(-1, true));
+part('hairpin-nape-right', 29, 'none', napePin(1));
+part('hairpin-nape-right-jade', 29, 'none', napePin(1, true));
+part('hairpin-nape-left', 29, 'none', napePin(-1));
+part('hairpin-nape-left-jade', 29, 'none', napePin(-1, true));
 
 // 50 · headwear. This is the silhouette that has to survive at 42 px, so it is the richest
 // group in the library — and the one that does the most work, because in Đại Việt the hat was

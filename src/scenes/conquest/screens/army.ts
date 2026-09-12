@@ -47,6 +47,7 @@ import { INK_UI, INK_UI_HEX } from '../../../ui/InkUI';
 import { UI_FONT } from '../../../ui/fonts';
 import { heroName, t } from '../../../i18n';
 import { resourceChips } from '../../../ui/costChips';
+import { statChips } from '../../../ui/statChips';
 import { formatNumber } from '../../../utils/format';
 import type { ArmyOrders, InvasionRecord } from '../../../state/types';
 import { ARMY_RATION_USE_PER_100 } from '../../../game/gameplayConfig';
@@ -162,11 +163,15 @@ export function showArmyScreen(self: ConquestUIScene): void {
           total: field.totalRounds,
         }),
         icon: commanded ? 'banner' : undefined,
-        subtitle: t(commanded ? 'ascent.war.battleBody' : 'ascent.war.battleBodyHeld', {
-          ours: Math.round(field.ourNow),
-          theirs: Math.round(field.theirNow),
-          name: field.generalName ?? t('ascent.aftermath.officers'),
-        }),
+        // The two hosts as the HUD says them — our blade against their crossed weapons — so a
+        // field in the list and the POWER/THREAT pair at the top of the screen are one reading.
+        stats: statChips([
+          ['power', Math.round(field.ourNow)],
+          ['threat', Math.round(field.theirNow), INK_UI.cinnabar],
+        ]),
+        subtitle: commanded
+          ? t('ascent.war.battleBodyYours')
+          : t('ascent.war.battleBodyHeldShort', { name: field.generalName ?? t('ascent.aftermath.officers') }),
         border: commanded ? INK_UI.cinnabar : INK_UI.gold,
       },
       // Through the lane, not `showBattle` directly: the lane key is what makes `refresh`
@@ -255,11 +260,15 @@ export function showArmyScreen(self: ConquestUIScene): void {
         title:
           (record.great ? t('ascent.war.great') : '') +
           t('ascent.war.invaderRow', { kingdom: kingdom?.name ?? '—', size }),
-        subtitle: t('ascent.war.invaderBody', {
+        // Where they are going stays a sentence — it has an arrow in it and names two places.
+        // What they weigh, and what stands in the way, are two figures and now read as two.
+        stats: statChips([
+          ['threat', attack, withdrawing ? undefined : INK_UI.cinnabar],
+          ['defence', holding],
+        ]),
+        subtitle: t('ascent.war.invaderWhere', {
           plan: planLabel[record.plan ?? 'spearhead'],
           target: target?.name ?? at.name,
-          attack,
-          defence: holding,
         }),
         border: withdrawing ? INK_UI.softBrush : INK_UI.cinnabar,
         muted: withdrawing,
@@ -393,11 +402,15 @@ export function showArmyScreen(self: ConquestUIScene): void {
     addRow(
       {
         title: `${army.name}  ·  ${size}`,
-        subtitle: `${t('ascent.screen.armyRow', {
+        // Where it stands and who leads it are names; its will and its rations are figures.
+        // Splitting them is what takes this row from three lines of prose to two and a strip.
+        stats: statChips([
+          ['morale', Math.round(army.morale), army.morale < 40 ? INK_UI.cinnabar : undefined],
+          ['supply', Math.round(army.supply), army.supply < 30 ? INK_UI.cinnabar : undefined],
+        ]),
+        subtitle: `${t('ascent.screen.armyWhere', {
           land: land?.name ?? '—',
           general: general ? heroName(general) : t('ascent.screen.noGeneral'),
-          morale: Math.round(army.morale),
-          supply: Math.round(army.supply),
         })}\n${statusLine}`,
         // A host is its commander before it is its numbers: the face is what tells two hosts
         // apart in a list, and a host without one wears the empty-post mark instead of nothing.

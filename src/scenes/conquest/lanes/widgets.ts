@@ -1,5 +1,5 @@
 import { measureInkText } from '../../../ui/InkVirtualList';
-import { drawCostChips, measureCostChips, type CostChip } from '../../../ui/costChips';
+import { drawCostChips, measureCostChips, type ChipSize, type CostChip } from '../../../ui/costChips';
 import { addConquestUiIcon, type ConquestUiIconId } from '../../../ui/conquestUiIcons';
 import type { InkScrollArea } from '../../../ui/InkUI';
 /**
@@ -81,9 +81,13 @@ export function actionTiles(self: ConquestUIScene,
   parent: Phaser.GameObjects.Container,
   width: number,
   tiles: Array<{ title: string; note?: string; icon?: ConquestUiIconId; costs?: CostChip[]; border: number; muted?: boolean; onTap?: () => void }>,
-  opts: { columns?: 1 | 2 } = {},
+  opts: { columns?: 1 | 2; chipSize?: ChipSize } = {},
 ): number {
   const GAP = 6, COLUMNS = opts.columns ?? 2;
+  // A tile carrying a *price* is a thing to buy and the figure decides the tap; a tile carrying a
+  // *reading* — a rival's strength, a province's garrison — is describing itself, and at price
+  // weight the strip shouted over the name above it. See `ChipSize` in `costChips`.
+  const chipSize = opts.chipSize ?? 'price';
   const tileWidth = (width - GAP * (COLUMNS - 1)) / COLUMNS, inner = tileWidth - 18;
   const flow = parent.getData('virtualFlow') as { scroll: InkScrollArea; top: number } | undefined;
   // A tile's glyph sits in the title's line, left of the words, and the title wraps short of it:
@@ -97,7 +101,7 @@ export function actionTiles(self: ConquestUIScene,
     const row = tiles.slice(index, index + COLUMNS);
     const height = Math.max(42, ...row.map(tile => 18 + measureInkText(self, tile.title, tile.icon ? titleStyleWithIcon : titleStyle)
       + (tile.note ? measureInkText(self, tile.note, noteStyle) + 3 : 0)
-      + (tile.costs?.length ? measureCostChips(self, tile.costs, inner) + 2 : 0)));
+      + (tile.costs?.length ? measureCostChips(self, tile.costs, inner, 0, chipSize) + 2 : 0)));
     const top = y + (flow?.top ?? 0);
     const build = () => row.forEach((tile, column) => {
       const holder = self.add.container(column * (tileWidth + GAP), top);
@@ -114,7 +118,7 @@ export function actionTiles(self: ConquestUIScene,
       if (tile.costs?.length) {
         const noteHeight = tile.note ? measureInkText(self, tile.note, noteStyle) + 2 : 0;
         holder.add(drawCostChips(self, tile.costs,
-          { x: titleX, y: noteBottom + noteHeight, width: inner, muted: tile.muted }));
+          { x: titleX, y: noteBottom + noteHeight, width: inner, muted: tile.muted, size: chipSize }));
       }
       if (tile.onTap) {
         const hit = self.add.rectangle(tileWidth / 2, height / 2, tileWidth, height, 0xffffff, .001).setInteractive({ useHandCursor: true });

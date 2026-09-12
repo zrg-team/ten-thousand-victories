@@ -41,6 +41,8 @@ import {
 import { lawCardView, seatedEffectSummary } from '../../../systems/ascent/CourtLaneSystem';
 import { ALL_DOCTRINES, adoptDoctrine, doctrineBlurb, doctrineName } from '../../../systems/ascent/RealmDoctrineSystem';
 import { heroPayroll, refreshAllLandOutputs } from '../../../systems/ResourceSystem';
+import { drawCostChips } from '../../../ui/costChips';
+import { resourceChip, statChip } from '../../../ui/statChips';
 import { buildHeroPickerRows, heroPostingLabel } from '../../../ui/heroPickerRows';
 import { eraLabel } from '../../../systems/empire/MandateSystem';
 import { INK_UI } from '../../../ui/InkUI';
@@ -138,19 +140,34 @@ function buildTaxDial(
       { border: INK_UI.brush, borderWidth: 1.2, borderAlpha: 0.52 },
     ));
 
-    const effectLine = (rate: number): string => {
+    /**
+     * What the dial buys, as three chips rather than a sentence.
+     *
+     * "gold ×1.00 · stability +0.0/season · growth +0.0" ran the full width of the panel and had
+     * to be re-read from the left on every drag of the slider. Three glyphs sit in the same
+     * places from one rate to the next, so a drag moves the *figures* and nothing else — which is
+     * the only thing the player is watching while they drag.
+     */
+    const signed = (n: number): string => `${n >= 0 ? '+' : ''}${n.toFixed(1)}`;
+    const effectChips = (rate: number) => {
       const fatiguePenalty = (state.taxFatigue ?? 0) * 0.16;
       const drift = Number((taxStabilityBase(rate) - fatiguePenalty).toFixed(1));
-      return t('ascent.tax.effects', {
-        mult: taxGoldMult(rate).toFixed(2),
-        drift: `${drift >= 0 ? '+' : ''}${drift.toFixed(1)}`,
-        growth: `${taxGrowthDelta(rate) >= 0 ? '+' : ''}${taxGrowthDelta(rate).toFixed(1)}`,
-      });
+      return [
+        resourceChip('gold', `×${taxGoldMult(rate).toFixed(2)}`),
+        statChip('stability', signed(drift), drift < 0 ? INK_UI.cinnabar : undefined),
+        statChip('people', signed(taxGrowthDelta(rate)),
+          taxGrowthDelta(rate) < 0 ? INK_UI.cinnabar : undefined),
+      ];
     };
-    const detail = self.ui.label(14, 10, effectLine(currentTaxRate(state)), 'caption', {
-      fontSize: '11px',
-    });
+    // Redrawn, not retexted: a chip is a glyph and a number, and the glyph does not change.
+    let detail = drawCostChips(self, effectChips(currentTaxRate(state)),
+      { x: 14, y: 8, width: width - 28, size: 'stat' });
     holder.add(detail);
+    const repaint = (rate: number): void => {
+      detail.destroy(true);
+      detail = drawCostChips(self, effectChips(rate), { x: 14, y: 8, width: width - 28, size: 'stat' });
+      holder.add(detail);
+    };
 
     holder.add(self.ui.label(14, 52, t('ascent.tax.light'), 'caption', { fontSize: '10px' }));
     holder.add(
@@ -162,11 +179,11 @@ function buildTaxDial(
       { x: 10, y: 24, width: width - 20, height: 22 },
       {
         value: currentTaxRate(state),
-        onPreview: (rate) => detail.setText(effectLine(rate)),
+        onPreview: repaint,
         onChange: (rate) => {
           setTaxRate(state, rate);
           refreshAllLandOutputs(state);
-          detail.setText(effectLine(rate));
+          repaint(rate);
         },
       },
     ));

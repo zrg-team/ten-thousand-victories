@@ -11,7 +11,7 @@ import { UI_FONT } from './fonts';
 import { RectClip } from './ink/clipRect';
 import { PIGMENT } from './ink/palette';
 import {
-  CAPTION_FONT as CHIP_CAPTION_FONT, drawCostChips, measureChipCaption, measureCostChips, type CostChip,
+  CAPTION_FONT as CHIP_CAPTION_FONT, drawCostChips, measureChipCaption, measureCostChips, type ChipSize, type CostChip,
 } from './costChips';
 import { inkPath, mulberry32, washFill, type Pt } from './ink/stroke';
 import { designLength, localPointer } from '../game/graphicsQuality';
@@ -273,6 +273,25 @@ export interface InkCardOptions extends InkSurfaceOptions {
    * per season, a focus's tilt. Omitted for a cost, where the chips need no introduction.
    */
   costsLabel?: string;
+  /**
+   * The row's **readings**, drawn as small icon-and-figure chips directly under the subtitle.
+   *
+   * Distinct from `costs`, which is what the row would *charge*. These are what it *is* — a
+   * province's defence and loyalty, a host's morale and supply, a rival's strength. They were
+   * the first line of every subtitle in the mode ("Defence 160 · Loyalty 100%", "morale 100 ·
+   * supply 83") and a card that carries both a reading and a price needs two strips, not one:
+   * merged, the player cannot tell which figures they are being asked to spend.
+   *
+   * Always set at `'stat'` weight, whatever `chipSize` says about the price below — a reading
+   * that shouts as loud as a price is the thing this replaced.
+   */
+  stats?: CostChip[];
+  /**
+   * How loudly the strip is set. `'price'` (the default) is the figure that decides the tap;
+   * `'stat'` is the smaller cut used where the chips replaced the card's own subtitle — a
+   * province's defence, a rival's strength — and must not out-shout the title above them.
+   */
+  chipSize?: ChipSize;
   body?: string;
   action?: {
     label: string;
@@ -798,6 +817,7 @@ export class InkUI {
       measureInkText(this.scene, value, { ...textStyle(variant), wordWrap: { width: textWidth }, ...extra });
     let height = 18;
     if (opts.title) height += measure(opts.title, 'label', { wordWrap: { width: textWidth - (opts.status ? 58 : 0) } }) + 5;
+    if (opts.stats?.length) height += measureCostChips(this.scene, opts.stats, textWidth, 0, 'stat') + 4;
     if (opts.subtitle) height += measure(opts.subtitle, 'caption') + 4;
     for (const row of opts.rows ?? []) {
       const value = `${row.label}: ${row.value}`;
@@ -808,7 +828,7 @@ export class InkUI {
     if (opts.body) height += measure(opts.body, 'body', { fontSize: '12px', lineSpacing: 5 });
     if (opts.costs?.length) {
       const indent = opts.costsLabel ? measureChipCaption(this.scene, opts.costsLabel) : 0;
-      height += measureCostChips(this.scene, opts.costs, textWidth, indent) + 4;
+      height += measureCostChips(this.scene, opts.costs, textWidth, indent, opts.chipSize) + 4;
     }
     if (opts.action && opts.actionPlacement === 'bottom') height += 34;
     return Math.max(minimum, badge ? badge.height + 18 : 0, Math.round(height));
@@ -912,6 +932,14 @@ export class InkUI {
       }), 5);
     }
 
+    // Readings first, prose second. A province's defence and loyalty under five lines of
+    // "the levy is still coming home" is a footnote; over them it is the row's headline.
+    if (opts.stats?.length) {
+      container.add(drawCostChips(this.scene, opts.stats,
+        { x: padding, y: cursorY, width: textWidth, muted: opts.muted, size: 'stat' }));
+      cursorY += measureCostChips(this.scene, opts.stats, textWidth, 0, 'stat') + 4;
+    }
+
     if (opts.subtitle) {
       stack(label(padding, cursorY, opts.subtitle, 'caption', {
         wordWrap: { width: textWidth },
@@ -957,9 +985,9 @@ export class InkUI {
         container.add(caption);
       }
       const strip = drawCostChips(this.scene, opts.costs,
-        { x: padding, y: cursorY + 2, width: textWidth, muted: opts.muted, indent });
+        { x: padding, y: cursorY + 2, width: textWidth, muted: opts.muted, indent, size: opts.chipSize });
       container.add(strip);
-      cursorY += measureCostChips(this.scene, opts.costs, textWidth, indent) + 4;
+      cursorY += measureCostChips(this.scene, opts.costs, textWidth, indent, opts.chipSize) + 4;
     }
 
     let contentBottom = cursorY + 10; // breathing room below the last line

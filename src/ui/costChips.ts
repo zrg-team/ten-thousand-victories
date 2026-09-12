@@ -51,12 +51,37 @@ export interface CostChip {
 
 const cssHex = (colour: number): string => `#${colour.toString(16).padStart(6, '0')}`;
 
-const ICON_SIZE = 15;
-const ICON_GAP = 3;
-const CHIP_GAP = 12;
-const LINE_HEIGHT = 18;
-const CHIP_FONT: Phaser.Types.GameObjects.Text.TextStyle = {
-  fontFamily: UI_FONT, fontSize: '12px', fontStyle: '700',
+/**
+ * **Two sizes, because a chip is used for two different jobs.**
+ *
+ * `price` is the original: what a card costs, printed under the words that describe it, at the
+ * weight a figure needs when it decides whether the row is tappable at all.
+ *
+ * `stat` is the strip that replaced a card's *subtitle* — "Strength 1250 · War appetite 0",
+ * "morale 100 · supply 83", "Defence 160 · Loyalty 100%". Those lines were 9px muted prose, and a
+ * price-sized strip in their place reads as the loudest thing on a row that is mostly a name. So
+ * the glyph drops to 12 and the figure to 10: still the picture-and-number a chip is, at the
+ * weight the line it replaced was set in.
+ */
+export type ChipSize = 'price' | 'stat';
+
+interface ChipMetrics {
+  icon: number;
+  iconGap: number;
+  chipGap: number;
+  lineHeight: number;
+  font: Phaser.Types.GameObjects.Text.TextStyle;
+}
+
+const METRICS: Record<ChipSize, ChipMetrics> = {
+  price: {
+    icon: 15, iconGap: 3, chipGap: 12, lineHeight: 18,
+    font: { fontFamily: UI_FONT, fontSize: '12px', fontStyle: '700' },
+  },
+  stat: {
+    icon: 12, iconGap: 3, chipGap: 9, lineHeight: 15,
+    font: { fontFamily: UI_FONT, fontSize: '10px', fontStyle: '700' },
+  },
 };
 
 /** Chips for a resource bag, in the fixed order, skipping anything the bag does not charge. */
@@ -97,9 +122,9 @@ function chipText(scene: Phaser.Scene, chip: CostChip): string {
   return iconAvailable(scene, chip.icon) ? chip.value : `${chip.value} ${chip.label}`;
 }
 
-function chipWidth(scene: Phaser.Scene, chip: CostChip): number {
-  const glyph = iconAvailable(scene, chip.icon) ? ICON_SIZE + ICON_GAP : 0;
-  return glyph + measureInkTextWidth(scene, chipText(scene, chip), CHIP_FONT);
+function chipWidth(scene: Phaser.Scene, chip: CostChip, m: ChipMetrics): number {
+  const glyph = iconAvailable(scene, chip.icon) ? m.icon + m.iconGap : 0;
+  return glyph + measureInkTextWidth(scene, chipText(scene, chip), m.font);
 }
 
 /**
@@ -110,20 +135,21 @@ function chipWidth(scene: Phaser.Scene, chip: CostChip): number {
  * every four sheets.
  */
 function layout(
-  scene: Phaser.Scene, chips: CostChip[], width: number, indent = 0,
+  scene: Phaser.Scene, chips: CostChip[], width: number, indent = 0, size: ChipSize = 'price',
 ): Array<Array<{ chip: CostChip; x: number }>> {
+  const m = METRICS[size];
   const lines: Array<Array<{ chip: CostChip; x: number }>> = [];
   let line: Array<{ chip: CostChip; x: number }> = [];
   let x = indent;
   for (const chip of chips) {
-    const w = chipWidth(scene, chip);
+    const w = chipWidth(scene, chip, m);
     if (line.length > 0 && x + w > width) {
       lines.push(line);
       line = [];
       x = 0;
     }
     line.push({ chip, x });
-    x += w + CHIP_GAP;
+    x += w + m.chipGap;
   }
   if (line.length > 0) lines.push(line);
   return lines;
@@ -131,10 +157,10 @@ function layout(
 
 /** Height a strip of chips will take at this width. Zero for no chips, so callers can add it blind. */
 export function measureCostChips(
-  scene: Phaser.Scene, chips: CostChip[], width: number, indent = 0,
+  scene: Phaser.Scene, chips: CostChip[], width: number, indent = 0, size: ChipSize = 'price',
 ): number {
   if (chips.length === 0) return 0;
-  return layout(scene, chips, width, indent).length * LINE_HEIGHT;
+  return layout(scene, chips, width, indent, size).length * METRICS[size].lineHeight;
 }
 
 /** Width a caption takes before the first chip, in the caption's own type. */
@@ -155,21 +181,23 @@ const CAPTION_GAP = 8;
 export function drawCostChips(
   scene: Phaser.Scene,
   chips: CostChip[],
-  opts: { x: number; y: number; width: number; muted?: boolean; indent?: number },
+  opts: { x: number; y: number; width: number; muted?: boolean; indent?: number; size?: ChipSize },
 ): Phaser.GameObjects.Container {
   const holder = scene.add.container(opts.x, opts.y);
   const alpha = opts.muted ? 0.45 : 1;
-  layout(scene, chips, opts.width, opts.indent ?? 0).forEach((line, index) => {
-    const top = index * LINE_HEIGHT;
+  const size = opts.size ?? 'price';
+  const m = METRICS[size];
+  layout(scene, chips, opts.width, opts.indent ?? 0, size).forEach((line, index) => {
+    const top = index * m.lineHeight;
     for (const { chip, x } of line) {
       const hasGlyph = iconAvailable(scene, chip.icon);
       if (hasGlyph) {
-        holder.add(addConquestUiIcon(scene, chip.icon, opticalIconSize(chip.icon, ICON_SIZE))
-          .setPosition(x + ICON_SIZE / 2, top + LINE_HEIGHT / 2 - 1)
+        holder.add(addConquestUiIcon(scene, chip.icon, opticalIconSize(chip.icon, m.icon))
+          .setPosition(x + m.icon / 2, top + m.lineHeight / 2 - 1)
           .setAlpha(alpha));
       }
-      const text = scene.add.text(x + (hasGlyph ? ICON_SIZE + ICON_GAP : 0), top + 2, chipText(scene, chip), {
-        ...CHIP_FONT,
+      const text = scene.add.text(x + (hasGlyph ? m.icon + m.iconGap : 0), top + (size === 'stat' ? 1 : 2), chipText(scene, chip), {
+        ...m.font,
         color: cssHex(chip.tone ?? PIGMENT.giDong),
       }).setAlpha(alpha);
       holder.add(text);

@@ -13,6 +13,7 @@ import { getEmpirePower, hasPact } from '../../../systems/DiplomacySystem';
 import { INK_UI } from '../../../ui/InkUI';
 import { isVassal } from '../../../systems/ascent/VassalSystem';
 import { hostsInTheField } from '../../../systems/ascent/CourtBargains';
+import { statChips } from '../../../ui/statChips';
 import { t } from '../../../i18n';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 
@@ -42,13 +43,17 @@ export function showAffairsScreen(self: ConquestUIScene): void {
     const theirHost = hostsInTheField(state, kingdom.id)[0];
     return {
       title: `${kingdom.name}  ·  ${relations}`,
+      // The two figures are glyph-and-number; the rest of the line is *not a figure* and stays in
+      // words. "Strength 1250 · War appetite 0" was the whole reason this row needed two lines.
+      costs: statChips([
+        ['strength', Math.round(getEmpirePower(state, kingdom))],
+        ['appetite', Math.round(kingdom.warAppetite ?? 0)],
+        // Only while one of their hosts is standing on our ground: the seasons it can keep
+        // standing there is the figure that makes holding out a plan.
+        theirHost ? ['seasons', Math.max(0, theirHost.campaignTicks ?? 0)] : undefined,
+      ]),
       note: [
-        t('ascent.world.power', { value: Math.round(getEmpirePower(state, kingdom)) }),
-        t('ascent.world.appetite', { value: Math.round(kingdom.warAppetite ?? 0) }),
         feud ? t('ascent.world.feud', { kingdom: feud.name }) : undefined,
-        theirHost
-          ? t('ascent.world.supplyLeft', { ticks: Math.max(0, theirHost.campaignTicks ?? 0) })
-          : undefined,
         hasPact(kingdom) ? t('ascent.world.pact') : undefined,
         isVassal(kingdom) ? t('ascent.vassal.badge') : undefined,
         kingdom.ambassadorHeroId ? t('ascent.world.ambassador') : undefined,
@@ -61,7 +66,7 @@ export function showAffairsScreen(self: ConquestUIScene): void {
         self.events.emit('ui:ascent-envoy', kingdom.id);
       },
     };
-  }), { columns: 1 }));
+  }), { columns: 1, chipSize: 'stat' }));
   // The rival a story has taken an interest in, on the screen where rivals live.
   self.addStoryOpening('rival', undefined, addHeading, addRow);
 

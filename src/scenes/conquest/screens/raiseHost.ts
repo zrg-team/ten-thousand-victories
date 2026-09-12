@@ -29,7 +29,8 @@ import {
 import { RECRUIT_HUMAN_RESERVE } from '../../../game/ascentConfig';
 import { INK_UI } from '../../../ui/InkUI';
 import { heroName, t } from '../../../i18n';
-import { drawCostChips, resourceChips, seasonsChip } from '../../../ui/costChips';
+import { drawCostChips, resourceChips, seasonsChip, type CostChip } from '../../../ui/costChips';
+import { resourceChip, statChip } from '../../../ui/statChips';
 import type { ArmyComposition, ArmyOrders } from '../../../state/types';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 
@@ -108,12 +109,19 @@ export function showRaiseHostForm(self: ConquestUIScene): void {
     // its own line and the slider dropped to make room.
     const soldierSlider = (holder: Phaser.GameObjects.Container, width: number) => {
       holder.add(self.ui.panel({ x: 0, y: 0, width, height: SOLDIER_SLIDER_HEIGHT }, { border: INK_UI.brush, borderWidth: 1.2, borderAlpha: 0.52 }));
-      const line = (n: number) => {
-        const est = getMusterEstimate(state, n);
-        return t('ascent.raise.soldiersHead', { n, ticks: est.ticks });
-      };
-      const label = self.ui.label(14, 8, line(draft.soldiers), 'caption', { fontSize: '11px' });
+      // How many, and how long they take to come — the two figures the drag is setting. The
+      // price they cost is the strip below, at price weight, because that is the one being spent.
+      const head = (n: number): CostChip[] => [
+        statChip('soldiers', n),
+        seasonsChip(getMusterEstimate(state, n).ticks),
+      ];
+      let label = drawCostChips(self, head(draft.soldiers), { x: 14, y: 6, width: width - 28, size: 'stat' });
       holder.add(label);
+      const paintHead = (n: number): void => {
+        label.destroy(true);
+        label = drawCostChips(self, head(n), { x: 14, y: 6, width: width - 28, size: 'stat' });
+        holder.add(label);
+      };
       // Redrawn on every preview frame, because the price is what the drag is about.
       let priceStrip: Phaser.GameObjects.Container | undefined;
       const paintPrice = (n: number) => {
@@ -133,7 +141,7 @@ export function showRaiseHostForm(self: ConquestUIScene): void {
           value: toValue(Math.min(limits.maxSoldiers, Math.max(limits.minSoldiers, draft.soldiers))),
           color: INK_UI.jade,
           onPreview: (v) => {
-            label.setText(line(fromValue(v)));
+            paintHead(fromValue(v));
             paintPrice(fromValue(v));
           },
           onChange: (v) => {
@@ -158,31 +166,39 @@ export function showRaiseHostForm(self: ConquestUIScene): void {
       width: number,
       current: number,
       max: number,
-      text: (n: number) => string,
+      chips: (n: number) => CostChip[],
       onSet: (n: number) => void,
     ) => {
       holder.add(self.ui.panel({ x: 0, y: 0, width, height: 64 }, { border: INK_UI.brush, borderWidth: 1.2, borderAlpha: 0.52 }));
-      const label = self.ui.label(14, 10, text(current), 'caption', { fontSize: '11px' });
-      holder.add(label);
+      // "234 food — lasts about 18 season(s)" is two readings and eight words. As a sheaf beside
+      // the load and an hourglass beside the seasons, the drag moves two figures in fixed places
+      // instead of reflowing a sentence under the player's thumb.
+      let strip = drawCostChips(self, chips(current), { x: 14, y: 8, width: width - 28, size: 'stat' });
+      holder.add(strip);
+      const repaint = (n: number): void => {
+        strip.destroy(true);
+        strip = drawCostChips(self, chips(n), { x: 14, y: 8, width: width - 28, size: 'stat' });
+        holder.add(strip);
+      };
       const cap = Math.max(1, max);
       holder.add(self.ui.slider(
         { x: 10, y: 30, width: width - 20, height: 22 },
         {
           value: Math.min(1, current / cap),
           color: INK_UI.gold,
-          onPreview: (v) => label.setText(text(Math.round(v * cap))),
+          onPreview: (v) => repaint(Math.round(v * cap)),
           onChange: (v) => { onSet(Math.round(v * cap)); rebuild(); },
         },
       ));
     };
     addWidget(64, (holder, width) => baggageSlider(
       holder, width, draft.rations, Math.max(want.rations * 2, limits.foodHeld),
-      (n) => t('ascent.raise.rationsLine', { n, seasons: baggageSeasons(draft.soldiers, n, draft.provisions).food }),
+      (n) => [resourceChip('food', n), seasonsChip(baggageSeasons(draft.soldiers, n, draft.provisions).food)],
       (n) => { draft.rations = Math.min(n, limits.foodHeld); },
     ));
     addWidget(64, (holder, width) => baggageSlider(
       holder, width, draft.provisions, Math.max(want.provisions * 2, limits.suppliesHeld),
-      (n) => t('ascent.raise.provisionsLine', { n, seasons: baggageSeasons(draft.soldiers, draft.rations, n).goods }),
+      (n) => [resourceChip('supplies', n), seasonsChip(baggageSeasons(draft.soldiers, draft.rations, n).goods)],
       (n) => { draft.provisions = Math.min(n, limits.suppliesHeld); },
     ));
     if (seasons.food < 6) {
