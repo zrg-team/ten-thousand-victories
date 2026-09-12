@@ -1,3 +1,4 @@
+# Dependencies and generated build output (including nested app packages).
 node_modules/
 dist/
 # The shell build — `yarn build:shell`. Same status as dist/: a build artifact, and the one every
@@ -6,9 +7,42 @@ dist-shell/
 output/
 .vite/
 *.log
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+.cache/
+
+# Browser/test output. Reviewed evidence belongs in docs/, not these run directories.
+/coverage/
+/playwright-report/
+/test-results/
+/blob-report/
+
+# Local environment overrides; keep documented examples available to commit.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+!.env.*.example
+!.env.*.sample
+!.env.*.template
+
+# OS/editor state. Shared .vscode settings and agent instructions remain source.
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/*.local.json
+.claude/settings.local.json
 
 # Yarn writes this install cache on every install; it is not source.
 .yarn/install-state.gz
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
 
 # Screenshot output from the test_scripts/shot/ drivers. Written relative to the project root,
 # so it stays at the top of the tree rather than under shot/.
@@ -25,8 +59,21 @@ test_scripts/scratch/
 # The old flat location, kept so a stale `_*.mjs` left in a working tree is still ignored.
 test_scripts/_*.mjs
 
-# Perf run output, same status as output/ and test_scripts/shots/.
-test_scripts/perf-results/
+# Ignore new performance runs, but preserve the existing reviewed reference data.
+# Match the contents rather than the directory so these exceptions remain reachable.
+/test_scripts/perf-results/*
+!/test_scripts/perf-results/README.md
+!/test_scripts/perf-results/base-head.json
+!/test_scripts/perf-results/baseline.json
+!/test_scripts/perf-results/baseline2.json
+!/test_scripts/perf-results/cull-final.json
+!/test_scripts/perf-results/final.json
+!/test_scripts/perf-results/map-after.png
+!/test_scripts/perf-results/map-control.png
+!/test_scripts/perf-results/phase1.json
+!/test_scripts/perf-results/phase2.json
+!/test_scripts/perf-results/phase3.json
+!/test_scripts/perf-results/phase4.json
 
 # Native build staging, moved out of the deep apps/mobile/android path so Windows MAX_PATH is
 # not hit. Build output, same status as dist/. See apps/mobile/plugins/withShortNativeBuildPath.js
@@ -40,6 +87,7 @@ test_scripts/perf-results/
 *.keystore
 *.p8
 *.p12
+*.pfx
 *.mobileprovision
 
 # Local iOS credentials: absolute paths to a .p12 and .mobileprovision, plus the p12 password in

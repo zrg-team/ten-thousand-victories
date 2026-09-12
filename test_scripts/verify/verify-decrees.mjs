@@ -1,4 +1,4 @@
-// Verifies Chiếu Chỉ — the pressure under the throne's standing law (docs/11-chieu-chi.html).
+// Verifies Chiếu Chỉ — the pressure under the throne's standing law (docs/phase-1/11-chieu-chi.md).
 //
 // What is asserted, and why these and not others:
 //  - Overreach BITES. A realm forced past its authority cap must realise strictly less from the

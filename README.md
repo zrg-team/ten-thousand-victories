@@ -271,6 +271,8 @@ The print itself: shell-coated điệp paper, a colour block pulled first and a 
 
 ## 🛠️ Develop
 
+See the [documentation index](docs/README.md) for the [Phase 1 archive](docs/phase-1/README.md) and the current [Phase 2 gameplay plan](docs/phase-2/README.md), including the bilingual review and implementation backlog.
+
 ```bash
 corepack enable          # provides the pinned Yarn
 yarn install
@@ -344,7 +346,7 @@ The game is free and stays free — that part is not going to change. If it gave
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="docs/readme/qr-wise.png" alt="Wise QR code" width="220"><br><br>
+      <img src="public/support/qr-wise.png" alt="Wise QR code" width="220"><br><br>
       <a href="https://wise.com/pay/me/tand99"><b>Wise · international</b></a><br>
       <sub>wise.com/pay/me/tand99 · @tand99</sub>
     </td>

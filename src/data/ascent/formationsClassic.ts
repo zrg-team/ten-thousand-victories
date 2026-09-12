@@ -2,9 +2,9 @@
  * The CLASSIC battle rules, retired 2026-08 — kept compiled so they cannot rot, wired to nothing.
  *
  * This is the availability-by-blocks mechanic and the two commitment clocks that shipped with
- * `docs/14-five-shapes-two-dials.html` and were replaced by the wind mechanic of
- * `docs/19-five-shapes-one-clock.html`. The full record — the rule, its tuning, the measured
- * tables and why it went — is `docs/18-formation-availability-by-blocks.md`; this module is the
+ * `docs/phase-1/14-five-shapes-two-dials.md` and were replaced by the wind mechanic of
+ * `docs/phase-1/19-five-shapes-one-clock.md`. The full record — the rule, its tuning, the measured
+ * tables and why it went — is `docs/phase-1/18-formation-availability-by-blocks.md`; this module is the
  * code half of that record, so re-instating it is an import away rather than an archaeology dig.
  *
  * Why it went, in one line each:
@@ -44,7 +44,7 @@ export const CLASSIC_BLOCK_OF: Record<BattleFormation, FormationKey> = {
  *
  * Thế Chông and Thế Quy were hardcoded `ready` so the dock could never go fully dark. Measured
  * against the doctrine tables, the narrowing this was meant to produce came down to a cliff on
- * one chip — see docs/18 for the sweep.
+ * one chip — see docs/phase-1/18-formation-availability-by-blocks.md for the sweep.
  */
 export function classicFormationAvailability(
   composition: ArmyComposition, men: number, mustered?: number,

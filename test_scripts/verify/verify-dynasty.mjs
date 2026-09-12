@@ -1,5 +1,5 @@
 /**
- * The Dynasty Ledger — Tông Phả (docs/26-the-dynasty-ledger.html, Phase 2).
+ * The Dynasty Ledger — Tông Phả (docs/phase-1/26-the-dynasty-ledger.html, Phase 2).
  *
  * Drives the store, the ceremony and the six live read sites headlessly, then boots the rendered
  * mode once to prove the two new prompt kinds actually draw something.

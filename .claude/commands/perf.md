@@ -25,8 +25,10 @@ sleep 6 && export DEV_URL=http://127.0.0.1:5199 BASE_URL=http://127.0.0.1:5199
 | `all` | run bake, render and bench in sequence | |
 
 For a before/after: run `--label baseline` on the unchanged tree, make the change, run
-`--label after`, and quote the printed delta table. `perf-results/` is committed on purpose — it
-is the reference data.
+`--label after`, and quote the printed delta table. The reviewed baselines in `perf-results/`
+are committed on purpose; new local runs are ignored by default. To preserve a reviewed new
+reference, add its exact `.gitignore` exception and record its revision/fixture context; see
+`test_scripts/perf-results/README.md`.
 
 To isolate a cost, re-shoot the same frame with a layer switched off: `?nobake=1` (no
 RenderTextures), `?nocull=1` (no view culling), `?nofx=1` (no full-screen paper pass),

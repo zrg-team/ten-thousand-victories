@@ -271,7 +271,7 @@ export function buildBattleField(self: ConquestUIScene, battle: AscentBattle): v
     ui.theirMarkers.push(tracked);
     // Nothing on an enemy column is tappable any more. Concentrating the line on one of them was
     // a second cursor on a screen designed for one thumb, and it asked the player to *aim* in a
-    // game whose whole language is standing orders — see `docs/14-five-shapes-two-dials.html`.
+    // game whose whole language is standing orders — see `docs/phase-1/14-five-shapes-two-dials.md`.
     // The cinnabar ring that marked the target goes with the order it belonged to.
   });
 

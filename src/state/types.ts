@@ -2326,7 +2326,7 @@ export interface AscentBattle {
   freeReform?: boolean;
   /**
    * Stamina: pips in hand for changing shape. Two to start, one spent per change, one back every
-   * `BATTLE_STAMINA_REGEN_BEATS` on `staminaClock`. Absent = full (old saves). See docs/20.
+   * `BATTLE_STAMINA_REGEN_BEATS` on `staminaClock`. Absent = full (old saves). See docs/phase-1/20-two-pips.md.
    */
   stamina?: number;
   staminaClock?: number;

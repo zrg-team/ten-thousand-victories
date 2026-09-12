@@ -1,0 +1,773 @@
+<!doctype html><html><head><!-- frame-runtime --><script>window.__FRAME_PREAMBLE={"v":1,"capabilities":{"artifact":"artifact.0kpk9vgi.js","assets":"assets.8Gk803W0.js","comments":"comments.vw5vQdGA.js","db":"db.h-3sndFg.js","downloads":"downloads.C3GSvEDP.js","embed":"embed.CxGAyc-v.js","mcp":"mcp.Bvma3qD7.js","network":"network.B5UA9Su4.js","notifications":"notifications.ssU4jy7G.js","permissions":"permissions.BNySkLV5.js","room":"room.VSdFwTE9.js","sample":"sample.BW2Uysoh.js","self":"artifact.0kpk9vgi.js","user":"user.BpKav-Rf.js"},"transforms":"_transforms.DSB5x63f.js","comments":"_comments.C6E0cR5g.js","translate":"_translate.5HCW4BJh.js"}</script><script>(function(){"use strict";var te=["light","dark","system"],re=/^[A-Za-z0-9_-]{1,64}$/,$=/^[a-zA-Z_:][a-zA-Z0-9_:.-]{0,127}$/,ne=new Set(["class","hidden","value","checked","style","title","alt","placeholder","lang","dir","role","tabindex","disabled","readonly","contenteditable","open","colspan","rowspan"]);function oe(e){const t=e.toLowerCase();return t.startsWith("data-")||t.startsWith("aria-")||ne.has(t)}var Be="http://www.w3.org/1999/xhtml",se="http://www.w3.org/2000/svg",ae=new Set(["script","style","iframe","noscript","noframes","noembed","xmp","plaintext","template","title","textarea","object","embed"]),ie=new Set(["script","style"]);function ce(e){const t=e.localName.toLowerCase();return e.namespaceURI==="http://www.w3.org/1999/xhtml"?!ae.has(t):e.namespaceURI===se?!ie.has(t):!1}function M(e,t){return e===t||(e===160||e===32)&&(t===160||t===32)}function le(e,t){const r=e.length,n=t.length;let s=0;for(;s<r&&s<n&&M(e.charCodeAt(s),t.charCodeAt(s));)s++;let o=0;for(;o<r-s&&o<n-s&&M(e.charCodeAt(r-1-o),t.charCodeAt(n-1-o));)o++;return{p:s,s:o}}function ue(e,t){const r=e.firstChild;if(e.childNodes.length!==1||r===null||r.nodeType!==Node.TEXT_NODE){e.textContent=t;return}const n=r.data,s=n.length,o=t.length,{p:i,s:c}=le(n,t);i===s&&c===0&&s===o||r.replaceData(i,s-i-c,t.slice(i,o-c));const h=r.data,p=e.ownerDocument.getSelection?.()??null,w=p!==null&&p.rangeCount>0&&(p.anchorNode===r||p.focusNode===r)?{anchor:p.anchorNode,anchorOffset:p.anchorOffset,focus:p.focusNode,focusOffset:p.focusOffset}:null;let m=-1,g=-1;for(let f=0;f<h.length&&f<t.length;f++){const v=h.charCodeAt(f),b=t.charCodeAt(f);v!==b&&M(v,b)&&(m<0&&(m=f),g=f)}const a=m>=0;if(a&&r.replaceData(m,g-m+1,t.slice(m,g+1)),a&&w!==null&&w.anchor!==null&&w.focus!==null)try{p.setBaseAndExtent(w.anchor,w.anchorOffset,w.focus,w.focusOffset)}catch{}}var fe=new Set(["html","head","body","frameset"]);function de(e){return e.namespaceURI==="http://www.w3.org/1999/xhtml"&&fe.has(e.localName)}function pe(e){if(e===null||typeof e!="object")return!1;const t=e;if(typeof t.target!="string"||!re.test(t.target)||t.text!==void 0&&typeof t.text!="string")return!1;if(t.attrsSet!==void 0){if(t.attrsSet===null||typeof t.attrsSet!="object")return!1;for(const[r,n]of Object.entries(t.attrsSet))if(!$.test(r)||typeof n!="string")return!1}if(t.attrsRemoved!==void 0){if(!Array.isArray(t.attrsRemoved))return!1;for(const r of t.attrsRemoved)if(typeof r!="string"||!$.test(r))return!1}return!0}function me(e,t){if(e===null||typeof e!="object")return!1;const{seq:r,elements:n}=e;if(typeof r!="number"||!Number.isSafeInteger(r)||!Array.isArray(n)||n.length===0||n.length>64)return!1;for(let s=0;s<n.length;s++)if(!t(n[s]))return!1;return!0}function he(e){return e===null||typeof e!="object"?!1:me(e.__frame_patch,pe)}function _e(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_init;return t!==null&&typeof t=="object"}function ve(e){return e!==null&&typeof e=="object"&&e.__frame_size_poke===!0}function ye(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_theme;if(t===null||typeof t!="object")return!1;const r=t.theme;return typeof r=="string"&&te.includes(r)}var A=/^[\w.-]+\.js$/;function we(e,t,r){return r?"inert":typeof t=="string"&&A.test(t)?e?[t]:"inert":e?"inert":"framed"}function ge(){return{post(e,t){parent.postMessage(e,t)},on(e){const t=r=>{r.source===parent&&e(r.data,r.origin,r.isTrusted)};return addEventListener("message",t),()=>removeEventListener("message",t)}}}function be(){return{post:()=>{},on:()=>()=>{}}}var j="__frame_scroll",Ee=150,Ae=310,Se=160,Te=3e4;function ke(){let e=0,t=!1,r=!1,n=!1,s=0,o=null;const i=l=>{try{sessionStorage.setItem(j,JSON.stringify({y:l}))}catch{}},c=()=>{if(clearTimeout(e),o===null)return;const l=o;o=null,i(l)},h=()=>{if(t){t=!1;return}r=!0,o=scrollY,clearTimeout(e),e=setTimeout(c,Ee)};try{addEventListener("scroll",h,{passive:!0}),addEventListener("pagehide",c)}catch{}const p=()=>{let l;try{l=sessionStorage.getItem(j)}catch{return null}if(l===null)return null;let _;try{_=JSON.parse(l)}catch{_=null}const d=_?.y;if(!(typeof d=="number"&&Number.isFinite(d)&&d>=0)){try{sessionStorage.removeItem(j)}catch{}return null}return d};let w=!1;const m=l=>{try{const _=scrollY;scrollTo({top:l,left:0,behavior:"instant"}),s=l,n=!0,clearTimeout(e),o=null,i(l);const d=scrollY;d!==_&&(t=!0),d!==l&&!w&&(w=!0,addEventListener("load",()=>{try{if(scrollY===d){const T=p();m(T!==null?T:s)}}catch{}},{once:!0}))}catch{}},g=()=>{try{return!!location.hash}catch{return!0}};let a=!1;const f=()=>{try{if(a||innerWidth>Ae||innerHeight>Se)return;a=!0;const l=Date.now(),_=()=>{try{removeEventListener("resize",_)}catch{}if(Date.now()-l>Te||r||g())return;const d=p();m(d!==null?d:s)};addEventListener("resize",_)}catch{}};let v=!1,b=!1;return{restore(){if(v||(v=!0,g()))return;const l=p();l!==null&&(m(l),f())},promoted(){if(b||(b=!0,g()))return;const l=p();l!==null?(m(l),f()):n&&m(s)}}}function Re(e,t,r,n){let s=null;try{s=window.trustedTypes?.createPolicy("frame-runtime",{createScriptURL:h=>h})??null}catch{}const o=window.Worker,i=o?.prototype,c=Object.freeze({Worker:o,workerOn:i?.addEventListener,workerPost:i?.postMessage,workerTerminate:i?.terminate,fetch:window.fetch.bind(window),preventDefault:Event.prototype.preventDefault,policy:s,origins:t});r(e).then(h=>h?.bootTopLevel?h.bootTopLevel(c,n):n.settle()).catch(()=>n.settle())}var De="modulepreload",Ie=function(e){return"/"+e},Ue={},Le=function(t,r,n){let s=Promise.resolve();function o(i){const c=new Event("vite:preloadError",{cancelable:!0});if(c.payload=i,window.dispatchEvent(c),!c.defaultPrevented)throw i}return s.then(i=>{for(const c of i||[])c.status==="rejected"&&o(c.reason);return t().catch(o)})},Oe=window===top,q=Object.getOwnPropertyDescriptor(window,"claude"),k=we(Oe,window.__FRAME_PREAMBLE?.topLevel,q?.writable===!1),N=typeof k=="object"&&k[0],y=N?be():ge();(function(){const e=Object.defineProperty,t=globalThis,r=["RTCPeerConnection","webkitRTCPeerConnection","RTCDataChannel","RTCIceCandidate","RTCSessionDescription","RTCRtpSender","RTCRtpReceiver"];let n=0;for(let s=0;s<r.length;s++){const o=r[s];try{e(t,o,{value:void 0,writable:!1,configurable:!1})}catch{try{delete t[o]}catch{}try{e(t,o,{value:void 0,writable:!1,configurable:!0})}catch{}}typeof t[o]=="function"&&n++}if(n&&k==="framed")try{y.post({__frame_rtc_lockdown_failed:n},"*")}catch{}})();var Pe=1e4,Y=Object.freeze([...window.__FRAME_PREAMBLE?.origins??["https://claude.ai","https://preview.claude.ai"]]);function X(e){for(const t of Y)if(t.endsWith(":*"))try{const r=new URL(e);if(`${r.protocol}//${r.hostname}:*`===t)return!0}catch{}else if(e===t)return!0;return!1}var R=Object.freeze({...window.__FRAME_PREAMBLE?.capabilities}),B=window.__FRAME_PREAMBLE?.transforms,D=window.__FRAME_PREAMBLE?.comments,I=window.__FRAME_PREAMBLE?.translate;function S(e){return Le(()=>import("/_runtime/"+e),void 0)}function G(e,t){return{contract:e.contract,changes:new Set(e.changes??[]),flags:new Set(e.flags??[]),capabilities:e.capabilities??{},capBudgets:e.capBudgets??{},transforms:new Map,shellOrigin:t,mount:x,hooks:O,pipe:()=>({wrap:(r,n)=>(...s)=>{try{return n(...s)}catch(o){return Promise.reject(o)}}})}}var L=null,E=null;function V(e,t,r){try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!1,enumerable:!0})}catch{try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!0,enumerable:!0})}catch{}}}var U=!1,O={editBefore:null,edit:null};function Ce(e,t,r=!1){const n=[];let s;if(r)try{O.editBefore?.(e)}catch{}for(const o of e.elements){const i=document.querySelector(`[data-id="${o.target}"]`);if(!i){s=o.target;break}if([...Object.keys(o.attrsSet??{}),...o.attrsRemoved??[]].some(c=>!oe(c))){s=o.target;break}if(o.text!==void 0&&(!ce(i)||de(i))){s=o.target;break}for(const[c,h]of Object.entries(o.attrsSet??{}))if(!J(i,c)){try{i.setAttribute(c,h)}catch{}Z(i,c,h)}for(const c of o.attrsRemoved??[])J(i,c)||(i.removeAttribute(c),Z(i,c,null));typeof o.text=="string"&&ue(i,o.text),n.push(o.target)}if(r)try{O.edit?.(e.seq,n,s)}catch{}if(s!==void 0){y.post({__frame_patch_miss:{seq:e.seq}},t);return}try{document.dispatchEvent(new CustomEvent("claude:edit",{detail:{seq:e.seq,targets:n}}))}catch{}}function Z(e,t,r){if(!(e instanceof HTMLInputElement))return;const n=t.toLowerCase();n==="checked"?e.checked=r!==null:n==="value"&&e.type!=="file"&&(e.value=r??"")}function J(e,t){const r=t.toLowerCase(),n=e;return r==="data-id"||(r==="value"||r==="checked")&&(n.__artifactSecret===!0||/^(password|hidden|file)$/.test(n.type??"")||/(^|\s)(cc-|one-time-code|current-password|new-password)/i.test(`${e.getAttribute("autocomplete")??""} ${n.autocomplete??""}`))}function Q(e){const t=document.documentElement;e==="light"||e==="dark"?(t.dataset.theme=e,t.style.colorScheme=e,U=!0):U&&(delete t.dataset.theme,t.style.colorScheme="",U=!1)}var P=new Map;function Me(){let e;const t={u:new Promise(r=>{e=r}),r:r=>{t.done=!0,e(r)},done:!1,nulled:!1};return t}function F(){for(const e of P.values())e.done||(e.nulled=!0,e.r(null))}var je=Object.freeze(Object.assign(Object.create(null),{call:Function.prototype.call,apply:Function.prototype.apply,bind:Function.prototype.bind})),x=(e,t)=>{const r=P.get(e);if(!r||r.done){r?.nulled&&E&&y.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:e}},E);return}const n=typeof t=="function"?Object.setPrototypeOf(t,je):Object.assign(Object.create(null),t);typeof n.then=="function"&&delete n.then,r.r(Object.freeze(n))};function ee(){const e=q?.value??{};V(window,"claude",e);for(const t of Object.keys(R)){if(e[t]!==void 0){V(e,t,e[t]);continue}P.set(t,Me())}if(e.use===void 0){const t=r=>{if(typeof r!="string"||!Object.hasOwn(R,r))return Promise.resolve(null);const n=P.get(r);return n?n.u:Promise.resolve(e[r]??null)};try{Object.defineProperty(e,"use",{value:t,writable:!0,configurable:!0,enumerable:!1})}catch{}}}if(k==="framed"){const e=B&&A.test(B)?S(B).catch(()=>{}):Promise.resolve(void 0),t=a=>{if(a.type==="auxclick"&&a.button!==1)return;const f=a.target,v=f&&f.closest?f.closest("a[href],area[href]"):null;if(!v)return;const b=v.getAttribute("href");if(!b)return;let l;try{l=new URL(b,document.baseURI)}catch{return}if((l.protocol==="http:"||l.protocol==="https:")&&l.origin!==location.origin){a.preventDefault();const _=(v.getAttribute("target")??"").toLowerCase(),d=a.type==="auxclick"||a.metaKey||a.ctrlKey||a.shiftKey||a.altKey||!["","_self","_top","_parent"].includes(_);y.post({__frame_nav:!0,url:l.href,newTab:d},"*")}};addEventListener("click",t,!0),addEventListener("auxclick",t,!0);const r={},n=a=>{a.isTrusted&&(r.pointer=!0)},s=a=>{a.isTrusted&&(r.click=!0)};addEventListener("pointermove",n,{capture:!0,passive:!0}),addEventListener("click",s,{capture:!0,passive:!0}),e.then(a=>{a?.wireNav&&(a.wireNav(),removeEventListener("click",t,!0),removeEventListener("auxclick",t,!0),removeEventListener("pointermove",n,!0),removeEventListener("click",s,!0),a.wireEngagement?.(r))});let o=null;try{o=ke()}catch{}ee();let i=null,c=null,h=0;const p=y.on((a,f)=>{X(f)&&_e(a)&&(i=a.__frame_init,E=f,p(),clearTimeout(h),c?.())});y.post({__frame_connect:!0},"*");const w=new Promise(a=>{c=a,h=setTimeout(()=>{p(),a()},Pe)}),m=document.readyState==="loading"?new Promise(a=>document.addEventListener("DOMContentLoaded",()=>a(),{once:!0})):Promise.resolve();m.then(()=>{try{o?.restore()}catch{}});const g={cb:null};y.on((a,f)=>{if(X(f)&&ve(a)){try{o?.promoted()}catch{}g.cb?.()}}),w.then(async()=>{if(!i||!E){F();return}Q(i.theme);const a=E;let f=!1,v=!1;y.on((u,z,C)=>{if(z!==a)return;ye(u)&&Q(u.__frame_theme.theme),he(u)&&Ce(u.__frame_patch,a,C);const H=u?.__fc_mode;H&&typeof H=="object"&&!f&&D&&A.test(D)&&(f=!0,S(D).then(K=>K.install?.(a,H.on===!0)).catch(()=>{}));const W=u?.__ft_cmd;W&&typeof W=="object"&&!v&&I&&A.test(I)&&(v=!0,S(I).then(K=>K.install?.(a,W)).catch(()=>{}))});const b=Object.keys(i.capabilities??{}).filter(u=>Object.hasOwn(R,u)).map(u=>[u,R[u]]).filter(u=>typeof u[1]=="string"&&A.test(u[1])),l=await Promise.allSettled(b.map(([,u])=>S(u))),_=await e,d=E;if(_?.buildBoot||y.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},d),_?.buildBoot)try{L=_.buildBoot(i,_.TRANSFORMS??{},{shellOrigin:d,mount:x,hooks:O},u=>y.post({__frame_cap_telemetry:u},d))}catch{y.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},d),L=G(i,d)}else L=G(i,d);const T=u=>y.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:u}},d),Ne=L;l.forEach((u,z)=>{const C=b[z][0];if(u.status!=="fulfilled"){T(C);return}try{u.value?.install?.(Ne)}catch{T(C)}}),F(),await m,y.post({__frame_ready:!0},E),e.then(u=>u?.installSizeReporter?.(d,g))})}else N&&(ee(),Re(N,Y,S,{settle:F,mount:x}))})();</script><!-- /frame-runtime --><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<aside style="padding:14px 20px;background:#f2ead6;color:#243832;font:14px/1.5 system-ui;border-bottom:1px solid #c9bea5"> <strong>Phase 1 archive · Lưu trữ giai đoạn 1.</strong> Historical design; original status and numbered phases belong to that document. <a href="../phase-2/README.md">Phase 2 plan / Kế hoạch giai đoạn 2</a>.</aside>
+
+<title>The Coronation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f1e9d7; --panel: #f9f4e8; --panel-2: #ece2cc;
+    --ink: #2a211a; --faint: #6f6250;
+    --line: rgba(42,33,26,.18); --line-soft: rgba(42,33,26,.09);
+    --cinnabar: #b23a26; --jade: #33705a; --gold: #96701e; --bronze: #8a6142;
+    --card-shadow: 0 2px 10px rgba(42,33,26,.12);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #16110b; --panel: #1f1811; --panel-2: #291f14;
+      --ink: #e9dfc7; --faint: #a3947c;
+      --line: rgba(233,223,199,.2); --line-soft: rgba(233,223,199,.09);
+      --cinnabar: #d96f52; --jade: #64a586; --gold: #c59d49; --bronze: #b08a68;
+      --card-shadow: 0 2px 12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #16110b; --panel: #1f1811; --panel-2: #291f14;
+    --ink: #e9dfc7; --faint: #a3947c;
+    --line: rgba(233,223,199,.2); --line-soft: rgba(233,223,199,.09);
+    --cinnabar: #d96f52; --jade: #64a586; --gold: #c59d49; --bronze: #b08a68;
+    --card-shadow: 0 2px 12px rgba(0,0,0,.5);
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--ground); color: var(--ink); font-family: "Source Serif 4", Georgia, serif; font-size: 16px; line-height: 1.62; margin: 0; }
+  .wrap { max-width: 62rem; margin: 0 auto; padding: 0 20px 96px; }
+  .measure { max-width: 46rem; }
+  h1, h2, h3, h4 { font-family: "Be Vietnam Pro", system-ui, sans-serif; line-height: 1.15; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(2.1rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -0.02em; }
+  h2 { font-size: 1.45rem; font-weight: 800; margin: 0 0 4px; }
+  h3 { font-size: 1.06rem; font-weight: 700; margin: 26px 0 8px; }
+  p { margin: 0 0 14px; }
+  a { color: var(--jade); }
+  .eyebrow { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint); }
+  header.masthead { padding: 60px 0 16px; border-bottom: 2px solid var(--ink); margin-bottom: 8px; }
+  .standfirst { font-size: 1.1rem; color: var(--faint); max-width: 44rem; margin-top: 14px; }
+  .standfirst strong { color: var(--ink); }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.85em; }
+  code { background: var(--panel-2); padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
+  pre { background: var(--panel); border: 1px solid var(--line-soft); border-left: 3px solid var(--gold); padding: 14px 16px; overflow-x: auto; font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; line-height: 1.6; margin: 16px 0; }
+  pre code { background: none; padding: 0; white-space: pre; }
+  section.chapter { margin-top: 54px; }
+  .chapter-head { display: flex; align-items: baseline; gap: 14px; border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 20px; }
+  .chapter-head .no { font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; color: var(--faint); white-space: nowrap; }
+  .kicker { color: var(--faint); font-size: 0.95rem; margin-top: 2px; }
+  .table-scroll { overflow-x: auto; margin: 16px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.89rem; background: var(--panel); border: 1px solid var(--line-soft); }
+  th { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.69rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-align: left; color: var(--faint); padding: 10px 14px 8px; border-bottom: 2px solid var(--line); }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; white-space: nowrap; }
+  td .why { display: block; color: var(--faint); font-size: 0.82rem; }
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--cinnabar); padding: 18px 20px 14px; margin: 20px 0; }
+  .callout.jade { border-left-color: var(--jade); }
+  .callout.gold { border-left-color: var(--gold); }
+  .callout h4 { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 8px; color: var(--cinnabar); }
+  .callout.jade h4 { color: var(--jade); }
+  .callout.gold h4 { color: var(--gold); }
+  .callout p:last-child { margin-bottom: 0; }
+  figure { margin: 28px 0; }
+  figure svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+  figcaption { font-size: 0.84rem; color: var(--faint); max-width: 44rem; margin: 12px auto 0; text-align: center; }
+  figcaption b { color: var(--ink); }
+  ul, ol { padding-left: 1.3em; margin: 0 0 14px; }
+  li { margin-bottom: 7px; }
+  li::marker { color: var(--faint); }
+  .tight li { margin-bottom: 4px; }
+  .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 18px 0; }
+  .pillar { background: var(--panel); border: 1px solid var(--line-soft); padding: 15px 16px 11px; }
+  .pillar .glyph { font-family: "Be Vietnam Pro", sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--gold); }
+  .pillar h4 { font-size: 0.93rem; margin: 5px 0 6px; }
+  .pillar p { font-size: 0.85rem; color: var(--faint); margin: 0; }
+
+  /* ── phone-frame mock kit ── */
+  .mockrow { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; align-items: flex-start; margin: 26px 0 6px; }
+  .mock { width: 236px; flex-shrink: 0; }
+  .mock .mtitle { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 0.78rem; text-align: center; margin-bottom: 8px; }
+  .mock .mtitle small { display: block; font-weight: 400; color: var(--faint); font-size: 0.7rem; }
+  .phone { background: var(--panel); border: 2.5px solid var(--ink); border-radius: 20px; box-shadow: var(--card-shadow); padding: 12px 10px 14px; min-height: 460px; display: flex; flex-direction: column; gap: 7px; position: relative; overflow: hidden; }
+  .mhead { font-family: "Be Vietnam Pro", sans-serif; font-weight: 800; font-size: 0.72rem; text-align: center; letter-spacing: 0.04em; }
+  .mhead small { display: block; font-weight: 400; font-family: "Source Serif 4", serif; color: var(--faint); font-size: 0.62rem; letter-spacing: 0; }
+  .mrule { border: none; border-top: 1px solid var(--line); margin: 1px 0; }
+  .mrow { background: var(--panel-2); border: 1px solid var(--line-soft); border-left: 3px solid var(--faint); padding: 6px 8px; font-size: 0.62rem; line-height: 1.45; border-radius: 2px; }
+  .mrow b { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.64rem; }
+  .mrow .sub { color: var(--faint); display: block; }
+  .mrow.gold { border-left-color: var(--gold); }
+  .mrow.jade { border-left-color: var(--jade); }
+  .mrow.red { border-left-color: var(--cinnabar); }
+  .mrow.dim { opacity: 0.55; }
+  .mbtn { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 0.64rem; text-align: center; padding: 7px 6px; border: 1.5px solid var(--ink); border-radius: 4px; margin-top: auto; }
+  .mbtn.primary { background: var(--ink); color: var(--panel); }
+  .mbtn.ghost { color: var(--faint); border-color: var(--line); margin-top: 4px; }
+  .mcap { font-size: 0.58rem; color: var(--faint); text-align: center; }
+  .steps-dots { display: flex; gap: 5px; justify-content: center; }
+  .steps-dots i { width: 7px; height: 7px; border-radius: 50%; border: 1.2px solid var(--gold); }
+  .steps-dots i.on { background: var(--gold); }
+
+  /* part stepper rows */
+  .stepper { display: flex; align-items: center; gap: 6px; background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 3px; padding: 4px 6px; }
+  .stepper .arr { font-family: "Be Vietnam Pro", sans-serif; font-weight: 800; font-size: 0.8rem; color: var(--gold); width: 20px; text-align: center; flex-shrink: 0; }
+  .stepper .lbl { flex: 1; text-align: center; font-size: 0.58rem; line-height: 1.35; }
+  .stepper .lbl b { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.6rem; display: block; }
+  .stepper .lbl small { color: var(--faint); font-size: 0.52rem; }
+  .stepper.locked { opacity: 0.6; }
+  .stepper.locked .arr { color: var(--faint); }
+
+  /* the ink portrait (stylized stand-in for FaceRenderer output) */
+  .portrait { width: 116px; height: 148px; margin: 2px auto; position: relative; background: radial-gradient(ellipse 80% 62% at 50% 108%, color-mix(in srgb, var(--gold) 18%, transparent), transparent 70%), var(--panel-2); border: 2px solid var(--gold); border-radius: 8px; overflow: hidden; }
+  .portrait.small { width: 74px; height: 96px; }
+  .portrait svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .swatches { display: flex; gap: 5px; justify-content: center; }
+  .swatches i { width: 20px; height: 20px; border-radius: 4px; border: 1.5px solid var(--line); }
+  .swatches i.on { outline: 2px solid var(--ink); outline-offset: 1.5px; }
+  .flagrow { display: flex; gap: 8px; align-items: center; justify-content: center; }
+
+  /* rank ladder */
+  .ladder { display: flex; align-items: flex-end; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 22px 0 8px; }
+  .ladder .lcol { text-align: center; width: 96px; }
+  .ladder .lcap { font-size: 0.68rem; color: var(--faint); line-height: 1.4; margin-top: 6px; }
+  .ladder .lcap b { color: var(--ink); font-family: "Be Vietnam Pro", sans-serif; font-size: 0.7rem; display: block; }
+
+  footer { margin-top: 70px; border-top: 2px solid var(--ink); padding-top: 16px; font-size: 0.82rem; color: var(--faint); }
+  footer .mono { font-size: 0.76rem; }
+  .gate { font-size: 0.84rem; color: var(--faint); border-left: 2px solid var(--jade); padding-left: 10px; margin: 8px 0; }
+  .gate b { color: var(--jade); font-family: "Be Vietnam Pro", sans-serif; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; }
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Vạn Thắng · Dragon Ascent · Design Dossier · The Return Run series</div>
+  <h1>The Coronation</h1>
+  <p class="standfirst">The first time the mode opens, the player <strong>makes their king</strong> — face, dress, name, house and banner — from the 298 wardrobe parts the game already owns. <strong>Zero new art:</strong> every option on every screen is a part, tint slot or emblem that already ships. A creator that doubles as the meta-progression's first lesson: <strong>what you make here is what grows across every reign.</strong></p>
+</header>
+
+<!-- ============================================================ 01 -->
+<section class="chapter">
+  <div class="chapter-head"><span class="no">01</span><div><h2>The research — why a creator, and which kind</h2><div class="kicker">What the genre knows about made-by-hand identity</div></div></div>
+
+  <p class="measure">Three findings from games research, each with a design consequence:</p>
+  <ul class="measure">
+    <li><b>Customized avatars measurably deepen engagement.</b> The avatar-identification literature (Yee &amp; Bailenson's Proteus-effect work and its successors) consistently finds players behave more investedly through characters they shaped. The <b>IKEA effect</b> compounds it: assembly itself creates attachment. A king the player <em>built</em> is a reason to come back that a rolled king is not — which is precisely the §Return-Run goal, "play again and again."</li>
+    <li><b>Named things trigger loss aversion and story-making.</b> XCOM squads, RimWorld colonists and Dwarf Fortress dwarves all show the same pattern: the moment a unit carries a chosen name, its death becomes an <em>event</em> the player retells. Our Chronicle is a story engine waiting for exactly this — a king the player named is a king whose fall the annals can quote.</li>
+    <li><b>Lineage beats individual.</b> Crusader Kings and Rogue Legacy demonstrate that in games where runs end, attachment survives best when it is vested in a <em>house</em> — the individual dies, the identity persists. Our Tông Phả dynasty ledger is already this shape; the creator is its missing front door.</li>
+  </ul>
+
+  <div class="table-scroll">
+  <table>
+    <tr><th>Game</th><th>What it does</th><th>What we take · what we refuse</th></tr>
+    <tr><td><b>Crusader Kings III</b><br><span class="why">ruler designer + barbershop</span></td><td>Full-detail ruler designer before play; a "barbershop" to re-dress later without changing stats</td><td><b>Take:</b> looks are free, stats are not — the creator never touches numbers. <b>Take:</b> the barbershop (re-dress later from the dynasty sheet). <b>Refuse:</b> the 40-slider depth — wrong for a phone and for a 90-second first-open.</td></tr>
+    <tr><td><b>Wildermyth</b><br><span class="why">roll-then-edit</span></td><td>Characters arrive generated; the player renames and tweaks rather than building from blank</td><td><b>Take:</b> the whole opening posture. Start from a <em>good rolled king</em> and let every stepper nudge — a blank-page creator stalls a first-time player before their first minute of play.</td></tr>
+    <tr><td><b>Rogue Legacy / CK</b><br><span class="why">lineage identity</span></td><td>Heirs carry the house forward; the player names the dynasty, not just the hero</td><td><b>Take:</b> the creator founds a <em>house</em>. The family name chosen here becomes "Nhà Lê" on the Tông Phả sheet — which the committed dynasty code already derives from the founder's family name.</td></tr>
+    <tr><td><b>XCOM 2</b><br><span class="why">unit ownership</span></td><td>Soldier customization + squad naming; famously the emotional core of a permadeath game</td><td><b>Take:</b> extend identity to the <em>army</em> — the first host is named, and the realm's standard is chosen. <b>Refuse:</b> per-soldier depth; one banner and one host name is the mobile-honest dose.</td></tr>
+    <tr><td><b>Battle Brothers / Mount &amp; Blade</b><br><span class="why">company banner</span></td><td>Company name + banner picked at founding, carried for the whole campaign</td><td><b>Take:</b> banner = two colours + an emblem, chosen once, worn on the house's chrome — the Tông Phả sheet, the ceremony, the war board header. <b>Refuse:</b> a map-flag system; the banner is an identity mark, not new army rendering.</td></tr>
+    <tr><td><b>Hades</b><br><span class="why">the counter-example</span></td><td>Fixed protagonist, zero customization — identity via authored character</td><td><b>Why we differ:</b> Hades buys identity with 20,000 lines of voiced dialogue. Our identity budget is the player's own choices plus the Chronicle quoting them — the creator <em>is</em> our Zagreus.</td></tr>
+  </table>
+  </div>
+
+  <div class="pillars">
+    <div class="pillar"><div class="glyph">一</div><h4>Roll first, edit second</h4><p>The creator opens on a finished, handsome king. Every control nudges; nothing starts blank. Skip is one tap and loses nothing.</p></div>
+    <div class="pillar"><div class="glyph">二</div><h4>Looks are free, numbers are not</h4><p>Nothing in the creator touches stats, odds or economy. The wave shadow makes bought power a lie anyway — identity is the one thing safe to give.</p></div>
+    <div class="pillar"><div class="glyph">三</div><h4>The creator teaches the meta</h4><p>Locked parts say what unlocks them. The rank-badge ladder is on the confirm screen. The first thing a player learns is that the house grows.</p></div>
+    <div class="pillar"><div class="glyph">四</div><h4>Ninety seconds, then war</h4><p>Four steps, all skippable, defaults everywhere. A first-open creator that outstays its welcome costs the run it exists to serve.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ 02 -->
+<section class="chapter">
+  <div class="chapter-head"><span class="no">02</span><div><h2>What already exists — the creator is mostly built</h2><div class="kicker">Verified in-repo: the wardrobe is a part-picker API wearing a random-seed hat</div></div></div>
+
+  <p class="measure">The portrait system was built for procedural heroes, but its architecture is <em>exactly</em> a creator's: pools of parts, filtered by era/sex/office/rank, composited by a renderer that "knows nothing about heroes." The seed is the only thing choosing — replace the seed with a thumb and the creator exists.</p>
+
+  <div class="table-scroll">
+  <table>
+    <tr><th>Piece</th><th>What's there</th><th>Creator relevance</th></tr>
+    <tr><td><b>298 SVG parts</b> <span class="why">public/faces/ · one generator, build-faces.mjs</span></td><td class="num">19 hats · 8 war helms · 5 nón · 4 khăn vấn<br>17 hair + 6 buns + 5 topknots + 5 women's sets<br>16 heads · 14 eyes · 14 brows · 13 mouths · 12 noses<br>10 beards · 8 marks · 8 collars · 8 rank badges<br>12 robes · 5 sashes · 4 yếm · earrings, hairpins…</td><td>The picker's entire inventory, already drawn, already era-tagged, already tint-slotted (six skin tones are one file).</td></tr>
+    <tr><td><b>The wardrobe API</b> <span class="why">ui/faces/wardrobe.ts</span></td><td><code>headwearFor(era, type, woman, rank)</code> · <code>manHairFor(era, age)</code> · <code>garmentsFor(…)</code> · <code>robeColour(…)</code> — pool functions, era first, always</td><td><b>The picker pages through these exact pools</b>, so the creator cannot produce an ahistorical king: a Trần hat never meets a Nguyễn collar because the pool function refuses to offer it. The era rules the wardrobe exists to enforce are enforced for free.</td></tr>
+    <tr><td><b>The renderer</b> <span class="why">ui/faces/heroLook.ts + FaceRenderer.ts</span></td><td><code>HeroLook = {{ parts: [{{key, tint}}], palette, … }}</code> — the renderer stacks whatever it is handed</td><td>A creator's output is literally a stored <code>HeroLook</code>. One new function: <code>resolveHeroLook</code> honours an explicit look on the king before falling to the seed.</td></tr>
+    <tr><td><b>Names</b> <span class="why">data/heroNames.ts + the name generator</span></td><td>Real họ / tên đệm / tên components; 125 historical figures; the runtime generator already composes plausible names</td><td>The name step is a <b>compose-and-reroll</b>, not a keyboard: pick a family name from the great họ, roll given names until one lands. (No text-input infrastructure exists in the game — see §06.)</td></tr>
+    <tr><td><b>The realm's standard</b> <span class="why">scenes/map/ArmyRenderer.ts:220</span></td><td>"The player's host flies the realm's own standard" — a <code>flagSeed</code> + kingdom colour already render on every marching column</td><td><b>Deliberately untouched.</b> The banner is a UI identity mark, not a map-flag system — ArmyRenderer keeps its existing standard as-is. (If the map ever should wear the banner, the hook exists; it is out of this feature's scope.)</td></tr>
+    <tr><td><b>The dynasty store</b> <span class="why">state/dynasty.ts — shipped in Phase 2</span></td><td><code>DynastyFounder {{id, name, type, sex, era, monastic}}</code> persists the founder for the Tông Phả sheet; house = family name</td><td>Gains <code>look</code>, <code>givenName</code> and <code>banner</code> fields. The king the player makes IS the dynasty's face, already rendered on the sheet, the ceremony and the level-up card.</td></tr>
+    <tr><td><b>The blank king</b> <span class="why">generateKingHero() in data/heroes.ts</span></td><td>The run's king is deliberately generic — a fixed i18n name, hard-coded <code>sex: 'man'</code>, no era — because the game already learned the player <b>is</b> the king (see §03)</td><td><b>The creator's exact integration point.</b> Its output overrides precisely the three fields the generic king hard-codes: name, sex, era — plus the stored look. The founder card is untouched: it already offers champions only.</td></tr>
+  </table>
+  </div>
+
+  <div class="callout gold">
+    <h4>The zero-new-art contract</h4>
+    <p>The creator's whole inventory is what ships today, unchanged: the <b>298 parts</b> in <code>public/faces/</code> (heads, hair, hats, helms, robes, beards, marks, badges — six skin tones already one tinted file, so a skin stepper is free) · the <b>tint slots</b> the run already colours (<code>skin</code>, <code>hair</code>, <code>robe</code>, <code>robeDark</code>…) for the dress-colour choices · the <b>CardIcons vocabulary</b> for banner emblems · the <b>ArmyRenderer kit</b> for the march preview. Every locked row in §05 names a part that already exists (the 8 war helms, the gold coronet, the jade hairpins — all in the current families). If a design idea needs a new drawing, it is out of this feature's scope by definition — the doc's option counts are the shipped counts, not a wishlist.</p>
+  </div>
+
+  <div class="callout jade">
+    <h4>The one rule that must survive the creator</h4>
+    <p>The wardrobe's founding law — <b>"the seed never decides who someone is"</b> — was written because every named woman once rendered with a beard. The creator keeps the same shape: sex and era are chosen as <em>identity</em> on step one, and every subsequent stepper pages only within the pools those choices admit. A creator that let any part meet any part would un-fix the exact bug this system was built to fix, and break the era authenticity (the 1744 collar reform, the Trần cropped hair, bổ tử badges only on the round collar) that the wardrobe file documents line by line.</p>
+  </div>
+</section>
+
+<!-- ============================================================ 03 -->
+<section class="chapter">
+  <div class="chapter-head"><span class="no">03</span><div><h2>The flow — where it sits, and when it returns</h2></div></div>
+
+  <figure>
+    <svg viewBox="0 0 880 300" role="img" aria-label="First open: play leads into the coronation's four steps — king, name, banner, crown — then the who-rises card and the run. Returning runs skip straight from play to the run with the king already on the throne; the temple on the dynasty sheet re-opens the wardrobe; an ascension re-runs the full coronation for the new founder.">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker>
+      <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--gold)"/></marker></defs>
+      <g fill="none" stroke="currentColor" stroke-width="1.4">
+        <rect x="16" y="40" width="96" height="54" rx="4"/>
+        <rect x="156" y="20" width="400" height="94" rx="4" stroke="var(--cinnabar)" stroke-width="2.2"/>
+        <rect x="600" y="40" width="120" height="54" rx="4"/>
+        <rect x="764" y="40" width="100" height="54" rx="4" stroke-width="2"/>
+      </g>
+      <g fill="none" stroke="currentColor" stroke-width="1.2">
+        <rect x="170" y="44" width="82" height="46" rx="3"/>
+        <rect x="266" y="44" width="82" height="46" rx="3"/>
+        <rect x="362" y="44" width="82" height="46" rx="3"/>
+        <rect x="458" y="44" width="82" height="46" rx="3"/>
+      </g>
+      <g font-family="'Be Vietnam Pro', sans-serif" font-size="12" font-weight="700" fill="currentColor" text-anchor="middle">
+        <text x="64" y="62">PLAY</text>
+        <text x="356" y="14" fill="var(--cinnabar)">THE CORONATION — first open only, ~90 seconds</text>
+        <text x="211" y="63">1 · KING</text>
+        <text x="307" y="63">2 · NAME</text>
+        <text x="403" y="63">3 · BANNER</text>
+        <text x="499" y="63">4 · CROWN</text>
+        <text x="660" y="62">WHO RISES</text>
+        <text x="814" y="62">THE RUN</text>
+      </g>
+      <g font-family="'Source Serif 4', serif" font-size="10" fill="currentColor" opacity="0.75" text-anchor="middle">
+        <text x="64" y="78">first ever open</text>
+        <text x="211" y="78">face + dress</text>
+        <text x="307" y="78">họ (army style) · tên</text>
+        <text x="403" y="78">colours + emblem</text>
+        <text x="499" y="78">confirm + ladder</text>
+        <text x="660" y="78">the founder card,</text>
+        <text x="660" y="90">champions only now</text>
+      </g>
+      <g stroke="currentColor" stroke-width="1.4" fill="none">
+        <line x1="112" y1="67" x2="154" y2="67" marker-end="url(#arr)"/>
+        <line x1="556" y1="67" x2="598" y2="67" marker-end="url(#arr)"/>
+        <line x1="720" y1="67" x2="762" y2="67" marker-end="url(#arr)"/>
+      </g>
+      <!-- skip path -->
+      <path d="M170 100 Q160 140 356 140 Q540 140 552 104" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+      <text font-family="'IBM Plex Mono', monospace" font-size="10" fill="currentColor" opacity="0.8" x="356" y="156" text-anchor="middle">"Let the chroniclers decide" — one tap, a rolled king, still named on the crown step</text>
+      <!-- returning paths -->
+      <g stroke="var(--gold)" stroke-width="1.6" fill="none">
+        <path d="M64 94 L64 220 L810 220 L810 96" marker-end="url(#arrG)"/>
+        <path d="M310 220 L310 260 L211 260 L211 94" stroke-dasharray="5 4" marker-end="url(#arrG)"/>
+        <path d="M560 220 L560 264 L170 264" stroke-dasharray="2 3"/>
+      </g>
+      <g font-family="'IBM Plex Mono', monospace" font-size="10" fill="var(--gold)">
+        <text x="380" y="212">every later open: the king is already on the throne — straight to the run</text>
+        <text x="322" y="256">the Temple (Tông Phả sheet): re-dress any time — looks only, CK barbershop rule</text>
+        <text x="330" y="278">ascension (M5): the full coronation again, for the NEW founder of the next line</text>
+      </g>
+    </svg>
+    <figcaption><b>Once, then owned.</b> The coronation runs exactly once — before the mandate and founder cards of the first run — and never gates a later open. The Temple keeps looks editable forever (the CK barbershop rule: re-dress, never re-stat), and ascension is the one event that re-runs the full rite, because a new line deserves a new founding.</figcaption>
+  </figure>
+
+  <div class="callout jade">
+    <h4>"I'm the king. Not Nguyễn Hoàng." — the game already decided this</h4>
+    <p>The strongest evidence for this feature is written in <code>data/heroes.ts</code> itself. The throne <em>used to</em> deal named emperors from a <code>KINGS</code> pool with temperaments, and a player's reported reaction killed it: <b>"I'm the king. Not Nguyễn Hoàng."</b> The devlog comment calls it a mistake worth leaving written down — <em>"Whose dynasty this is was never the question. It is yours."</em> The kings became Legendary champions who serve the throne; the temperaments were cut as display-only promises; and the run's king became <code>generateKingHero()</code> — a deliberately blank figure with a fixed name, <code>sex: 'man'</code> and no era.</p>
+    <p>The Coronation is the completion of that decision, not a reversal: the game refused to fabricate the king's identity, and this screen finally lets the player supply it. Consequently: <b>the founder card needs no changes at all</b> (it already offers champions only, and every harness answering <code>options[0]</code> is untouched), and <b>there is no temperament step</b> — resurrecting one would repeat the documented mistake. The reign's opening advantage is already a real card (<code>openingOnly</code> entries in <code>ascentCards.ts</code>) and stays where it is.</p>
+  </div>
+</section>
+
+<!-- ============================================================ 04 -->
+<section class="chapter">
+  <div class="chapter-head"><span class="no">04</span><div><h2>The screens</h2><div class="kicker">Four steps, one skip, every control a nudge on a finished king</div></div></div>
+
+  <div class="mockrow">
+    <div class="mock">
+      <div class="mtitle">1 · The King<small>rolled complete; steppers page the real wardrobe pools</small></div>
+      <div class="phone">
+        <div class="mhead">LỄ ĐĂNG QUANG<small>the realm awaits its founder</small></div>
+        <div class="steps-dots"><i class="on"></i><i></i><i></i><i></i></div>
+        <div class="portrait">
+          <svg viewBox="-68 -88 136 176" aria-hidden="true">
+  <svg x="-68" y="-86" width="136" height="170" viewBox="-68 -86 136 170"><rect x="-66" y="-84" width="132" height="166" rx="3" fill="#2f2618"/>
+     <rect x="-66" y="-84" width="132" height="166" rx="3" fill="none" stroke="#8a6f3c" stroke-width="1.8"/></svg>
+  <svg x="-48" y="37" width="96" height="58" viewBox="-48 37 96 58"><path d="M -46 93 C -44 53, -30 41, 0 39
+   C 30 41, 44 53, 46 93 Z" fill="#2f5170"/></svg>
+  <svg x="4" y="37" width="44" height="58" viewBox="4 37 44 58"><path d="M 6 39 C 26 43, 44 59, 46 93 L 18 93 Z" fill="#4d6f8e" opacity=".5"/></svg>
+  <svg x="-17" y="33" width="34" height="23" viewBox="-17 33 34 23"><path d="M -15 35 C -15 52, 15 52, 15 35
+     C 15 60, -15 60, -15 35 Z" fill="#0d2f4e"/></svg>
+  <svg x="-17" y="33" width="34" height="17" viewBox="-17 33 34 17"><path d="M -15 35 C -15 52, 15 52, 15 35" stroke="#d9b35a" stroke-width="1.6" fill="none"/></svg>
+  <svg x="-13" y="48" width="26" height="27" viewBox="-13 48 26 27"><rect x="-11" y="51" width="22" height="22" rx="1.5" fill="#241d14" stroke="#d9b35a" stroke-width="1.4"/><path d="M -2 70 C -6 65, -5 60, 0 59
+     C 4 58, 5 55, 3 54 L 7 53
+     C 8 57, 6 61, 3 63
+     C 5 67, 6 70, 4 71 Z" fill="#e8ddc4"/><path d="M 5 53 l 3 -2.5" stroke="#e8ddc4" stroke-width="1.4" stroke-linecap="round"/></svg>
+  <svg x="-36" y="79" width="72" height="12" viewBox="-36 79 72 12"><rect x="-34" y="81" width="68" height="8" rx="1.5" fill="#3a3128"/><rect x="-28" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="-12" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="4" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="20" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/></svg>
+  <svg x="-14" y="18" width="28" height="31" viewBox="-14 18 28 31"><path d="M -10.5 20
+     C -10.5 29, -9.9 39, -12 47
+     L 12 47
+     C 9.9 39, 10.5 29, 10.5 20 Z" fill="#caa57c"/></svg>
+  <svg x="-38" y="-23" width="75" height="26" viewBox="-38 -23 75 26"><ellipse cx="-30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/>
+   <ellipse cx="30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/></svg>
+  <svg x="-31" y="-53" width="62" height="82" viewBox="-31 -53 62 82"><path d="M -29 -7.02
+    C -29 -30.42, -16.240000000000002 -39, 0 -39
+    C 16.240000000000002 -39, 29 -30.42, 29 -7.02
+    C 29 14.04, 26.1 31.979999999999997, 0 39
+    C -26.1 31.979999999999997, -29 14.04, -29 -7.02 Z" transform="translate(0,-12)" fill="#e8c39a"/></svg>
+  <svg x="-33" y="-52" width="65" height="25" viewBox="-33 -52 65 25"><path d="M -30 -29 C -32 -56, 32 -56, 30 -29
+    C 25 -43, -25 -43, -30 -29 Z" fill="#2a1f14"/></svg>
+  <svg x="-55" y="-71" width="110" height="36" viewBox="-55 -71 110 36"><path d="M -25 -41 L -25 -63 C -25 -71, 25 -71, 25 -63 L 25 -41 Z" fill="#191713"/>
+     <rect x="-29" y="-45" width="58" height="8" rx="2" fill="#191713"/>
+     <path d="M -27 -49 q -26 -3 -26 3 q 0 6 26 3 Z" fill="#191713"/>
+     <path d="M 27 -49 q 26 -3 26 3 q 0 6 -26 3 Z" fill="#191713"/>
+     </svg>
+  <svg x="-25" y="-29" width="49" height="6" viewBox="-25 -29 49 6"><g transform="translate(-12.5,-18)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g><g transform="translate(12.5,-18) scale(-1,1)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g></svg>
+  <svg x="-23" y="-25" width="46" height="11" viewBox="-23 -25 46 11"><g transform="translate(-12.5,-18)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g><g transform="translate(12.5,-18) scale(-1,1)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g></svg>
+  <svg x="-4" y="-15" width="9" height="14" viewBox="-4 -15 9 14"><path d="M -1 -13 q -1.6 7 1.2 9 q 2.4 0.8 3.2 -1.4"
+     stroke="#caa57c" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+  <svg x="-9" y="13" width="17" height="5" viewBox="-9 13 17 5"><path d="M -6.5 15 q 6.5 0.6 13 0" stroke="#6b3226" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  <svg x="-12" y="6" width="24" height="8" viewBox="-12 6 24 8"><path d="M -10 10 q 10 -3 20 0 q -10 3.4 -20 0 Z" fill="#2a1f14" opacity=".9"/></svg>
+  <svg x="42" y="58" width="20" height="20" viewBox="42 58 20 20"><rect x="44" y="60" width="16" height="16" rx="2" fill="#aa3a2c"/>
+     <rect x="47" y="63" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/><rect x="47" y="67" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/></svg>
+</svg>
+        </div>
+        <div class="mcap">mũ phốc đầu (long wings) · áo viên lĩnh · bổ tử crane · Lê azure —<br><b>composed from the shipped parts, verbatim</b></div>
+        <div class="stepper"><span class="arr">‹</span><span class="lbl"><b>Headwear — mũ phốc đầu</b><small>4 of 19 · the dragonfly wings lengthen with rank</small></span><span class="arr">›</span></div>
+        <div class="stepper"><span class="arr">‹</span><span class="lbl"><b>Face</b><small>head 7 · brow 3 · beard: thư sinh</small></span><span class="arr">›</span></div>
+        <div class="stepper"><span class="arr">‹</span><span class="lbl"><b>Dress — áo viên lĩnh</b><small>the round collar carries the bổ tử badge</small></span><span class="arr">›</span></div>
+        <div class="stepper locked"><span class="arr">·</span><span class="lbl"><b>🔒 War helm — giáp trụ</b><small>unlocks: survive wave 10 once</small></span><span class="arr">·</span></div>
+        <div class="mrow"><b>Woman · Man</b> <span class="sub">and the court's era: Lý · Trần · Lê · Nguyễn — identity first, then the dress pools follow (the wardrobe's own law). The king wears whichever court you choose; the họ has no say here.</span></div>
+        <div class="mbtn primary">Next — the name ›</div>
+        <div class="mbtn ghost">🎲 Roll another king · Let the chroniclers decide ››</div>
+      </div>
+    </div>
+    <div class="mock">
+      <div class="mtitle">2 · The Name<small>compose-and-reroll — no keyboard required, one optional</small></div>
+      <div class="phone">
+        <div class="mhead">THE NAME<small>what the annals will write</small></div>
+        <div class="steps-dots"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+        <div class="portrait small">
+          <svg viewBox="-68 -88 136 176" aria-hidden="true">
+  <svg x="-68" y="-86" width="136" height="170" viewBox="-68 -86 136 170"><rect x="-66" y="-84" width="132" height="166" rx="3" fill="#2f2618"/>
+     <rect x="-66" y="-84" width="132" height="166" rx="3" fill="none" stroke="#8a6f3c" stroke-width="1.8"/></svg>
+  <svg x="-48" y="37" width="96" height="58" viewBox="-48 37 96 58"><path d="M -46 93 C -44 53, -30 41, 0 39
+   C 30 41, 44 53, 46 93 Z" fill="#2f5170"/></svg>
+  <svg x="4" y="37" width="44" height="58" viewBox="4 37 44 58"><path d="M 6 39 C 26 43, 44 59, 46 93 L 18 93 Z" fill="#4d6f8e" opacity=".5"/></svg>
+  <svg x="-17" y="33" width="34" height="23" viewBox="-17 33 34 23"><path d="M -15 35 C -15 52, 15 52, 15 35
+     C 15 60, -15 60, -15 35 Z" fill="#0d2f4e"/></svg>
+  <svg x="-17" y="33" width="34" height="17" viewBox="-17 33 34 17"><path d="M -15 35 C -15 52, 15 52, 15 35" stroke="#d9b35a" stroke-width="1.6" fill="none"/></svg>
+  <svg x="-13" y="48" width="26" height="27" viewBox="-13 48 26 27"><rect x="-11" y="51" width="22" height="22" rx="1.5" fill="#241d14" stroke="#d9b35a" stroke-width="1.4"/><path d="M -2 70 C -6 65, -5 60, 0 59
+     C 4 58, 5 55, 3 54 L 7 53
+     C 8 57, 6 61, 3 63
+     C 5 67, 6 70, 4 71 Z" fill="#e8ddc4"/><path d="M 5 53 l 3 -2.5" stroke="#e8ddc4" stroke-width="1.4" stroke-linecap="round"/></svg>
+  <svg x="-36" y="79" width="72" height="12" viewBox="-36 79 72 12"><rect x="-34" y="81" width="68" height="8" rx="1.5" fill="#3a3128"/><rect x="-28" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="-12" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="4" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="20" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/></svg>
+  <svg x="-14" y="18" width="28" height="31" viewBox="-14 18 28 31"><path d="M -10.5 20
+     C -10.5 29, -9.9 39, -12 47
+     L 12 47
+     C 9.9 39, 10.5 29, 10.5 20 Z" fill="#caa57c"/></svg>
+  <svg x="-38" y="-23" width="75" height="26" viewBox="-38 -23 75 26"><ellipse cx="-30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/>
+   <ellipse cx="30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/></svg>
+  <svg x="-31" y="-53" width="62" height="82" viewBox="-31 -53 62 82"><path d="M -29 -7.02
+    C -29 -30.42, -16.240000000000002 -39, 0 -39
+    C 16.240000000000002 -39, 29 -30.42, 29 -7.02
+    C 29 14.04, 26.1 31.979999999999997, 0 39
+    C -26.1 31.979999999999997, -29 14.04, -29 -7.02 Z" transform="translate(0,-12)" fill="#e8c39a"/></svg>
+  <svg x="-33" y="-52" width="65" height="25" viewBox="-33 -52 65 25"><path d="M -30 -29 C -32 -56, 32 -56, 30 -29
+    C 25 -43, -25 -43, -30 -29 Z" fill="#2a1f14"/></svg>
+  <svg x="-55" y="-71" width="110" height="36" viewBox="-55 -71 110 36"><path d="M -25 -41 L -25 -63 C -25 -71, 25 -71, 25 -63 L 25 -41 Z" fill="#191713"/>
+     <rect x="-29" y="-45" width="58" height="8" rx="2" fill="#191713"/>
+     <path d="M -27 -49 q -26 -3 -26 3 q 0 6 26 3 Z" fill="#191713"/>
+     <path d="M 27 -49 q 26 -3 26 3 q 0 6 -26 3 Z" fill="#191713"/>
+     </svg>
+  <svg x="-25" y="-29" width="49" height="6" viewBox="-25 -29 49 6"><g transform="translate(-12.5,-18)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g><g transform="translate(12.5,-18) scale(-1,1)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g></svg>
+  <svg x="-23" y="-25" width="46" height="11" viewBox="-23 -25 46 11"><g transform="translate(-12.5,-18)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g><g transform="translate(12.5,-18) scale(-1,1)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g></svg>
+  <svg x="-4" y="-15" width="9" height="14" viewBox="-4 -15 9 14"><path d="M -1 -13 q -1.6 7 1.2 9 q 2.4 0.8 3.2 -1.4"
+     stroke="#caa57c" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+  <svg x="-9" y="13" width="17" height="5" viewBox="-9 13 17 5"><path d="M -6.5 15 q 6.5 0.6 13 0" stroke="#6b3226" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  <svg x="-12" y="6" width="24" height="8" viewBox="-12 6 24 8"><path d="M -10 10 q 10 -3 20 0 q -10 3.4 -20 0 Z" fill="#2a1f14" opacity=".9"/></svg>
+  <svg x="42" y="58" width="20" height="20" viewBox="42 58 20 20"><rect x="44" y="60" width="16" height="16" rx="2" fill="#aa3a2c"/>
+     <rect x="47" y="63" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/><rect x="47" y="67" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/></svg>
+</svg>
+        </div>
+        <div class="stepper"><span class="arr">‹</span><span class="lbl"><b>Họ — Lê</b><small>Đinh · Lý · Trần · Lê · Nguyễn — the house, and the <b>army's</b> historical style. Never the king's dress: that stays step 1's choice.</small></span><span class="arr">›</span></div>
+        <div class="stepper"><span class="arr">🎲</span><span class="lbl"><b>Tên — Duy Khang</b><small>rolled from the real name components (heroNames.ts)</small></span><span class="arr">🎲</span></div>
+        <div class="mrow gold"><b>Lê Duy Khang</b><span class="sub">and therefore the house: <b>Nhà Lê</b> — the name the Tông Phả sheet, the ceremony and the Chronicle will use for every reign after this one</span></div>
+        <div class="mrow dim"><b>⌨ Write it yourself</b><span class="sub">optional DOM overlay input where the platform allows; the composer is the path that always works</span></div>
+        <div class="mcap">names are never translated — the same string in both languages,<br>like every hero in the catalog</div>
+        <div class="mbtn primary">Next — the banner ›</div>
+      </div>
+    </div>
+    <div class="mock">
+      <div class="mtitle">3 · The Banner<small>two colours + an emblem — the house's mark, everywhere the house appears</small></div>
+      <div class="phone">
+        <div class="mhead">THE BANNER<small>the mark of Nhà Lê</small></div>
+        <div class="steps-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+        <div class="flagrow">
+          <svg viewBox="0 0 70 110" width="66" aria-hidden="true">
+            <line x1="4" y1="8" x2="66" y2="8" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M10 10 L60 10 L60 88 L35 102 L10 88 Z" fill="var(--cinnabar)"/>
+            <path d="M10 10 L60 10 L60 20 L10 20 Z" fill="var(--gold)" opacity="0.9"/>
+            <path d="M10 82 L60 82 L60 88 L35 102 L10 88 Z" fill="var(--gold)" opacity="0.5"/>
+            <circle cx="35" cy="48" r="13" fill="none" stroke="var(--gold)" stroke-width="3"/>
+            <path d="M28 48 L42 48 M35 41 L35 55" stroke="var(--gold)" stroke-width="2.5"/>
+          </svg>
+          <div style="flex: 1;">
+            <div class="mcap" style="text-align: left;">field</div>
+            <div class="swatches"><i class="on" style="background: var(--cinnabar)"></i><i style="background: var(--gold)"></i><i style="background: var(--jade)"></i><i style="background: #4a5a8a"></i><i style="background: var(--ink)"></i></div>
+            <div class="mcap" style="text-align: left; margin-top: 5px;">trim</div>
+            <div class="swatches"><i style="background: var(--cinnabar)"></i><i class="on" style="background: var(--gold)"></i><i style="background: var(--jade)"></i><i style="background: #4a5a8a"></i><i style="background: var(--panel)"></i></div>
+          </div>
+        </div>
+        <div class="stepper"><span class="arr">‹</span><span class="lbl"><b>Emblem — the Seal</b><small>drum · stakes · lotus · crane · seal · sheaf (the CardIcons vocabulary)</small></span><span class="arr">›</span></div>
+        <div class="mrow"><b>The army follows the họ</b><span class="sub">Nhà Lê fields a Lê-styled army — hosts, levies and their commanders take the dynasty's era, whatever court the king himself dresses in. The banner opens on the dynasty's historical field colour and stays adjustable.</span></div>
+        <div class="mrow jade"><b>Where the banner lives</b><span class="sub">the Tông Phả sheet's head, the ceremony's seal, the war board header, the next-reign screen — the house's chrome, not a new map-flag system</span></div>
+        <div class="mbtn primary">Next — the crown ›</div>
+      </div>
+    </div>
+    <div class="mock">
+      <div class="mtitle">4 · The Crown<small>confirm — and the meta-progression's first lesson</small></div>
+      <div class="phone">
+        <div class="mhead">LÊN NGÔI<small>Lê Duy Khang · Nhà Lê</small></div>
+        <div class="steps-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+        <div class="portrait">
+          <svg viewBox="-68 -88 136 176" aria-hidden="true">
+  <svg x="-68" y="-86" width="136" height="170" viewBox="-68 -86 136 170"><rect x="-66" y="-84" width="132" height="166" rx="3" fill="#2f2618"/>
+     <rect x="-66" y="-84" width="132" height="166" rx="3" fill="none" stroke="#8a6f3c" stroke-width="1.8"/></svg>
+  <svg x="-48" y="37" width="96" height="58" viewBox="-48 37 96 58"><path d="M -46 93 C -44 53, -30 41, 0 39
+   C 30 41, 44 53, 46 93 Z" fill="#2f5170"/></svg>
+  <svg x="4" y="37" width="44" height="58" viewBox="4 37 44 58"><path d="M 6 39 C 26 43, 44 59, 46 93 L 18 93 Z" fill="#4d6f8e" opacity=".5"/></svg>
+  <svg x="-17" y="33" width="34" height="23" viewBox="-17 33 34 23"><path d="M -15 35 C -15 52, 15 52, 15 35
+     C 15 60, -15 60, -15 35 Z" fill="#0d2f4e"/></svg>
+  <svg x="-17" y="33" width="34" height="17" viewBox="-17 33 34 17"><path d="M -15 35 C -15 52, 15 52, 15 35" stroke="#d9b35a" stroke-width="1.6" fill="none"/></svg>
+  <svg x="-13" y="48" width="26" height="27" viewBox="-13 48 26 27"><rect x="-11" y="51" width="22" height="22" rx="1.5" fill="#241d14" stroke="#d9b35a" stroke-width="1.4"/><path d="M -2 70 C -6 65, -5 60, 0 59
+     C 4 58, 5 55, 3 54 L 7 53
+     C 8 57, 6 61, 3 63
+     C 5 67, 6 70, 4 71 Z" fill="#e8ddc4"/><path d="M 5 53 l 3 -2.5" stroke="#e8ddc4" stroke-width="1.4" stroke-linecap="round"/></svg>
+  <svg x="-36" y="79" width="72" height="12" viewBox="-36 79 72 12"><rect x="-34" y="81" width="68" height="8" rx="1.5" fill="#3a3128"/><rect x="-28" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="-12" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="4" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="20" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/></svg>
+  <svg x="-14" y="18" width="28" height="31" viewBox="-14 18 28 31"><path d="M -10.5 20
+     C -10.5 29, -9.9 39, -12 47
+     L 12 47
+     C 9.9 39, 10.5 29, 10.5 20 Z" fill="#caa57c"/></svg>
+  <svg x="-38" y="-23" width="75" height="26" viewBox="-38 -23 75 26"><ellipse cx="-30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/>
+   <ellipse cx="30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/></svg>
+  <svg x="-31" y="-53" width="62" height="82" viewBox="-31 -53 62 82"><path d="M -29 -7.02
+    C -29 -30.42, -16.240000000000002 -39, 0 -39
+    C 16.240000000000002 -39, 29 -30.42, 29 -7.02
+    C 29 14.04, 26.1 31.979999999999997, 0 39
+    C -26.1 31.979999999999997, -29 14.04, -29 -7.02 Z" transform="translate(0,-12)" fill="#e8c39a"/></svg>
+  <svg x="-33" y="-52" width="65" height="25" viewBox="-33 -52 65 25"><path d="M -30 -29 C -32 -56, 32 -56, 30 -29
+    C 25 -43, -25 -43, -30 -29 Z" fill="#2a1f14"/></svg>
+  <svg x="-55" y="-71" width="110" height="36" viewBox="-55 -71 110 36"><path d="M -25 -41 L -25 -63 C -25 -71, 25 -71, 25 -63 L 25 -41 Z" fill="#191713"/>
+     <rect x="-29" y="-45" width="58" height="8" rx="2" fill="#191713"/>
+     <path d="M -27 -49 q -26 -3 -26 3 q 0 6 26 3 Z" fill="#191713"/>
+     <path d="M 27 -49 q 26 -3 26 3 q 0 6 -26 3 Z" fill="#191713"/>
+     </svg>
+  <svg x="-25" y="-29" width="49" height="6" viewBox="-25 -29 49 6"><g transform="translate(-12.5,-18)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g><g transform="translate(12.5,-18) scale(-1,1)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g></svg>
+  <svg x="-23" y="-25" width="46" height="11" viewBox="-23 -25 46 11"><g transform="translate(-12.5,-18)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g><g transform="translate(12.5,-18) scale(-1,1)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g></svg>
+  <svg x="-4" y="-15" width="9" height="14" viewBox="-4 -15 9 14"><path d="M -1 -13 q -1.6 7 1.2 9 q 2.4 0.8 3.2 -1.4"
+     stroke="#caa57c" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+  <svg x="-9" y="13" width="17" height="5" viewBox="-9 13 17 5"><path d="M -6.5 15 q 6.5 0.6 13 0" stroke="#6b3226" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  <svg x="-12" y="6" width="24" height="8" viewBox="-12 6 24 8"><path d="M -10 10 q 10 -3 20 0 q -10 3.4 -20 0 Z" fill="#2a1f14" opacity=".9"/></svg>
+  <svg x="42" y="58" width="20" height="20" viewBox="42 58 20 20"><rect x="44" y="60" width="16" height="16" rx="2" fill="#aa3a2c"/>
+     <rect x="47" y="63" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/><rect x="47" y="67" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/></svg>
+</svg>
+        </div>
+        <div class="mrow gold"><b>This king grows.</b><span class="sub">Every reign feeds the house: the badge on this portrait steps Common → Rare → Epic → Legendary with the dynasty's level, traits stack on the Tông Phả sheet, and the Cabinet keeps every seal you bind.</span></div>
+        <div class="mrow"><b>What follows</b><span class="sub">the mandate card (your opening advantage — a real card, not a temperament) and then who rises with you. The war begins in two taps.</span></div>
+        <div class="mrow dim"><b>The Temple</b><span class="sub">re-dress your king any time from the Tông Phả sheet — looks change freely, the reign's record never does</span></div>
+        <div class="mbtn primary">Take the throne</div>
+        <div class="mbtn ghost">‹ Back — adjust the banner</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>The badge ladder on the crown step — the meta, taught in one image</h3>
+  <div class="ladder">
+    <div class="lcol">
+      <div class="portrait small"><svg viewBox="-68 -88 136 176" aria-hidden="true">
+  <svg x="-68" y="-86" width="136" height="170" viewBox="-68 -86 136 170"><rect x="-66" y="-84" width="132" height="166" rx="3" fill="#2a241a"/>
+     <rect x="-66" y="-84" width="132" height="166" rx="3" fill="none" stroke="#5a4c33" stroke-width="1.8"/></svg>
+  <svg x="-48" y="37" width="96" height="58" viewBox="-48 37 96 58"><path d="M -46 93 C -44 53, -30 41, 0 39
+   C 30 41, 44 53, 46 93 Z" fill="#2f5170"/></svg>
+  <svg x="4" y="37" width="44" height="58" viewBox="4 37 44 58"><path d="M 6 39 C 26 43, 44 59, 46 93 L 18 93 Z" fill="#4d6f8e" opacity=".5"/></svg>
+  <svg x="-17" y="33" width="34" height="23" viewBox="-17 33 34 23"><path d="M -15 35 C -15 52, 15 52, 15 35
+     C 15 60, -15 60, -15 35 Z" fill="#0d2f4e"/></svg>
+  <svg x="-17" y="33" width="34" height="17" viewBox="-17 33 34 17"><path d="M -15 35 C -15 52, 15 52, 15 35" stroke="#d9b35a" stroke-width="1.6" fill="none"/></svg>
+  <svg x="-13" y="49" width="26" height="26" viewBox="-13 49 26 26"><rect x="-11" y="51" width="22" height="22" rx="1.5" fill="#241d14" stroke="#d9b35a" stroke-width="1.4"/><path d="M -2 70 C -6 65, -5 60, 0 59
+     C 4 58, 5 55, 3 54 L 7 53
+     C 8 57, 6 61, 3 63
+     C 8 67, 9 70, 7 71 Z" fill="#e8ddc4"/></svg>
+  <svg x="-14" y="18" width="28" height="31" viewBox="-14 18 28 31"><path d="M -10.5 20
+     C -10.5 29, -9.9 39, -12 47
+     L 12 47
+     C 9.9 39, 10.5 29, 10.5 20 Z" fill="#caa57c"/></svg>
+  <svg x="-38" y="-23" width="75" height="26" viewBox="-38 -23 75 26"><ellipse cx="-30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/>
+   <ellipse cx="30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/></svg>
+  <svg x="-31" y="-53" width="62" height="82" viewBox="-31 -53 62 82"><path d="M -29 -7.02
+    C -29 -30.42, -16.240000000000002 -39, 0 -39
+    C 16.240000000000002 -39, 29 -30.42, 29 -7.02
+    C 29 14.04, 26.1 31.979999999999997, 0 39
+    C -26.1 31.979999999999997, -29 14.04, -29 -7.02 Z" transform="translate(0,-12)" fill="#e8c39a"/></svg>
+  <svg x="-33" y="-52" width="65" height="25" viewBox="-33 -52 65 25"><path d="M -30 -29 C -32 -56, 32 -56, 30 -29
+    C 25 -43, -25 -43, -30 -29 Z" fill="#2a1f14"/></svg>
+  <svg x="-46" y="-71" width="92" height="36" viewBox="-46 -71 92 36"><path d="M -25 -41 L -25 -63 C -25 -71, 25 -71, 25 -63 L 25 -41 Z" fill="#191713"/>
+     <rect x="-29" y="-45" width="58" height="8" rx="2" fill="#191713"/>
+     <path d="M -27 -49 q -17 -3 -17 3 q 0 6 17 3 Z" fill="#191713"/>
+     <path d="M 27 -49 q 17 -3 17 3 q 0 6 -17 3 Z" fill="#191713"/>
+     </svg>
+  <svg x="-25" y="-29" width="49" height="6" viewBox="-25 -29 49 6"><g transform="translate(-12.5,-18)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g><g transform="translate(12.5,-18) scale(-1,1)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g></svg>
+  <svg x="-23" y="-25" width="46" height="11" viewBox="-23 -25 46 11"><g transform="translate(-12.5,-18)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g><g transform="translate(12.5,-18) scale(-1,1)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g></svg>
+  <svg x="-4" y="-15" width="9" height="14" viewBox="-4 -15 9 14"><path d="M -1 -13 q -1.6 7 1.2 9 q 2.4 0.8 3.2 -1.4"
+     stroke="#caa57c" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+  <svg x="-9" y="13" width="17" height="5" viewBox="-9 13 17 5"><path d="M -6.5 15 q 6.5 0.6 13 0" stroke="#6b3226" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  <svg x="-12" y="6" width="24" height="8" viewBox="-12 6 24 8"><path d="M -10 10 q 10 -3 20 0 q -10 3.4 -20 0 Z" fill="#2a1f14" opacity=".9"/></svg>
+</svg></div>
+      <div class="lcap"><b>Founding</b>Common plate · your first reign</div>
+    </div>
+    <div class="lcol">
+      <div class="portrait small" style="border-color: var(--silver, #6e7079);"><svg viewBox="-68 -88 136 176" aria-hidden="true">
+  <svg x="-68" y="-86" width="136" height="170" viewBox="-68 -86 136 170"><rect x="-66" y="-84" width="132" height="166" rx="3" fill="#2a2a1a"/>
+     <rect x="-66" y="-84" width="132" height="166" rx="3" fill="none" stroke="#6c5a37" stroke-width="1.8"/></svg>
+  <svg x="-48" y="37" width="96" height="58" viewBox="-48 37 96 58"><path d="M -46 93 C -44 53, -30 41, 0 39
+   C 30 41, 44 53, 46 93 Z" fill="#2f5170"/></svg>
+  <svg x="4" y="37" width="44" height="58" viewBox="4 37 44 58"><path d="M 6 39 C 26 43, 44 59, 46 93 L 18 93 Z" fill="#4d6f8e" opacity=".5"/></svg>
+  <svg x="-17" y="33" width="34" height="23" viewBox="-17 33 34 23"><path d="M -15 35 C -15 52, 15 52, 15 35
+     C 15 60, -15 60, -15 35 Z" fill="#0d2f4e"/></svg>
+  <svg x="-17" y="33" width="34" height="17" viewBox="-17 33 34 17"><path d="M -15 35 C -15 52, 15 52, 15 35" stroke="#d9b35a" stroke-width="1.6" fill="none"/></svg>
+  <svg x="-13" y="48" width="26" height="27" viewBox="-13 48 26 27"><rect x="-11" y="51" width="22" height="22" rx="1.5" fill="#241d14" stroke="#d9b35a" stroke-width="1.4"/><path d="M -2 70 C -6 65, -5 60, 0 59
+     C 4 58, 5 55, 3 54 L 7 53
+     C 8 57, 6 61, 3 63
+     C 8 67, 9 70, 7 71 Z" fill="#e8ddc4"/><path d="M 5 53 l 3 -2.5" stroke="#e8ddc4" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="68" r="1.6" fill="#6f8f64"/></svg>
+  <svg x="-14" y="18" width="28" height="31" viewBox="-14 18 28 31"><path d="M -10.5 20
+     C -10.5 29, -9.9 39, -12 47
+     L 12 47
+     C 9.9 39, 10.5 29, 10.5 20 Z" fill="#caa57c"/></svg>
+  <svg x="-38" y="-23" width="75" height="26" viewBox="-38 -23 75 26"><ellipse cx="-30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/>
+   <ellipse cx="30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/></svg>
+  <svg x="-31" y="-53" width="62" height="82" viewBox="-31 -53 62 82"><path d="M -29 -7.02
+    C -29 -30.42, -16.240000000000002 -39, 0 -39
+    C 16.240000000000002 -39, 29 -30.42, 29 -7.02
+    C 29 14.04, 26.1 31.979999999999997, 0 39
+    C -26.1 31.979999999999997, -29 14.04, -29 -7.02 Z" transform="translate(0,-12)" fill="#e8c39a"/></svg>
+  <svg x="-33" y="-52" width="65" height="25" viewBox="-33 -52 65 25"><path d="M -30 -29 C -32 -56, 32 -56, 30 -29
+    C 25 -43, -25 -43, -30 -29 Z" fill="#2a1f14"/></svg>
+  <svg x="-46" y="-71" width="92" height="36" viewBox="-46 -71 92 36"><path d="M -25 -41 L -25 -63 C -25 -71, 25 -71, 25 -63 L 25 -41 Z" fill="#191713"/>
+     <rect x="-29" y="-45" width="58" height="8" rx="2" fill="#191713"/>
+     <path d="M -27 -49 q -17 -3 -17 3 q 0 6 17 3 Z" fill="#191713"/>
+     <path d="M 27 -49 q 17 -3 17 3 q 0 6 -17 3 Z" fill="#191713"/>
+     </svg>
+  <svg x="-25" y="-29" width="49" height="6" viewBox="-25 -29 49 6"><g transform="translate(-12.5,-18)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g><g transform="translate(12.5,-18) scale(-1,1)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g></svg>
+  <svg x="-23" y="-25" width="46" height="11" viewBox="-23 -25 46 11"><g transform="translate(-12.5,-18)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g><g transform="translate(12.5,-18) scale(-1,1)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g></svg>
+  <svg x="-4" y="-15" width="9" height="14" viewBox="-4 -15 9 14"><path d="M -1 -13 q -1.6 7 1.2 9 q 2.4 0.8 3.2 -1.4"
+     stroke="#caa57c" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+  <svg x="-9" y="13" width="17" height="5" viewBox="-9 13 17 5"><path d="M -6.5 15 q 6.5 0.6 13 0" stroke="#6b3226" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  <svg x="-12" y="6" width="24" height="8" viewBox="-12 6 24 8"><path d="M -10 10 q 10 -3 20 0 q -10 3.4 -20 0 Z" fill="#2a1f14" opacity=".9"/></svg>
+  <svg x="42" y="58" width="20" height="20" viewBox="42 58 20 20"><rect x="44" y="60" width="16" height="16" rx="2" fill="#aa3a2c"/>
+     <rect x="47" y="63" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/></svg>
+</svg></div>
+      <div class="lcap"><b>Level 5</b>Rare — the rank seal appears</div>
+    </div>
+    <div class="lcol">
+      <div class="portrait small" style="border-color: var(--gold);"><svg viewBox="-68 -88 136 176" aria-hidden="true">
+  <svg x="-68" y="-86" width="136" height="170" viewBox="-68 -86 136 170"><rect x="-66" y="-84" width="132" height="166" rx="3" fill="#2f2618"/>
+     <rect x="-66" y="-84" width="132" height="166" rx="3" fill="none" stroke="#8a6f3c" stroke-width="1.8"/></svg>
+  <svg x="-48" y="37" width="96" height="58" viewBox="-48 37 96 58"><path d="M -46 93 C -44 53, -30 41, 0 39
+   C 30 41, 44 53, 46 93 Z" fill="#2f5170"/></svg>
+  <svg x="4" y="37" width="44" height="58" viewBox="4 37 44 58"><path d="M 6 39 C 26 43, 44 59, 46 93 L 18 93 Z" fill="#4d6f8e" opacity=".5"/></svg>
+  <svg x="-17" y="33" width="34" height="23" viewBox="-17 33 34 23"><path d="M -15 35 C -15 52, 15 52, 15 35
+     C 15 60, -15 60, -15 35 Z" fill="#0d2f4e"/></svg>
+  <svg x="-17" y="33" width="34" height="17" viewBox="-17 33 34 17"><path d="M -15 35 C -15 52, 15 52, 15 35" stroke="#d9b35a" stroke-width="1.6" fill="none"/></svg>
+  <svg x="-13" y="48" width="26" height="27" viewBox="-13 48 26 27"><rect x="-11" y="51" width="22" height="22" rx="1.5" fill="#241d14" stroke="#d9b35a" stroke-width="1.4"/><path d="M -2 70 C -6 65, -5 60, 0 59
+     C 4 58, 5 55, 3 54 L 7 53
+     C 8 57, 6 61, 3 63
+     C 5 67, 6 70, 4 71 Z" fill="#e8ddc4"/><path d="M 5 53 l 3 -2.5" stroke="#e8ddc4" stroke-width="1.4" stroke-linecap="round"/></svg>
+  <svg x="-36" y="79" width="72" height="12" viewBox="-36 79 72 12"><rect x="-34" y="81" width="68" height="8" rx="1.5" fill="#3a3128"/><rect x="-28" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="-12" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="4" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="20" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/></svg>
+  <svg x="-14" y="18" width="28" height="31" viewBox="-14 18 28 31"><path d="M -10.5 20
+     C -10.5 29, -9.9 39, -12 47
+     L 12 47
+     C 9.9 39, 10.5 29, 10.5 20 Z" fill="#caa57c"/></svg>
+  <svg x="-38" y="-23" width="75" height="26" viewBox="-38 -23 75 26"><ellipse cx="-30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/>
+   <ellipse cx="30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/></svg>
+  <svg x="-31" y="-53" width="62" height="82" viewBox="-31 -53 62 82"><path d="M -29 -7.02
+    C -29 -30.42, -16.240000000000002 -39, 0 -39
+    C 16.240000000000002 -39, 29 -30.42, 29 -7.02
+    C 29 14.04, 26.1 31.979999999999997, 0 39
+    C -26.1 31.979999999999997, -29 14.04, -29 -7.02 Z" transform="translate(0,-12)" fill="#e8c39a"/></svg>
+  <svg x="-33" y="-52" width="65" height="25" viewBox="-33 -52 65 25"><path d="M -30 -29 C -32 -56, 32 -56, 30 -29
+    C 25 -43, -25 -43, -30 -29 Z" fill="#2a1f14"/></svg>
+  <svg x="-55" y="-71" width="110" height="36" viewBox="-55 -71 110 36"><path d="M -25 -41 L -25 -63 C -25 -71, 25 -71, 25 -63 L 25 -41 Z" fill="#191713"/>
+     <rect x="-29" y="-45" width="58" height="8" rx="2" fill="#191713"/>
+     <path d="M -27 -49 q -26 -3 -26 3 q 0 6 26 3 Z" fill="#191713"/>
+     <path d="M 27 -49 q 26 -3 26 3 q 0 6 -26 3 Z" fill="#191713"/>
+     </svg>
+  <svg x="-25" y="-29" width="49" height="6" viewBox="-25 -29 49 6"><g transform="translate(-12.5,-18)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g><g transform="translate(12.5,-18) scale(-1,1)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g></svg>
+  <svg x="-23" y="-25" width="46" height="11" viewBox="-23 -25 46 11"><g transform="translate(-12.5,-18)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g><g transform="translate(12.5,-18) scale(-1,1)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g></svg>
+  <svg x="-4" y="-15" width="9" height="14" viewBox="-4 -15 9 14"><path d="M -1 -13 q -1.6 7 1.2 9 q 2.4 0.8 3.2 -1.4"
+     stroke="#caa57c" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+  <svg x="-9" y="13" width="17" height="5" viewBox="-9 13 17 5"><path d="M -6.5 15 q 6.5 0.6 13 0" stroke="#6b3226" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  <svg x="-12" y="6" width="24" height="8" viewBox="-12 6 24 8"><path d="M -10 10 q 10 -3 20 0 q -10 3.4 -20 0 Z" fill="#2a1f14" opacity=".9"/></svg>
+  <svg x="42" y="58" width="20" height="20" viewBox="42 58 20 20"><rect x="44" y="60" width="16" height="16" rx="2" fill="#aa3a2c"/>
+     <rect x="47" y="63" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/><rect x="47" y="67" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/></svg>
+</svg></div>
+      <div class="lcap"><b>Level 12</b>Epic — the wings lengthen, the belt gilds</div>
+    </div>
+    <div class="lcol">
+      <div class="portrait small" style="border-color: var(--gold); box-shadow: 0 0 12px color-mix(in srgb, var(--gold) 45%, transparent);"><svg viewBox="-68 -88 136 176" aria-hidden="true">
+  <svg x="-68" y="-86" width="136" height="170" viewBox="-68 -86 136 170"><rect x="-66" y="-84" width="132" height="166" rx="3" fill="#3a2c14"/>
+     <rect x="-66" y="-84" width="132" height="166" rx="3" fill="none" stroke="#c8a24e" stroke-width="2.6"/></svg>
+  <svg x="-48" y="37" width="96" height="58" viewBox="-48 37 96 58"><path d="M -46 93 C -44 53, -30 41, 0 39
+   C 30 41, 44 53, 46 93 Z" fill="#2f5170"/></svg>
+  <svg x="4" y="37" width="44" height="58" viewBox="4 37 44 58"><path d="M 6 39 C 26 43, 44 59, 46 93 L 18 93 Z" fill="#4d6f8e" opacity=".5"/></svg>
+  <svg x="-17" y="33" width="34" height="23" viewBox="-17 33 34 23"><path d="M -15 35 C -15 52, 15 52, 15 35
+     C 15 60, -15 60, -15 35 Z" fill="#0d2f4e"/></svg>
+  <svg x="-17" y="33" width="34" height="17" viewBox="-17 33 34 17"><path d="M -15 35 C -15 52, 15 52, 15 35" stroke="#d9b35a" stroke-width="1.6" fill="none"/></svg>
+  <svg x="-13" y="49" width="26" height="26" viewBox="-13 49 26 26"><rect x="-11" y="51" width="22" height="22" rx="1.5" fill="#241d14" stroke="#d9b35a" stroke-width="1.4"/><path d="M -7 69 C -3 67, -4 62, 0 61
+     C 4 60, 3 56, 7 55 L 8 59
+     C 5 60, 6 64, 2 65
+     C -2 66, -1 70, -5 72 Z" fill="#d9b35a"/></svg>
+  <svg x="-36" y="79" width="72" height="12" viewBox="-36 79 72 12"><rect x="-34" y="81" width="68" height="8" rx="1.5" fill="#3a3128"/><rect x="-28" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="-12" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="4" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/><rect x="20" y="82.5" width="11" height="5" rx="1.5" fill="#6f8f64" stroke="#4d6b45" stroke-width="0.7"/></svg>
+  <svg x="-14" y="18" width="28" height="31" viewBox="-14 18 28 31"><path d="M -10.5 20
+     C -10.5 29, -9.9 39, -12 47
+     L 12 47
+     C 9.9 39, 10.5 29, 10.5 20 Z" fill="#caa57c"/></svg>
+  <svg x="-38" y="-23" width="75" height="26" viewBox="-38 -23 75 26"><ellipse cx="-30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/>
+   <ellipse cx="30" cy="-10" rx="5.5" ry="11" fill="#caa57c"/></svg>
+  <svg x="-31" y="-53" width="62" height="82" viewBox="-31 -53 62 82"><path d="M -29 -7.02
+    C -29 -30.42, -16.240000000000002 -39, 0 -39
+    C 16.240000000000002 -39, 29 -30.42, 29 -7.02
+    C 29 14.04, 26.1 31.979999999999997, 0 39
+    C -26.1 31.979999999999997, -29 14.04, -29 -7.02 Z" transform="translate(0,-12)" fill="#e8c39a"/></svg>
+  <svg x="-33" y="-52" width="65" height="25" viewBox="-33 -52 65 25"><path d="M -30 -29 C -32 -56, 32 -56, 30 -29
+    C 25 -43, -25 -43, -30 -29 Z" fill="#2a1f14"/></svg>
+  <svg x="-63" y="-71" width="126" height="36" viewBox="-63 -71 126 36"><path d="M -25 -41 L -25 -63 C -25 -71, 25 -71, 25 -63 L 25 -41 Z" fill="#191713"/>
+     <rect x="-29" y="-45" width="58" height="8" rx="2" fill="#191713"/>
+     <path d="M -27 -49 q -34 -3 -34 3 q 0 6 34 3 Z" fill="#191713"/>
+     <path d="M 27 -49 q 34 -3 34 3 q 0 6 -34 3 Z" fill="#191713"/>
+     <rect x="-7" y="-67" width="14" height="7" rx="2" fill="#d9b35a"/></svg>
+  <svg x="-25" y="-29" width="49" height="6" viewBox="-25 -29 49 6"><g transform="translate(-12.5,-18)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g><g transform="translate(12.5,-18) scale(-1,1)"><path d="M -10 -9 q 5.279999999999999 0 11 1.5" stroke="#2a1f14" stroke-width="2.6" fill="none" stroke-linecap="round"/></g></svg>
+  <svg x="-23" y="-25" width="46" height="11" viewBox="-23 -25 46 11"><g transform="translate(-12.5,-18)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g><g transform="translate(12.5,-18) scale(-1,1)">
+    <path d="M -8 0 q 4 -4.6 8.6 -0.6 q -3.6 5.2 -8.6 0.6 Z" fill="#ffffff" opacity=".82"/>
+    <path d="M -8.4 0 q 4.2 -5.2 9 -0.8" stroke="#171310" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="-2.6" cy="-1.6" r="2.5" fill="#171310"/></g></svg>
+  <svg x="-4" y="-15" width="9" height="14" viewBox="-4 -15 9 14"><path d="M -1 -13 q -1.6 7 1.2 9 q 2.4 0.8 3.2 -1.4"
+     stroke="#caa57c" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".85"/></svg>
+  <svg x="-9" y="13" width="17" height="5" viewBox="-9 13 17 5"><path d="M -6.5 15 q 6.5 0.6 13 0" stroke="#6b3226" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+  <svg x="-12" y="6" width="24" height="8" viewBox="-12 6 24 8"><path d="M -10 10 q 10 -3 20 0 q -10 3.4 -20 0 Z" fill="#2a1f14" opacity=".9"/></svg>
+  <svg x="42" y="58" width="20" height="20" viewBox="42 58 20 20"><rect x="44" y="60" width="16" height="16" rx="2" fill="#aa3a2c"/>
+     <rect x="47" y="63" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/><rect x="47" y="67" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/><rect x="47" y="71" width="10" height="2" rx="1" fill="#f3e6c4" opacity=".92"/></svg>
+</svg></div>
+      <div class="lcap"><b>Level 20</b>Legendary — grand wings, the dragon bổ tử</div>
+    </div>
+  </div>
+  <p style="text-align: center; font-size: 0.84rem; color: var(--faint); max-width: 44rem; margin: 0 auto;">Drawn on the crown step under "this king grows" — the same portrait, the badge and plate stepping with dynasty level (the <code>dynastyRankRarity</code> ladder already shipped in Phase 2). The player's first mental model of the meta arrives as a picture of <em>their own face</em> getting grander. <b>Every portrait on this page is composed from the game's actual part SVGs</b> — <code>public/faces/</code> files placed at their <code>parts.generated.ts</code> centres, tinted through the real palette arithmetic (<code>SKINS[0]</code>, <code>HAIRS[2]</code>, <code>ROBES.azure</code>, <code>shade(±)</code>), stacked in <code>resolveHeroLook</code>'s own order. What the ladder shows is what the game will render: <code>plate-common → legendary</code>, <code>hat-phocdau-short → long → grand</code> (the real <code>rankWings</code> mapping), <code>badge-pheasant → peacock → crane → dragon</code>, the rank seal appearing at Rare.</p>
+</section>
+
+<!-- ============================================================ 05 -->
+<section class="chapter">
+  <div class="chapter-head"><span class="no">05</span><div><h2>The progression hooks — what's locked, and what unlocking teaches</h2></div></div>
+
+  <p class="measure">Locked wardrobe rows are the creator's second job: every 🔒 line names a system the player hasn't met yet, so the creator quietly indexes the whole game. The rule for what may be locked: <b>ornament, never identity</b> — sex, era, face, hair, a full court dress and the banner are all free from the first second. Locks are the <em>flourishes</em>.</p>
+
+  <div class="table-scroll">
+  <table>
+    <tr><th>Unlock</th><th>Earned by</th><th>What it teaches</th></tr>
+    <tr><td><b>War helms (8) + lamellar armour</b></td><td>survive wave 10 once</td><td>waves are the clock the mode runs on</td></tr>
+    <tr><td><b>Gold coronet · jade hairpins</b></td><td>forge your first Jade card</td><td>evolutions exist (and the Cabinet keeps them)</td></tr>
+    <tr><td><b>The Legendary plate frame</b></td><td>dynasty level ladder (automatic)</td><td>the house grows whether you win or lose</td></tr>
+    <tr><td><b>Extra banner emblems</b></td><td>one per era reached</td><td>eras are milestones, not scenery</td></tr>
+    <tr><td><b>A second-line founder (woman/monastic wardrobe fully opened from start — never locked)</b></td><td>—</td><td>identity is free; only ornament is earned</td></tr>
+  </table>
+  </div>
+
+  <div class="callout gold">
+    <h4>Why locks belong in a creator at all</h4>
+    <p>Cosmetic-unlock telegraphing is the best-understood retention device in live games <em>because</em> it is honest: nothing locked has power, so a lock is a promise rather than a paywall. Showing them greyed inside the creator — with the earn condition printed — converts the creator from a one-time screen into a place the player returns to after every milestone. The Temple (the re-dress door on the Tông Phả sheet) is where they come back to collect.</p>
+  </div>
+</section>
+
+<!-- ============================================================ 06 -->
+<section class="chapter">
+  <div class="chapter-head"><span class="no">06</span><div><h2>Integration spec</h2><div class="kicker">Small, because the wardrobe did the hard part years ago</div></div></div>
+
+  <pre><code>// dynasty store (mandate:dynasty:v1) — extend DynastyFounder
+founder?: {
+  …existing…,
+  givenName?: string,          // player-chosen; family name still derives the house
+  look?: {                     // the creator's output — a stored HeroLook selection
+    parts: Array&lt;{ key: string; tint: FaceTintSlot }&gt;,
+    paletteSeed: number,       // skin/hair tones — the palette stays derived
+  },
+  banner?: { field: number; trim: number; emblem: string },   // the house's mark (UI chrome only)
+  armyEra?: HeroEra,           // from the họ — styles the forces, never the king's dress
+}</code></pre>
+
+  <ol class="measure">
+    <li><b>New prompt kind <code>coronation</code></b> raised once, before <code>mandate</code>, gated on <code>getDynasty().founder?.look === undefined</code> — first ever open only. Terminal-style (drawn by hand like <code>foundingCard</code>, never through the decision director). Skip writes a rolled result, so the store's shape is identical either way.</li>
+    <li><b><code>resolveHeroLook</code> honours the explicit look.</b> One early return: if the hero is the king <em>and</em> the dynasty carries a look, stack those parts; otherwise the seed path as today. The renderer stays ignorant, as designed. (The king is keyed by <b>name</b>, not id — the id is the constant <code>'king'</code>; that trap is already documented in the heroes skill and both existing call sites.)</li>
+    <li><b>Họ styles the army, and only the army — with an honest scope.</b> With zero new art, "army style" concretely means two things: <b>minted commanders take the họ's era</b> (<code>heroFactory</code> already gives every generated champion an era and the portraits follow — the creator's <code>armyEra</code> simply biases that draw), and <b>the banner opens on the dynasty's historical field colour</b>. Garrison levies have no portraits and the battle screen's soldiers are era-agnostic — those render exactly as today, and the doc promises nothing about them. The king's dress stays decoupled: <code>founder.era</code> from step 1, <code>founder.armyEra</code> from the họ. No non-royal họ at launch.</li>
+    <li><b>The creator pages the wardrobe's own pool functions</b> (<code>headwearFor</code>, <code>manHairFor</code>/<code>womanHairStylesFor</code>, <code>garmentsFor</code>…) with step 1's era plus sex/rank — never a raw part list — so era law holds by construction. Each stepper tap re-renders the portrait via the existing <code>renderHeroFaceInBox</code>; faces are already baked per-look, so cost is one re-bake per tap, not per frame.</li>
+    <li><b>Banner → the house's chrome only.</b> A small drawn mark (field + trim + CardIcons emblem, baked once) stamped on the Tông Phả sheet, the ceremony screens and the war board header. <b>ArmyRenderer is untouched</b> — no map-flag system, no marching-column changes; the existing realm standard stays exactly as it is.</li>
+    <li><b>Name entry</b> is the composer (họ stepper + tên reroll from <code>heroNames.ts</code> components). The optional free-type path is a DOM overlay <code>&lt;input&gt;</code> — the game has none today, so it ships behind a capability check and the composer remains the path that always works (soft keyboards over a Phaser canvas are the classic mobile-web trap).</li>
+    <li><b>The king override, at its one source.</b> <code>generateKingHero()</code> hard-codes exactly the three identity fields the creator chooses — a fixed i18n name, <code>sex: 'man'</code>, no era — so the integration is one read: if the dynasty carries a founder, the king takes its name, sex and era at generation. Both portrait paths honour the stored look: <code>resolveHeroLook</code> (which already keys the king by <em>name</em>, not the constant id <code>'king'</code>) and <code>ui/dynastyPortrait</code>'s pseudo-hero for the Tông Phả sheet.</li>
+    <li><b>The dress register and rank.</b> The dress stepper offers two registers — <b>court</b> (minister pools: phốc đầu, viên lĩnh, bổ tử) and <b>war</b> (general pools: helms, armour robes) — which is the <code>type</code> parameter the pool functions already take; nothing new is invented. The <code>rank</code> parameter is <code>dynastyRankRarity(level)</code>, which means <b>the wardrobe visibly widens as the dynasty levels</b> (rank-gated hats and gilt appear in the Temple) — that is the §05 unlock system for rank-gated parts, for free.</li>
+    <li><b>Deed-gated unlocks live on the cabinet's deed list</b> (<code>grantDeed</code>/<code>deedDone</code>, shipped in Phase 3) — "survive wave 10" and "first Jade" are new <code>CABINET_DEEDS</code> entries read by the picker; no new store.</li>
+    <li><b>Prompt plumbing, the full checklist:</b> the <code>coronation</code> kind joins <code>PROMPT_PRIORITY</code> (with the terminal-path kinds), <code>promptSignature</code>, the router, <code>__ptOptions</code> in playtest-lib, and the harness option maps — the muster card taught twice what happens to drivers when a kind is missing.</li>
+    <li><b>The founder card is not touched.</b> It already offers champions only (<code>ascent.founderHeroId</code>); the coronation precedes it and changes nothing about it.</li>
+    <li><b>i18n:</b> ~40–60 new keys (<code>coronation.*</code>), en + vi both, vi <em>written</em> not translated — the catalog header now says so in as many words.</li>
+  </ol>
+
+  <h3>Gates</h3>
+  <div class="gate"><b>Gate</b> — <code>verify-heroes.mjs</code> still 15/15 (wardrobe + founder card contract untouched); a new <code>verify-coronation.mjs</code>: first boot raises it once · skip writes a complete rolled founder · the stored look renders (non-blank bake) · era pools refuse cross-era parts · the banner mark renders on the dynasty sheet · second boot never raises it.</div>
+  <div class="gate"><b>Gate</b> — <code>shot-portraits.mjs</code> contact sheet + /shot of all four steps on the phone aspect, and <b>look at them</b> — every wardrobe failure is visual.</div>
+  <div class="gate"><b>Gate</b> — smoke 15/15; modes-regression byte-identical (all of this is ascent + menu surface); tour still opens (the coronation must set the same first-run latch the guided tour reads, or the two first-open features race — the <code>openPromptKey</code> and tour-latch traps are documented from the guide round).</div>
+
+  <h3>Traps, from the rounds that came before</h3>
+  <ul class="measure tight">
+    <li><b>The king's id is <code>'king'</code>:</b> anything keyed on it is keyed on nothing — key the look on the dynasty store, resolve by name, exactly as <code>heroBio</code> already does.</li>
+    <li><b>Never bypass the pools:</b> a raw part-list picker resurrects the bearded-women bug and breaks era law. The pool functions are the API.</li>
+    <li><b>One coronation, ever:</b> gate on the store, not on a scene flag — an HMR dual instance of a scene flag re-raises it (the dual-module trap), the store does not.</li>
+    <li><b>Portrait re-bake per tap</b> is fine; per frame is the perf ledger's cost floor. The stepper handler bakes once and stamps.</li>
+    <li><b>Prompt-kind shapes:</b> add <code>coronation</code> to the harness option maps and <code>playtest-lib</code>'s <code>__ptOptions</code>, or every driver wedges on the first screen of the game — the exact class of trap the muster card taught twice.</li>
+  </ul>
+
+  <p class="measure"><b>Effort:</b> ~1–1.5 weeks, and <b>none of it is art</b> — the zero-new-art contract (§02) means <code>build-faces.mjs</code> and <code>public/faces/</code> are not touched, `yarn faces:check` stays byte-identical, and the picker UI plus the coronation flow are the bulk; the render, storage, and map plumbing are reuse. Fits the series as its own small phase after the Hall (or before it — no dependency either way beyond Phase 2's dynasty store, long shipped).</p>
+</section>
+
+<footer>
+  <p><b>Sources verified in-repo, 2026-09-02:</b> <span class="mono">scripts/build-faces.mjs</span> (298 parts, one design space) · <span class="mono">ui/faces/wardrobe.ts</span> (pool API: headwearFor / garmentsFor / robeColour, era first) · <span class="mono">ui/faces/heroLook.ts</span> (HeroLook = parts + palette; the seed-never-decides-identity rule) · <span class="mono">scenes/map/ArmyRenderer.ts:220</span> (the realm's standard: flagSeed + kingdomColor already rendered) · <span class="mono">state/dynasty.ts</span> (DynastyFounder, dynastyRankRarity ladder) · <span class="mono">data/heroes.ts</span> (generateKingHero's blank identity, the "I'm the king, not Nguyễn Hoàng" devlog note, KINGS-as-champions, the champions-only founder prompt) · <span class="mono">data/heroNames.ts</span> (name components). Research grounding: avatar-identification / Proteus-effect literature (Yee &amp; Bailenson), the IKEA effect (Norton, Mochon &amp; Ariely), and the genre survey in §01 — CK3, Wildermyth, Rogue Legacy, XCOM 2, Battle Brothers, Mount &amp; Blade, Hades.</p>
+</footer>
+
+</div>
+
+</body></html>

@@ -1,0 +1,5114 @@
+[
+  {
+    "id": 1,
+    "en": "Vạn Thắng",
+    "tag": "DIV",
+    "context": "header"
+  },
+  {
+    "id": 2,
+    "en": "GAMEPLAY REVIEW · 2026",
+    "tag": "SMALL",
+    "context": "header"
+  },
+  {
+    "id": 3,
+    "en": "01 / Verdict",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 4,
+    "en": "02 / Current game",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 5,
+    "en": "03 / Played evidence",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 6,
+    "en": "04 / Grades",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 7,
+    "en": "05 / Market lessons",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 8,
+    "en": "06 / Balance findings",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 9,
+    "en": "07 / Critique & refine",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 10,
+    "en": "08 / Two platforms",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 11,
+    "en": "09 / Feature backlog",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 12,
+    "en": "10 / Build sequence",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 13,
+    "en": "11 / Validation",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 14,
+    "en": "12 / Sources & method",
+    "tag": "A",
+    "context": "header"
+  },
+  {
+    "id": 15,
+    "en": "REVIEWED BUILD",
+    "tag": "DIV",
+    "context": "header"
+  },
+  {
+    "id": 16,
+    "en": "1.1.2 · build 582",
+    "tag": "B",
+    "context": "header"
+  },
+  {
+    "id": 17,
+    "en": "12 September 2026",
+    "tag": "DIV",
+    "context": "header"
+  },
+  {
+    "id": 18,
+    "en": "Source + direct play",
+    "tag": "DIV",
+    "context": "header"
+  },
+  {
+    "id": 19,
+    "en": "112 fresh-profile simulations",
+    "tag": "DIV",
+    "context": "header"
+  },
+  {
+    "id": 20,
+    "en": "Product direction / mechanics / player experience",
+    "tag": "DIV",
+    "context": "header"
+  },
+  {
+    "id": 21,
+    "en": "A realm worth learning.",
+    "tag": "H1",
+    "context": "header"
+  },
+  {
+    "id": 22,
+    "en": "A reign worth finishing.",
+    "tag": "H1",
+    "context": "header"
+  },
+  {
+    "id": 23,
+    "en": "How",
+    "tag": "P",
+    "context": "header"
+  },
+  {
+    "id": 24,
+    "en": "Vạn Thắng — Ten Thousand Victories",
+    "tag": "I",
+    "context": "header"
+  },
+  {
+    "id": 25,
+    "en": "can become comfortable, compelling mobile strategy while rewarding deep desktop play.",
+    "tag": "P",
+    "context": "header"
+  },
+  {
+    "id": 26,
+    "en": "Main mode: Dragon Ascent",
+    "tag": "SPAN",
+    "context": "header"
+  },
+  {
+    "id": 27,
+    "en": "Mobile + desktop",
+    "tag": "SPAN",
+    "context": "header"
+  },
+  {
+    "id": 28,
+    "en": "Evidence-led design review",
+    "tag": "SPAN",
+    "context": "header"
+  },
+  {
+    "id": 29,
+    "en": "48 prioritized backlog items",
+    "tag": "SPAN",
+    "context": "header"
+  },
+  {
+    "id": 30,
+    "en": "The strongest next move is to make existing depth easier to use.",
+    "tag": "H3",
+    "context": "header"
+  },
+  {
+    "id": 31,
+    "en": "Preserve the realm economy, personal histories and formation combat. Give players clearer consequences, quieter preparation and a satisfying victory milestone. Add new mechanics only where they create a different plan—not simply more actions.",
+    "tag": "P",
+    "context": "header"
+  },
+  {
+    "id": 32,
+    "en": "Keep the identity",
+    "tag": "H3",
+    "context": "header"
+  },
+  {
+    "id": 33,
+    "en": "Đông Hồ art, Vietnamese characters and a living court distinguish this game. Connect that identity to terrain, commitments and tactical situations.",
+    "tag": "P",
+    "context": "header"
+  },
+  {
+    "id": 34,
+    "en": "Reward preparation",
+    "tag": "H3",
+    "context": "header"
+  },
+  {
+    "id": 35,
+    "en": "Show how a farm, commander, treaty or reinforcement changes the coming fight. Audit whether escalating prices and threats preserve the benefit of playing well.",
+    "tag": "P",
+    "context": "header"
+  },
+  {
+    "id": 36,
+    "en": "Offer a complete reign",
+    "tag": "H3",
+    "context": "header"
+  },
+  {
+    "id": 37,
+    "en": "A short charter can end in triumph. Players can bank it, choose a harder chapter, or carry a strong build into Endless.",
+    "tag": "P",
+    "context": "header"
+  },
+  {
+    "id": 38,
+    "en": "This is a design assessment, not a claim about human retention or commercial success. Scores are editorial judgments with stated evidence. Recommendations and numerical acceptance targets are proposals to validate.",
+    "tag": "P",
+    "context": "header"
+  },
+  {
+    "id": 39,
+    "en": "02 / UNDERSTANDING THE GAME",
+    "tag": "DIV",
+    "context": "current"
+  },
+  {
+    "id": 40,
+    "en": "The game already contains a substantial strategy system.",
+    "tag": "H2",
+    "context": "current"
+  },
+  {
+    "id": 41,
+    "en": "The main menu’s primary mode is",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 42,
+    "en": "Dragon Ascent",
+    "tag": "B",
+    "context": "current"
+  },
+  {
+    "id": 43,
+    "en": ": a single-player real-time grand-strategy roguelite. It combines a procedural realm, automated or manual administration, escalating invasions, live tactical encounters and an inherited dynasty.",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 44,
+    "en": "Skirmish",
+    "tag": "B",
+    "context": "current"
+  },
+  {
+    "id": 45,
+    "en": "offers isolated combat. Older empire/campaign/rival code remains accessible to development hooks but is shelved from the normal menu; it is not counted as a shipped main-mode feature.",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 46,
+    "en": "Establish a reign",
+    "tag": "B",
+    "context": "current"
+  },
+  {
+    "id": 47,
+    "en": "Identity → inheritance → starting boon → hero and role.",
+    "tag": "SPAN",
+    "context": "current"
+  },
+  {
+    "id": 48,
+    "en": "Shape the realm",
+    "tag": "B",
+    "context": "current"
+  },
+  {
+    "id": 49,
+    "en": "Doctrine, provincial focus, construction, court, claims and diplomacy.",
+    "tag": "SPAN",
+    "context": "current"
+  },
+  {
+    "id": 50,
+    "en": "Prepare for invasion",
+    "tag": "B",
+    "context": "current"
+  },
+  {
+    "id": 51,
+    "en": "Read incoming pressure, position hosts, fund defence and preserve supply.",
+    "tag": "SPAN",
+    "context": "current"
+  },
+  {
+    "id": 52,
+    "en": "Command or delegate",
+    "tag": "B",
+    "context": "current"
+  },
+  {
+    "id": 53,
+    "en": "Formation, stance, stamina, moments, reinforcement and withdrawal.",
+    "tag": "SPAN",
+    "context": "current"
+  },
+  {
+    "id": 54,
+    "en": "Recover and inherit",
+    "tag": "B",
+    "context": "current"
+  },
+  {
+    "id": 55,
+    "en": "Losses, rewards, more waves; defeat eventually banks progression.",
+    "tag": "SPAN",
+    "context": "current"
+  },
+  {
+    "id": 56,
+    "en": "System",
+    "tag": "TH",
+    "context": "current"
+  },
+  {
+    "id": 57,
+    "en": "What exists in the reviewed build",
+    "tag": "TH",
+    "context": "current"
+  },
+  {
+    "id": 58,
+    "en": "What would deepen it",
+    "tag": "TH",
+    "context": "current"
+  },
+  {
+    "id": 59,
+    "en": "Realm economy",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 60,
+    "en": "Food, supplies, gold, population; buildings, terrain aptitude, governors, focus, upkeep, spoilage, price scaling and treasury pressure.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 61,
+    "en": "Visible resource runway, marginal return and automation reserves. Test whether economic mastery reliably changes survival or objectives.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 62,
+    "en": "Territory",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 63,
+    "en": "A generated 42-province realm; loyalty, claims, travel and connected supply. Six claim methods: bribe, diplomacy, intimidation, settle, occupy and siege.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 64,
+    "en": "Compare route value and readiness at contact. Make loyalty, acquisition time and success chance distinct in the decision.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 65,
+    "en": "Political direction",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 66,
+    "en": "Four doctrines—Fortify, Expand, Enrich and Arm—plus court seats, laws, envoys, opinion, trade, rival demands and character stories.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 67,
+    "en": "Fewer repeated prompts; stronger commitments with visible obligations. Different objectives should make different political plans desirable.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 68,
+    "en": "Armies and logistics",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 69,
+    "en": "Named hosts, commanders, experience, morale, provisions, supply connections, standing orders, reinforcement and multiple fronts.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 70,
+    "en": "A mobile intent surface and a desktop comparison/queue workspace over the existing orders.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 71,
+    "en": "Combat",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 72,
+    "en": "Five formations, three ordinary stances, reform time, two stamina pips, commitment, commander behaviour, battle moments, withdrawal, delegation and casualty reports.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 73,
+    "en": "Preserve reading time; reward timing and preparation. Add selected terrain rules before multiplying unit types.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 74,
+    "en": "Drafts and builds",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 75,
+    "en": "52 power-card definitions; 22 eligible for normal drafts, eight opening boons, and separate story/evolution content. Three evolution recipes already exist.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 76,
+    "en": "Make a small number of viable engines legible; distinguish collection level from the stack acquired in this reign.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 77,
+    "en": "Progression",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 78,
+    "en": "Legacy perks/loadout, Dynasty traits/lineage, Cabinet collection and combinations, plus cosmetics and codex discovery.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 79,
+    "en": "One clear inheritance explanation and normalized challenges. Prefer additional choices over more compulsory stat accumulation.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 80,
+    "en": "Comfort systems",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 81,
+    "en": "Contextual Copilot, strategic pause, a separate battle pause, saves, resume, offline support, phone controls and a dedicated desktop layout.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 82,
+    "en": "Audit consistency and device performance; do not rebuild features that already exist.",
+    "tag": "TD",
+    "context": "current"
+  },
+  {
+    "id": 83,
+    "en": "The clock matters",
+    "tag": "H3",
+    "context": "current"
+  },
+  {
+    "id": 84,
+    "en": "A strategic tick is",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 85,
+    "en": "3.5 seconds",
+    "tag": "B",
+    "context": "current"
+  },
+  {
+    "id": 86,
+    "en": ". The first invasion is scheduled after 16 ticks, about 56 simulation seconds, with a nominal 14-tick interval thereafter. Prompts pause the strategic clock, so those values do not predict a person’s session length.",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 87,
+    "en": "The first three waves are constrained opening columns. Great invasions occur every four waves. Relations, pressure and battle state modify the experienced rhythm.",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 88,
+    "en": "Desktop is a different default",
+    "tag": "H3",
+    "context": "current"
+  },
+  {
+    "id": 89,
+    "en": "Normal desktop entry enables",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 90,
+    "en": "Hands-on",
+    "tag": "B",
+    "context": "current"
+  },
+  {
+    "id": 91,
+    "en": ": autopilot and routine lane prompts are disabled. A headless state factory leaves this off. A wide screenshot alone is therefore not a desktop gameplay test.",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 92,
+    "en": "The desktop checks here explicitly used",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 93,
+    "en": "and confirmed",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 94,
+    "en": "after normal menu entry.",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 95,
+    "en": "Primary code map:",
+    "tag": "P",
+    "context": "current"
+  },
+  {
+    "id": 96,
+    "en": "menu defaults",
+    "tag": "A",
+    "context": "current"
+  },
+  {
+    "id": 97,
+    "en": "timing and balance constants",
+    "tag": "A",
+    "context": "current"
+  },
+  {
+    "id": 98,
+    "en": "run lifecycle",
+    "tag": "A",
+    "context": "current"
+  },
+  {
+    "id": 99,
+    "en": "card pool",
+    "tag": "A",
+    "context": "current"
+  },
+  {
+    "id": 100,
+    "en": "desktop controls",
+    "tag": "A",
+    "context": "current"
+  },
+  {
+    "id": 101,
+    "en": "03 / DIRECT PLAY & OBSERVATIONS",
+    "tag": "DIV",
+    "context": "played"
+  },
+  {
+    "id": 102,
+    "en": "I played the decisions, then checked their consequences.",
+    "tag": "H2",
+    "context": "played"
+  },
+  {
+    "id": 103,
+    "en": "A fresh mobile-profile run entered through the real menu. I explored coronation, named and crowned a ruler, read the empty inheritance screen, chose the Granaries boon, selected a hero bringing neighbouring land, appointed a treasurer, chose Fortify, changed provincial focus, attempted a bribe and chose Salt Roads. The bribe failed and reduced trust; the report explicitly explained why. The realm later repelled its first invasion, with a named commander and 46 friendly losses in the inspected aftermath.",
+    "tag": "P",
+    "context": "played"
+  },
+  {
+    "id": 104,
+    "en": "That sequence demonstrated both real agency and attention cost. Before I could settle into map planning, doctrine, province, expansion, draft, invasion response, law, envoy and court decisions repeatedly took the screen. The detailed coronation path was my choice:",
+    "tag": "P",
+    "context": "played"
+  },
+  {
+    "id": 105,
+    "en": "“Let the chroniclers decide” already provides a shortcut.",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 106,
+    "en": "This is not evidence that every player must complete all customization steps.",
+    "tag": "P",
+    "context": "played"
+  },
+  {
+    "id": 107,
+    "en": "An empty inheritance precedes the hook",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 108,
+    "en": "First reign: no inherited cards or traits, but another confirmation. Skip this empty state while keeping the returning-player ritual.",
+    "tag": "FIGCAPTION",
+    "context": "played"
+  },
+  {
+    "id": 109,
+    "en": "A real tradeoff, with one broken promise",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 110,
+    "en": "Different costs, durations, loyalty and chances are valuable. “Slow, certain” conflicts with the displayed 53% envoy success chance.",
+    "tag": "FIGCAPTION",
+    "context": "played"
+  },
+  {
+    "id": 111,
+    "en": "Strong card identity; overlapping progression language",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 112,
+    "en": "Salt Roads supports an economical defence plan. Collection level, run stack and combining progress compete for explanation.",
+    "tag": "FIGCAPTION",
+    "context": "played"
+  },
+  {
+    "id": 113,
+    "en": "Desktop already preserves useful map context",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 114,
+    "en": "The true desktop layout places province management beside the map. Detailed focus multipliers are present here; the opportunity is converting them into a practical forecast.",
+    "tag": "FIGCAPTION",
+    "context": "played"
+  },
+  {
+    "id": 115,
+    "en": "Combat has a compact, expressive command dock",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 116,
+    "en": "A separate equal-army Skirmish exposed formations, stance, pause, withdrawal and delegation. It was a control/reading check, not a combat win-rate experiment.",
+    "tag": "FIGCAPTION",
+    "context": "played"
+  },
+  {
+    "id": 117,
+    "en": "An aftermath worth extending",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 118,
+    "en": "This file captures the Ascent aftermath before the arena scene replaced it: commander, casualties and territory held are already explained.",
+    "tag": "FIGCAPTION",
+    "context": "played"
+  },
+  {
+    "id": 119,
+    "en": "A concrete layout issue to fix",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 120,
+    "en": "On the inspected desktop resume dialog, the two-line heading overlaps the subtitle. This is a specific regression candidate, not a general claim that desktop is unusable.",
+    "tag": "FIGCAPTION",
+    "context": "played"
+  },
+  {
+    "id": 121,
+    "en": "What the play sessions establish—and what they do not",
+    "tag": "SUMMARY",
+    "context": "played"
+  },
+  {
+    "id": 122,
+    "en": "Direct strategy play:",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 123,
+    "en": "one new mobile-profile reign through the first repelled invasion and the next wave’s opening, with screenshots and JSON state; an isolated equal-army Skirmish ended in a rout.",
+    "tag": "LI",
+    "context": "played"
+  },
+  {
+    "id": 124,
+    "en": "Desktop:",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 125,
+    "en": "normal menu entry confirmed Hands-on; setup choices were then advanced through the existing UI event path to inspect map planning. Native keyboard/mouse inputs opened Build, selected a defensive focus and opened Army.",
+    "tag": "LI",
+    "context": "played"
+  },
+  {
+    "id": 126,
+    "en": "Focused combat check:",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 127,
+    "en": "a separate instrumented 9,000 vs 9,000 Skirmish accepted native formation and stance inputs. The saved control log confirms Shields and Press took effect by round 5; the pause then held round and troop counts unchanged. No claim of expert tactical balance follows from it.",
+    "tag": "LI",
+    "context": "played"
+  },
+  {
+    "id": 128,
+    "en": "Harness limitation:",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 129,
+    "en": "tool latency makes timed battles a poor measure of human reaction difficulty. Some instantaneous taps were rejected by the UI’s intentional minimum hold; these were corrected with delayed presses. They are not reported as touch bugs.",
+    "tag": "LI",
+    "context": "played"
+  },
+  {
+    "id": 130,
+    "en": "Coverage limit:",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 131,
+    "en": "mobile was 390×844 Chromium emulation; desktop was 1440×900. No physical phone, Galaxy A9 thermal run, human user study, full manual late-game reign or accessibility certification was performed.",
+    "tag": "LI",
+    "context": "played"
+  },
+  {
+    "id": 132,
+    "en": "Errors:",
+    "tag": "B",
+    "context": "played"
+  },
+  {
+    "id": 133,
+    "en": "no game page/console errors were recorded in the completed play and control logs. The installed game skill client also completed two screenshot/state iterations.",
+    "tag": "LI",
+    "context": "played"
+  },
+  {
+    "id": 134,
+    "en": "04 / WEIGHTED ASSESSMENT",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 135,
+    "en": "Promising systems. Uneven player experience.",
+    "tag": "H2",
+    "context": "grades"
+  },
+  {
+    "id": 136,
+    "en": "The grades below judge the current build’s design and usability. They deliberately separate system richness from demonstrated player enjoyment. Switch profiles to see where mobile comfort and desktop mastery change the weighting.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 137,
+    "en": "Current assessment",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 138,
+    "en": "C · promising, uneven",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 139,
+    "en": "Editorial score, not a measured satisfaction rate. Decimal precision makes the weighting auditable; it does not imply certainty.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 140,
+    "en": "Combined",
+    "tag": "BUTTON",
+    "context": "grades"
+  },
+  {
+    "id": 141,
+    "en": "Mobile",
+    "tag": "BUTTON",
+    "context": "grades"
+  },
+  {
+    "id": 142,
+    "en": "Desktop",
+    "tag": "BUTTON",
+    "context": "grades"
+  },
+  {
+    "id": 143,
+    "en": "Combined is the equal average of the two weighted platform scores.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 144,
+    "en": "Meaningful strategic choices",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 145,
+    "en": "Mobile 12% · desktop 14%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 146,
+    "en": "Economy rewards mastery",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 147,
+    "en": "Mobile 8% · desktop 12%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 148,
+    "en": "Territory and logistics",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 149,
+    "en": "Mobile 6% · desktop 10%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 150,
+    "en": "Tactical combat",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 151,
+    "en": "Mobile 10% · desktop 14%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 152,
+    "en": "Clarity and feedback",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 153,
+    "en": "Mobile 13% · desktop 9%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 154,
+    "en": "First-run learning",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 155,
+    "en": "Mobile 10% · desktop 5%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 156,
+    "en": "Pacing and attention",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 157,
+    "en": "Mobile 11% · desktop 7%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 158,
+    "en": "Progression and reward",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 159,
+    "en": "Mobile 7% · desktop 6%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 160,
+    "en": "Replay and satisfying endings",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 161,
+    "en": "Mobile 7% · desktop 8%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 162,
+    "en": "Platform controls",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 163,
+    "en": "Identity and presentation",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 164,
+    "en": "Mobile 5% · desktop 5%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 165,
+    "en": "Accessibility and interruption comfort",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 166,
+    "en": "Mobile 4% · desktop 4%",
+    "tag": "SMALL",
+    "context": "grades"
+  },
+  {
+    "id": 167,
+    "en": "Rubric, weights, confidence and reasons for every grade",
+    "tag": "SUMMARY",
+    "context": "grades"
+  },
+  {
+    "id": 168,
+    "en": "Scale:",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 169,
+    "en": "0–2 absent or obstructive; 3–4 weak; 5–6 functional but inconsistent; 7–8 strong; 9–10 exceptional and well supported. Product bands: below 40 D, 40–54 C−, 55–69 C, 70–79 B, 80–89 A−, 90–100 A. These are review conventions, not industry standards.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 170,
+    "en": "Calculation:",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 171,
+    "en": "platform total = Σ(score out of 10 × weight) ÷ 10. Each platform’s weights sum to 100. Mobile weighs clarity, learning and pacing more heavily; desktop weighs strategy, economy, territory and combat more heavily. Combined averages the two totals. Confidence describes evidence strength, not a statistical interval.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 172,
+    "en": "Meaningful strategic choices — mobile 7, desktop 7 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 173,
+    "en": "Medium confidence. Doctrines, claims, hero appointments and cards have consequences. Engaged automation survives almost twice as many waves as declining; this does not establish several equally viable expert plans.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 174,
+    "en": "Economy rewards mastery — mobile 5.5, desktop 5.5 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 175,
+    "en": "Medium confidence. Terrain, focus, governors, logistics and markets interact. Extra economic activity produced much more gold but only a small, noisy survival improvement in this probe.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 176,
+    "en": "Territory and logistics — mobile 6.5, desktop 7 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 177,
+    "en": "Medium confidence. Routes, supply connections, loyalty and military travel already matter. The interface could make route value, arrival time and opportunity cost easier to compare.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 178,
+    "en": "Tactical combat — mobile 6.5, desktop 7 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 179,
+    "en": "Medium confidence. Five formations, stances, stamina, moments, withdrawal and command delegation create a promising decision space. Late escalation also shortens reading windows and removes help.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 180,
+    "en": "Clarity and feedback — mobile 5, desktop 5.5 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 181,
+    "en": "High confidence. Strong art and useful aftermath coexist with a composite POWER beside a different THREAT quantity, mixed progression labels and a confirmed “certain”/53% contradiction.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 182,
+    "en": "First-run learning — mobile 4.5, desktop 5 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 183,
+    "en": "Medium confidence. Rich identity creation precedes the strategic hook; an empty inheritance sheet still appears on the first reign. A quick coronation path and contextual Copilot already exist.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 184,
+    "en": "Pacing and attention — mobile 5.5, desktop 6 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 185,
+    "en": "Medium confidence. The court and combat have useful rhythm, but the played opening repeatedly interrupted preparation. Desktop Hands-on suppresses routine prompts; that changes pacing as well as control.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 186,
+    "en": "Progression and reward — mobile 6.5, desktop 6.5 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 187,
+    "en": "Medium confidence. Legacy, Dynasty and Cabinet give continuity. Their overlapping levels, duplicates and loadouts make it difficult to tell which reward changes this run.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 188,
+    "en": "Replay and satisfying endings — mobile 5.5, desktop 5.5 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 189,
+    "en": "Medium confidence. Seeds, heroes, cards, stories and waves provide variety. Main Ascent is endless, with defeat and inheritance rather than a selectable campaign victory contract.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 190,
+    "en": "Platform controls — mobile 6.5, desktop 7.5 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 191,
+    "en": "Medium confidence. Phone controls use a compact dock; desktop has a map with side sheets, keys and manual orders. Stable shortcuts, comparisons and measured touch ergonomics can improve both.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 192,
+    "en": "Identity and presentation — mobile 9, desktop 9 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 193,
+    "en": "High confidence. Vietnamese history, named characters and Đông Hồ print art give a coherent identity worth preserving. This is the clearest product differentiator.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 194,
+    "en": "Accessibility and interruption comfort — mobile 4.5, desktop 5 /10.",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 195,
+    "en": "Medium confidence. Save/resume and pauses exist. Late-game assistance overrides and small combat annotations are concrete concerns; physical-device performance and assistive access remain unverified.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 196,
+    "en": "Commercial fit, monetization quality, multiplayer and physical-device stability are not graded because this review does not establish them. Accessibility deductions reflect observed design constraints, not an unsupported claim of standards noncompliance.",
+    "tag": "P",
+    "context": "grades"
+  },
+  {
+    "id": 197,
+    "en": "Release judgment:",
+    "tag": "B",
+    "context": "grades"
+  },
+  {
+    "id": 198,
+    "en": "keep developing the current core. Prioritize truthful decisions, consistent comfort settings and one finite playable charter before expanding map size, currencies or unit count. A high art score is a reason to protect the identity, not a reason to postpone usability work.",
+    "tag": "DIV",
+    "context": "grades"
+  },
+  {
+    "id": 199,
+    "en": "05 / RESEARCH FROM RELEVANT GAMES",
+    "tag": "DIV",
+    "context": "market"
+  },
+  {
+    "id": 200,
+    "en": "Depth comes from consequential choices within readable constraints.",
+    "tag": "H2",
+    "context": "market"
+  },
+  {
+    "id": 201,
+    "en": "The useful comparison set spans grand strategy, compact RTS, tactical roguelikes and run-based economy games. Each illuminates a different part of Vạn Thắng. None proves that copying its features will improve this game.",
+    "tag": "P",
+    "context": "market"
+  },
+  {
+    "id": 202,
+    "en": "Reference",
+    "tag": "TH",
+    "context": "market"
+  },
+  {
+    "id": 203,
+    "en": "Useful design pattern",
+    "tag": "TH",
+    "context": "market"
+  },
+  {
+    "id": 204,
+    "en": "Apply here",
+    "tag": "TH",
+    "context": "market"
+  },
+  {
+    "id": 205,
+    "en": "Criticism / limit",
+    "tag": "TH",
+    "context": "market"
+  },
+  {
+    "id": 206,
+    "en": "Thronefall",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 207,
+    "en": "M1 · Thronefall",
+    "tag": "A",
+    "context": "market"
+  },
+  {
+    "id": 208,
+    "en": "A clear preparation–defence cycle lets a small set of decisions carry the game.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 209,
+    "en": "Give every wave a readable preparation window and a short result. Let optional modifiers supply extra difficulty.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 210,
+    "en": "Copying its small economy would discard the realm simulation that distinguishes Vạn Thắng.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 211,
+    "en": "Bad North",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 212,
+    "en": "M2 · Bad North",
+    "tag": "A",
+    "context": "market"
+  },
+  {
+    "id": 213,
+    "en": "Direct a few groups around consequential terrain; many soldiers can express a small number of orders.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 214,
+    "en": "Let mobile issue intentions such as “hold this crossing” or “escort this host”; preserve detailed routes on desktop.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 215,
+    "en": "Do not transplant island missions wholesale or promise identical controls on a phone and a mouse.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 216,
+    "en": "Into the Breach",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 217,
+    "en": "M3 · Into the Breach",
+    "tag": "A",
+    "context": "market"
+  },
+  {
+    "id": 218,
+    "en": "Known enemy intent creates difficult decisions without demanding fast reading.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 219,
+    "en": "Show target, arrival and likely consequence before commitment. Challenge the response, while keeping the information readable.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 220,
+    "en": "It is turn based. This is a lesson about information, not evidence that Ascent must become turn based.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 221,
+    "en": "Northgard",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 222,
+    "en": "M4 · Northgard",
+    "tag": "A",
+    "context": "market"
+  },
+  {
+    "id": 223,
+    "en": "Faction identity and different routes to success connect economic choices to strategy.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 224,
+    "en": "Use doctrines or charters to make a trade-led, fortress-led or expansion-led run play differently.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 225,
+    "en": "Several victory paths need distinct bottlenecks; renaming the same power race will not create depth.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 226,
+    "en": "Against the Storm",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 227,
+    "en": "M5 · Against the Storm",
+    "tag": "A",
+    "context": "market"
+  },
+  {
+    "id": 228,
+    "en": "A settlement can be completed, while the larger progression continues.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 229,
+    "en": "Give a reign a finite charter and a banking decision, then let players opt into another chapter or endless play.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 230,
+    "en": "Do not add a second settlement layer or more population needs before the existing economy is readable.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 231,
+    "en": "The Battle of Polytopia",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 232,
+    "en": "M6 · The Battle of Polytopia",
+    "tag": "A",
+    "context": "market"
+  },
+  {
+    "id": 233,
+    "en": "A small, consistent action language can support expansion, technology, diplomacy and multiple modes.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 234,
+    "en": "Expose a compact command vocabulary on mobile; reveal exact costs and comparisons on desktop.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 235,
+    "en": "Turn-based networking and its tech tree are not prerequisites for this single-player real-time game.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 236,
+    "en": "9 Kings",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 237,
+    "en": "M7 · 9 Kings",
+    "tag": "A",
+    "context": "market"
+  },
+  {
+    "id": 238,
+    "en": "Distinct decks and interactions produce recognizable run builds; Quest and Endless serve different goals.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 239,
+    "en": "Make existing cards complete a small number of understandable engines, with a finite goal and an optional continuation.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 240,
+    "en": "Avoid relying on escalating numbers or copying a tiny board. Its current Early Access design is not a proven final balance model.",
+    "tag": "TD",
+    "context": "market"
+  },
+  {
+    "id": 241,
+    "en": "For mobile fun",
+    "tag": "H3",
+    "context": "market"
+  },
+  {
+    "id": 242,
+    "en": "A player can understand the immediate problem, make a consequential choice, see its result and stop at a satisfying boundary. Low action count should reduce handling effort while preserving the need to choose.",
+    "tag": "P",
+    "context": "market"
+  },
+  {
+    "id": 243,
+    "en": "This synthesis is an inference from the described designs and the local play review—not a market-wide user survey.",
+    "tag": "P",
+    "context": "market"
+  },
+  {
+    "id": 244,
+    "en": "For desktop depth",
+    "tag": "H3",
+    "context": "market"
+  },
+  {
+    "id": 245,
+    "en": "Experts should win by anticipating routes, managing commitments, exploiting interactions and responding to uncertain situations. More control should offer better plans, comparisons and execution—not compulsory maintenance clicks.",
+    "tag": "P",
+    "context": "market"
+  },
+  {
+    "id": 246,
+    "en": "Vạn Thắng can retain one simulation and expose different planning surfaces. Shared rules make balance and teaching easier to reason about.",
+    "tag": "P",
+    "context": "market"
+  },
+  {
+    "id": 247,
+    "en": "Commercial context, accessed 12 September 2026: the English-language Steam review summaries observed for Thronefall, Against the Storm and Polytopia were each 95% positive. Review populations and dates differ. This is directional evidence of receptive audiences for these products, not proof of revenue, mobile success or causation by any single mechanic. See",
+    "tag": "P",
+    "context": "market"
+  },
+  {
+    "id": 248,
+    "en": "and",
+    "tag": "P",
+    "context": "market"
+  },
+  {
+    "id": 249,
+    "en": "06 / SIMULATION & BALANCE",
+    "tag": "DIV",
+    "context": "balance"
+  },
+  {
+    "id": 250,
+    "en": "Participation matters. The value of deeper economic play is less clear.",
+    "tag": "H2",
+    "context": "balance"
+  },
+  {
+    "id": 251,
+    "en": "64 runs: basic decision agency",
+    "tag": "H3",
+    "context": "balance"
+  },
+  {
+    "id": 252,
+    "en": "16 seeds × four policies; fresh profile before each run; 600-tick cap. Mean waves survived:",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 253,
+    "en": "Engaged",
+    "tag": "SPAN",
+    "context": "balance"
+  },
+  {
+    "id": 254,
+    "en": "Random",
+    "tag": "SPAN",
+    "context": "balance"
+  },
+  {
+    "id": 255,
+    "en": "Declining",
+    "tag": "SPAN",
+    "context": "balance"
+  },
+  {
+    "id": 256,
+    "en": "Contrarian",
+    "tag": "SPAN",
+    "context": "balance"
+  },
+  {
+    "id": 257,
+    "en": "Engaged choices achieved",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 258,
+    "en": "declining’s survival. That supports real consequences. It does not demonstrate that sophisticated planning beats merely accepting available options.",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 259,
+    "en": "All 64 ended in defeat before the cap. These policies resolve choices programmatically and do not reproduce human reading time or desktop Hands-on play.",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 260,
+    "en": "48 runs: economic activity",
+    "tag": "H3",
+    "context": "balance"
+  },
+  {
+    "id": 261,
+    "en": "A separate economy harness; 16 seeds × three policies, also fresh per run.",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 262,
+    "en": "Policy",
+    "tag": "TH",
+    "context": "balance"
+  },
+  {
+    "id": 263,
+    "en": "Waves",
+    "tag": "TH",
+    "context": "balance"
+  },
+  {
+    "id": 264,
+    "en": "Peak gold",
+    "tag": "TH",
+    "context": "balance"
+  },
+  {
+    "id": 265,
+    "en": "engaged",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 266,
+    "en": "focused",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 267,
+    "en": "steward",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 268,
+    "en": "Steward produced about",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 269,
+    "en": "the mean peak gold of Engaged, but only about",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 270,
+    "en": "more waves. Much more handling did not yet demonstrate a reliable survival advantage.",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 271,
+    "en": "“Engaged” is implemented differently in these two harnesses; compare policies within each experiment, not the 18.5 and 21.4 baselines across them.",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 272,
+    "en": "Uncertainty and reproducibility of the economy result",
+    "tag": "SUMMARY",
+    "context": "balance"
+  },
+  {
+    "id": 273,
+    "en": "The approximate paired-seed 95% t intervals for additional waves are",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 274,
+    "en": "focused: 0.56 [-4.88, 6.01]",
+    "tag": "B",
+    "context": "balance"
+  },
+  {
+    "id": 275,
+    "en": "steward: 1.69 [-3.60, 6.97]",
+    "tag": "B",
+    "context": "balance"
+  },
+  {
+    "id": 276,
+    "en": ". Both include zero. These 16-seed samples do not establish a reliable improvement or prove that economic planning is useless.",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 277,
+    "en": "Policies can consume random draws in different orders, so matching world seeds does not hold every later combat event identical. The next experiment should separate world generation, strategic events and battle RNG streams, then compare both outcomes and investment timing. Also examine whether extra gold was spent productively, became a late stockpile, or was earned only after an earlier advantage.",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 278,
+    "en": "The t intervals summarize this small sample; they are not a causal confidence claim. Raw trajectories, purchase histories and the calculation are in",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 279,
+    "en": "economy-fresh-profile.json",
+    "tag": "A",
+    "context": "balance"
+  },
+  {
+    "id": 280,
+    "en": "economy-summary.json",
+    "tag": "A",
+    "context": "balance"
+  },
+  {
+    "id": 281,
+    "en": "83.9/85 is a proxy score, not a “98.7% fun” rating.",
+    "tag": "H3",
+    "context": "balance"
+  },
+  {
+    "id": 282,
+    "en": "The repository metric rewards policy separation, variable pacing, escalating threat, scarce purchasing power and battle appearances. Several dimensions saturate easily. A maximum threat/defence ratio near 19× earns full tension marks; a battle appearing 12.8 times earns full showpiece marks even though the printed target is 3–5. Neither checks whether the player felt capable, informed or fatigued.",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 283,
+    "en": "Current proxy",
+    "tag": "TH",
+    "context": "balance"
+  },
+  {
+    "id": 284,
+    "en": "What it cannot establish",
+    "tag": "TH",
+    "context": "balance"
+  },
+  {
+    "id": 285,
+    "en": "Better companion measure",
+    "tag": "TH",
+    "context": "balance"
+  },
+  {
+    "id": 286,
+    "en": "Engaged / declining ratio",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 287,
+    "en": "Several competent strategies are viable; choices demand learning.",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 288,
+    "en": "Adaptive expert policies, ablations and map-dependent dominance.",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 289,
+    "en": "Decision-gap variance",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 290,
+    "en": "Pauses feel well paced; interruptions are welcome.",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 291,
+    "en": "Wall-clock reading time, modal count, abandoned tasks and player recall.",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 292,
+    "en": "Peak threat / defence",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 293,
+    "en": "Tension is recoverable rather than hopeless.",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 294,
+    "en": "Time in a recoverable state, counterplay availability and loss explanation.",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 295,
+    "en": "Peak treasury / dearest offer",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 296,
+    "en": "Purchases are useful, timely and affordable at the relevant moment.",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 297,
+    "en": "Actionable purchasing power and marginal return at the time of commitment.",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 298,
+    "en": "Battle screen appearances",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 299,
+    "en": "Each fight asks a different question or remains enjoyable.",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 300,
+    "en": "Distinct tactical situations, manual/delegated choice and fatigue by run length.",
+    "tag": "TD",
+    "context": "balance"
+  },
+  {
+    "id": 301,
+    "en": "Three balance mechanisms deserve measurement before redesign.",
+    "tag": "H3",
+    "context": "balance"
+  },
+  {
+    "id": 302,
+    "en": "Wave response to growth.",
+    "tag": "B",
+    "context": "balance"
+  },
+  {
+    "id": 303,
+    "en": "The target combines a rising base curve, ambition, rival pressure and bounded/lagged responses to defensive strength. The player-match factor has a free lead threshold and a cap; it does not cancel every power gain. Test the marginal benefit of a prepared wall or host, then expose a concise committed forecast.",
+    "tag": "LI",
+    "context": "balance"
+  },
+  {
+    "id": 304,
+    "en": "Income and wealth scaling.",
+    "tag": "B",
+    "context": "balance"
+  },
+  {
+    "id": 305,
+    "en": "Current prices respond to both the economic rate and excess stores. Older design notes describing income-only scaling are stale. Show how long a purchase takes to repay and whether a saved reserve is still meaningful; avoid reflexively deleting every anti-snowball rule.",
+    "tag": "LI",
+    "context": "balance"
+  },
+  {
+    "id": 306,
+    "en": "Attention as a hidden cost.",
+    "tag": "B",
+    "context": "balance"
+  },
+  {
+    "id": 307,
+    "en": "Steward’s mean activity included roughly 21 focus changes, four governor postings, 14 manual claims and 128 sales. An action-heavy policy can win slightly more while being much less pleasant. Measure benefit per meaningful decision, not raw clicks.",
+    "tag": "LI",
+    "context": "balance"
+  },
+  {
+    "id": 308,
+    "en": "The original shared-profile 64-run probe was retained only as a diagnostic. Fresh-profile reruns are the basis of the headline results. Evidence:",
+    "tag": "P",
+    "context": "balance"
+  },
+  {
+    "id": 309,
+    "en": "metrics",
+    "tag": "A",
+    "context": "balance"
+  },
+  {
+    "id": 310,
+    "en": "metric implementation",
+    "tag": "A",
+    "context": "balance"
+  },
+  {
+    "id": 311,
+    "en": "wave director",
+    "tag": "A",
+    "context": "balance"
+  },
+  {
+    "id": 312,
+    "en": "current tuning constants",
+    "tag": "A",
+    "context": "balance"
+  },
+  {
+    "id": 313,
+    "en": "07 / IDEA → CRITICISM → TUNING → RECHECK",
+    "tag": "DIV",
+    "context": "iterations"
+  },
+  {
+    "id": 314,
+    "en": "Nine proposals, refined through two critiques.",
+    "tag": "H2",
+    "context": "iterations"
+  },
+  {
+    "id": 315,
+    "en": "These loops are design reasoning informed by the current implementation and test evidence. They are not fabricated user-test rounds. Each ends with a smaller implementable direction and a criterion that could reject it.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 316,
+    "en": "Expand all nine loops",
+    "tag": "BUTTON",
+    "context": "iterations"
+  },
+  {
+    "id": 317,
+    "en": "01 · Keep combat readable as mastery rises",
+    "tag": "SUMMARY",
+    "context": "iterations"
+  },
+  {
+    "id": 318,
+    "en": "1 / Initial idea",
+    "tag": "LABEL",
+    "context": "iterations"
+  },
+  {
+    "id": 319,
+    "en": "Add more speed and hide the counter guide in late waves, so experienced players must react and remember.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 320,
+    "en": "2 / Criticize",
+    "tag": "LABEL",
+    "context": "iterations"
+  },
+  {
+    "id": 321,
+    "en": "The current game already does this. Wave 13 enforces fast pace; later steps cap speech, raise enemy difficulty and hide assistance. Success can make the interface less accessible. Memorizing a ring is a different skill from choosing when to spend stamina.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 322,
+    "en": "3 / Tune",
+    "tag": "LABEL",
+    "context": "iterations"
+  },
+  {
+    "id": 323,
+    "en": "Separate enemy competence, combat speed and reading assistance. Retain the player’s slow pace, explicit counter guide and optional automatic pause at a decision.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 324,
+    "en": "4 / Criticize again",
+    "tag": "LABEL",
+    "context": "iterations"
+  },
+  {
+    "id": 325,
+    "en": "Unlimited stopping could remove time pressure for players who enjoy it. A globally slower battle could also make ordinary fights drag.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 326,
+    "en": "5 / Refined implementation",
+    "tag": "LABEL",
+    "context": "iterations"
+  },
+  {
+    "id": 327,
+    "en": "Ship independent settings: enemy difficulty, pace, readable intent, and pause-on-moment. Keep a clearly chosen timed challenge preset. Use stronger enemy plans and fewer safe responses to raise strategic difficulty; preserve assistance in normal runs.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 328,
+    "en": "Next loop / keep-or-reject test:",
+    "tag": "B",
+    "context": "iterations"
+  },
+  {
+    "id": 329,
+    "en": "At wave 20+, the selected slow speed and guide remain effective. In usability tests, at least 80% can explain the next enemy action before choosing a response. Treat that percentage as a target to test, not an existing result.",
+    "tag": "DIV",
+    "context": "iterations"
+  },
+  {
+    "id": 330,
+    "en": "Backlog links: B02, B03, B04",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 331,
+    "en": "02 · A reign should sometimes end in triumph",
+    "tag": "SUMMARY",
+    "context": "iterations"
+  },
+  {
+    "id": 332,
+    "en": "Add a victory at wave 12, then end every run.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 333,
+    "en": "A mandatory cutoff would truncate a strong build. A fixed wave count also treats exploration, diplomacy and defence as the same achievement.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 334,
+    "en": "Offer a finite charter with a wave horizon and one thematic goal, followed by a choice to bank the result or continue.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 335,
+    "en": "Stacking several objectives can turn a relaxing phone run into a checklist. Banking too early may become the optimal progression farm.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 336,
+    "en": "Prototype one short charter: hold the capital through the first great invasion and preserve one chosen border. The initial candidate is the first four waves, tuned by observed wall-clock sessions. Award a complete ending; offer a second chapter or Endless. Later charters can emphasize trade or alliances. Normalize rewards by difficulty and meaningful milestones.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 337,
+    "en": "Candidate mobile chapter: 8–12 minutes including reading; desktop extended reign: 20–35 minutes. These are hypotheses. Keep only if players understand the goal and at least 70% of finishers want another chapter or a new build.",
+    "tag": "DIV",
+    "context": "iterations"
+  },
+  {
+    "id": 338,
+    "en": "Backlog links: B12, B13, B14",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 339,
+    "en": "03 · Preparation needs uninterrupted space",
+    "tag": "SUMMARY",
+    "context": "iterations"
+  },
+  {
+    "id": 340,
+    "en": "Remove most court cards and let autopilot handle the economy.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 341,
+    "en": "Cards are currently the main way many phone players exercise agency. Removing them would turn a grand strategy game into watching the simulation.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 342,
+    "en": "Queue routine advice in a compact court inbox; interrupt for danger, an expiring commitment or a genuinely new rule.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 343,
+    "en": "An inbox can become an invisible backlog. Too much batching can make all strategy happen in one exhausting menu.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 344,
+    "en": "Use the existing Aftermath → Court → Muster → Field structure. Present one strategic headline and up to three optional queued decisions. Pause for urgent, irreversible choices. Allow the player to pull any lane on demand. Let doctrine handle repeat maintenance under visible reserve budgets.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 345,
+    "en": "Target no more than two unsolicited full-screen decisions between ordinary waves after onboarding. Measure decision comprehension, ignored important events and actions per completed objective—not simply fewer taps.",
+    "tag": "DIV",
+    "context": "iterations"
+  },
+  {
+    "id": 346,
+    "en": "Backlog links: B08, B09, B18",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 347,
+    "en": "04 · Make growth feel like an advantage",
+    "tag": "SUMMARY",
+    "context": "iterations"
+  },
+  {
+    "id": 348,
+    "en": "Remove all enemy adaptation and all price scaling.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 349,
+    "en": "The current game uses several bounded controllers, not a single unlimited rubber band. Removing everything could produce idle snowballs and trivial late-game purchases.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 350,
+    "en": "Publish the base wave, ambition, rival pressure and adaptive portion; lock a visible wave budget before the player finishes preparing.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 351,
+    "en": "A player may exploit the lock by hoarding strength until after the snapshot. Full formulas on a phone would be unreadable.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 352,
+    "en": "First instrument each contribution and run matched policy experiments. Prototype a muster snapshot with a bounded adaptation envelope. Count committed recruitment and construction when appropriate. Keep a short front forecast with a detail drill-down. Demand a measurable benefit from successful preparation before retuning all prices.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 353,
+    "en": "On the same scenario, a sensible defensive investment should improve losses, territory held or capital safety in a large majority of cases. Pre-register an 80% directional target and inspect exceptions. Compare outcomes as well as the displayed POWER.",
+    "tag": "DIV",
+    "context": "iterations"
+  },
+  {
+    "id": 354,
+    "en": "Backlog links: B10, B15, B16, B17",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 355,
+    "en": "05 · Build identity from interactions",
+    "tag": "SUMMARY",
+    "context": "iterations"
+  },
+  {
+    "id": 356,
+    "en": "Add dozens of new cards, units and building levels.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 357,
+    "en": "There are already 52 card definitions, 22 eligible for normal drafts and eight opening boons. More content may dilute the chance of forming a coherent plan and multiply balance work.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 358,
+    "en": "Audit the existing pool for three viable engines: fortified food/logistics, trading diplomacy, and mobile expansion. Give each a visible strength and a failure case.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 359,
+    "en": "Rigid engines could make drafts solved recipes; forced card bundles would reduce improvisation.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 360,
+    "en": "Keep flexible bridges between engines. Prototype two interaction changes within the existing pool before expanding it. A food surplus might support a reserve host but face wage pressure; trade can fund defence but needs safe connections; expansion opens resources but stretches supply. Clearly mark proposed interactions that do not exist yet.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 361,
+    "en": "Across 32–64 seeds and several competent policies, no starter engine should dominate every map. Players should name their build and its weakness after the second draft. Rework generic upgrades that cannot change a decision.",
+    "tag": "DIV",
+    "context": "iterations"
+  },
+  {
+    "id": 362,
+    "en": "Backlog links: B20, B21, B22, B23",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 363,
+    "en": "06 · One simulation, two comfortable ways to command",
+    "tag": "SUMMARY",
+    "context": "iterations"
+  },
+  {
+    "id": 364,
+    "en": "Give desktop players more compulsory micromanagement than mobile players.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 365,
+    "en": "Desktop already starts with Hands-on enabled, disabling autopilot and routine lane prompts. More chores are not automatically more depth, and platform defaults can conceal that this is a rules change.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 366,
+    "en": "Share the economic and combat rules. Let players choose Guided command or Hands-on command on either platform, with clear explanations and easy switching.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 367,
+    "en": "An expert workspace can overwhelm a phone; automation must not silently override explicit orders or make experts irrelevant.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 368,
+    "en": "Mobile uses intent presets, single-province drill-down and one urgent front at a time. Desktop adds pinned comparisons, stable shortcuts, routes, queues and optional multi-host selection. Both expose reserve budgets, order precedence and the same consequences. Prototype the command workspace with existing armies before adding units.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 369,
+    "en": "A desktop player can compare two fronts and queue a response in under 20 seconds after learning the controls. A mobile player can give an equivalent strategic intention in at most three major taps. Validate, do not assume, both targets.",
+    "tag": "DIV",
+    "context": "iterations"
+  },
+  {
+    "id": 370,
+    "en": "Backlog links: B07, B18, B24, B25, B26",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 371,
+    "en": "07 · Make inheritance rewarding without obscuring skill",
+    "tag": "SUMMARY",
+    "context": "iterations"
+  },
+  {
+    "id": 372,
+    "en": "Merge Legacy, Dynasty and Cabinet into one universal currency.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 373,
+    "en": "A hard merge would discard distinct rewards and disrupt existing saves. Removing progression power overnight could make earned collections feel devalued.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 374,
+    "en": "Unify the explanation and end-of-run presentation while keeping the underlying stores. Distinguish permanent collection level, this-run stack and current-reign experience.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 375,
+    "en": "A prettier reward screen alone does not resolve grinding or fresh-profile disadvantage.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 376,
+    "en": "Use one inheritance summary: what was earned, what changed, and one optional next-run choice. Add a normalized challenge preset with clearly defined progression treatment. Prefer new options and sidegrades for future rewards; preserve existing ownership and test any balance migration separately.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 377,
+    "en": "At least 80% of testers can identify which of three rewards affects the next run, this run or collection completion. Compare new and progressed profiles with identical decision policies.",
+    "tag": "DIV",
+    "context": "iterations"
+  },
+  {
+    "id": 378,
+    "en": "Backlog links: B05, B19, B30, B31",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 379,
+    "en": "08 · Turn defeat into a useful next attempt",
+    "tag": "SUMMARY",
+    "context": "iterations"
+  },
+  {
+    "id": 380,
+    "en": "Add a detailed log explaining every multiplier after a loss.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 381,
+    "en": "There is already an aftermath and chronicle. A huge ledger may explain the engine while failing to help a disappointed player decide what to try next.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 382,
+    "en": "Show the decisive timeline: arrival, supply failure, formation exchange, reinforcement or capital loss. Offer one plausible alternative with an uncertainty label.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 383,
+    "en": "A counterfactual can be wrong when changing an order changes later random events. Automatic advice can sound falsely certain or blame the player.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 384,
+    "en": "Start with facts from the event log: “Relief arrived two seasons after contact.” Add a bounded comparison only where it can be simulated consistently. Let players replay a practice snapshot when feasible. Lead with the story and one learnable cause; keep the detailed ledger optional.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 385,
+    "en": "After a loss, at least 70% can name one specific adjustment for the next attempt. Verify every factual explanation against recorded events. Do not fabricate precise alternate win chances.",
+    "tag": "DIV",
+    "context": "iterations"
+  },
+  {
+    "id": 386,
+    "en": "Backlog links: B11, B27, B28",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 387,
+    "en": "09 · Make Vietnamese strategy part of the rules",
+    "tag": "SUMMARY",
+    "context": "iterations"
+  },
+  {
+    "id": 388,
+    "en": "Build a full naval layer, historical campaign map and many new factions immediately.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 389,
+    "en": "That scope would compete with the current game’s clarity and balance problems. New movement, combat and economy layers would require extensive teaching and art.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 390,
+    "en": "Use existing formations, terrain, supply and character stories for a small historical scenario with a distinct tactical problem.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 391,
+    "en": "A famous battle becomes a trivia skin if the winning action is unchanged; a scripted historical win can remove agency.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 392,
+    "en": "Prototype one river-crossing or prepared-ground encounter. Telegraph its rule, allow more than one solution, and make a retreat/bait plan costly if mistimed. Keep historical framing separate from invented procedural outcomes. Expand only if this encounter changes players’ decisions and remains legible on a phone.",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 393,
+    "en": "Players should describe the scenario’s terrain rule without opening a codex and use at least two successful approaches. Reuse existing systems before introducing a full navy.",
+    "tag": "DIV",
+    "context": "iterations"
+  },
+  {
+    "id": 394,
+    "en": "Backlog links: B29, B34, B35",
+    "tag": "P",
+    "context": "iterations"
+  },
+  {
+    "id": 395,
+    "en": "08 / MOBILE FUN + DESKTOP DEPTH",
+    "tag": "DIV",
+    "context": "platforms"
+  },
+  {
+    "id": 396,
+    "en": "Share the rules. Adapt the planning surface.",
+    "tag": "H2",
+    "context": "platforms"
+  },
+  {
+    "id": 397,
+    "en": "Decision",
+    "tag": "TH",
+    "context": "platforms"
+  },
+  {
+    "id": 398,
+    "en": "Mobile presentation",
+    "tag": "TH",
+    "context": "platforms"
+  },
+  {
+    "id": 399,
+    "en": "Desktop presentation",
+    "tag": "TH",
+    "context": "platforms"
+  },
+  {
+    "id": 400,
+    "en": "Shared depth",
+    "tag": "TH",
+    "context": "platforms"
+  },
+  {
+    "id": 401,
+    "en": "Prepare a border",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 402,
+    "en": "One forecast card; tap Hold border, Reinforce or Negotiate.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 403,
+    "en": "Pin two fronts; inspect ETA, garrison, routes and economic cost before queueing orders.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 404,
+    "en": "Same terrain, supplies, travel and enemy plan.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 405,
+    "en": "Run the economy",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 406,
+    "en": "Choose a doctrine and reserve budget; review exceptions.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 407,
+    "en": "Compare province output, governors and build queues; override any district.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 408,
+    "en": "Same prices, upkeep and resource bottlenecks.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 409,
+    "en": "Fight a battle",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 410,
+    "en": "Readable intent, thumb-sized formations, optional decision pause and commander delegation.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 411,
+    "en": "Stable formation/stance keys, front switching, detailed combat log and optional challenge timing.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 412,
+    "en": "Same formation matchups, reform risk and stamina.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 413,
+    "en": "Build a strategy",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 414,
+    "en": "Show three understandable plans and the next useful synergy.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 415,
+    "en": "Expose draft weights, role comparisons and detailed interactions on demand.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 416,
+    "en": "Same card effects and conditional weaknesses.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 417,
+    "en": "End a session",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 418,
+    "en": "Complete a short charter and bank; resume the next chapter later.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 419,
+    "en": "Choose an extended objective or carry the build into Endless.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 420,
+    "en": "Same explicit objective rules and reward accounting.",
+    "tag": "TD",
+    "context": "platforms"
+  },
+  {
+    "id": 421,
+    "en": "Example: one hard decision, two comfortable interfaces",
+    "tag": "H3",
+    "context": "platforms"
+  },
+  {
+    "id": 422,
+    "en": "An army reaches the rice border in three seasons; relief needs four. A mobile card offers",
+    "tag": "P",
+    "context": "platforms"
+  },
+  {
+    "id": 423,
+    "en": "hold with the levy",
+    "tag": "B",
+    "context": "platforms"
+  },
+  {
+    "id": 424,
+    "en": "withdraw and preserve the host",
+    "tag": "B",
+    "context": "platforms"
+  },
+  {
+    "id": 425,
+    "en": ", or",
+    "tag": "P",
+    "context": "platforms"
+  },
+  {
+    "id": 426,
+    "en": "pay for a delaying agreement",
+    "tag": "B",
+    "context": "platforms"
+  },
+  {
+    "id": 427,
+    "en": ", with cost and expected consequences. Desktop shows the same options alongside route and province comparisons. Both players choose what to sacrifice. Neither needs to issue a hundred soldier orders.",
+    "tag": "P",
+    "context": "platforms"
+  },
+  {
+    "id": 428,
+    "en": "This is a proposed scenario, not a claim that these exact three actions are currently available together. The existing supply, standing-order, diplomacy and withdrawal systems provide the foundations.",
+    "tag": "P",
+    "context": "platforms"
+  },
+  {
+    "id": 429,
+    "en": "For touch, audit actual hit regions and spacing. Apple recommends at least",
+    "tag": "P",
+    "context": "platforms"
+  },
+  {
+    "id": 430,
+    "en": "44 × 44 points",
+    "tag": "B",
+    "context": "platforms"
+  },
+  {
+    "id": 431,
+    "en": "; W3C’s enhanced target guidance uses",
+    "tag": "P",
+    "context": "platforms"
+  },
+  {
+    "id": 432,
+    "en": "44 × 44 CSS pixels",
+    "tag": "B",
+    "context": "platforms"
+  },
+  {
+    "id": 433,
+    "en": ". These units are not interchangeable across native shells and device scaling. Start with a 44 CSS-pixel web target where feasible, then verify physical-device ergonomics and platform conventions.",
+    "tag": "P",
+    "context": "platforms"
+  },
+  {
+    "id": 434,
+    "en": "M8 · Apple",
+    "tag": "A",
+    "context": "platforms"
+  },
+  {
+    "id": 435,
+    "en": "M9 · W3C",
+    "tag": "A",
+    "context": "platforms"
+  },
+  {
+    "id": 436,
+    "en": "09 / IMPLEMENTATION INVENTORY",
+    "tag": "DIV",
+    "context": "features"
+  },
+  {
+    "id": 437,
+    "en": "48 changes, extensions and deliberate deferrals.",
+    "tag": "H2",
+    "context": "features"
+  },
+  {
+    "id": 438,
+    "en": "This is the complete prioritized inventory from the reviewed product scope—not every feature a grand-strategy game could conceivably contain.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 439,
+    "en": "Improve",
+    "tag": "B",
+    "context": "features"
+  },
+  {
+    "id": 440,
+    "en": "means the system exists;",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 441,
+    "en": "Extend",
+    "tag": "B",
+    "context": "features"
+  },
+  {
+    "id": 442,
+    "en": "adds capability to it;",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 443,
+    "en": "New",
+    "tag": "B",
+    "context": "features"
+  },
+  {
+    "id": 444,
+    "en": "means no player-facing implementation was found in the inspected main flow;",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 445,
+    "en": "Validate",
+    "tag": "B",
+    "context": "features"
+  },
+  {
+    "id": 446,
+    "en": "requires evidence first;",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 447,
+    "en": "Defer",
+    "tag": "B",
+    "context": "features"
+  },
+  {
+    "id": 448,
+    "en": "means do not build yet.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 449,
+    "en": "P0: trust, measurement or a blocking usability issue. P1: next playable milestone. P2: depth and polish after proof. P3: defer. Effort S/M/L/XL is relative engineering/design scope, not a delivery estimate; asset work and save migration can change it.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 450,
+    "en": "Search features",
+    "tag": "LABEL",
+    "context": "features"
+  },
+  {
+    "id": 451,
+    "en": "Priority",
+    "tag": "LABEL",
+    "context": "features"
+  },
+  {
+    "id": 452,
+    "en": "All priorities",
+    "tag": "OPTION",
+    "context": "features"
+  },
+  {
+    "id": 453,
+    "en": "P0",
+    "tag": "OPTION",
+    "context": "features"
+  },
+  {
+    "id": 454,
+    "en": "P1",
+    "tag": "OPTION",
+    "context": "features"
+  },
+  {
+    "id": 455,
+    "en": "P2",
+    "tag": "OPTION",
+    "context": "features"
+  },
+  {
+    "id": 456,
+    "en": "P3",
+    "tag": "OPTION",
+    "context": "features"
+  },
+  {
+    "id": 457,
+    "en": "Platform",
+    "tag": "LABEL",
+    "context": "features"
+  },
+  {
+    "id": 458,
+    "en": "Both + platform-specific",
+    "tag": "OPTION",
+    "context": "features"
+  },
+  {
+    "id": 459,
+    "en": "Status",
+    "tag": "LABEL",
+    "context": "features"
+  },
+  {
+    "id": 460,
+    "en": "All statuses",
+    "tag": "OPTION",
+    "context": "features"
+  },
+  {
+    "id": 461,
+    "en": "Reset",
+    "tag": "BUTTON",
+    "context": "features"
+  },
+  {
+    "id": 462,
+    "en": "48 of 48 items",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 463,
+    "en": "B01 · P0",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 464,
+    "en": "Both",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 465,
+    "en": "Effort S",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 466,
+    "en": "Make probability language truthful",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 467,
+    "en": "The played envoy method said “certain” beside a 53% chance.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 468,
+    "en": "Done when:",
+    "tag": "B",
+    "context": "features"
+  },
+  {
+    "id": 469,
+    "en": "Every certainty claim matches the resolver; display success chance, time and refusal cost from shared data.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 470,
+    "en": "Foundation / dependency: Lanes / i18n",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 471,
+    "en": "B02 · P0",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 472,
+    "en": "Effort M",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 473,
+    "en": "Preserve chosen pace and assistance",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 474,
+    "en": "Wave escalation currently overrides speed and readability.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 475,
+    "en": "Slow remains slow at wave 30; intent and counter guidance remain available when enabled.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 476,
+    "en": "Foundation / dependency: L1",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 477,
+    "en": "B03 · P0",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 478,
+    "en": "Separate challenge from reading time",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 479,
+    "en": "Enemy strength, timing and hints are currently coupled.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 480,
+    "en": "Independent difficulty, pace and assistance settings survive save/reload and work in Ascent and Skirmish.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 481,
+    "en": "Foundation / dependency: B02",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 482,
+    "en": "B04 · P0",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 483,
+    "en": "Make pause consistent and explicit",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 484,
+    "en": "Space pauses the world but is intentionally ignored on the battle screen.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 485,
+    "en": "A documented, stable battle-pause key and obvious clock state; no accidental orders while menus own input.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 486,
+    "en": "B05 · P0",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 487,
+    "en": "Skip empty first-reign inheritance",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 488,
+    "en": "The first played reign displayed an empty starting hand and no inherited traits.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 489,
+    "en": "A fresh profile proceeds to a strategic choice; returning houses still see relevant inheritance.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 490,
+    "en": "Foundation / dependency: Opening flow",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 491,
+    "en": "B06 · P0",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 492,
+    "en": "Fix resume modal text layout",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 493,
+    "en": "The inspected 1440×900 resume prompt had its wrapped heading overlap the subtitle.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 494,
+    "en": "No overlap at phone, short phone, tablet and desktop sizes in English and Vietnamese.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 495,
+    "en": "Foundation / dependency: Menu resume",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 496,
+    "en": "B07 · P0",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 497,
+    "en": "Explain command-mode defaults",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 498,
+    "en": "Desktop enables Hands-on; automated factory runs do not.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 499,
+    "en": "At start, describe what automation and routine prompts change, allow either mode on either platform.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 500,
+    "en": "Foundation / dependency: L6",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 501,
+    "en": "B08 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 502,
+    "en": "Budget full-screen interruptions",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 503,
+    "en": "The played preparation was repeatedly displaced by doctrine, province, conquest, draft and court sheets.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 504,
+    "en": "Measure a configurable modal budget; urgent events remain visible and optional advice queues safely.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 505,
+    "en": "Foundation / dependency: L3",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 506,
+    "en": "B09 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 507,
+    "en": "Show the existing wave phases",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 508,
+    "en": "Aftermath, court and muster rules exist but deserve a stronger player-facing rhythm.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 509,
+    "en": "The player can identify the current phase, what is safe to do and the next commitment.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 510,
+    "en": "Foundation / dependency: B08",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 511,
+    "en": "B10 · P0",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 512,
+    "en": "Use comparable front forecasts",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 513,
+    "en": "POWER includes an economic component; THREAT is not the same quantity.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 514,
+    "en": "Show defence ready by arrival, attacking strength and ETA; keep total realm POWER as a separate progress stat.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 515,
+    "en": "Foundation / dependency: PowerSystem / WaveDirector",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 516,
+    "en": "B11 · P0",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 517,
+    "en": "Replace the single fun proxy with a test dashboard",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 518,
+    "en": "The current proxy nearly saturates while ignoring readability, fatigue and expert-plan diversity.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 519,
+    "en": "Record fresh/progressed profile, layout, command mode, seed, objective outcome, losses and real reading time where applicable.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 520,
+    "en": "Foundation / dependency: Metrics harness",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 521,
+    "en": "B12 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 522,
+    "en": "Effort L",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 523,
+    "en": "Add a finite Ascent charter",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 524,
+    "en": "No selectable finite victory contract was found in the main Ascent loop.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 525,
+    "en": "Complete one clear objective, award a win, then offer bank, next chapter or Endless.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 526,
+    "en": "Foundation / dependency: L2",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 527,
+    "en": "B13 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 528,
+    "en": "Make a chapter safe to stop after",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 529,
+    "en": "Local save/resume exists; a satisfying planned stop is different from suspension.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 530,
+    "en": "Banked chapter reward and next choice survive interruption, restart and offline resume.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 531,
+    "en": "Foundation / dependency: B12",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 532,
+    "en": "B14 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 533,
+    "en": "Offer longer optional objectives",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 534,
+    "en": "Endless waves already exist; experts need a meaningful reason to pursue a longer reign.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 535,
+    "en": "An extended charter changes priorities rather than merely doubling required waves.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 536,
+    "en": "B15 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 537,
+    "en": "Audit returns to preparation",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 538,
+    "en": "Income, wealth, ambition and defensive adaptation can obscure the benefit of investment.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 539,
+    "en": "Run paired ablations; report losses and land held alongside waves and stockpiles.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 540,
+    "en": "Foundation / dependency: B11",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 541,
+    "en": "B16 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 542,
+    "en": "Explain and bound wave adaptation",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 543,
+    "en": "Several controllers feed the wave budget, with caps and lags.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 544,
+    "en": "Debug breakdown reconciles exactly; the player sees a short cause summary and a committed forecast.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 545,
+    "en": "Foundation / dependency: B10, B15",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 546,
+    "en": "B17 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 547,
+    "en": "Show useful resource forecasts",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 548,
+    "en": "Rates and detailed province multipliers exist, but choices often omit the practical runway.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 549,
+    "en": "At a purchase: cost, upkeep change, expected completion and food/supply runway; mark estimates.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 550,
+    "en": "Foundation / dependency: B15",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 551,
+    "en": "B18 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 552,
+    "en": "Add visible automation budgets",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 553,
+    "en": "Autopilot already builds, upgrades and recruits; explicit orders should remain authoritative.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 554,
+    "en": "Reserve gold, food and supplies; expose the next automated action and why an action was skipped.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 555,
+    "en": "Foundation / dependency: B07, B17",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 556,
+    "en": "B19 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 557,
+    "en": "Separate run stacks from collection levels",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 558,
+    "en": "The draft mixes Lv2, Stack 1/2 and “3 more to combine.”",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 559,
+    "en": "Every reward label names its scope; players correctly sort three representative rewards.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 560,
+    "en": "Foundation / dependency: L7",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 561,
+    "en": "B20 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 562,
+    "en": "Measure coherent build diversity",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 563,
+    "en": "Many modifiers and three evolution recipes exist, but viable expert archetypes are unproven.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 564,
+    "en": "Compare at least three competent plans over 32–64 seeds; inspect conditional dominance and draft dead ends.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 565,
+    "en": "B21 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 566,
+    "en": "Tune interactions in the existing draft pool",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 567,
+    "en": "22 normal draft cards are a manageable set for an interaction audit.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 568,
+    "en": "Two tested interactions create distinct resource or tactical decisions without a universal best pick.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 569,
+    "en": "Foundation / dependency: B20",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 570,
+    "en": "B22 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 571,
+    "en": "Make doctrine consequences visible",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 572,
+    "en": "Four doctrines already change multiple autonomous decisions.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 573,
+    "en": "Show one core strength, one cost and current automation intent; preview a doctrine change.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 574,
+    "en": "Foundation / dependency: B18, B20",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 575,
+    "en": "B23 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 576,
+    "en": "Compare hero opportunity costs",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 577,
+    "en": "Heroes already serve as governors, officers, envoys and commanders; some cards warn about vacated seats.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 578,
+    "en": "All assignment entry points show what is gained and what existing role is lost.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 579,
+    "en": "Foundation / dependency: Existing hero/court screens",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 580,
+    "en": "B24 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 581,
+    "en": "Keep shortcuts stable and discoverable",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 582,
+    "en": "Number keys derive from dynamic action-bar slots; a battle slot can change lane numbering.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 583,
+    "en": "Stable bindings, visible key hints and remapping; switching fronts never silently changes the Build key.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 584,
+    "en": "B25 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 585,
+    "en": "Add a command and comparison workspace",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 586,
+    "en": "Side sheets and army orders exist; serial navigation limits simultaneous planning.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 587,
+    "en": "Pin two provinces/fronts, inspect route ETA and queue an order while retaining map context.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 588,
+    "en": "Foundation / dependency: B24, B17",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 589,
+    "en": "B26 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 590,
+    "en": "Make intent orders easy to issue",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 591,
+    "en": "Defend, attack, follow, hunt, recall and withdrawal already exist.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 592,
+    "en": "Give a familiar host an intent in at most three major taps; show target and arrival before commitment.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 593,
+    "en": "B27 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 594,
+    "en": "Connect aftermath to the decisive cause",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 595,
+    "en": "Current reports already show named commanders, casualties and outcomes.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 596,
+    "en": "One verifiable cause is linked to the event timeline; detailed numbers remain available.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 597,
+    "en": "Foundation / dependency: L8, B11",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 598,
+    "en": "B28 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 599,
+    "en": "Replay a bounded practice snapshot",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 600,
+    "en": "No player-facing deterministic decision replay was found in the reviewed main flow.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 601,
+    "en": "Replay one battle state with explicit RNG/version metadata; label deviations and avoid false counterfactual certainty.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 602,
+    "en": "Foundation / dependency: B11, B27",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 603,
+    "en": "B29 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 604,
+    "en": "Add terrain problems to selected encounters",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 605,
+    "en": "Terrain, supply and formations are present; historical mechanics can use them more distinctly.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 606,
+    "en": "One crossing/prepared-ground scenario supports two solutions with readable costs.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 607,
+    "en": "Foundation / dependency: L9",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 608,
+    "en": "B30 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 609,
+    "en": "Unify inheritance presentation",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 610,
+    "en": "Legacy, Dynasty and Cabinet are useful but overlap in explanation.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 611,
+    "en": "One summary distinguishes ownership, permanent effects and the next-run choice without deleting earned items.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 612,
+    "en": "Foundation / dependency: B19",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 613,
+    "en": "B31 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 614,
+    "en": "Offer a normalized skill challenge",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 615,
+    "en": "Fresh and progressed profiles are currently different balance contexts.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 616,
+    "en": "State exactly which progression effects apply; scores cannot mix incompatible presets.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 617,
+    "en": "Foundation / dependency: B11, B30",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 618,
+    "en": "B32 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 619,
+    "en": "Make diplomacy commitments legible",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 620,
+    "en": "Envoys, opinion, trade and competing rulers already exist.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 621,
+    "en": "Show promise duration, obligations and consequences of breaking an agreement; do not add another currency.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 622,
+    "en": "Foundation / dependency: B01, B17",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 623,
+    "en": "B33 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 624,
+    "en": "Make capital recovery actionable",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 625,
+    "en": "Defeat includes a capital-loss grace and refuge rules.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 626,
+    "en": "Show remaining recovery time and feasible relief/recapture actions before the loss becomes irreversible.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 627,
+    "en": "Foundation / dependency: B10, B26",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 628,
+    "en": "B34 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 629,
+    "en": "Give bosses a distinct strategic demand",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 630,
+    "en": "Great invasions and multiple wave shapes already exist.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 631,
+    "en": "At least three boss encounters reward different preparations with a two-season warning that explains the relevant rule.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 632,
+    "en": "Foundation / dependency: B10, B20",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 633,
+    "en": "B35 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 634,
+    "en": "Build one playable historical scenario",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 635,
+    "en": "Character stories and Vietnamese identity already exist.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 636,
+    "en": "A small authored scenario teaches a real strategic constraint and labels fictional/procedural outcomes.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 637,
+    "en": "Foundation / dependency: B29",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 638,
+    "en": "B36 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 639,
+    "en": "Audit touch targets on real devices",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 640,
+    "en": "Phone screenshots and emulation cannot establish physical thumb comfort.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 641,
+    "en": "Measure hit regions, target spacing and error rate on phone and tablet; use appropriate CSS/point/dp guidance.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 642,
+    "en": "Foundation / dependency: M8, M9",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 643,
+    "en": "B37 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 644,
+    "en": "Provide a readable UI scale",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 645,
+    "en": "Small annotations coexist with detailed canvas screens.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 646,
+    "en": "Larger text has no clipped decisions, hidden costs or unscrollable buttons at the supported minimum viewport.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 647,
+    "en": "Foundation / dependency: B36",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 648,
+    "en": "B38 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 649,
+    "en": "Audit nonvisual and motor access",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 650,
+    "en": "No assistive-technology certification was performed.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 651,
+    "en": "Test keyboard focus, semantic text access, colour-independent cues and alternatives to holds/swipes; scope fixes from findings.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 652,
+    "en": "Foundation / dependency: B37",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 653,
+    "en": "B39 · P1",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 654,
+    "en": "Run sustained physical-device performance tests",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 655,
+    "en": "This review used desktop Chromium emulation, not a thermally constrained phone.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 656,
+    "en": "On a declared low-end target, test a 20-minute run, crowded combat, background/resume, touch latency and memory.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 657,
+    "en": "Foundation / dependency: Performance harness",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 658,
+    "en": "B40 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 659,
+    "en": "Share a reproducible challenge seed",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 660,
+    "en": "A seeded debug harness exists; a normal player-facing challenge share flow was not found.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 661,
+    "en": "A share code encodes seed, version, rules and progression preset; invalid versions are explained.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 662,
+    "en": "Foundation / dependency: B11, B31",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 663,
+    "en": "B41 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 664,
+    "en": "Audit portable save recovery",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 665,
+    "en": "Local persistence and offline resilience exist; cross-device continuity was not verified.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 666,
+    "en": "Prove backup/restore across supported shells before adding cloud sync; preserve migration compatibility.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 667,
+    "en": "Foundation / dependency: Save layer",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 668,
+    "en": "B42 · P2",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 669,
+    "en": "Use consistent units and glossary",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 670,
+    "en": "Seasons, ticks, exchanges, levels and several percentages appear across decisions.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 671,
+    "en": "Player text uses consistent time units and labels chance, loyalty and output separately.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 672,
+    "en": "Foundation / dependency: B01, B19",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 673,
+    "en": "B43 · P3",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 674,
+    "en": "Effort XL",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 675,
+    "en": "Real-time competitive multiplayer",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 676,
+    "en": "Networking, fairness, persistence and population would multiply scope.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 677,
+    "en": "Reconsider only after single-player sessions retain users and command rules are stable.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 678,
+    "en": "Foundation / dependency: Core validation",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 679,
+    "en": "B44 · P3",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 680,
+    "en": "Full naval combat layer",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 681,
+    "en": "A river scenario can test demand with existing systems first.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 682,
+    "en": "Promote only if the limited scenario adds durable strategic value.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 683,
+    "en": "B45 · P3",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 684,
+    "en": "Mandatory worker or squad micromanagement",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 685,
+    "en": "More repetitive clicks would divide mobile and desktop rules without proving depth.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 686,
+    "en": "Prefer optional queues and intent commands; demand a new decision before adding a control.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 687,
+    "en": "Foundation / dependency: B25",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 688,
+    "en": "B46 · P3",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 689,
+    "en": "More currencies and progression trees",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 690,
+    "en": "The existing three progression layers already need explanation.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 691,
+    "en": "Add only when an existing currency or reward cannot express a verified design need.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 692,
+    "en": "Foundation / dependency: B30",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 693,
+    "en": "B47 · P3",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 694,
+    "en": "Larger maps and many new units",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 695,
+    "en": "More territory and unit types magnify path, UI, performance and balance problems.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 696,
+    "en": "Expand after existing terrain and army roles produce distinct plans on current maps.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 697,
+    "en": "Foundation / dependency: B20, B39",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 698,
+    "en": "B48 · P3",
+    "tag": "SPAN",
+    "context": "features"
+  },
+  {
+    "id": 699,
+    "en": "Grind gates, energy timers and daily chores",
+    "tag": "H3",
+    "context": "features"
+  },
+  {
+    "id": 700,
+    "en": "They would conflict with short, self-directed reigns unless a separate product case is demonstrated.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 701,
+    "en": "Do not use compulsory waiting or stat grinding to compensate for weak run variety.",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 702,
+    "en": "Foundation / dependency: B12, B31",
+    "tag": "P",
+    "context": "features"
+  },
+  {
+    "id": 703,
+    "en": "10 / WHAT TO BUILD FIRST",
+    "tag": "DIV",
+    "context": "roadmap"
+  },
+  {
+    "id": 704,
+    "en": "Three playable milestones, each with a stop gate.",
+    "tag": "H2",
+    "context": "roadmap"
+  },
+  {
+    "id": 705,
+    "en": "Milestone 1 / Trust & control",
+    "tag": "DIV",
+    "context": "roadmap"
+  },
+  {
+    "id": 706,
+    "en": "Readable preparation and battle",
+    "tag": "H3",
+    "context": "roadmap"
+  },
+  {
+    "id": 707,
+    "en": "Fix certainty copy, empty inheritance and resume overlap.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 708,
+    "en": "Keep pace and assistance settings effective.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 709,
+    "en": "Explain command modes; stabilize pause and shortcuts.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 710,
+    "en": "Capture comparable front forecasts and clean experiment metadata.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 711,
+    "en": "Gate:",
+    "tag": "B",
+    "context": "roadmap"
+  },
+  {
+    "id": 712,
+    "en": "players understand a choice and can control the clock. Stop expanding content if this still fails.",
+    "tag": "P",
+    "context": "roadmap"
+  },
+  {
+    "id": 713,
+    "en": "Core: B01–B07, B10–B11, B24. Start device/text audits in parallel with implementation work.",
+    "tag": "P",
+    "context": "roadmap"
+  },
+  {
+    "id": 714,
+    "en": "Milestone 2 / A complete session",
+    "tag": "DIV",
+    "context": "roadmap"
+  },
+  {
+    "id": 715,
+    "en": "One charter worth replaying",
+    "tag": "H3",
+    "context": "roadmap"
+  },
+  {
+    "id": 716,
+    "en": "Ship one finite objective with bank/continue.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 717,
+    "en": "Use wave phases to budget interruptions.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 718,
+    "en": "Add a practical resource/arrival forecast.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 719,
+    "en": "Make inheritance and a loss’s decisive cause clear.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 720,
+    "en": "people finish or lose with understanding, and voluntarily choose another attempt. Do not multiply charters before this works.",
+    "tag": "P",
+    "context": "roadmap"
+  },
+  {
+    "id": 721,
+    "en": "Core: B08–B09, B12–B19, B27, B30.",
+    "tag": "P",
+    "context": "roadmap"
+  },
+  {
+    "id": 722,
+    "en": "Milestone 3 / Earned mastery",
+    "tag": "DIV",
+    "context": "roadmap"
+  },
+  {
+    "id": 723,
+    "en": "Three plans and expert tools",
+    "tag": "H3",
+    "context": "roadmap"
+  },
+  {
+    "id": 724,
+    "en": "Tune three viable engines using existing cards.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 725,
+    "en": "Add desktop comparisons and mobile intent commands.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 726,
+    "en": "Prototype one terrain/historical encounter.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 727,
+    "en": "Offer normalized challenges after profile tests.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 728,
+    "en": "multiple plans succeed for different reasons, without more compulsory taps or a universal best build.",
+    "tag": "P",
+    "context": "roadmap"
+  },
+  {
+    "id": 729,
+    "en": "Core: B20–B26, B29, B31, B34–B35.",
+    "tag": "P",
+    "context": "roadmap"
+  },
+  {
+    "id": 730,
+    "en": "The first implementation batch should be small and reviewable.",
+    "tag": "H3",
+    "context": "roadmap"
+  },
+  {
+    "id": 731,
+    "en": "Correct decision promises.",
+    "tag": "B",
+    "context": "roadmap"
+  },
+  {
+    "id": 732,
+    "en": "Start in",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 733,
+    "en": "ascent localization",
+    "tag": "A",
+    "context": "roadmap"
+  },
+  {
+    "id": 734,
+    "en": "and the conquest-method presenter/resolver. Use shared probability data rather than independent prose.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 735,
+    "en": "Separate comfort from escalation.",
+    "tag": "B",
+    "context": "roadmap"
+  },
+  {
+    "id": 736,
+    "en": "Review",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 737,
+    "en": "ASCENT_BATTLE_ESCALATION",
+    "tag": "A",
+    "context": "roadmap"
+  },
+  {
+    "id": 738,
+    "en": "and the battle-options code. Preserve selected pace and readable guidance; test late waves directly.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 739,
+    "en": "Remove empty opening steps and fix resume layout.",
+    "tag": "B",
+    "context": "roadmap"
+  },
+  {
+    "id": 740,
+    "en": "Keep the existing coronation shortcut and returning-house ceremony. Use the captured first-run and resume screenshots as concrete cases.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 741,
+    "en": "Make mode and pause behavior explicit.",
+    "tag": "B",
+    "context": "roadmap"
+  },
+  {
+    "id": 742,
+    "en": "Update",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 743,
+    "en": "normal run entry",
+    "tag": "A",
+    "context": "roadmap"
+  },
+  {
+    "id": 744,
+    "en": "keyboard handling",
+    "tag": "A",
+    "context": "roadmap"
+  },
+  {
+    "id": 745,
+    "en": "without changing the underlying simulation balance.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 746,
+    "en": "Replace one misleading forecast.",
+    "tag": "B",
+    "context": "roadmap"
+  },
+  {
+    "id": 747,
+    "en": "Add defence ready by contact beside an incoming front. Include its source components in telemetry before changing the wave curve.",
+    "tag": "LI",
+    "context": "roadmap"
+  },
+  {
+    "id": 748,
+    "en": "No game mechanic changes were made for this review. Sequencing is a planning recommendation, not a promised schedule. Estimate each milestone after inspecting its implementation and save-compatibility requirements.",
+    "tag": "P",
+    "context": "roadmap"
+  },
+  {
+    "id": 749,
+    "en": "11 / VALIDATION PLAN",
+    "tag": "DIV",
+    "context": "validation"
+  },
+  {
+    "id": 750,
+    "en": "Test whether the player understands, chooses and wants another reign.",
+    "tag": "H2",
+    "context": "validation"
+  },
+  {
+    "id": 751,
+    "en": "Use short evidence loops after each milestone. The thresholds below are proposed decision gates, not results from the current review. Avoid using a larger simulation score as the only shipping criterion.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 752,
+    "en": "1. First-run comprehension and attention",
+    "tag": "H3",
+    "context": "validation"
+  },
+  {
+    "id": 753,
+    "en": "Sample:",
+    "tag": "B",
+    "context": "validation"
+  },
+  {
+    "id": 754,
+    "en": "begin with 8–12 people, split between mobile-first strategy players and experienced desktop strategy players. Treat this as qualitative discovery, not statistically representative market research. Observe a fresh profile without coaching.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 755,
+    "en": "Capture:",
+    "tag": "B",
+    "context": "validation"
+  },
+  {
+    "id": 756,
+    "en": "time to the first consequential choice; time to the first understandable consequence; modal interruptions; missed costs; voluntary delegation; pause use; the reason for quitting. Candidate goals: first strategic choice within 60 seconds on the quick path, ≥80% correctly explain three of four representative choices, and ≥70% can name an adjustment after defeat. Revise the UI when people fail for the same reason.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 757,
+    "en": "2. Balance without hiding the profile",
+    "tag": "H3",
+    "context": "validation"
+  },
+  {
+    "id": 758,
+    "en": "Matrix:",
+    "tag": "B",
+    "context": "validation"
+  },
+  {
+    "id": 759,
+    "en": "32–64 world seeds × fresh/progressed profile × Guided/Hands-on × three competent plans. Use separate random streams for map, events and battle where possible. Report uncertainty and early/late outcomes; record the exact version, selected perks and cabinet levels.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 760,
+    "en": "charter completion, waves, land retained, friendly losses, capital safety, spendable reserves and decision count. Test one ablation at a time: income/wealth scaling, adaptation envelope, automation reserves and draft interactions. Do not reward deliberate refusal or stockpiling with a misleading “expert” label.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 761,
+    "en": "3. Tactical depth rather than memory alone",
+    "tag": "H3",
+    "context": "validation"
+  },
+  {
+    "id": 762,
+    "en": "Compare competent counterplay, fixed formation, good retreat timing and commander delegation in the same battle scenarios. Vary army composition, terrain and supplies. Log reform exposure, stamina spent, moments answered and losses.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 763,
+    "en": "a readable opponent should remain challenging through its plan and tradeoffs. Preserve the slow setting and guide in ordinary late-game play. Ensure no formation or stance wins almost everywhere, and no single human-speed timing target is imposed on all players.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 764,
+    "en": "4. Charter length and replay desire",
+    "tag": "H3",
+    "context": "validation"
+  },
+  {
+    "id": 765,
+    "en": "Test the four-wave short charter against the existing opening, with equal content quality. Measure wall-clock length including reading, completion/abandonment, whether the ending felt earned, and whether the player chooses another chapter or a different build.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 766,
+    "en": "evaluate the 8–12 minute mobile and 20–35 minute extended desktop hypotheses. Do not force a target duration by stripping the choices people enjoyed. Watch for repeat farming of the shortest reward path.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 767,
+    "en": "5. Physical-device reliability",
+    "tag": "H3",
+    "context": "validation"
+  },
+  {
+    "id": 768,
+    "en": "Use at least a lower-end Android phone/tablet and a representative iPhone, plus desktop keyboard/mouse. Test a sustained 20-minute run, dense combat, large text, repeated pause/resume and interruption while a choice is open.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 769,
+    "en": "Candidate performance budget:",
+    "tag": "B",
+    "context": "validation"
+  },
+  {
+    "id": 770,
+    "en": "a stable 30 FPS mode on the declared low-end target, with frame-time distribution, input latency, memory and thermal behavior recorded. Report p95 frame time against 33.3 ms rather than only average FPS. Test offline restore and pending rewards for duplication or loss. This review does not certify those budgets.",
+    "tag": "P",
+    "context": "validation"
+  },
+  {
+    "id": 771,
+    "en": "12 / SOURCES, SCOPE & REPRODUCIBILITY",
+    "tag": "DIV",
+    "context": "sources"
+  },
+  {
+    "id": 772,
+    "en": "Evidence you can inspect.",
+    "tag": "H2",
+    "context": "sources"
+  },
+  {
+    "id": 773,
+    "en": "Snapshot:",
+    "tag": "B",
+    "context": "sources"
+  },
+  {
+    "id": 774,
+    "en": "version 1.1.2, UI build 582, Git HEAD",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 775,
+    "en": ", reviewed 12–13 September 2026 (Bangkok time). Research and build snapshot were taken on 12 September. An existing change to",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 776,
+    "en": "was left untouched. Current source took precedence over historical design notes and comments.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 777,
+    "en": "BrowserOS was preferred, but no BrowserOS tool was callable in this session after tool discovery. Local play used the project’s Playwright tooling and the installed game skill client; external research used web search/open on official product or standards sources. No player accounts or external communications were involved.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 778,
+    "en": "M1",
+    "tag": "B",
+    "context": "sources"
+  },
+  {
+    "id": 779,
+    "en": "Thronefall — official Steam description",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 780,
+    "en": "Build by day, defend at night; constrained equipment/perk choices and optional mutators. Accessed 12 September 2026. Product descriptions establish features, not causal evidence of fun.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 781,
+    "en": "M2",
+    "tag": "B",
+    "context": "sources"
+  },
+  {
+    "id": 782,
+    "en": "Bad North — official site",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 783,
+    "en": "Real-time island defence, spatial tactics, and PC/mobile availability. Accessed 12 September 2026. Product descriptions establish features, not causal evidence of fun.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 784,
+    "en": "M3",
+    "tag": "B",
+    "context": "sources"
+  },
+  {
+    "id": 785,
+    "en": "Into the Breach — Subset Games",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 786,
+    "en": "Telegraphed enemy attacks and protection objectives make consequences legible. Accessed 12 September 2026. Product descriptions establish features, not causal evidence of fun.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 787,
+    "en": "M4",
+    "tag": "B",
+    "context": "sources"
+  },
+  {
+    "id": 788,
+    "en": "Northgard — official site",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 789,
+    "en": "Distinct clans and conquest, trade and devotion as routes to success. Accessed 12 September 2026. Product descriptions establish features, not causal evidence of fun.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 790,
+    "en": "M5",
+    "tag": "B",
+    "context": "sources"
+  },
+  {
+    "id": 791,
+    "en": "Against the Storm — official Steam description",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 792,
+    "en": "Settlement objectives, varied populations and repeated city founding. Accessed 12 September 2026. Product descriptions establish features, not causal evidence of fun.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 793,
+    "en": "M6",
+    "tag": "B",
+    "context": "sources"
+  },
+  {
+    "id": 794,
+    "en": "The Battle of Polytopia — official Steam description",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 795,
+    "en": "Compact 4X with tribes, technology, diplomacy and several game modes. Accessed 12 September 2026. Product descriptions establish features, not causal evidence of fun.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 796,
+    "en": "M7",
+    "tag": "B",
+    "context": "sources"
+  },
+  {
+    "id": 797,
+    "en": "9 Kings — official Steam description",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 798,
+    "en": "King-specific decks, positioning, combinations, Quest and Endless modes; listed in Early Access at review. Accessed 12 September 2026. Product descriptions establish features, not causal evidence of fun.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 799,
+    "en": "M8",
+    "tag": "B",
+    "context": "sources"
+  },
+  {
+    "id": 800,
+    "en": "Apple — UI Design Dos and Don’ts",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 801,
+    "en": "Touch controls of at least 44 × 44 points and readable interface text. Accessed 12 September 2026. Product descriptions establish features, not causal evidence of fun.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 802,
+    "en": "M9",
+    "tag": "B",
+    "context": "sources"
+  },
+  {
+    "id": 803,
+    "en": "W3C — Understanding Target Size (Enhanced)",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 804,
+    "en": "44 × 44 CSS pixel enhanced target guidance, with defined exceptions. Accessed 12 September 2026. Product descriptions establish features, not causal evidence of fun.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 805,
+    "en": "Local evidence and code index",
+    "tag": "H3",
+    "context": "sources"
+  },
+  {
+    "id": 806,
+    "en": "Evidence",
+    "tag": "TH",
+    "context": "sources"
+  },
+  {
+    "id": 807,
+    "en": "What it supports",
+    "tag": "TH",
+    "context": "sources"
+  },
+  {
+    "id": 808,
+    "en": "Mobile interaction journal",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 809,
+    "en": "Commands and capture names for the fresh mobile run and separate Skirmish. Timestamps include agent/tool time and are not normal human session durations.",
+    "tag": "TD",
+    "context": "sources"
+  },
+  {
+    "id": 810,
+    "en": "Desktop interaction journal",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 811,
+    "en": "The initial wide phone-layout pass, explicit desktop correction, confirmed Hands-on entry and map/side-panel controls.",
+    "tag": "TD",
+    "context": "sources"
+  },
+  {
+    "id": 812,
+    "en": "Controlled combat inputs",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 813,
+    "en": "Native formation/stance requests, stamina and state transitions in an instrumented equal-army Skirmish.",
+    "tag": "TD",
+    "context": "sources"
+  },
+  {
+    "id": 814,
+    "en": "64-run fresh-profile metrics",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 815,
+    "en": "Four policy baselines and the current proxy score. The separate original shared-profile output is retained for audit, not used as the headline baseline.",
+    "tag": "TD",
+    "context": "sources"
+  },
+  {
+    "id": 816,
+    "en": "48-run economy trajectories",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 817,
+    "en": "summary / intervals",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 818,
+    "en": "Seed-level waves, stocks, actions, timelines and approximate paired differences.",
+    "tag": "TD",
+    "context": "sources"
+  },
+  {
+    "id": 819,
+    "en": "Installed skill client screenshot",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 820,
+    "en": "state",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 821,
+    "en": "Two installed-client screenshot/input iterations in a seeded paused map scenario. This is smoke coverage.",
+    "tag": "TD",
+    "context": "sources"
+  },
+  {
+    "id": 822,
+    "en": "Runtime and state/text hooks",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 823,
+    "en": "platform detection",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 824,
+    "en": "Available modes, exposed test state and the automated-browser phone-layout gate.",
+    "tag": "TD",
+    "context": "sources"
+  },
+  {
+    "id": 825,
+    "en": "WaveDirector",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 826,
+    "en": "PowerSystem",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 827,
+    "en": "ascentConfig",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 828,
+    "en": "Incoming wave budget, total realm power, timing and escalation policy.",
+    "tag": "TD",
+    "context": "sources"
+  },
+  {
+    "id": 829,
+    "en": "BattleSystem",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 830,
+    "en": "battle shell",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 831,
+    "en": "battle dock",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 832,
+    "en": "Formation/stance resolution, battle state and visible command controls.",
+    "tag": "TD",
+    "context": "sources"
+  },
+  {
+    "id": 833,
+    "en": "Card definitions",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 834,
+    "en": "playtest helpers",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 835,
+    "en": "economy probe",
+    "tag": "A",
+    "context": "sources"
+  },
+  {
+    "id": 836,
+    "en": "Actual draft eligibility and the existing scripted decision policies.",
+    "tag": "TD",
+    "context": "sources"
+  },
+  {
+    "id": 837,
+    "en": "Reproduce the review probes",
+    "tag": "SUMMARY",
+    "context": "sources"
+  },
+  {
+    "id": 838,
+    "en": "Start the development server with",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 839,
+    "en": "on port 5179. The review’s fresh-profile copies are included in the evidence folder; each clears only its isolated test browser’s local storage before booting a new simulated state. Run these commands from the repository root with its dependencies installed. The original harnesses remain unchanged.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 840,
+    "en": "The included drivers import the repository’s existing playtest helpers. Future changes to those helpers or game source can change the results; retain the recorded revision and raw evidence. A reviewed profile-isolation option should ultimately live in the shared harness. This HTML embeds all displayed screenshots and interactive data; local evidence/code links additionally require the accompanying repository folder.",
+    "tag": "P",
+    "context": "sources"
+  },
+  {
+    "id": 841,
+    "en": "Prepared for the current game, with implementation recommendations rather than gameplay changes. Read the verdict, choose a milestone, implement the smallest testable slice, criticize the result, and repeat.",
+    "tag": "DIV",
+    "context": "sources"
+  },
+  {
+    "id": 842,
+    "en": "Close image",
+    "tag": "BUTTON",
+    "context": "header"
+  },
+  {
+    "id": 843,
+    "en": "Report sections",
+    "tag": "aria-label",
+    "context": "attribute"
+  },
+  {
+    "id": 844,
+    "en": "Enlarge An empty inheritance precedes the hook",
+    "tag": "aria-label",
+    "context": "attribute"
+  },
+  {
+    "id": 845,
+    "en": "Enlarge A real tradeoff, with one broken promise",
+    "tag": "aria-label",
+    "context": "attribute"
+  },
+  {
+    "id": 846,
+    "en": "Enlarge Strong card identity; overlapping progression language",
+    "tag": "aria-label",
+    "context": "attribute"
+  },
+  {
+    "id": 847,
+    "en": "Enlarge Desktop already preserves useful map context",
+    "tag": "aria-label",
+    "context": "attribute"
+  },
+  {
+    "id": 848,
+    "en": "Enlarge Combat has a compact, expressive command dock",
+    "tag": "aria-label",
+    "context": "attribute"
+  },
+  {
+    "id": 849,
+    "en": "Enlarge An aftermath worth extending",
+    "tag": "aria-label",
+    "context": "attribute"
+  },
+  {
+    "id": 850,
+    "en": "Enlarge A concrete layout issue to fix",
+    "tag": "aria-label",
+    "context": "attribute"
+  },
+  {
+    "id": 851,
+    "en": "Grade profile",
+    "tag": "aria-label",
+    "context": "attribute"
+  },
+  {
+    "id": 852,
+    "en": "Try economy, pause, heroes…",
+    "tag": "placeholder",
+    "context": "attribute"
+  }
+]

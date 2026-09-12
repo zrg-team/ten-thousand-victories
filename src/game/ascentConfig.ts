@@ -2094,7 +2094,7 @@ export const BATTLE_BREAK_SHARE = 0.35;
  *
  * The old table folded the matchup into the tempo and the two jobs fought each other: `press` and
  * `hold` came out with the same exchange ratio to three decimals, so pressing was simply the same
- * trade delivered faster. `docs/14-five-shapes-two-dials.html` splits them — **the shape decides
+ * trade delivered faster. `docs/phase-1/14-five-shapes-two-dials.md` splits them — **the shape decides
  * which way the men are spent, the stance decides how fast** — and these four numbers are the
  * whole of the tempo half.
  *
@@ -2171,7 +2171,7 @@ export const BATTLE_FORMATION_TILT_SHARP = 0.48;
  * The soft counter's share of the full tilt.
  *
  * This constant used to be the `blunt` availability state's penalty. It survived the retirement of
- * that whole mechanic (docs/18) because the number was right and the job got better: one step
+ * that whole mechanic (docs/phase-1/18-formation-availability-by-blocks.md) because the number was right and the job got better: one step
  * round the ring is now a *strong* counter at full tilt, two steps a *soft* counter at half — see
  * `formationTier`. A gradient, not a lock: nothing is refused, one answer is simply better.
  */
@@ -2184,9 +2184,9 @@ export const BATTLE_FORMATION_TILT_BLUNT = 0.5;
  * quick changes empty the meter, and then they wait — that wait is the whole penalty for chaining
  * shapes too fast, and the smart move inside it (Cố thủ, to bleed less) is already on the screen.
  * Same cost for every shape, and nothing but the clock refills it: not stance, not Moments, not
- * cards. The two earlier rules this replaces — availability by army block (docs/18) and per-shape
- * wind with stance-driven recovery (docs/19) — were each three rules too many for a screen read at
- * speed. See docs/20.
+ * cards. The two earlier rules this replaces — availability by army block (docs/phase-1/18-formation-availability-by-blocks.md) and per-shape
+ * wind with stance-driven recovery (docs/phase-1/19-five-shapes-one-clock.md) — were each three rules too many for a screen read at
+ * speed. See docs/phase-1/20-two-pips.md.
  */
 export const BATTLE_STAMINA_MAX = 2;
 
@@ -2297,7 +2297,7 @@ export const BATTLE_TEMPER: Record<CommanderTemper, {
 }> = {
   // He holds while he is winning — every temper. A temper only decides how fast he answers once
   // he is losing, and whether he presses a winning tilt. Rotation on a timer and reading the
-  // player's dock were tried with the wind mechanic and retired with it (docs/20).
+  // player's dock were tried with the wind mechanic and retired with it (docs/phase-1/20-two-pips.md).
   // Hesitation 2/3/4 (+ the difficulty's): he answers a counter about seven beats after it
   // lands, which is six seconds of the player holding the advantage. Measured at 0/1/2 the
   // duel ping-ponged every four beats — faster than any pip could return, so even a careful

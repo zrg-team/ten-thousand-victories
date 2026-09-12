@@ -1,0 +1,414 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 3, Spring",
+    "realtimeSeconds": 56,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 829668852,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 410.7428571428571,
+      "supplies": 315.42857142857133,
+      "gold": 859,
+      "humans": 641
+    },
+    "resourceRates": {
+      "food": 26.72285714285713,
+      "supplies": 20.328571428571422,
+      "gold": 75,
+      "humans": 3
+    },
+    "visibility": {
+      "visible": 9,
+      "explored": 9,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 90,
+        "provisions": 72
+      },
+      {
+        "id": "invasion-southern-rival-17-0",
+        "kingdomId": "southern-rival",
+        "landId": "district-18",
+        "total": 274,
+        "level": 2,
+        "experience": 0,
+        "experienceToNextLevel": 160,
+        "morale": 85,
+        "supply": 90,
+        "rations": 350,
+        "provisions": 250
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [
+      {
+        "id": "court-boon-kho-lam-1-1789231042144-556",
+        "label": "boon:kho-lam:1",
+        "resourceRateModifier": {
+          "food": 11,
+          "supplies": 5
+        }
+      }
+    ],
+    "court": {
+      "stability": 52,
+      "influence": 51,
+      "favor": 8,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {
+        "treasurer": "ba-do-nuoc"
+      }
+    },
+    "ascent": {
+      "wave": 1,
+      "ticksToWave": 12,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 2191,
+      "powerDelta": -15,
+      "peakPower": 2206,
+      "defensePower": 1760,
+      "threat": 298,
+      "level": 3,
+      "xp": 134,
+      "xpToNext": 168,
+      "cardStacks": {
+        "kho-lam": 1,
+        "salt-roads": 1
+      },
+      "retiredCards": [],
+      "heroesSummoned": 1,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 9,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "busy",
+        "lastDecisionTurn": {
+          "court": 5,
+          "conquer": 13
+        }
+      },
+      "conquestPlans": [
+        {
+          "id": "asc-conquest-9-district-17-bribe",
+          "landId": "district-17",
+          "method": "bribe",
+          "createdTurn": 9,
+          "status": "blocked",
+          "reason": "The nobles of Thiên Sơn Tây took your gold and refused. Trust lost. Diplomacy will be harder here."
+        }
+      ],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 1,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {},
+      "lastPromptTurn": 17,
+      "courtCardCooldown": 0,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 52,
+      "favor": 8,
+      "courtSeats": {
+        "treasurer": "ba-do-nuoc"
+      },
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Nam Hán",
+          "relations": 32,
+          "power": 17,
+          "warAppetite": 4,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 103,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 38,
+          "power": 57,
+          "warAppetite": 2,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 50,
+          "power": 53,
+          "warAppetite": 5,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 0,
+      "prompt": {
+        "kind": "decree-offer",
+        "options": [
+          "ok"
+        ]
+      },
+      "ui": {
+        "screen": "decree-offer:du::du-thanh-da,du-ti-nan",
+        "generatedUiIcons": [
+          "balance",
+          "food",
+          "gold",
+          "humans",
+          "supplies"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "Vương Quốc Phương Nam masses 1 host(s) at the frontier — to arms!"
+  },
+  "texts": [
+    {
+      "text": "2/3",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "0/3",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Nam Cốc Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 3 - Spring",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 161,
+      "y": 19
+    },
+    {
+      "text": "411 (+27)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "315 (+20)",
+      "x": 129,
+      "y": 36
+    },
+    {
+      "text": "859 (+75)",
+      "x": 227,
+      "y": 36
+    },
+    {
+      "text": "641 (+3)",
+      "x": 328,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "2,191",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "298",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "INVASION 1 · LIVE",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "×1.0 ambition",
+      "x": 376,
+      "y": 84
+    },
+    {
+      "text": "Lv 3",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 1",
+      "x": 90,
+      "y": 54
+    },
+    {
+      "text": "An Admonition",
+      "x": 195,
+      "y": 114
+    },
+    {
+      "text": "Something is costing the realm every season it stands. Say what is to be done.",
+      "x": 195,
+      "y": 143
+    },
+    {
+      "text": "Empty the Fields",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "text": "Trần scorched earth, 1285. Give a province up before the wave reaches it: the invader takes nothing and marches on weakened.",
+      "x": 16,
+      "y": 32
+    },
+    {
+      "text": "Lapses on its own · costs no authority",
+      "x": 16,
+      "y": 81
+    },
+    {
+      "text": "DỤ",
+      "x": 332,
+      "y": 11
+    },
+    {
+      "text": "Move the Court",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "text": "The Trần withdrew twice and won both times. The capital cannot fall this wave, at half your gold for six seasons.",
+      "x": 16,
+      "y": 32
+    },
+    {
+      "text": "Lapses on its own · costs no authority",
+      "x": 16,
+      "y": 68
+    },
+    {
+      "text": "DỤ",
+      "x": 332,
+      "y": 11
+    },
+    {
+      "text": "Give no instruction",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "text": "The realm is left to manage. It may yet.",
+      "x": 16,
+      "y": 32
+    }
+  ],
+  "errors": []
+}

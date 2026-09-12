@@ -1,0 +1,537 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 1, Spring",
+    "realtimeSeconds": 0,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 714453520,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 150,
+      "supplies": 70,
+      "gold": 110,
+      "humans": 600
+    },
+    "resourceRates": {
+      "food": -4,
+      "supplies": 27,
+      "gold": 61,
+      "humans": 0
+    },
+    "visibility": {
+      "visible": 14,
+      "explored": 14,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-15",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 120,
+        "provisions": 80
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [
+      {
+        "id": "court-boon-cam-quan-1-1789232029798-3251",
+        "label": "boon:cam-quan:1",
+        "armyPowerModifier": 0.14
+      }
+    ],
+    "court": {
+      "stability": 50,
+      "influence": 50,
+      "favor": 0,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {}
+    },
+    "ascent": {
+      "wave": 0,
+      "ticksToWave": 16,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 1666,
+      "powerDelta": 0,
+      "peakPower": 1666,
+      "defensePower": 1388,
+      "threat": 348,
+      "level": 1,
+      "xp": 0,
+      "xpToNext": 82,
+      "cardStacks": {
+        "cam-quan": 1
+      },
+      "retiredCards": [],
+      "heroesSummoned": 1,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 0,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "ready",
+        "lastDecisionTurn": {}
+      },
+      "conquestPlans": [],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 0,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {},
+      "lastPromptTurn": 1,
+      "courtCardCooldown": 3,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 50,
+      "favor": 0,
+      "courtSeats": {},
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Lãnh Chúa Phương Bắc",
+          "relations": 38,
+          "power": 52,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 56,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 50,
+          "power": 51,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 46,
+          "power": 50,
+          "warAppetite": 0,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 0,
+      "prompt": null,
+      "ui": {
+        "screen": "lane:build",
+        "generatedUiIcons": [
+          "balance",
+          "book",
+          "chevron-up",
+          "crossed-weapons",
+          "crown",
+          "diplomacy",
+          "food",
+          "gold",
+          "hammer",
+          "hero",
+          "humans",
+          "menu",
+          "person",
+          "play",
+          "shield",
+          "supplies"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "The dragon stirs. Your dynasty begins its ascent."
+  },
+  "texts": [
+    {
+      "text": "Đông Lộ Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Lâm Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Trường Hương Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Cẩm Động",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Sơn",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Phú Xuyên Hạ",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hồng Trại",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Vân Lâm Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Phú Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Phong Lâm Hạ",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 1 - Spring",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 157,
+      "y": 19
+    },
+    {
+      "text": "150 (-4)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "70 (+27)",
+      "x": 133,
+      "y": 36
+    },
+    {
+      "text": "110 (+61)",
+      "x": 232,
+      "y": 36
+    },
+    {
+      "text": "600 (0)",
+      "x": 332,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 88
+    },
+    {
+      "text": "THREAT",
+      "x": 305,
+      "y": 88
+    },
+    {
+      "text": "1,666",
+      "x": 54,
+      "y": 88
+    },
+    {
+      "text": "348",
+      "x": 339,
+      "y": 88
+    },
+    {
+      "text": "ahead",
+      "x": 376,
+      "y": 88
+    },
+    {
+      "text": "next wave in 16",
+      "x": 376,
+      "y": 65
+    },
+    {
+      "text": "Lv 1",
+      "x": 14,
+      "y": 62
+    },
+    {
+      "text": "Wave 0",
+      "x": 49,
+      "y": 62
+    },
+    {
+      "text": "Build",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Heroes",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Court",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Army",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Affairs",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Story",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "+283",
+      "x": 48,
+      "y": 681
+    },
+    {
+      "text": "16 quiet seasons left. Nothing attacks yet.",
+      "x": 33,
+      "y": 107
+    },
+    {
+      "text": "Capital · Trường Hương",
+      "x": 195,
+      "y": 66
+    },
+    {
+      "text": "2/9 built  ·  defence 66",
+      "x": 195,
+      "y": 95
+    },
+    {
+      "text": "THIS PROVINCE",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "300 people  ·  +1/season",
+      "x": 10,
+      "y": 8
+    },
+    {
+      "text": "66",
+      "x": 15,
+      "y": 1
+    },
+    {
+      "text": "100%",
+      "x": 53,
+      "y": 1
+    },
+    {
+      "text": "300 of 3380 this land can hold",
+      "x": 10,
+      "y": 50
+    },
+    {
+      "text": "EACH SEASON",
+      "x": 10,
+      "y": 75
+    },
+    {
+      "text": "15",
+      "x": 86,
+      "y": 2
+    },
+    {
+      "text": "29",
+      "x": 130,
+      "y": 2
+    },
+    {
+      "text": "87",
+      "x": 177,
+      "y": 2
+    },
+    {
+      "text": "GOVERNOR",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "No governor posted",
+      "x": 10,
+      "y": 8
+    },
+    {
+      "text": "Post a champion to lift this province's output.",
+      "x": 10,
+      "y": 31
+    },
+    {
+      "text": "FOCUS",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "The ground decides which of these pays. Suited land yields more.",
+      "x": 2,
+      "y": 16
+    },
+    {
+      "text": "Balanced",
+      "x": 10,
+      "y": 8
+    },
+    {
+      "text": "No tilt either way.",
+      "x": 10,
+      "y": 31
+    },
+    {
+      "text": "×1.00",
+      "x": 18,
+      "y": 2
+    },
+    {
+      "text": "×1.00",
+      "x": 82,
+      "y": 2
+    },
+    {
+      "text": "×1.00",
+      "x": 146,
+      "y": 2
+    },
+    {
+      "text": "Defend",
+      "x": 10,
+      "y": 8
+    },
+    {
+      "text": "Holds 85% harder  ·  Loyalty +0.7/tick\nMade for it (80%)",
+      "x": 10,
+      "y": 31
+    },
+    {
+      "text": "×0.89",
+      "x": 18,
+      "y": 2
+    },
+    {
+      "text": "×0.91",
+      "x": 85,
+      "y": 2
+    },
+    {
+      "text": "×0.86",
+      "x": 149,
+      "y": 2
+    },
+    {
+      "text": "Army",
+      "x": 10,
+      "y": 8
+    },
+    {
+      "text": "Levies and recruits +77%\nMade for it (82%)",
+      "x": 10,
+      "y": 31
+    },
+    {
+      "text": "×0.87",
+      "x": 18,
+      "y": 2
+    },
+    {
+      "text": "×1.16",
+      "x": 84,
+      "y": 2
+    },
+    {
+      "text": "×0.88",
+      "x": 145,
+      "y": 2
+    },
+    {
+      "text": "‹ Back",
+      "x": 112,
+      "y": 23
+    },
+    {
+      "text": "Close",
+      "x": 60,
+      "y": 23
+    }
+  ],
+  "errors": []
+}

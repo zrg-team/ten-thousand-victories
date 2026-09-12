@@ -36,26 +36,28 @@
     background: var(--paper);
     color: var(--muc);
     font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    padding-block: 2.5rem 3.5rem;
+    padding-block: 2.5rem 3rem;
     padding-inline: 1.25rem;
     display: flex;
     justify-content: center;
   }
 
-  /* One column on a phone — masthead, the shot, then the way in. On a wide window the shot moves
-     beside the column instead of under it: a 1200x630 still stacked in a 30rem sheet is a stamp,
-     and the same still in its own half is the game. */
+  /* One column on a phone — masthead, the shot, the way in, then who made it and how to say thank
+     you. On a wide window the shot moves beside the column instead of under it: a 1200x630 still
+     stacked in a 30rem sheet is a stamp, and the same still in its own half is the game. The foot
+     spans both columns either way, because it is an aside and should not compete with the door. */
   main {
     width: 100%;
     max-width: 30rem;
     text-align: center;
     display: grid;
     row-gap: 1.6rem;
-    grid-template-areas: "head" "shot" "act";
+    grid-template-areas: "head" "shot" "act" "foot";
   }
   .head { grid-area: head; }
   .shot { grid-area: shot; margin: 0; }
   .act  { grid-area: act; }
+  .foot { grid-area: foot; }
 
   .wordmark {
     font-family: "Source Serif 4", Georgia, serif;
@@ -137,24 +139,108 @@
   a.button svg { flex: none; width: 1.25rem; height: 1.25rem; fill: currentColor; }
 
   .note { color: var(--muc-soft); font-size: .84rem; margin: 1.3rem 0 0; line-height: 1.5; }
+
+  /* Who made it. A landing page asking for an install should say whose it is, and the honest form
+     of that is the account that publishes it — the avatar and the name GitHub serves, linking back
+     to the profile so the claim can be checked rather than merely read. */
+  .by {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    text-align: left;
+    padding: .9rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--paper-hi);
+  }
+  .by img {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+  }
+  .byText { min-width: 0; }
+  .by b { display: block; font-size: .98rem; }
+  .by span { display: block; font-size: .8rem; color: var(--muc-soft); line-height: 1.45; }
+  /* The two ways to reach the person, small. A flex row rather than text with a `·` between: at
+     320px the line wraps, and a separator character that wraps lands alone on the next line. This
+     way the second link simply moves down whole. */
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .1rem .6rem;
+    margin-top: .2rem;
+    overflow-wrap: anywhere;
+  }
+  .contact a { color: var(--muc-soft); text-decoration: underline; text-underline-offset: 2px; }
+  .contact a:hover { color: var(--son); }
+  /* GitHub is a mark, not an address. The repository belongs to whoever goes looking for it; the
+     page should not spend a line of the credit on a URL nobody is going to type. */
+  .contact .gh { display: inline-flex; align-items: center; text-decoration: none; }
+  .contact .gh svg { display: block; width: 1.05rem; height: 1.05rem; fill: currentColor; }
+
+  /* Support. Quieter than the door on purpose — outlined, not filled, and below everything that
+     actually gets somebody playing. It is an offer, not an ask. */
+  .support { margin-top: 1.6rem; text-align: center; }
+  .support h2 {
+    font-family: "Source Serif 4", Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  .support p { color: var(--muc-soft); font-size: .86rem; line-height: 1.55; margin: .45rem 0 1.1rem; }
+  .ways { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: .8rem; }
+  a.way {
+    display: block;
+    padding: .9rem .7rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+  }
+  a.way:hover { border-color: var(--muc); background: var(--paper-hi); }
+  /* A square box the picture is fitted *into*, never stretched to fill. The Wise code is 370x370
+     and the MoMo one is a 599x685 VietQR card — forcing both to a square would squash the second
+     exactly the way the share card above used to be squashed. `contain` letterboxes it on white
+     instead, and the two cards still line up. */
+  a.way img {
+    display: block;
+    width: 100%;
+    max-width: 8.5rem;
+    aspect-ratio: 1;
+    object-fit: contain;
+    margin: 0 auto .6rem;
+    border-radius: 4px;
+    background: #fff;
+  }
+  a.way b { display: block; font-size: .92rem; }
+  a.way small {
+    display: block;
+    font-size: .74rem;
+    color: var(--muc-soft);
+    margin-top: .15rem;
+    overflow-wrap: anywhere;  /* `wise.com/pay/me/tand99` is one unbreakable token at 320px */
+  }
+
   .seal {
     font-family: "Source Serif 4", Georgia, serif;
     font-style: italic;
     color: var(--muc-soft);
     margin: 1.8rem 0 0;
+    text-align: center;
   }
   [hidden] { display: none !important; }
 
   @media (min-width: 62rem) {
-    body { align-items: center; min-height: 100vh; padding-block: 3rem; }
+    body { padding-block: 3.5rem; }
     main {
       max-width: 68rem;
       text-align: left;
       grid-template-columns: minmax(0, 27rem) minmax(0, 1fr);
-      grid-template-areas: "head shot" "act shot";
+      grid-template-areas: "head shot" "act shot" "foot foot";
       column-gap: 3.5rem;
       row-gap: 1.9rem;
-      align-content: center;
     }
     .shot { align-self: center; }
     .wordmark { font-size: 4.2rem; }
@@ -162,7 +248,22 @@
     .play img { margin-inline: 0; }
     .stores { grid-template-columns: 1fr 1fr; }
     a.button { justify-content: flex-start; }
-    .seal { text-align: left; }
+
+    /* Below the fold the page has the whole width, so the credit and the two ways sit on one row
+       rather than stacking into a column of leftovers. */
+    .foot {
+      display: grid;
+      grid-template-columns: minmax(0, 27rem) minmax(0, 1fr);
+      column-gap: 3.5rem;
+      align-items: start;
+      padding-top: 1.6rem;
+      border-top: 1px solid var(--rule);
+    }
+    .support { margin-top: 0; text-align: left; }
+    .ways { grid-template-columns: 1fr 1fr; }
+    /* Under the credit, not spanning the width — a line of its own across the foot would leave the
+       left column hanging empty under a 90px card. */
+    .seal { grid-column: 1; text-align: left; margin-top: 1.4rem; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -211,9 +312,48 @@
        data-vi="Bản trình duyệt là trọn vẹn game — chơi được trên điện thoại lẫn máy tính, và tự bày lại cho vừa màn hình bạn đang mở. Thêm vào màn hình chính là chơi được ngoại tuyến.">
       The browser version is the whole game — it plays on a phone and on a desktop, and it fits itself to whichever you opened it on. Add it to your home screen and it plays offline.
     </p>
+  </section>
+
+  <footer class="foot">
+    <div class="who">
+      <div class="by">
+        <img src="../share/author-zrg-team.png" alt="zrg-team's GitHub avatar" width="200" height="200" loading="lazy">
+        <div class="byText">
+          <b>zrg-team</b>
+          <span data-en="Made by one person, in the open." data-vi="Do một người làm, công khai.">Made by one person, in the open.</span>
+          <span class="contact">
+            <a href="mailto:zerglingno2@outlook.com">zerglingno2@outlook.com</a>
+            <a class="gh" href="https://github.com/zrg-team" aria-label="zrg-team on GitHub" title="zrg-team on GitHub">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <section class="support">
+      <h2 data-en="If it gave you an evening" data-vi="Nếu game cho bạn một buổi tối">If it gave you an evening</h2>
+      <p data-en="The game is free and stays free — that part is not going to change. Buying the app above is the best way to say so; these two go straight to the person who made it."
+         data-vi="Game miễn phí và sẽ luôn miễn phí — điều đó không đổi. Mua app ở trên là cách tốt nhất để cảm ơn; còn hai cách này thì đến thẳng người làm ra nó.">
+        The game is free and stays free — that part is not going to change. Buying the app above is the best way to say so; these two go straight to the person who made it.
+      </p>
+
+      <div class="ways">
+        <a class="way" href="https://wise.com/pay/me/tand99">
+          <img src="../support/qr-wise.png" alt="Wise QR code" loading="lazy">
+          <b data-en="Wise · international" data-vi="Wise · quốc tế">Wise · international</b>
+          <small>wise.com · @tand99</small>
+        </a>
+        <a class="way" href="https://me.momo.vn/6OfbtWIOTeIJi5Tw">
+          <img src="../support/momo-qr.webp" alt="MoMo VietQR code" loading="lazy">
+          <b>MoMo · Việt Nam</b>
+          <small data-en="any bank app can scan it" data-vi="app ngân hàng nào cũng quét được">any bank app can scan it</small>
+        </a>
+      </div>
+    </section>
 
     <p class="seal">Nam quốc sơn hà Nam đế cư.</p>
-  </section>
+  </footer>
 </main>
 
 <script>

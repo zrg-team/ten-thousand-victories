@@ -80,7 +80,7 @@ function factorForHops(hops: number): number {
  * One pass: BFS from the capital over owned ground, then label the owned components.
  *
  * Called once per `refreshAllLandOutputs`, which is already O(lands²) because it does a
- * `lands.find` per neighbour (see docs/21-frame-ledger.md). This builds the id index that function
+ * `lands.find` per neighbour (see docs/phase-1/21-frame-ledger.md). This builds the id index that function
  * never had, and a 42-node BFS costs nothing beside what is already being spent there.
  */
 export function computeRealmSupply(state: GameState): Map<string, SupplyReading> {

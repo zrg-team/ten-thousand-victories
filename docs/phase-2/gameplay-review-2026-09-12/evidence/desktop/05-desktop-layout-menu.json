@@ -1,0 +1,152 @@
+{
+  "state": {
+    "mode": "menu",
+    "kingdomSign": {
+      "field": 11156012,
+      "trim": 14201946,
+      "emblem": "crown",
+      "source": "dynasty"
+    },
+    "language": "en",
+    "languageOptions": [
+      "vi",
+      "en"
+    ],
+    "actions": [
+      "guide",
+      "history",
+      "settings"
+    ],
+    "mapTheme": "dong-ho",
+    "landscapeInteraction": "tap-river-ripple",
+    "artLayers": [
+      "ground",
+      "mountains",
+      "mountain-mist",
+      "river-fx",
+      "bamboo",
+      "lotus"
+    ],
+    "riverGestures": [
+      "tap",
+      "drag",
+      "hover-wake"
+    ],
+    "ambientMotion": [
+      "mountain-drift",
+      "mountain-mist",
+      "bamboo-breeze",
+      "lotus-sway",
+      "masked-river-refraction",
+      "river-surface-flow"
+    ],
+    "lotusGestures": [
+      "hover",
+      "drag",
+      "water-wake"
+    ]
+  },
+  "texts": [
+    {
+      "text": "TEN THOUSAND VICTORIES",
+      "x": 568,
+      "y": 223
+    },
+    {
+      "text": "Dragon Ascent",
+      "x": 151,
+      "y": 28
+    },
+    {
+      "text": "DYNASTY",
+      "x": 47,
+      "y": 11
+    },
+    {
+      "text": "Your dynasty",
+      "x": 47,
+      "y": 22
+    },
+    {
+      "text": "Finish a run and the house keeps its score.",
+      "x": 47,
+      "y": 39
+    },
+    {
+      "text": "›",
+      "x": 287,
+      "y": 23
+    },
+    {
+      "text": "Classic Modes",
+      "x": 151,
+      "y": 20
+    },
+    {
+      "text": "How to Play",
+      "x": 68,
+      "y": 14
+    },
+    {
+      "text": "History",
+      "x": 56,
+      "y": 14
+    },
+    {
+      "text": "Settings",
+      "x": 59,
+      "y": 14
+    },
+    {
+      "text": "Tiếng Việt",
+      "x": 511,
+      "y": 514
+    },
+    {
+      "text": "English",
+      "x": 614,
+      "y": 514
+    },
+    {
+      "text": "Buy me a coffee",
+      "x": 24,
+      "y": 0
+    },
+    {
+      "text": "help build the game",
+      "x": 24,
+      "y": 0
+    },
+    {
+      "text": "Version 1.1.2  ·  build 582  ·  12 Sept 2026",
+      "x": 719,
+      "y": 618
+    },
+    {
+      "text": "Continue your last game?",
+      "x": 195,
+      "y": 209
+    },
+    {
+      "text": "The game was closed while a run was still going",
+      "x": 195,
+      "y": 249
+    },
+    {
+      "text": "Your run was written down the moment it stopped (Saved 9/12/2026, 11:51:47 PM). This is the only way back to it — take it now, or it is offered again next time you open the game.",
+      "x": 195,
+      "y": 313
+    },
+    {
+      "text": "Continue the run",
+      "x": 130,
+      "y": 22
+    },
+    {
+      "text": "Not now",
+      "x": 130,
+      "y": 22
+    }
+  ],
+  "errors": []
+}

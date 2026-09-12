@@ -1165,7 +1165,7 @@ export const enAscent = {
   "ascent.battle.counters": "counters them",
 
   // ── the two dials ──────────────────────────────────────────────────────────
-  // Five shapes and four tempos. See docs/14-five-shapes-two-dials.html — the shape decides which
+  // Five shapes and four tempos. See docs/phase-1/14-five-shapes-two-dials.md — the shape decides which
   // way the men are spent, the stance decides how fast.
   // `.verb` is the order the player gives; `.threat` is the same shape as the ENEMY commander's
   // own order — the bubble it fills hangs over his men with the tail on him, so he shouts a
@@ -1878,7 +1878,7 @@ export const enAscent = {
   "ascent.envoy.release": "Release them from the oath",
   "ascent.envoy.releaseFx": "The tribute ends, and they remember it kindly.",
 
-  // ── Dynasty: the dynasty ledger (docs/26-the-dynasty-ledger.html) ───────
+  // ── Dynasty: the dynasty ledger (docs/phase-1/26-the-dynasty-ledger.html) ───────
   "dynasty.trait.wide-draft": "Wide Draft",
   "dynasty.trait.wide-draft.d": "Every power draft lays out five cards instead of four.",
   "dynasty.trait.first-reroll-free": "First Reroll Free",

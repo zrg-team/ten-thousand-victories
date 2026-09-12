@@ -4,7 +4,7 @@
  * Every performance number this repository has ever recorded came from desktop Chromium, and
  * `docs/development/performance.md` says so outright: *"They do not establish sustained FPS on
  * physical mobile devices."* The playbook's four-device acceptance table
- * (`docs/22-fps-playbook.md`) has been empty since it was written. This is the first harness that
+ * (`docs/phase-1/22-fps-playbook.md`) has been empty since it was written. This is the first harness that
  * runs the shipped web build on Android, through Android's own compositor and input pipeline.
  *
  * **What transfers and what does not.** The emulator renders through this machine's GPU (ANGLE on

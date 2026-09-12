@@ -1,0 +1,443 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 1, Spring",
+    "realtimeSeconds": 8,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 360037699,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 150,
+      "supplies": 70,
+      "gold": 110,
+      "humans": 600
+    },
+    "resourceRates": {
+      "food": -4,
+      "supplies": 16,
+      "gold": 28,
+      "humans": 0
+    },
+    "visibility": {
+      "visible": 6,
+      "explored": 6,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "arena-ours",
+        "kingdomId": "dai-viet",
+        "landId": "district-03",
+        "total": 2274,
+        "level": 2,
+        "experience": 0,
+        "experienceToNextLevel": 160,
+        "morale": 85,
+        "supply": 90,
+        "rations": 999,
+        "provisions": 999
+      },
+      {
+        "id": "arena-theirs",
+        "kingdomId": "northern-rival",
+        "landId": "district-03",
+        "total": 2310,
+        "level": 2,
+        "experience": 0,
+        "experienceToNextLevel": 160,
+        "morale": 85,
+        "supply": 90,
+        "rations": 999,
+        "provisions": 999
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [],
+    "court": {
+      "stability": 50,
+      "influence": 50,
+      "favor": 0,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {}
+    },
+    "ascent": {
+      "wave": 0,
+      "ticksToWave": 16,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 1516,
+      "powerDelta": 0,
+      "peakPower": 1516,
+      "defensePower": 1372,
+      "threat": 348,
+      "level": 1,
+      "xp": 0,
+      "xpToNext": 82,
+      "cardStacks": {},
+      "retiredCards": [],
+      "heroesSummoned": 0,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 0,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "ready",
+        "lastDecisionTurn": {}
+      },
+      "conquestPlans": [],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 0,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {},
+      "lastPromptTurn": 1,
+      "courtCardCooldown": 3,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 50,
+      "favor": 0,
+      "courtSeats": {},
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Lãnh Chúa Phương Bắc",
+          "relations": 38,
+          "power": 57,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 52,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 50,
+          "power": 52,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 46,
+          "power": 56,
+          "warAppetite": 0,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 2,
+      "prompt": null,
+      "ui": {
+        "screen": "lane:battle",
+        "generatedUiIcons": [
+          "balance",
+          "banner",
+          "bows",
+          "food",
+          "gold",
+          "heart",
+          "humans",
+          "person",
+          "play",
+          "retreat",
+          "supplies",
+          "territory"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "Battle joined at Hoàng Xuyên Bắc — Lãnh Chúa Phương Bắc is at the gates. Take command."
+  },
+  "texts": [
+    {
+      "text": "Hoàng Xuyên Bắc Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Đông Châu Đông",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Trường Bình",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Long Giang Hạ",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "0/72",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "Year 1 - Spring",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 157,
+      "y": 19
+    },
+    {
+      "text": "150 (-4)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "70 (+16)",
+      "x": 132,
+      "y": 36
+    },
+    {
+      "text": "110 (+28)",
+      "x": 230,
+      "y": 36
+    },
+    {
+      "text": "600 (0)",
+      "x": 332,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "1,516",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "348",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "next wave in 16",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "Lv 1",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 0",
+      "x": 88,
+      "y": 54
+    },
+    {
+      "text": "Ngô Hồng Ái",
+      "x": 43,
+      "y": 108
+    },
+    {
+      "text": "THE CAPITAL · LOSE IT, LOSE THE RUN",
+      "x": 81,
+      "y": 67
+    },
+    {
+      "text": "Battle at Hoàng Xuyên Bắc",
+      "x": 76,
+      "y": 76
+    },
+    {
+      "text": "PAUSED — tap Resume, or give any order, to fight on.",
+      "x": 76,
+      "y": 114
+    },
+    {
+      "text": "Arrows fall — we lose 24, they lose 15.",
+      "x": 76,
+      "y": 130
+    },
+    {
+      "text": "All ranks, loose arrows!",
+      "x": -26,
+      "y": -51
+    },
+    {
+      "text": "−24",
+      "x": 99,
+      "y": 360
+    },
+    {
+      "text": "−15",
+      "x": 283,
+      "y": 376
+    },
+    {
+      "text": "72 rounds left",
+      "x": 370,
+      "y": 71
+    },
+    {
+      "text": "Our host",
+      "x": 32,
+      "y": 563
+    },
+    {
+      "text": "2300",
+      "x": 189,
+      "y": 563
+    },
+    {
+      "text": "Lãnh Chúa… · hasty",
+      "x": 201,
+      "y": 563
+    },
+    {
+      "text": "2326",
+      "x": 358,
+      "y": 563
+    },
+    {
+      "text": "Relief — none free",
+      "x": 85,
+      "y": 530
+    },
+    {
+      "text": "Resume",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Pull back",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hand over",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Leave the field",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "H E L D",
+      "x": 195,
+      "y": 277
+    },
+    {
+      "text": "THE MOMENT",
+      "x": 32,
+      "y": 626
+    },
+    {
+      "text": "Their baggage is within bowshot.",
+      "x": 32,
+      "y": 637
+    },
+    {
+      "text": "Fire arrows into the camp",
+      "x": 80,
+      "y": 21
+    },
+    {
+      "text": "An army watching its rice burn is not watching us.",
+      "x": 80,
+      "y": 51
+    },
+    {
+      "text": "−10 their heart · They lose 3% · A shorter fight",
+      "x": 112,
+      "y": 732
+    },
+    {
+      "text": "Save the shafts for the line",
+      "x": 80,
+      "y": 21
+    },
+    {
+      "text": "Arrows spent on tents are arrows not in men.",
+      "x": 80,
+      "y": 51
+    },
+    {
+      "text": "Deal +22% · 4 beats",
+      "x": 279,
+      "y": 732
+    },
+    {
+      "text": "Ngô Hồng Ái decides in 1",
+      "x": 195,
+      "y": 765
+    }
+  ],
+  "errors": []
+}

@@ -52,7 +52,7 @@ export { HOST_MARK_CAP, MEN_PER_MARK };
  *
  * The numbers are the document's grid divided by the document's own unit — 16, 12 and 3.6 against a
  * soldier 42 units to the crown of his head — so a block in the game has the same density as the
- * plates in `docs/12-armies-of-dai-viet.html`.
+ * plates in `docs/phase-1/12-armies-of-dai-viet.md`.
  *
  * They used to be 4.6 / 4.0 / 1.2, which is three body-widths of ground between one man and the
  * next: an open skirmish order, not a block. That spacing was chosen against the *old* figure — a
@@ -162,7 +162,7 @@ interface ThemeSpec {
 export const FIGURE_THEMES: Record<FigureTheme, ThemeSpec> = {
   // Đinh: undyed and hide, because there was no dye monopoly to enforce anything else, and the
   // one gilt thing on the field was on the man commanding it. Sourced frame by frame in
-  // `docs/23-the-thirteenth-wardrobe.html`.
+  // `docs/phase-1/23-the-thirteenth-wardrobe.md`.
   //
   // The helm is `nauDark` rather than `hide` — at plate scale the darker leather closed up with
   // the hair under it and the head came out a single black mass, which is also what hid the
@@ -210,7 +210,7 @@ export interface FigureKit {
 /**
  * The document's own grid, and the single divisor that maps it onto the game's.
  *
- * `docs/12-armies-of-dai-viet.html` draws a soldier **42 units** from the ground to the crown of
+ * `docs/phase-1/12-armies-of-dai-viet.md` draws a soldier **42 units** from the ground to the crown of
  * his head. `unitScale('figure', …)` puts that same distance at **4.44**. So one division, applied
  * once, and every number below is literally the number printed in the document — which is the only
  * way a drawing this long stays checkable against it.
