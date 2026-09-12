@@ -1,0 +1,92 @@
+{
+  "scope": "Instrumented equal-army skirmish, native mouse controls in phone layout; not a balance win-rate test.",
+  "log": [
+    {
+      "name": "01-opening",
+      "state": {
+        "formation": "chong",
+        "stance": "balanced",
+        "ours": 9000,
+        "theirs": 9000,
+        "round": 0,
+        "over": false,
+        "paused": true,
+        "ui": "lane:battle"
+      }
+    },
+    {
+      "name": "02-shields-ordered",
+      "state": {
+        "formation": "chong",
+        "target": "quy",
+        "stance": "balanced",
+        "stamina": 1,
+        "ours": 9000,
+        "theirs": 9000,
+        "round": 0,
+        "over": false,
+        "paused": true,
+        "ui": "lane:battle"
+      }
+    },
+    {
+      "name": "03-press-ordered",
+      "state": {
+        "formation": "chong",
+        "target": "quy",
+        "stance": "balanced",
+        "pending": "press",
+        "stamina": 1,
+        "ours": 9000,
+        "theirs": 9000,
+        "round": 0,
+        "over": false,
+        "paused": true,
+        "ui": "lane:battle"
+      }
+    },
+    {
+      "name": "04-orders-landed",
+      "state": {
+        "formation": "quy",
+        "stance": "press",
+        "stamina": 2,
+        "ours": 6904,
+        "theirs": 7183,
+        "round": 5,
+        "over": false,
+        "paused": false,
+        "ui": "lane:battle"
+      }
+    },
+    {
+      "name": "05-pause",
+      "state": {
+        "formation": "quy",
+        "stance": "press",
+        "stamina": 2,
+        "ours": 6904,
+        "theirs": 7183,
+        "round": 5,
+        "over": false,
+        "paused": true,
+        "ui": "lane:battle"
+      }
+    },
+    {
+      "name": "06-pause-holds",
+      "state": {
+        "formation": "quy",
+        "stance": "press",
+        "stamina": 2,
+        "ours": 6904,
+        "theirs": 7183,
+        "round": 5,
+        "over": false,
+        "paused": true,
+        "ui": "lane:battle"
+      }
+    }
+  ],
+  "errors": []
+}

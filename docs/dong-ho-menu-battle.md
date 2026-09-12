@@ -1,6 +1,6 @@
 # Đông Hồ menu and battle interface
 
-Completed 6 September 2026. Continues the [card-print family](dong-ho-card-prints.md) and [shared visual language](30-dong-ho-visual-language.md).
+Completed 6 September 2026. Continues the [card-print family](dong-ho-card-prints.md) and [shared visual language](phase-1/30-dong-ho-visual-language.md).
 
 ## Menu
 

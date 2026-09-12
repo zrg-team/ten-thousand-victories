@@ -1,0 +1,377 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 1, Spring",
+    "realtimeSeconds": 0,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 829668852,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 150,
+      "supplies": 70,
+      "gold": 110,
+      "humans": 600
+    },
+    "resourceRates": {
+      "food": 3,
+      "supplies": 16,
+      "gold": 30,
+      "humans": 1
+    },
+    "visibility": {
+      "visible": 6,
+      "explored": 6,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 120,
+        "provisions": 80
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [],
+    "court": {
+      "stability": 50,
+      "influence": 50,
+      "favor": 0,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {}
+    },
+    "ascent": {
+      "wave": 0,
+      "ticksToWave": 16,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 1458,
+      "powerDelta": 0,
+      "peakPower": 1458,
+      "defensePower": 1233,
+      "threat": 348,
+      "level": 1,
+      "xp": 0,
+      "xpToNext": 82,
+      "cardStacks": {},
+      "retiredCards": [],
+      "heroesSummoned": 0,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 0,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "ready",
+        "lastDecisionTurn": {}
+      },
+      "conquestPlans": [],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 0,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {},
+      "lastPromptTurn": 1,
+      "courtCardCooldown": 3,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 50,
+      "favor": 0,
+      "courtSeats": {},
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Lãnh Chúa Phương Bắc",
+          "relations": 38,
+          "power": 49,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 63,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 50,
+          "power": 49,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 46,
+          "power": 48,
+          "warAppetite": 0,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 2,
+      "prompt": {
+        "kind": "inheritance",
+        "options": [
+          "acknowledged"
+        ]
+      },
+      "ui": {
+        "screen": "inheritance:inheritance",
+        "generatedUiIcons": [
+          "balance",
+          "book",
+          "bronze-drum",
+          "food",
+          "gold",
+          "humans",
+          "person",
+          "scroll",
+          "supplies"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "The dragon stirs. Your dynasty begins its ascent."
+  },
+  "texts": [
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 1 - Spring",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 157,
+      "y": 19
+    },
+    {
+      "text": "150 (+3)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "70 (+16)",
+      "x": 131,
+      "y": 36
+    },
+    {
+      "text": "110 (+30)",
+      "x": 227,
+      "y": 36
+    },
+    {
+      "text": "600 (+1)",
+      "x": 328,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "1,458",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "348",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "next wave in 16",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "Lv 1",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 0",
+      "x": 88,
+      "y": 54
+    },
+    {
+      "text": "YOUR INHERITANCE",
+      "x": 195,
+      "y": 114
+    },
+    {
+      "text": "What the house carries into this reign.",
+      "x": 195,
+      "y": 143
+    },
+    {
+      "text": "House Ngô",
+      "x": 62,
+      "y": 11
+    },
+    {
+      "text": "Dynasty level 1 · first reign",
+      "x": 62,
+      "y": 32
+    },
+    {
+      "text": "Ngô Hồng Ái founds the house",
+      "x": 62,
+      "y": 48
+    },
+    {
+      "text": "Opening hand · one slot",
+      "x": 5,
+      "y": 84
+    },
+    {
+      "text": "Empty slot",
+      "x": 52,
+      "y": 18
+    },
+    {
+      "text": "Draw in the Dynasty Deck — each draw reveals a card for this hand.",
+      "x": 52,
+      "y": 40
+    },
+    {
+      "text": "Traits in force",
+      "x": 5,
+      "y": 193
+    },
+    {
+      "text": "Founding: 3 champions laid out",
+      "x": 48,
+      "y": 8
+    },
+    {
+      "text": "The founding card deals the champions who could raise this dynasty.",
+      "x": 48,
+      "y": 26
+    },
+    {
+      "text": "Dealt on the next screen",
+      "x": 48,
+      "y": 54
+    },
+    {
+      "text": "None yet — the house has learned nothing so far.",
+      "x": 48,
+      "y": 8
+    },
+    {
+      "text": "The house gains a level each reign, and every level offers a trait to keep.",
+      "x": 48,
+      "y": 42
+    },
+    {
+      "text": "Begin the reign",
+      "x": 172,
+      "y": 23
+    },
+    {
+      "text": "Back to the menu",
+      "x": 172,
+      "y": 14
+    }
+  ],
+  "errors": []
+}

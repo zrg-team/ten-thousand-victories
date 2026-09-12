@@ -1,5 +1,5 @@
 /**
- * Lễ Đăng Quang — the Coronation (docs/28-the-coronation.html).
+ * Lễ Đăng Quang — the Coronation (docs/phase-1/28-the-coronation.html).
  *
  * Six things this has to prove, and each of them is a way the feature could ship broken while
  * compiling perfectly:

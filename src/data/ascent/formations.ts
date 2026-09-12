@@ -11,7 +11,7 @@
  * Duplicating the table in both places would have worked until the first time somebody changed one
  * of them, so the table lives here once and `devices.ts` imports it back.
  *
- * See `docs/14-five-shapes-two-dials.html` for the ring, `docs/19-five-shapes-one-clock.html` for
+ * See `docs/phase-1/14-five-shapes-two-dials.md` for the ring, `docs/phase-1/19-five-shapes-one-clock.md` for
  * the wind clock that retiered it, and `formationsClassic.ts` for the retired availability rules.
  */
 import type { ArmyComposition } from '../../state/types';
@@ -35,12 +35,12 @@ export const FORMATION_ORDER: FormationKey[] = ['screen', 'line', 'bows', 'horse
  * Each doctrine is the same army spent differently: `weight` is its share of the host's marks and
  * `aspect` is how wide the block stands against how deep.
  *
- * The numbers are the ones drawn in `docs/12-armies-of-dai-viet.html`, which plates a 44-mark host
+ * The numbers are the ones drawn in `docs/phase-1/12-armies-of-dai-viet.md`, which plates a 44-mark host
  * — so at 44 marks this table reproduces that page file for file.
  *
  * The zeroes are the doctrine's silhouette. They used to be load-bearing twice over — which
  * shapes a host could never form — until the availability rule was retired for the wind clock
- * (docs/18, docs/19): every host has all five shapes now, and a `spears` army standing in Thế
+ * (docs/phase-1/18-formation-availability-by-blocks.md, docs/phase-1/19-five-shapes-one-clock.md): every host has all five shapes now, and a `spears` army standing in Thế
  * Xung simply draws a wedge whose point block has no marks in it. The picture, not the dock,
  * carries what an army is.
  */
@@ -92,7 +92,7 @@ export function marksFor(men: number, cap = HOST_MARK_CAP): number {
  * How a host's marks are divided between its four blocks, and where its casualties have landed.
  *
  * The single source of truth for the picture. `armyShape` draws what this returns; the fight
- * stopped reading it when availability-by-blocks was retired (`formationsClassic.ts`, docs/18).
+ * stopped reading it when availability-by-blocks was retired (`formationsClassic.ts`, docs/phase-1/18-formation-availability-by-blocks.md).
  *
  * Casualties are spent **in formation order** — the screen first, then the line, then the bows, and
  * the horse last. That is the whole reason an army is several blocks: a mixed block loses a mark at
@@ -229,7 +229,7 @@ export interface FormationTweak {
  * frontages on a 780-wide chart: `front: 24` at a 16-unit pitch is 176 units of a host that has
  * about 205 to stand in before it is inside the enemy. On the real 390-wide surface the fronts come
  * down and each shape carries its character in **depth, looseness and which block is at the seam**
- * instead. See `docs/14-five-shapes-two-dials.html`.
+ * instead. See `docs/phase-1/14-five-shapes-two-dials.md`.
  */
 export const FORMATION_PLAN: Record<BattleFormation, Partial<Record<FormationKey, FormationTweak>>> = {
   // The hedge: the line wide and shallow at the seam, everything else stacked behind it.

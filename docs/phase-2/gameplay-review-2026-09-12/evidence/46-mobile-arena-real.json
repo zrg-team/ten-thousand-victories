@@ -1,0 +1,183 @@
+{
+  "state": {
+    "mode": "arena-setup",
+    "coordinateSystem": "origin top-left; x right, y down",
+    "actions": [
+      "take-command",
+      "back"
+    ]
+  },
+  "texts": [
+    {
+      "text": "Skirmish",
+      "x": 195,
+      "y": 20
+    },
+    {
+      "text": "Set the matchup and fight it. No map, no economy — the battle alone.",
+      "x": 195,
+      "y": 49
+    },
+    {
+      "text": "Armies",
+      "x": 76,
+      "y": 94
+    },
+    {
+      "text": "Battle",
+      "x": 194,
+      "y": 94
+    },
+    {
+      "text": "Difficulty",
+      "x": 312,
+      "y": 94
+    },
+    {
+      "text": "▸ WHICH SHAPE BEATS WHICH",
+      "x": 195,
+      "y": 729
+    },
+    {
+      "text": "OUR HOST",
+      "x": 89,
+      "y": 0
+    },
+    {
+      "text": "−",
+      "x": 24,
+      "y": 28
+    },
+    {
+      "text": "2.4k",
+      "x": 89,
+      "y": 27
+    },
+    {
+      "text": "+",
+      "x": 153,
+      "y": 28
+    },
+    {
+      "text": "Spears",
+      "x": 47,
+      "y": 70
+    },
+    {
+      "text": "Balanced",
+      "x": 130,
+      "y": 70
+    },
+    {
+      "text": "Bows",
+      "x": 47,
+      "y": 103
+    },
+    {
+      "text": "Heavy",
+      "x": 130,
+      "y": 103
+    },
+    {
+      "text": "ATTIRE",
+      "x": 89,
+      "y": 126
+    },
+    {
+      "text": "‹",
+      "x": 24,
+      "y": 142
+    },
+    {
+      "text": "Lê",
+      "x": 89,
+      "y": 145
+    },
+    {
+      "text": "›",
+      "x": 153,
+      "y": 142
+    },
+    {
+      "text": "THEIR HOST",
+      "x": 262,
+      "y": 0
+    },
+    {
+      "text": "−",
+      "x": 197,
+      "y": 28
+    },
+    {
+      "text": "2.4k",
+      "x": 262,
+      "y": 27
+    },
+    {
+      "text": "+",
+      "x": 326,
+      "y": 28
+    },
+    {
+      "text": "Spears",
+      "x": 220,
+      "y": 70
+    },
+    {
+      "text": "Balanced",
+      "x": 303,
+      "y": 70
+    },
+    {
+      "text": "Bows",
+      "x": 220,
+      "y": 103
+    },
+    {
+      "text": "Heavy",
+      "x": 303,
+      "y": 103
+    },
+    {
+      "text": "ATTIRE",
+      "x": 262,
+      "y": 126
+    },
+    {
+      "text": "‹",
+      "x": 197,
+      "y": 142
+    },
+    {
+      "text": "Ming",
+      "x": 262,
+      "y": 145
+    },
+    {
+      "text": "›",
+      "x": 326,
+      "y": 142
+    },
+    {
+      "text": "✕",
+      "x": 175,
+      "y": 0
+    },
+    {
+      "text": "One of ours to 1.00 of theirs — genuinely in doubt",
+      "x": 163,
+      "y": 229
+    },
+    {
+      "text": "Take command",
+      "x": 167,
+      "y": 16
+    },
+    {
+      "text": "‹ Back",
+      "x": 141,
+      "y": 20
+    }
+  ],
+  "errors": []
+}

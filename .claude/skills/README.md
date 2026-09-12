@@ -53,5 +53,5 @@ npx @phaserjs/game-agent login     # browser sign-in, prints/stores a token
 export PHASER_AGENT_TOKEN=<token>  # then restart the CLI
 ```
 
-Leave the variable unset and nothing happens. See `docs/16-phaser-4-migration.md` Appendix C for
+Leave the variable unset and nothing happens. See `docs/phase-1/16-phaser-4-migration.md` Appendix C for
 why this is opt-in rather than adopted.

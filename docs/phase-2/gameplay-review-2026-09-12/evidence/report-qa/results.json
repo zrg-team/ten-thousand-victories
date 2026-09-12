@@ -1,0 +1,66 @@
+{
+  "checks": [
+    {
+      "name": "desktop",
+      "overflow": {
+        "viewport": 1440,
+        "width": 1440
+      },
+      "images": true
+    },
+    {
+      "name": "mobile",
+      "overflow": {
+        "viewport": 390,
+        "width": 390
+      },
+      "images": true
+    },
+    {
+      "name": "small-phone",
+      "overflow": {
+        "viewport": 320,
+        "width": 320
+      },
+      "images": true
+    },
+    {
+      "profile": "mobile",
+      "score": "59.5 /100"
+    },
+    {
+      "profile": "desktop",
+      "score": "64.2 /100"
+    },
+    {
+      "profile": "combined",
+      "score": "61.8 /100"
+    },
+    {
+      "filter": "P0",
+      "visible": 9
+    },
+    {
+      "filter": "P0 Mobile Improve",
+      "visible": 6
+    },
+    {
+      "filter": "none",
+      "text": "0 of 48 items — no matches; try fewer filters."
+    },
+    {
+      "filter": "reset",
+      "visible": 48
+    },
+    {
+      "loopsOpen": 9
+    },
+    {
+      "dialog": true
+    },
+    {
+      "brokenLocalLinks": []
+    }
+  ],
+  "errors": []
+}

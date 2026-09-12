@@ -256,7 +256,7 @@ check('the first wave is sized against the army the player can march',
   runs.every((r) => r.firstWaveMen > 0 && r.firstWaveMen <= r.ourMenAtFirstWave * 1.6),
   runs.map((r) => `${r.firstWaveMen}v${r.ourMenAtFirstWave}`).join(', '));
 // 0.3, down from 0.5. The first wave is capped at `EARLY_WAVE_FIELD_SHARE[0]` (0.62) of the field,
-// then the probe shape takes 0.75 of that and a warm court's dial (docs/24) up to 0.75 again — the
+// then the probe shape takes 0.75 of that and a warm court's dial (docs/phase-1/24-the-four-courts.md) up to 0.75 again — the
 // design's own floor is 0.35 of what the realm can march, and a realm the grace let raise a second
 // host before season 17 (713 men on seed 20080) meets its warm neighbour's probe at about that.
 // The wave still has to be there and still has to be fought; what it may not be is nothing.

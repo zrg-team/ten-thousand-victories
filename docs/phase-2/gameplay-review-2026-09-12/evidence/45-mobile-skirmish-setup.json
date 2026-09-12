@@ -1,0 +1,428 @@
+{
+  "state": {
+    "mode": "arena-setup",
+    "coordinateSystem": "origin top-left; x right, y down",
+    "actions": [
+      "take-command",
+      "back"
+    ]
+  },
+  "texts": [
+    {
+      "text": "Skirmish",
+      "x": 195,
+      "y": 20
+    },
+    {
+      "text": "Set the matchup and fight it. No map, no economy — the battle alone.",
+      "x": 195,
+      "y": 49
+    },
+    {
+      "text": "Armies",
+      "x": 76,
+      "y": 94
+    },
+    {
+      "text": "Battle",
+      "x": 194,
+      "y": 94
+    },
+    {
+      "text": "Difficulty",
+      "x": 312,
+      "y": 94
+    },
+    {
+      "text": "▸ WHICH SHAPE BEATS WHICH",
+      "x": 195,
+      "y": 729
+    },
+    {
+      "text": "OUR HOST",
+      "x": 89,
+      "y": 0
+    },
+    {
+      "text": "−",
+      "x": 24,
+      "y": 28
+    },
+    {
+      "text": "2.4k",
+      "x": 89,
+      "y": 27
+    },
+    {
+      "text": "+",
+      "x": 153,
+      "y": 28
+    },
+    {
+      "text": "Spears",
+      "x": 47,
+      "y": 70
+    },
+    {
+      "text": "Balanced",
+      "x": 130,
+      "y": 70
+    },
+    {
+      "text": "Bows",
+      "x": 47,
+      "y": 103
+    },
+    {
+      "text": "Heavy",
+      "x": 130,
+      "y": 103
+    },
+    {
+      "text": "ATTIRE",
+      "x": 89,
+      "y": 126
+    },
+    {
+      "text": "‹",
+      "x": 24,
+      "y": 142
+    },
+    {
+      "text": "Lê",
+      "x": 89,
+      "y": 145
+    },
+    {
+      "text": "›",
+      "x": 153,
+      "y": 142
+    },
+    {
+      "text": "THEIR HOST",
+      "x": 262,
+      "y": 0
+    },
+    {
+      "text": "−",
+      "x": 197,
+      "y": 28
+    },
+    {
+      "text": "2.4k",
+      "x": 262,
+      "y": 27
+    },
+    {
+      "text": "+",
+      "x": 326,
+      "y": 28
+    },
+    {
+      "text": "Spears",
+      "x": 220,
+      "y": 70
+    },
+    {
+      "text": "Balanced",
+      "x": 303,
+      "y": 70
+    },
+    {
+      "text": "Bows",
+      "x": 220,
+      "y": 103
+    },
+    {
+      "text": "Heavy",
+      "x": 303,
+      "y": 103
+    },
+    {
+      "text": "ATTIRE",
+      "x": 262,
+      "y": 126
+    },
+    {
+      "text": "‹",
+      "x": 197,
+      "y": 142
+    },
+    {
+      "text": "Ming",
+      "x": 262,
+      "y": 145
+    },
+    {
+      "text": "›",
+      "x": 326,
+      "y": 142
+    },
+    {
+      "text": "✕",
+      "x": 175,
+      "y": 0
+    },
+    {
+      "text": "One of ours to 1.00 of theirs — genuinely in doubt",
+      "x": 163,
+      "y": 229
+    },
+    {
+      "text": "Take command",
+      "x": 167,
+      "y": 16
+    },
+    {
+      "text": "‹ Back",
+      "x": 141,
+      "y": 20
+    },
+    {
+      "text": "2/4",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "0/4",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "3/6",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 4 - Autumn",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 169,
+      "y": 19
+    },
+    {
+      "text": "623 (+52)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "431 (+19)",
+      "x": 133,
+      "y": 36
+    },
+    {
+      "text": "696 (+42)",
+      "x": 225,
+      "y": 36
+    },
+    {
+      "text": "692 (+4)",
+      "x": 324,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "2,653",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "356",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "INVASION 2 · LIVE",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "×1.0 ambition",
+      "x": 376,
+      "y": 84
+    },
+    {
+      "text": "Lv 5",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 2",
+      "x": 90,
+      "y": 54
+    },
+    {
+      "text": "Their line broke",
+      "x": 195,
+      "y": 66
+    },
+    {
+      "text": "Lam Trại Hạ — 1 exchanges",
+      "x": 195,
+      "y": 95
+    },
+    {
+      "text": "Lam Trại Hạ stays ours",
+      "x": 12,
+      "y": 0
+    },
+    {
+      "text": "1625 of ours still standing, 16 of theirs, across 1 column(s).",
+      "x": 12,
+      "y": 26
+    },
+    {
+      "text": "Ngô Hồng Ái",
+      "x": 54,
+      "y": 2
+    },
+    {
+      "text": "You gave the orders to him and he gave them to the host.",
+      "x": 54,
+      "y": 20
+    },
+    {
+      "text": "Ours",
+      "x": 243,
+      "y": 0
+    },
+    {
+      "text": "Theirs",
+      "x": 344,
+      "y": 0
+    },
+    {
+      "text": "Marched",
+      "x": 0,
+      "y": 16
+    },
+    {
+      "text": "1671",
+      "x": 243,
+      "y": 15
+    },
+    {
+      "text": "252",
+      "x": 344,
+      "y": 15
+    },
+    {
+      "text": "Fell",
+      "x": 0,
+      "y": 34
+    },
+    {
+      "text": "46",
+      "x": 243,
+      "y": 33
+    },
+    {
+      "text": "236",
+      "x": 344,
+      "y": 33
+    },
+    {
+      "text": "Left standing",
+      "x": 0,
+      "y": 52
+    },
+    {
+      "text": "1625",
+      "x": 243,
+      "y": 51
+    },
+    {
+      "text": "16",
+      "x": 344,
+      "y": 51
+    },
+    {
+      "text": "Columns",
+      "x": 0,
+      "y": 70
+    },
+    {
+      "text": "2",
+      "x": 243,
+      "y": 69
+    },
+    {
+      "text": "1",
+      "x": 344,
+      "y": 69
+    },
+    {
+      "text": "WHO HELD THE FIELD",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "THE COUNT",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "The levy of Lam Trại Hạ goes back to the fields.",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "Year 4: at Lam Trại Hạ, Ngô Hồng Ái turned back Vương Quốc Phương Nam. 46 of ours did not come home.",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "Let it be recorded",
+      "x": 175,
+      "y": 23
+    }
+  ],
+  "errors": []
+}

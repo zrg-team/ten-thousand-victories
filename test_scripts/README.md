@@ -86,7 +86,7 @@ unless you have checked that that script sets one.
 path change — and `perf-bench.mjs` reaches back up to `perf-results/` so that `--label` keeps
 diffing against the committed `baseline.json` rather than orphaning it.
 
-`shots/` and `scratch/` are gitignored; `perf-results/` holds committed baseline data.
+`shots/` and `scratch/` are gitignored; `perf-results/` keeps [reviewed baseline data](perf-results/README.md) trackable and ignores new local runs by default.
 
 ## Adding one
 

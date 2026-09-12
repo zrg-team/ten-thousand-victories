@@ -9,7 +9,7 @@
 //   · a splash animated through layout or paint, which freezes solid for the eight seconds the
 //     main thread spends parsing Phaser — the one thing it exists to cover;
 //   · a splash that has grown a drawing again. This screen is a seal, a name and a bar. It used
-//     to print a marching host built from `docs/12-armies-of-dai-viet.html`'s `soldier()`, which
+//     to print a marching host built from `docs/phase-1/12-armies-of-dai-viet.md`'s `soldier()`, which
 //     went stale the moment the game's own armies were redrawn and cost 32 kB of the document
 //     that has to arrive before anything else.
 import { chromium } from 'playwright';

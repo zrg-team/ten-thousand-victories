@@ -12,7 +12,7 @@ The icon now depicts an interaction from the game's combat vocabulary. Two oppos
 
 We generated three action concepts, compared them at 256, 64, 48 and 32 px, and refined the formation clash twice. The first refinement reduced six soldiers to two but introduced an unwanted oval frame. The second removed it and extended the lower garments into a close square crop.
 
-The formation system in [the combat design](../../19-five-shapes-one-clock.md) and [the implementation](../../../src/data/ascent/formations.ts) provides the gameplay connection. This is an illustrative attack/defense moment, not a screenshot or a claim that this individual duel is a playable mode.
+The formation system in [the combat design](../../phase-1/19-five-shapes-one-clock.md) and [the implementation](../../../src/data/ascent/formations.ts) provides the gameplay connection. This is an illustrative attack/defense moment, not a screenshot or a claim that this individual duel is a playable mode.
 
 ## Outputs
 

@@ -1,0 +1,478 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 2, Spring",
+    "realtimeSeconds": 28,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 829668852,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 318.3542857142857,
+      "supplies": 192.34285714285716,
+      "gold": 426,
+      "humans": 622
+    },
+    "resourceRates": {
+      "food": 9.874285714285705,
+      "supplies": 22.94285714285714,
+      "gold": 104,
+      "humans": 2
+    },
+    "visibility": {
+      "visible": 8,
+      "explored": 8,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 90,
+        "provisions": 72
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [
+      {
+        "id": "court-boon-kho-lam-1-1789231042144-556",
+        "label": "boon:kho-lam:1",
+        "resourceRateModifier": {
+          "food": 11,
+          "supplies": 5
+        }
+      }
+    ],
+    "court": {
+      "stability": 51,
+      "influence": 50,
+      "favor": 4,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {
+        "treasurer": "ba-do-nuoc"
+      }
+    },
+    "ascent": {
+      "wave": 0,
+      "ticksToWave": 8,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 1997,
+      "powerDelta": -9,
+      "peakPower": 2006,
+      "defensePower": 1418,
+      "threat": 348,
+      "level": 2,
+      "xp": 54,
+      "xpToNext": 121,
+      "cardStacks": {
+        "kho-lam": 1
+      },
+      "retiredCards": [],
+      "heroesSummoned": 1,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 4,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "ready",
+        "lastDecisionTurn": {
+          "court": 5
+        }
+      },
+      "conquestPlans": [],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 1,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {
+        "province-order": 7,
+        "conquer-target": 3
+      },
+      "lastPromptTurn": 9,
+      "courtCardCooldown": 0,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 51,
+      "favor": 4,
+      "courtSeats": {
+        "treasurer": "ba-do-nuoc"
+      },
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Lãnh Chúa Phương Bắc",
+          "relations": 38,
+          "power": 32,
+          "warAppetite": 3,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 77,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 38,
+          "power": 52,
+          "warAppetite": 1,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 46,
+          "power": 51,
+          "warAppetite": 1,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 0,
+      "prompt": {
+        "kind": "conquer-method",
+        "options": [
+          "bribe",
+          "diplomacy",
+          "intimidation",
+          "siege",
+          "back"
+        ]
+      },
+      "ui": {
+        "screen": "conquer-method:district-17:bribe,diplomacy,intimidation,siege:",
+        "generatedUiIcons": [
+          "balance",
+          "blade",
+          "chevron-down",
+          "coin",
+          "diplomacy",
+          "food",
+          "gold",
+          "hourglass",
+          "humans",
+          "ladder",
+          "supplies"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "Indravarman of Liên Minh Phương Đông is dead. Quách Quỳ takes the throne, and owes us nothing."
+  },
+  "texts": [
+    {
+      "text": "2/3",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "3/4",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 2 - Spring",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 160,
+      "y": 19
+    },
+    {
+      "text": "318 (+10)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "192 (+23)",
+      "x": 126,
+      "y": 36
+    },
+    {
+      "text": "426 (+104)",
+      "x": 220,
+      "y": 36
+    },
+    {
+      "text": "622 (+2)",
+      "x": 325,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "1,997",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "348",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "next wave in 8",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "Lv 2",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 0",
+      "x": 90,
+      "y": 54
+    },
+    {
+      "text": "9",
+      "x": 12,
+      "y": 0
+    },
+    {
+      "text": "9",
+      "x": 12,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 195,
+      "y": 114
+    },
+    {
+      "text": "Village — nobles hold it · garrison 130",
+      "x": 195,
+      "y": 143
+    },
+    {
+      "text": "Bribe the nobles",
+      "x": 64,
+      "y": 10
+    },
+    {
+      "text": "Coin now, allegiance at once — but they may keep the gold and refuse.",
+      "x": 64,
+      "y": 32
+    },
+    {
+      "text": "72",
+      "x": 18,
+      "y": 2
+    },
+    {
+      "text": "1",
+      "x": 64,
+      "y": 2
+    },
+    {
+      "text": "68 loyalty  ·  55%",
+      "x": 64,
+      "y": 92
+    },
+    {
+      "text": "87% AT FIRST",
+      "x": 332,
+      "y": 11
+    },
+    {
+      "text": "Send an envoy",
+      "x": 64,
+      "y": 10
+    },
+    {
+      "text": "Slow, certain, and they join you loyal.\nEnvoy: Triệu Thị Uyên — tap to choose",
+      "x": 64,
+      "y": 32
+    },
+    {
+      "text": "28",
+      "x": 18,
+      "y": 2
+    },
+    {
+      "text": "21",
+      "x": 64,
+      "y": 2
+    },
+    {
+      "text": "85 loyalty  ·  53%",
+      "x": 64,
+      "y": 92
+    },
+    {
+      "text": "94% AT FIRST",
+      "x": 332,
+      "y": 11
+    },
+    {
+      "text": "Intimidate",
+      "x": 64,
+      "y": 10
+    },
+    {
+      "text": "A host at the border does the talking. Costs nothing but goodwill.\nHost: Royal Host (power 560) — tap to choose",
+      "x": 64,
+      "y": 32
+    },
+    {
+      "text": "8",
+      "x": 18,
+      "y": 2
+    },
+    {
+      "text": "50 loyalty  ·  Certain",
+      "x": 64,
+      "y": 105
+    },
+    {
+      "text": "80% AT FIRST",
+      "x": 332,
+      "y": 11
+    },
+    {
+      "text": "Take it by force",
+      "x": 64,
+      "y": 10
+    },
+    {
+      "text": "Storm the province. Fast, and the survivors resent it.\nHost: Royal Host (power 560) — tap to choose",
+      "x": 64,
+      "y": 32
+    },
+    {
+      "text": "3",
+      "x": 18,
+      "y": 2
+    },
+    {
+      "text": "45 loyalty  ·  81%",
+      "x": 64,
+      "y": 105
+    },
+    {
+      "text": "78% AT FIRST",
+      "x": 332,
+      "y": 11
+    },
+    {
+      "text": "Hold a card to choose it",
+      "x": 195,
+      "y": 782
+    },
+    {
+      "text": "‹ Another province",
+      "x": 112,
+      "y": 20
+    },
+    {
+      "text": "Close",
+      "x": 60,
+      "y": 20
+    }
+  ],
+  "errors": []
+}

@@ -1,5 +1,5 @@
 // Captures the Đông Hồ art direction in the running game, so the screens can be held against the
-// mock-ups in docs/10-ink-and-shell.html. Set DEV_URL if the dev server is not on 5173.
+// mock-ups in docs/phase-1/10-ink-and-shell.md. Set DEV_URL if the dev server is not on 5173.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 

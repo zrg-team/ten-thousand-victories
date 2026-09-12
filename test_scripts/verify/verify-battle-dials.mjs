@@ -3,7 +3,7 @@
 // The whole design rests on the two controls being *different kinds* of control: formation is
 // instant to order and slow to complete, stance is slow to order and instant to complete and then
 // holds you for four beats. If either clock is wrong the cadence collapses and the dock is two of
-// the same dial again. See docs/14-five-shapes-two-dials.html.
+// the same dial again. See docs/phase-1/14-five-shapes-two-dials.md.
 //
 // Two fights, because a probe that spends thirty beats reading the telegraph has no fight left to
 // test the dials on — measured, every dial check failed with "battle.over" rather than with

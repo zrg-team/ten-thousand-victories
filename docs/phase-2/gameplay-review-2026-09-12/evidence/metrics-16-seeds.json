@@ -1,0 +1,129 @@
+{
+  "measuredAt": "2026-09-12T16:36:33.534Z",
+  "seeds": [
+    11,
+    22,
+    33,
+    44,
+    55,
+    66,
+    77,
+    88,
+    99,
+    110,
+    121,
+    132,
+    143,
+    154,
+    165,
+    176
+  ],
+  "ticks": 600,
+  "objectiveScore": 85,
+  "objectiveMax": 85,
+  "dimensions": [
+    {
+      "key": "agency",
+      "weight": 25,
+      "got": 1,
+      "detail": "engaged 24.6 waves vs declining 10.1 → ratio 2.43",
+      "target": "engaged play should beat declining by 1.5×+",
+      "points": 25
+    },
+    {
+      "key": "divergence",
+      "weight": 10,
+      "got": 1,
+      "detail": "spread across four policies: 59% of the best result",
+      "target": "different policies should reach visibly different places",
+      "points": 10
+    },
+    {
+      "key": "pacing",
+      "weight": 15,
+      "got": 1,
+      "detail": "2.88 ticks between decision moments (2–17), cv 0.746",
+      "target": "a run should have quiet stretches and busy ones — cv 0.6+",
+      "points": 15
+    },
+    {
+      "key": "tension",
+      "weight": 15,
+      "got": 1,
+      "detail": "peak threat/defence 19.28 (spread cv 1.657), 100% of runs ended in defeat",
+      "target": "danger should get real, and vary between runs",
+      "points": 15
+    },
+    {
+      "key": "economy",
+      "weight": 10,
+      "got": 1,
+      "detail": "peak treasury 4,916 vs biggest purchase 12032g → 0× oversupply",
+      "target": "peak treasury under 3× the most expensive thing to buy",
+      "points": 10
+    },
+    {
+      "key": "showpiece",
+      "weight": 10,
+      "got": 1,
+      "detail": "battle screen opens 14.1× per run",
+      "target": "the live battle should open 3–5 times a run",
+      "points": 10
+    }
+  ],
+  "policies": {
+    "engaged": {
+      "waves": 24.6,
+      "score": 6655,
+      "lands": 0.2,
+      "peakPower": 21325,
+      "deaths": 16
+    },
+    "declining": {
+      "waves": 10.1,
+      "score": 1960,
+      "lands": 0,
+      "peakPower": 4714,
+      "deaths": 16
+    },
+    "random": {
+      "waves": 15.2,
+      "score": 3652,
+      "lands": 0.9,
+      "peakPower": 10146,
+      "deaths": 16
+    },
+    "contrarian": {
+      "waves": 10.1,
+      "score": 1931,
+      "lands": 0.1,
+      "peakPower": 4657,
+      "deaths": 16
+    }
+  },
+  "promptMix": {
+    "coronation": 0.1,
+    "inheritance": 1.6,
+    "mandate": 1.6,
+    "founder": 1.6,
+    "court-appointment": 11.1,
+    "doctrine": 3.9,
+    "province-order": 5,
+    "conquer-target": 8.3,
+    "conquer-method": 14.8,
+    "decree-offer": 8.5,
+    "power-draft": 12.7,
+    "law-choice": 6.8,
+    "envoy": 8.2,
+    "parliament": 9.6,
+    "famine": 1.9,
+    "hero-choice": 10,
+    "host-lost": 2.6,
+    "muster-proposal": 8.5,
+    "empire-response": 12.7,
+    "story-beat": 8.6,
+    "rival-demand": 8.4,
+    "restore-land": 10.8
+  },
+  "errors": []
+}

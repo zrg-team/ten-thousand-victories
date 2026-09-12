@@ -1,6 +1,6 @@
 // The wardrobe and the formation, drawn by the game itself.
 //
-// `docs/12-armies-of-dai-viet.html` draws every combination from a slot table; this draws the same
+// `docs/phase-1/12-armies-of-dai-viet.md` draws every combination from a slot table; this draws the same
 // grids through the real `figure()` and `drawArmy()`, so the two can be put side by side and any
 // disagreement is visible rather than argued about. A grid of soldiers is the only honest way to
 // check a figure: `proportion.ts` says it is the right size, and nothing but looking says it is

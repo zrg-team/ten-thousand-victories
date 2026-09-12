@@ -1,0 +1,142 @@
+{
+  "checks": [
+    {
+      "name": "English default",
+      "ok": true
+    },
+    {
+      "name": "Vietnamese selected",
+      "ok": true
+    },
+    {
+      "name": "Grade selection preserved",
+      "ok": true
+    },
+    {
+      "name": "Filters preserved",
+      "ok": true,
+      "detail": {
+        "expectedCount": 8
+      }
+    },
+    {
+      "name": "Expanded loops preserved",
+      "ok": true
+    },
+    {
+      "name": "Dynamic weight translated",
+      "ok": true
+    },
+    {
+      "name": "Counter translated",
+      "ok": true
+    },
+    {
+      "name": "Option values canonical",
+      "ok": true
+    },
+    {
+      "name": "Full static translation coverage",
+      "ok": true,
+      "detail": {
+        "leftover": []
+      }
+    },
+    {
+      "name": "Unaccented Vietnamese search",
+      "ok": true
+    },
+    {
+      "name": "Vietnamese query works in English",
+      "ok": true
+    },
+    {
+      "name": "English query works in Vietnamese",
+      "ok": true
+    },
+    {
+      "name": "Localized empty result",
+      "ok": true
+    },
+    {
+      "name": "Saved language restored without query",
+      "ok": true
+    },
+    {
+      "name": "Explicit URL overrides preference",
+      "ok": true
+    },
+    {
+      "name": "desktop en: no overflow",
+      "ok": true
+    },
+    {
+      "name": "desktop en: language switch stays visible",
+      "ok": true
+    },
+    {
+      "name": "desktop vi: no overflow",
+      "ok": true
+    },
+    {
+      "name": "desktop vi: language switch stays visible",
+      "ok": true
+    },
+    {
+      "name": "phone en: no overflow",
+      "ok": true
+    },
+    {
+      "name": "phone en: language switch stays visible",
+      "ok": true
+    },
+    {
+      "name": "phone vi: no overflow",
+      "ok": true
+    },
+    {
+      "name": "phone vi: language switch stays visible",
+      "ok": true
+    },
+    {
+      "name": "small-phone en: no overflow",
+      "ok": true
+    },
+    {
+      "name": "small-phone en: language switch stays visible",
+      "ok": true
+    },
+    {
+      "name": "small-phone vi: no overflow",
+      "ok": true
+    },
+    {
+      "name": "small-phone vi: language switch stays visible",
+      "ok": true
+    },
+    {
+      "name": "Vietnamese image caption in dialog",
+      "ok": true
+    },
+    {
+      "name": "English heading restored",
+      "ok": true
+    },
+    {
+      "name": "Keyboard language switch",
+      "ok": true
+    },
+    {
+      "name": "Standalone offline translation",
+      "ok": true
+    },
+    {
+      "name": "No browser errors",
+      "ok": true,
+      "detail": {
+        "errors": []
+      }
+    }
+  ],
+  "errors": []
+}
