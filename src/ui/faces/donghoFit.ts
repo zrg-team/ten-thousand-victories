@@ -6,6 +6,15 @@ export interface FittedFacePart extends FacePartDef {
   crop?: { left: number; right: number; top?: number; bottom?: number };
 }
 
+/**
+  * The jaw of the head every face part is drawn against.
+  *
+  * `build-faces.mjs` authors the canonical head as 58×78 centred on −12, which puts `CHIN` at 27 —
+  * and `head-oval`, the canonical head part, measures to the same 27 once its 2px crop padding is
+  * taken off. Features are positioned against that number, so it is the one a fit measures from.
+  */
+const CANONICAL_CHIN = 27;
+
 // Measured opaque forehead edges at y=-35 in the committed generated head PNGs.
 // Canvas widths include transparent padding and are not anatomical attachment widths.
 const FOREHEAD: Record<string, [number, number]> = {
@@ -93,24 +102,43 @@ export function fitDonghoPart(def: FacePartDef, head?: FacePartDef): FittedFaceP
         crop: { left: start, right: end } };
     })];
   }
-  if (def.key.startsWith('beard-') && !def.key.startsWith('beard-moustache')) {
-    const chin = head.cy + head.h / 2 - 2;
+  if (def.key.startsWith('beard-')) {
+    /**
+     * **A beard follows the chin it grows on — it does not start where the chin ends.**
+     *
+     * Every beard is authored in `build-faces.mjs` against the canonical head: the moustache sits
+     * on `MY` (the mouth line) and the mass hangs from `CHIN`, which is the same 27 the canonical
+     * `head-oval` puts its jaw at. The art is already right. All the fit has to do is carry it to
+     * a chin that is somewhere else.
+     *
+     * It was instead *re-deriving* each beard's position from the chin — a goatee hung below it, a
+     * full beard a tenth of its own height under it, a chinstrap half its height above it. On the
+     * canonical head, where the fit should do nothing at all, that moved the chin beards down by
+     * between 9 and 12 units: measured with `test_scripts/scratch/fit-audit.mjs`, and visible on
+     * every bearded portrait in the game as a beard sitting on the *throat*, unattached to the
+     * face above it. Reported as "beards are not matched with the face", and it was.
+     *
+     * So the anchor is a delta, not a position: zero on the canonical head, and on any other head
+     * exactly how far that head's jaw is from the canonical one. `verify-face-fit` is the gate —
+     * it asserts the whole feature set is a no-op on `head-oval`.
+     */
+    const chinDrop = head.cy + head.h / 2 - 2 - CANONICAL_CHIN;
     const sx = (right - left) / 52;
     const base = { ...def, cx: center + def.cx * sx, w: def.w * sx };
-    // Composite resources have a separate moustache above the negative-space mouth.
-    // Keep that upper piece below the nose; attach only the beard mass to the chin.
+    // A moustache is tied to the mouth, and the mouth does not move with the jaw — it is fitted
+    // across (`sx`) and never down, exactly like `mouth-`. Only the mass below follows the chin.
+    if (def.key.startsWith('beard-moustache')) return [base];
+    // The composite beards carry their own moustache above the mouth. That piece stays with the
+    // lip while the mass under it travels; `seam` is the y the two were drawn apart at.
     const split: Record<string, number> = { 'beard-long': 16,
       'beard-threepart': 15, 'beard-forked': 16, 'beard-patriarch': 16 };
     const seam = split[def.key];
-    if (seam !== undefined) {
+    if (seam !== undefined && chinDrop !== 0) {
       const ratio = (seam - (def.cy - def.h / 2)) / def.h;
       return [{ ...base, crop: { left: 0, right: 1, bottom: ratio } },
-        { ...base, cy: def.cy + chin - seam - 1, crop: { left: 0, right: 1, top: ratio } }];
+        { ...base, cy: def.cy + chinDrop, crop: { left: 0, right: 1, top: ratio } }];
     }
-    // Stubble and chinstraps cover the jaw; pointed goatees begin at its bottom.
-    const jaw = /chinstrap|stubble/.test(def.key);
-    const full = def.key.startsWith('beard-full');
-    return [{ ...base, cy: chin + (full ? def.h * .12 : jaw ? -def.h / 2 + 2 : def.h / 2 - 2) }];
+    return [{ ...base, cy: def.cy + chinDrop }];
   }
   const contact = DONGHO_HAT_CONTACTS[def.key];
   if (contact) {

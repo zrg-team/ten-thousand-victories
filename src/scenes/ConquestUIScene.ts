@@ -5,7 +5,7 @@ import { type HeroPickerRow, type HostPickerRow } from '../ui/heroPickerRows';
 import { InkUI, type InkCardOptions, type InkCardRow, type InkScrollArea, type UIBounds } from '../ui/InkUI';
 import { type MapItemRenderer } from '../ui/MapItemRenderer';
 import { type CardIconId } from '../ui/CardIcons';
-import { type CostChip } from '../ui/costChips';
+import { type ChipSize, type CostChip } from '../ui/costChips';
 import { type ConquestUiIconId } from '../ui/conquestUiIcons';
 import { AscentHud } from '../ui/ascent/AscentHud';
 import { AdvisorStrip } from '../ui/ascent/AdvisorStrip';
@@ -821,7 +821,7 @@ export class ConquestUIScene extends Phaser.Scene {
   ): {
     content: UIBounds;
     addRow: (
-      opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; badge?: InkCardOptions['badge'] },
+      opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
       onTap?: () => void,
     ) => void;
     addHeading: (title: string, hint?: string) => void;
@@ -862,7 +862,7 @@ export class ConquestUIScene extends Phaser.Scene {
     parent: Phaser.GameObjects.Container,
     width: number,
     tiles: Array<{ title: string; note?: string; icon?: ConquestUiIconId; costs?: CostChip[]; border: number; muted?: boolean; onTap?: () => void }>,
-    opts: { columns?: 1 | 2 } = {},
+    opts: { columns?: 1 | 2; chipSize?: ChipSize } = {},
   ): number {
     return lanesWidgets.actionTiles(this, parent, width, tiles, opts);
   }

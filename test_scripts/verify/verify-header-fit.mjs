@@ -42,10 +42,14 @@ for (const mode of ['empire', 'ascent']) {
       const scene = window.__phaserGame.scene.getScene(uiKey);
       // The resource bar is the one container at depth 80.
       const bar = scene.children.list.find((c) => c.type === 'Container' && c.depth === 80);
+      const STORES = ['food', 'supplies', 'gold', 'humans'];
+      const storeIcon = (c) => STORES.includes(c.getData?.('conquestUiIcon')?.id);
       const texts = bar.list.filter((c) => c.type === 'Text');
-      const icons = bar.list.filter((c) => c.type === 'Image' && !(c.texture?.key ?? '').startsWith('ui:band'));
+      const icons = bar.list.filter((c) => c.type === 'Image' && storeIcon(c));
       const title = texts[0];
-      const numbers = texts.slice(1);
+      // The title, then the ledger's own name beside it — neither is a store figure. The stores
+      // are the trailing run of numbers, one per store icon.
+      const numbers = texts.slice(-icons.length);
       const bounds = (o) => { const b = o.getBounds(); return { top: b.top, bottom: b.bottom }; };
       return {
         headerHeight: HEADER_HEIGHT,
@@ -82,7 +86,8 @@ for (const mode of ['empire', 'ascent']) {
       const optical = await page.evaluate((uiKey) => {
         const scene = window.__phaserGame.scene.getScene(uiKey);
         const bar = scene.children.list.find((c) => c.type === 'Container' && c.depth === 80);
-        const icons = bar.list.filter((c) => (c.name ?? '').startsWith('conquest-icon:'));
+        const STORES = ['food', 'supplies', 'gold', 'humans'];
+        const icons = bar.list.filter((c) => STORES.includes(c.getData?.('conquestUiIcon')?.id));
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         return icons.map((icon) => {

@@ -269,7 +269,7 @@ export function laneList(self: ConquestUIScene,
 ): {
   content: UIBounds;
   addRow: (
-    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; badge?: InkCardOptions['badge'] },
+    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
     onTap?: () => void,
   ) => void;
   addHeading: (title: string, hint?: string) => void;
@@ -407,7 +407,7 @@ export function laneList(self: ConquestUIScene,
   let y = 0;
 
   const addRow = (
-    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; badge?: InkCardOptions['badge'] },
+    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
     onTap?: () => void,
   ) => {
     // A portrait sits in its own column beside the card, so a hero row is recognisable at a

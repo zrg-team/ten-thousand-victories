@@ -30,6 +30,7 @@ import {
 import { MAX_LIVE_BATTLES } from '../../../game/ascentConfig';
 import { PLAYER_KINGDOM_ID } from '../../../game/constants';
 import { INK_UI } from '../../../ui/InkUI';
+import { statChips } from '../../../ui/statChips';
 import { t } from '../../../i18n';
 import type { AscentFront } from '../../../systems/ascent/battleReport';
 import type { ConquestUIScene } from '../../ConquestUIScene';
@@ -194,10 +195,14 @@ export function showWarBoard(self: ConquestUIScene): void {
         {
           title: front.landName,
           icon: front.commanded ? 'banner' : undefined,
-          subtitle: t('ascent.war.liveLine', {
+          // Who, which round and how it stands are words; the two hosts are the same blade and
+          // crossed weapons the HUD, the army lane and the fight screen all use for them.
+          stats: statChips([
+            ['power', Math.round(front.ourMen)],
+            ['threat', Math.round(front.theirMen), INK_UI.cinnabar],
+          ]),
+          subtitle: t('ascent.war.liveLineShort', {
             kingdom: front.kingdomName,
-            ours: Math.round(front.ourMen),
-            theirs: Math.round(front.theirMen),
             round: fight ? fight.round + 1 : 1,
             total: fight?.totalRounds ?? 0,
             standing: t(`ascent.war.standing.${standingOf(front)}` as Parameters<typeof t>[0]),
@@ -217,10 +222,12 @@ export function showWarBoard(self: ConquestUIScene): void {
       addRow(
         {
           title: front.landName,
-          subtitle: t('ascent.war.frontLine', {
+          stats: statChips([
+            ['threat', Math.round(front.theirMen), INK_UI.cinnabar],
+            ['defence', Math.round(front.ourMen)],
+          ]),
+          subtitle: t('ascent.war.frontLineShort', {
             kingdom: front.kingdomName,
-            theirs: Math.round(front.theirMen),
-            ours: Math.round(front.ourMen),
             // The province already carried first — it is the worse news of the two — then the
             // walls' own clock, then the plain standing.
             standing: left !== undefined

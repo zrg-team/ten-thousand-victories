@@ -1083,7 +1083,7 @@ export const FACE_PART_DEFS: readonly FacePartDef[] = [
   },
   {
     "key": "knot-nape",
-    "layer": 41,
+    "layer": 29,
     "tint": "hair",
     "cx": 24.5,
     "cy": 22,
@@ -1344,7 +1344,7 @@ export const FACE_PART_DEFS: readonly FacePartDef[] = [
   },
   {
     "key": "hairpin-nape-right",
-    "layer": 42,
+    "layer": 29,
     "tint": "none",
     "cx": 26,
     "cy": 14.5,
@@ -1353,7 +1353,7 @@ export const FACE_PART_DEFS: readonly FacePartDef[] = [
   },
   {
     "key": "hairpin-nape-right-jade",
-    "layer": 42,
+    "layer": 29,
     "tint": "none",
     "cx": 26.5,
     "cy": 14.5,
@@ -1362,7 +1362,7 @@ export const FACE_PART_DEFS: readonly FacePartDef[] = [
   },
   {
     "key": "hairpin-nape-left",
-    "layer": 42,
+    "layer": 29,
     "tint": "none",
     "cx": -26,
     "cy": 14.5,
@@ -1371,7 +1371,7 @@ export const FACE_PART_DEFS: readonly FacePartDef[] = [
   },
   {
     "key": "hairpin-nape-left-jade",
-    "layer": 42,
+    "layer": 29,
     "tint": "none",
     "cx": -26.5,
     "cy": 14.5,

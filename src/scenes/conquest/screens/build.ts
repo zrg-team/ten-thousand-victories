@@ -43,6 +43,7 @@ import { storyText } from '../../../i18n/story';
 import { INK_UI } from '../../../ui/InkUI';
 import { buildingLabel, heroName, resourceLabel, t } from '../../../i18n';
 import { RESOURCE_ICON, resourceChips, seasonsChip } from '../../../ui/costChips';
+import { focusChip, resourceChip, statChips } from '../../../ui/statChips';
 import type { AscentLane, AscentLedgerLine } from '../../../state/types';
 import { heroStatLine } from '../constants';
 import { clearLanePage } from '../layers';
@@ -254,9 +255,21 @@ export function showClaimTargets(self: ConquestUIScene): void {
     addRow(
       {
         title: target.landName,
-        subtitle: `${open.length > 0 ? t('ascent.conquer.ways', { n: open.length }) : target.busyReason ?? t('ascent.conquer.noWay')}  ·  ${t('ascent.march.garrison', { value: target.garrison })}${
-          target.suits ? `  ·  ${t('ascent.conquer.suits', { focus: focusTitle(state, target.suits.focus), pct: target.suits.pct })}` : ''
-        }${bestLine ? `\n${bestLine}` : ''}`,
+        // What a claim *costs to try* is the best way in and who would go — words, because both
+        // are names. What it is *worth weighing* is three figures, and five provinces' worth of
+        // "3 ways in · Garrison 149 · Suits Food · 91%" is a paragraph per row to compare.
+        subtitle: open.length > 0
+          ? bestLine
+          : `${target.busyReason ?? t('ascent.conquer.noWay')}${bestLine ? `\n${bestLine}` : ''}`,
+        costs: statChips([
+          open.length > 0 ? ['ways', open.length] : undefined,
+          ['garrison', target.garrison],
+        ]).concat(target.suits
+          // The suit is the one chip that is not a plain count: the focus's own glyph, and the
+          // percentage it pays, so a province that fits what we want is spotted, not read.
+          ? [focusChip(target.suits.focus, `${target.suits.pct}%`, focusTitle(state, target.suits.focus))]
+          : []),
+        chipSize: 'stat',
         border: open.length > 0 ? INK_UI.jade : INK_UI.softBrush,
         muted: open.length === 0,
       },
@@ -413,13 +426,14 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
   }
   addRow({
     title: t('land.status.people', { people: Math.round(land.population), growth }),
-    subtitle: [
-      t('land.status.hold', {
-        defense: Math.round(land.defense),
-        loyalty: Math.round(land.loyalty),
-      }),
-      ...notes,
-    ].join('\n'),
+    // What holds the place, as two readings rather than the first line of a five-line paragraph.
+    // Everything left in the subtitle is a *sentence* — a breach being rebuilt, a levy still
+    // walking home — and those are the lines that have to be read; these two only have to be seen.
+    stats: statChips([
+      ['defence', Math.round(land.defense)],
+      ['loyalty', `${Math.round(land.loyalty)}%`],
+    ]),
+    subtitle: notes.join('\n'),
     // What the province pays, per season, in the header strip's own glyphs — three figures the
     // player weighs against the treasury and against the province they read a moment ago, which
     // is exactly what a sentence is bad for.
@@ -686,10 +700,12 @@ export function showLedgerScreen(self: ConquestUIScene): void {
       // The same glyph the header strip spends on this resource, so the tile and the running
       // total above it are visibly the same thing.
       icon: RESOURCE_ICON[key],
-      note: t('ascent.ledger.line', {
-        gross: gross >= 0 ? `+${gross}` : `${gross}`,
-        demand: `−${Math.abs(demand)}`,
-      }),
+      // What came in and what went back out, as the two arrows — the words "In" and "out" were
+      // half the width of a tile that has three tiles beside it.
+      costs: statChips([
+        ['income', gross >= 0 ? `+${gross}` : `${gross}`],
+        ['outgo', `−${Math.abs(demand)}`],
+      ]),
       border: net >= 0 ? INK_UI.jade : INK_UI.cinnabar,
     };
   };
@@ -697,7 +713,7 @@ export function showLedgerScreen(self: ConquestUIScene): void {
     flow('food', ledger.food),
     flow('supplies', ledger.supplies),
     flow('gold', ledger.gold),
-  ]));
+  ], { chipSize: 'stat' }));
 
   // The stores: what would rot, sold through the markets. One row a store, the sale on the tap
   // and the waste line under it, so a granary reading sixty thousand is a number with a verb next
@@ -737,25 +753,32 @@ export function showLedgerScreen(self: ConquestUIScene): void {
   // categories say what is eating it and open the screen where it can be answered.
   const parts = ledger.goldParts;
   if (parts) {
-    addHeading(t('ascent.ledger.where'));
+    // The unit is said once, over the whole block, instead of six times inside six titles.
+    addHeading(t('ascent.ledger.where'), t('ascent.ledger.whereHint'));
     const troops = state.armies.filter((army) => army.kingdomId === PLAYER_KINGDOM_ID && !army.isLevy)
       .reduce((n, army) => n + army.units.spearmen + army.units.archers + army.units.heavyInfantry, 0);
     const lands = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID).length;
     const rows: Array<{ title: string; subtitle: string; lane?: AscentLane; n: number }> = [
-      { title: t('ascent.ledger.cat.payroll', { n: parts.payroll }), subtitle: t('ascent.ledger.cat.payrollBody', { heroes: state.heroes.length }), lane: 'heroes', n: parts.payroll },
-      { title: t('ascent.ledger.cat.hosts', { n: parts.hosts }), subtitle: t('ascent.ledger.cat.hostsBody', { troops }), lane: 'army', n: parts.hosts },
-      { title: t('ascent.ledger.cat.wages', { n: parts.wages }), subtitle: t('ascent.ledger.cat.wagesBody', { lands }), lane: 'build', n: parts.wages },
-      { title: t('ascent.ledger.cat.buildings', { n: parts.buildings }), subtitle: '', lane: 'build', n: parts.buildings },
-      { title: t('ascent.ledger.cat.graft', { n: parts.graft }), subtitle: '', n: parts.graft },
-      { title: t('ascent.ledger.cat.softcap', { n: parts.softcap }), subtitle: '', n: parts.softcap },
+      { title: t('ascent.ledger.cat.payrollName'), subtitle: t('ascent.ledger.cat.payrollBody', { heroes: state.heroes.length }), lane: 'heroes', n: parts.payroll },
+      { title: t('ascent.ledger.cat.hostsName'), subtitle: t('ascent.ledger.cat.hostsBody', { troops }), lane: 'army', n: parts.hosts },
+      { title: t('ascent.ledger.cat.wagesName'), subtitle: t('ascent.ledger.cat.wagesBody', { lands }), lane: 'build', n: parts.wages },
+      { title: t('ascent.ledger.cat.buildingsName'), subtitle: '', lane: 'build', n: parts.buildings },
+      { title: t('ascent.ledger.cat.graftName'), subtitle: '', n: parts.graft },
+      { title: t('ascent.ledger.cat.softcapName'), subtitle: '', n: parts.softcap },
     ];
     const biggest = Math.max(...rows.map((row) => row.n));
-    addWidget(0, (parent, width) => self.actionTiles(parent, width, rows.filter((row) => row.n > 0).map((row) => ({
-      title: row.title,
-      note: row.subtitle,
-      border: row.n === biggest ? INK_UI.cinnabar : INK_UI.softBrush,
-      onTap: row.lane ? () => { const lane = row.lane!; self.closeLane(); self.openLane(lane); } : undefined,
-    }))));
+    // Biggest first. The block answers "what is eating the treasury", and a fixed order made the
+    // player read six tiles and compare six figures to find out.
+    addWidget(0, (parent, width) => self.actionTiles(parent, width, rows.filter((row) => row.n > 0)
+      .sort((a, b) => b.n - a.n).map((row) => ({
+        title: row.title,
+        note: row.subtitle,
+        // The figure leaves the title and becomes the coin it is — the six of these used to say
+        // "— 6 a season" six times over, in the same ink as the name beside it.
+        costs: [resourceChip('gold', row.n, row.n === biggest ? INK_UI.cinnabar : undefined)],
+        border: row.n === biggest ? INK_UI.cinnabar : INK_UI.softBrush,
+        onTap: row.lane ? () => { const lane = row.lane!; self.closeLane(); self.openLane(lane); } : undefined,
+      }))));
     if (parts.withheld > 0) {
       addRow({ title: t('ascent.ledger.withheld', { n: parts.withheld }), subtitle: '', border: INK_UI.softBrush, muted: true });
     }

@@ -28,6 +28,24 @@ const r = await page.evaluate(async () => {
   const { generateHero } = await import('/src/data/heroFactory.ts');
   const { REAL_FIGURES } = await import('/src/data/heroNames.ts');
   const { createAscentGameState } = await import('/src/state/GameState.ts');
+
+  /**
+   * Step a fresh run past the ceremonies to its first *card*.
+   *
+   * Lễ Đăng Quang stands ahead of the mandate once in a house's life, and Gia sản dòng họ stands
+   * behind it on every run after the first. Neither carries options — the rite writes the founder
+   * into the dynasty store, the inheritance only reports what the house already brought — so both
+   * are acknowledged here. This file is about the two opening cards, which are what follow them,
+   * and it had been reading the coronation's successor as the mandate ever since the inheritance
+   * screen was added between them.
+   */
+  const pastCeremonies = (st) => {
+    for (let guard = 0; guard < 4; guard += 1) {
+      const kind = st.pendingAscentPrompt?.kind;
+      if (kind !== 'coronation' && kind !== 'inheritance') return;
+      resolveAscentPrompt(st, kind === 'coronation' ? 'crowned' : 'seen');
+    }
+  };
   const { resolveAscentPrompt } = await import('/src/systems/ascent/AscentResolver.ts');
   const { neckForHead, resolveHeroLook } = await import('/src/ui/faces/heroLook.ts');
   const { garmentsFor, hairOrnamentFor, headwearFor, womanHairStylesFor } = await import('/src/ui/faces/wardrobe.ts');
@@ -158,10 +176,7 @@ const r = await page.evaluate(async () => {
   const rulerSets = new Set(); let opensOnRuler = 0, chainsToFounder = 0, seated = 0;
   for (let i = 0; i < 60; i += 1) {
     const st = createAscentGameState({ seaSides: 1, difficulty: 'normal' });
-    // Lễ Đăng Quang stands ahead of the mandate, once in a house's life. It carries no options —
-    // the rite writes the founder into the dynasty store itself — so it is answered and stepped
-    // over here; this loop is about the two *opening* cards, which are what follow it.
-    if (st.pendingAscentPrompt?.kind === 'coronation') resolveAscentPrompt(st, 'crowned');
+    pastCeremonies(st);
     const first = st.pendingAscentPrompt;
     if (first?.kind === 'mandate') opensOnRuler += 1;
     rulerSets.add((first?.options ?? []).join('|'));
@@ -204,6 +219,7 @@ const r = await page.evaluate(async () => {
       host: Object.values(st.armies.find((a) => a.id === 'ascent-royal-host')?.units ?? {}).reduce((a, b) => a + b, 0) };
     out.startingLands = before.lands;
     // The mandate comes first now; answer it to reach the founding.
+    pastCeremonies(st);
     resolveAscentPrompt(st, st.pendingAscentPrompt.options[0]);
     const opts = st.pendingAscentPrompt.options;
     const opt = opts[i % opts.length];
