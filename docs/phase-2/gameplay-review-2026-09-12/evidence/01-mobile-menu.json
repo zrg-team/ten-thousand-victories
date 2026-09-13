@@ -1,0 +1,127 @@
+{
+  "state": {
+    "mode": "menu",
+    "kingdomSign": {
+      "field": 11156012,
+      "trim": 14201946,
+      "emblem": "crown",
+      "source": "dynasty"
+    },
+    "language": "vi",
+    "languageOptions": [
+      "vi",
+      "en"
+    ],
+    "actions": [
+      "guide",
+      "history",
+      "settings"
+    ],
+    "mapTheme": "dong-ho",
+    "landscapeInteraction": "tap-river-ripple",
+    "artLayers": [
+      "ground",
+      "mountains",
+      "mountain-mist",
+      "river-fx",
+      "bamboo",
+      "lotus"
+    ],
+    "riverGestures": [
+      "tap",
+      "drag",
+      "hover-wake"
+    ],
+    "ambientMotion": [
+      "mountain-drift",
+      "mountain-mist",
+      "bamboo-breeze",
+      "lotus-sway",
+      "masked-river-refraction",
+      "river-surface-flow"
+    ],
+    "lotusGestures": [
+      "hover",
+      "drag",
+      "water-wake"
+    ]
+  },
+  "texts": [
+    {
+      "text": "TEN THOUSAND VICTORIES",
+      "x": 195,
+      "y": 84
+    },
+    {
+      "text": "Rồng Thăng Long",
+      "x": 141,
+      "y": 26
+    },
+    {
+      "text": "TRIỀU ĐẠI",
+      "x": 47,
+      "y": 11
+    },
+    {
+      "text": "Dòng họ của bạn",
+      "x": 47,
+      "y": 22
+    },
+    {
+      "text": "Chơi xong một ván, dòng họ sẽ giữ điểm.",
+      "x": 47,
+      "y": 39
+    },
+    {
+      "text": "›",
+      "x": 225,
+      "y": 23
+    },
+    {
+      "text": "Chế độ cổ điển",
+      "x": 120,
+      "y": 15
+    },
+    {
+      "text": "Cách chơi",
+      "x": 64,
+      "y": 15
+    },
+    {
+      "text": "Lịch sử",
+      "x": 55,
+      "y": 15
+    },
+    {
+      "text": "Thiết lập",
+      "x": 60,
+      "y": 15
+    },
+    {
+      "text": "Tiếng Việt",
+      "x": 138,
+      "y": 649
+    },
+    {
+      "text": "English",
+      "x": 243,
+      "y": 649
+    },
+    {
+      "text": "Mời mình ly cà phê",
+      "x": 24,
+      "y": 0
+    },
+    {
+      "text": "chung tay làm game",
+      "x": 24,
+      "y": 0
+    },
+    {
+      "text": "Phiên bản 1.1.2  ·  bản dựng 582  ·  12 thg 9, 2026",
+      "x": 195,
+      "y": 838
+    }
+  ],
+  "errors": []
+}

@@ -164,7 +164,7 @@ for (const policy of ['manager', 'chaser', 'turtle']) {
   console.log(`  ${policy.padEnd(8)} ${JSON.stringify(runs[policy])}`);
 }
 const m = runs.manager, c = runs.chaser, tu = runs.turtle;
-// Was "stuck 1-6 times" and "the chaser is refused twice". Both described the docs/20 cadence,
+// Was "stuck 1-6 times" and "the chaser is refused twice". Both described the docs/phase-1/20-two-pips.md cadence,
 // where the invader out-rotated the two pips and the meter bit a careful player four or five
 // times a fight. The 2026-09-04 retune slowed his answer (hesitation 4/5/6) and brought a pip
 // back in six beats, and the meter stopped biting the manager at all — deliberately: the lab

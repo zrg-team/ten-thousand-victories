@@ -86,7 +86,7 @@ unless you have checked that that script sets one.
 path change — and `perf-bench.mjs` reaches back up to `perf-results/` so that `--label` keeps
 diffing against the committed `baseline.json` rather than orphaning it.
 
-`shots/` and `scratch/` are gitignored; `perf-results/` holds committed baseline data.
+`shots/` and `scratch/` are gitignored; `perf-results/` keeps [reviewed baseline data](perf-results/README.md) trackable and ignores new local runs by default.
 
 ## Adding one
 
@@ -99,6 +99,36 @@ outside this tree `import 'playwright'` will not resolve.
 The `game-harness` skill in [`.claude/skills/`](../.claude/skills/game-harness/) carries the
 bootstrap boilerplate, the window hooks, the prompt-option shapes, and the traps that make a
 harness silently pass while testing nothing.
+
+## The Dragon Ascent beta harnesses (2026-09)
+
+The beta is a per-run ruleset (`src/game/ascentRuleset.ts`), toggled in Settings, sharing every
+scene and system with the stable game. These gates hold both halves of that promise: **stable does
+not move**, and each beta feature does what it says. Run them one at a time against one server.
+
+```bash
+node test_scripts/verify/verify-ascent-fingerprint.mjs --ruleset stable  # stable Ascent byte-identical to the committed baseline (8 seeds × 600 ticks, fresh profile)
+node test_scripts/verify/verify-ruleset.mjs          # the Settings opt-in, the one run factory, saves keep a reign's ruleset, Skirmish stays stable, go-again carries it, the BETA mark
+node test_scripts/verify/verify-goal.mjs             # beta B12: one goal (capital + 1 at the 3rd Great Invasion, or capital alone from the 4th) then Endless — wins, misses, both choices, paid once, survives a reload, the card and Reckoning drawn
+node test_scripts/verify/verify-beta-opening.mjs     # beta B05/B30: an empty house skips the inheritance card; a carrying house sees it, Legacy included
+node test_scripts/verify/verify-beta-truth.mjs       # beta B01: diplomacy shows trust and an ETA that matches the real claim; the 5300% readout (both)
+node test_scripts/verify/verify-beta-band.mjs        # beta B10: DEFENCE beside THREAT; the army lane forecasts the walls, the storm and the hold
+node test_scripts/verify/verify-beta-labels.mjs      # beta B19: draft labels name their scope (this reign / Deck)
+node test_scripts/verify/verify-skill-ceiling.mjs              # honest plans (Bastion / Frontier / Warhost) on both rulesets, 64 seeds (16 is too noisy); the exit grades beta; --tuning for ASCENT_TUNING arms
+node test_scripts/verify/verify-skirmish-stores.mjs  # bug fix, both rulesets: a Skirmish fight banks no founding draws and counts no trait uses
+node test_scripts/playtest/playtest-metrics.mjs --seeds 16 --ruleset beta   # funscore for the beta (stable by default)
+node test_scripts/diag/diag-threat-landing.mjs       # how far THREAT jumps when a wave lands, stable vs beta
+node test_scripts/diag/diag-forecast-accuracy.mjs    # beta front forecast: predicted vs actual arrival at the walls
+```
+
+- `window.__ptBoot(seed, { ruleset })` and `window.__ptFreshProfile()` (playtest-lib) boot either
+  ruleset from a first-ever profile. Without the fresh profile, runs in one page inherit each
+  other's Codex, Legacy and Dynasty — "the same seed" is then not the same world.
+- `window.__startBenchGame(seed, 'ascent', 'beta')` starts a rendered beta reign.
+- `globalThis.__ascentRulesetOverride = { beta: { … } }` set with `addInitScript` **before**
+  navigation overrides beta fields for a sweep (`verify-skill-ceiling.mjs --override '{…}'`).
+- A deliberate change to stable gameplay re-records the fingerprint with
+  `verify-ascent-fingerprint.mjs --write`, and says why in the commit.
 
 ## The Year-4 fairness harnesses (2026-08)
 

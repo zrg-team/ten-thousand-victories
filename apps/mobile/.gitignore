@@ -4,6 +4,9 @@ dist/
 /android/
 /ios/
 
+# Local xcodebuild archives and exported IPAs from scripts/ios.mjs.
+/build/
+
 # Written by `yarn sync` out of the repository root's dist-shell/. A build artifact of a build
 # artifact — never source, and 4.9 MB of it.
 assets/web.zip

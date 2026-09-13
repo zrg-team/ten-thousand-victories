@@ -27,6 +27,7 @@ import { iconForOption } from '../../../ui/CardIcons';
 import { staggerIn } from '../../../ui/animations';
 import { motionMs } from '../../../game/lifeSettings';
 import { formatResourceList, heroName, t } from '../../../i18n';
+import { rulesOf } from '../../../game/ascentRuleset';
 import { resourceChips, seasonsChip, type CostChip } from '../../../ui/costChips';
 import type { GameState, AscentPrompt, ConquestMethodOption, ConquestTarget } from '../../../state/types';
 import { PROMPT_FOOTER_HEIGHT, RARITY_COLOR } from '../constants';
@@ -52,9 +53,11 @@ import type { ConquestUIScene } from '../../ConquestUIScene';
  * makes four faces legible at 390 wide: the fan carries identity, the readout carries numbers.
  */
 export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentPrompt, { kind: 'power-draft' }>): void {
+  // Beta (`scopeLabels`): a card's stack lasts this reign; its level and copies are the Deck's.
+  const scoped = rulesOf(self.state).scopeLabels;
   const content = self.promptFrame(
     t('ascent.draft.title', { level: prompt.level }),
-    t('ascent.draft.subtitle'),
+    scoped ? t('beta.draft.subtitle') : t('ascent.draft.subtitle'),
   );
 
   const views = prompt.cards
@@ -101,8 +104,10 @@ export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentProm
     const stackDef = findPowerCard(view.id);
     const stackNow = self.state.ascent ? cardStack(self.state.ascent, view.id) : 0;
     const stackLine = merged && stackDef
-      ? t('ascent.draft.stackCount', { n: Math.min(stackNow + 2, stackDef.maxStacks), max: stackDef.maxStacks })
-      : view.stackCount;
+      ? t(scoped ? 'beta.draft.stackCount' : 'ascent.draft.stackCount', { n: Math.min(stackNow + 2, stackDef.maxStacks), max: stackDef.maxStacks })
+      : scoped && stackDef
+        ? t('beta.draft.stackCount', { n: Math.min(stackNow + 1, stackDef.maxStacks), max: stackDef.maxStacks })
+        : view.stackCount;
     const stackText = self.ui.label(14, cursor,
       `${t(`ascent.rarity.${view.rarity}` as Parameters<typeof t>[0])}  ${stackLine}`,
       'caption', { fontSize: '10px', ...(merged ? { color: '#8a5f1c' } : {}) });
@@ -133,7 +138,7 @@ export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentProm
     const def = findPowerCard(view.id);
     const lv = cabinetLevel(view.id);
     if (def && lv < 3 && def.levels.length > lv && cursor < infoHeight - 30) {
-      const ghost = self.add.text(14, cursor, t('ascent.draft.nextLevel', {
+      const ghost = self.add.text(14, cursor, t(scoped ? 'beta.draft.nextLevel' : 'ascent.draft.nextLevel', {
         level: lv + 1,
         text: t(`ascent.card.${view.id}.d` as Parameters<typeof t>[0], def.levels[lv].display),
       }), {
@@ -222,6 +227,7 @@ export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentProm
           copies: owned?.copies ?? 0,
           need: combineCost(owned?.level ?? 1),
           inHand: hand.includes(view.id),
+          ...(scoped ? { scoped: true, owned: Boolean(owned) } : {}),
         },
       };
     }),
@@ -377,6 +383,17 @@ function memoryLine(state: GameState, option: ConquestMethodOption, target: Conq
 
 /** What the province is like afterwards: the loyalty it lands on, and the odds of getting it. */
 function methodOutcomeTag(option: ConquestMethodOption): string {
+  // Beta (`truthfulNumbers`): trust is progress, a siege is an estimate, nothing is "certain"
+  // unless it really cannot fail.
+  if (option.trust) {
+    return [t('ascent.conquer.loyalty', { n: option.loyalty }), t('beta.conquer.trust', option.trust)].join('  ·  ');
+  }
+  if (option.estimate && option.method === 'intimidation') {
+    return [t('ascent.conquer.loyalty', { n: option.loyalty }), t('beta.conquer.pressureStops')].join('  ·  ');
+  }
+  if (option.estimate && option.method === 'siege') {
+    return [t('ascent.conquer.loyalty', { n: option.loyalty }), t('beta.conquer.assaultOdds', { pct: option.chance })].join('  ·  ');
+  }
   return [
     t('ascent.conquer.loyalty', { n: option.loyalty }),
     option.chance >= 100 ? t('ascent.conquer.certain') : t('ascent.conquer.chance', { pct: option.chance }),
@@ -431,7 +448,9 @@ export function showConquerMethod(self: ConquestUIScene, target: ConquestTarget,
         // the memory line an escalating price reads as randomness right up until the door shuts,
         // and a player cannot tell a dear province from an offended one.
         body: [
-          t(`ascent.method.${option.method}.d` as Parameters<typeof t>[0]),
+          option.trust
+            ? t('beta.method.diplomacy.d')
+            : t(`ascent.method.${option.method}.d` as Parameters<typeof t>[0]),
           actorLine,
           memoryLine(self.state, option, target),
         ].filter(Boolean).join('\n'),

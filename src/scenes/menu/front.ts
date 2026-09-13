@@ -7,7 +7,8 @@
  */
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, isDesktopSheet, pageColumnX, surfaceWidth } from '../../game/constants';
-import { createAscentGameState, createInitialGameState } from '../../state/GameState';
+import { createInitialGameState } from '../../state/GameState';
+import { newAscentRun } from '../../state/ascentRun';
 import { hasSnapshot, loadSnapshot, snapshotLabel } from '../../state/save';
 import { hasSeenClassicTour, markClassicTourSeen } from '../../state/tour';
 import { seasonLabel, t } from '../../i18n';
@@ -21,6 +22,7 @@ import { isDesktopPlatform } from '../../platform/layout';
 import { canQuitShell, quitShell } from '../../platform/shell';
 import { QUIT_ROW_HEIGHT, SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
 import { pageFloor, renderPageHead } from './helpers';
+import { betaSaveSuffix, drawBetaBadge } from './betaBadge';
 import type { MenuScene } from '../MenuScene';
 
 /**
@@ -64,13 +66,14 @@ export function renderMain(self: MenuScene): void {
   self.content.push(self.ui.button(self.tourTargets.play, t('ascent.menu.title'), () => {
     startAscentRun(self);
   }, { variant: 'primary', fontSize: '17px' }).setData('menuPrimary', true));
+  drawBetaBadge(self, self.tourTargets.play);
   cursor += playHeight + continueGap;
 
   // This resumes a classic save. Dragon Ascent remains the primary action, and a new
   // install has no empty or disabled Continue row.
   if (saved) {
     const resume = self.ui.textLink(0, 0,
-      t('menu.continueLine', { note: self.reloadNote ?? snapshotLabel() }), () => {
+      t('menu.continueLine', { note: (self.reloadNote ?? snapshotLabel()) + betaSaveSuffix(loadSnapshot()?.state.campaignConfig?.ruleset) }), () => {
         const snapshot = loadSnapshot();
         if (snapshot) self.startGame(snapshot.state);
       }, { fontSize: '11px' }).setData('menuLink', 'continue');
@@ -128,9 +131,9 @@ function renderDesktopMain(self: MenuScene): void {
   const x = 44, width = 302;
   let cursor = panelTop + 136;
   if (snapshot) {
-    const note = self.reloadNote ?? t('time.yearSeason', {
+    const note = (self.reloadNote ?? t('time.yearSeason', {
       year: snapshot.state.year, season: seasonLabel(snapshot.state.season),
-    });
+    })) + betaSaveSuffix(snapshot.state.campaignConfig?.ruleset);
     self.content.push(self.ui.button({ x, y: cursor, width, height: 56 }, t('menu.continue'), () => {
       const current = loadSnapshot();
       if (current) self.startGame(current.state);
@@ -147,6 +150,7 @@ function renderDesktopMain(self: MenuScene): void {
   self.content.push(self.ui.button(self.tourTargets.play, saved ? t('menu.newRun') : t('ascent.menu.title'),
     () => startAscentRun(self), { variant: saved ? 'secondary' : 'primary', fontSize: saved ? '13px' : '18px' })
     .setData('menuPrimary', !saved).setData('menuNewRun', true));
+  drawBetaBadge(self, self.tourTargets.play);
   cursor += playHeight + 20;
   self.renderDynastyTablet(x, cursor, width, 64);
   cursor += 74;
@@ -279,13 +283,13 @@ export function renderClassic(self: MenuScene): void {
  * in-game prompt, so starting a run is one tap and no menu.
  */
 export function startAscentRun(self: MenuScene): void {
-  const state = createAscentGameState({ seaSides: 1, difficulty: 'normal' });
   // Hands-on by default on the desktop. A mouse and a keyboard are a different pace from a
   // thumb, and the run is meant to be worked there: the lanes' cards and the autopilot stay off
   // unless the player turns them back on — the same switch the mandate card and the run menu
   // already offer. Set here, at the door the player walks through, and nowhere in the state
   // factories, so a harness building a run headlessly measures the same game on every layout.
-  if (isDesktopPlatform() && state.ascent) state.ascent.hardcore = true;
+  // The ruleset is the player's Settings choice, read inside `newAscentRun`.
+  const state = newAscentRun({ hardcore: isDesktopPlatform() ? true : undefined });
   self.scene.start('ConquestScene', { state });
 }
 

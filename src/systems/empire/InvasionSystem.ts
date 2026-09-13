@@ -152,7 +152,7 @@ function expectedDefensibleStrength(turn: number): number {
  * opens in (`doctrineOpening`, BattleSystem). Each is *power-normalised* at the spawn, so the
  * doctrine changes what the host is made of and never how much of it there is.
  */
-function doctrineHostMix(personality: KingdomPersonality | undefined): { spearmen: number; archers: number; heavy: number } {
+export function doctrineHostMix(personality: KingdomPersonality | undefined): { spearmen: number; archers: number; heavy: number } {
   switch (personality) {
     // Comes on hard: a heavy core to break a line by weight.
     case 'aggressive': return { spearmen: 0.50, archers: 0.15, heavy: 0.35 };
@@ -184,6 +184,34 @@ function playerLands(state: GameState): Land[] {
   return state.lands.filter((l) => l.ownerId === PLAYER_KINGDOM_ID);
 }
 
+/**
+ * The districts a crown may muster on, far edge first: neutral ground or its own, connected to the
+ * realm. One function for the spawner and for anything that forecasts where a wave will come from
+ * (`plannedWaveArrival`), so the two can never disagree. Reads only; no draws.
+ *
+ * A crown musters on its own ground as readily as on nobody's. Ascent's rivals hold territory
+ * now (`tickRivalExpansion`), and staging only from neutral districts would mean a world the
+ * rivals had largely settled could not send a wave at all — the map would fill up and the war
+ * would quietly stop.
+ */
+export function stagingEdgesFor(state: GameState, kingdomId: string, capital: Land): Land[] {
+  const reach = reachableFrom(state, capital.id);
+  const allNeutral = state.lands.filter((l) => l.ownerId === 'neutral' || l.ownerId === kingdomId);
+  const connected = allNeutral.filter((l) => reach.has(l.id));
+  return (connected.length > 0 ? connected : allNeutral)
+    .sort((a, b) => ((b.x - capital.x) ** 2 + (b.y - capital.y) ** 2) - ((a.x - capital.x) ** 2 + (a.y - capital.y) ** 2));
+}
+
+/** The far edge, or — for an inland landing — from a third of the way down the same list. */
+export function stagingFromEdges(edges: Land[], staging?: 'edge' | 'inland'): Land[] {
+  return staging === 'inland' && edges.length > 2 ? edges.slice(Math.floor(edges.length * 0.62)) : edges;
+}
+
+/** The player's seat, as the spawner finds it. */
+export function invasionCapital(state: GameState): Land | undefined {
+  return playerCapital(state) ?? playerLands(state)[0];
+}
+
 function playerCapital(state: GameState): Land | undefined {
   return state.lands.find((l) => l.ownerId === PLAYER_KINGDOM_ID && l.type === 'castle');
 }
@@ -203,6 +231,15 @@ function nearestLand(from: Land, candidates: Land[]): Land | undefined {
 
 /** First land to move to along the shortest path from `fromId` to `toId`, across any owner. */
 function findInvasionStep(state: GameState, fromId: string, toId: string): string | undefined {
+  return invasionRoute(state, fromId, toId)?.[0];
+}
+
+/**
+ * The whole road an invader walks from `fromId` to `toId`, fewest districts first, excluding the
+ * start — the path `findInvasionStep` takes one step of each season. Exported so a forecast walks
+ * the same road the host will (`plannedWaveArrival`). Undefined when there is no road.
+ */
+export function invasionRoute(state: GameState, fromId: string, toId: string): string[] | undefined {
   if (fromId === toId) {
     return undefined;
   }
@@ -223,11 +260,13 @@ function findInvasionStep(state: GameState, fromId: string, toId: string): strin
       visited.add(neighborId);
       cameFrom.set(neighborId, current);
       if (neighborId === toId) {
+        const route = [neighborId];
         let step = neighborId;
         while (cameFrom.get(step) !== fromId) {
           step = cameFrom.get(step) as string;
+          route.unshift(step);
         }
-        return step;
+        return route;
       }
       queue.push(neighborId);
     }
@@ -361,15 +400,7 @@ export function launchOffMapInvasion(state: GameState, kingdomId: string | undef
   //
   // The far edge is still the muster (see the note below on why the approach march matters); it
   // is now the far edge of the ground that connects to the realm.
-  const reach = reachableFrom(state, capital.id);
-  // A crown musters on its own ground as readily as on nobody's. Ascent's rivals hold territory
-  // now (`tickRivalExpansion`), and staging only from neutral districts would mean a world the
-  // rivals had largely settled could not send a wave at all — the map would fill up and the war
-  // would quietly stop.
-  const allNeutral = state.lands.filter((l) => l.ownerId === 'neutral' || l.ownerId === kingdomId);
-  const connected = allNeutral.filter((l) => reach.has(l.id));
-  const neutralEdges = (connected.length > 0 ? connected : allNeutral)
-    .sort((a, b) => ((b.x - capital.x) ** 2 + (b.y - capital.y) ** 2) - ((a.x - capital.x) ** 2 + (a.y - capital.y) ** 2));
+  const neutralEdges = stagingEdgesFor(state, kingdomId, capital);
   if (neutralEdges.length === 0) {
     return;
   }
@@ -384,9 +415,7 @@ export function launchOffMapInvasion(state: GameState, kingdomId: string | undef
   // `neutralEdges` is sorted far-to-near, so the far edge is the head of it. An inland landing
   // takes from a third of the way down that same list: still ground the crown can muster on and
   // still connected to the realm, but one or two marches out rather than a walk across the map.
-  const staging = opts.staging === 'inland' && neutralEdges.length > 2
-    ? neutralEdges.slice(Math.floor(neutralEdges.length * 0.62))
-    : neutralEdges;
+  const staging = stagingFromEdges(neutralEdges, opts.staging);
 
   const relations = kingdom.relations ?? 50;
   const conquestChance =

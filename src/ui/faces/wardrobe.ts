@@ -12,7 +12,7 @@ import { ACTIVE_HERO_FACE_ART_PACK } from './artPack';
  * giving an office a new hat, touches this file and the part library and nothing else.
  *
  * The legacy Đinh pool used modern film reconstructions documented in
- * `docs/23-the-thirteenth-wardrobe.html`; these are not primary historical evidence.
+ * `docs/phase-1/23-the-thirteenth-wardrobe.md`; these are not primary historical evidence.
  * V2 corrections and remaining uncertainties are in `docs/research/vietnamese-wardrobe-v2.md`.
  *
  * Đại Việt did not dress the same way for a thousand years, which is why these are keyed on

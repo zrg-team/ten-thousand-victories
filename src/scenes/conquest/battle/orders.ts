@@ -79,7 +79,7 @@ export function battleOrderSignature(self: ConquestUIScene, battle: AscentBattle
  *
  * This used to be a three-way stance ring plus five buttons, and the ring did two jobs at once:
  * it carried the matchup *and* the tempo, which is why two of its three options had the same
- * exchange ratio to three decimals. `docs/14-five-shapes-two-dials.html` splits them, and the
+ * exchange ratio to three decimals. `docs/phase-1/14-five-shapes-two-dials.md` splits them, and the
  * split has a layout consequence that is the whole of this method:
  *
  *   **Formation is worked three to five times an engagement. Stance is worked once or twice.**

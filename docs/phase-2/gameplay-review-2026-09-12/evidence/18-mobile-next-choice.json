@@ -1,0 +1,350 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 1, Winter",
+    "realtimeSeconds": 21,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 829668852,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 306.70000000000005,
+      "supplies": 154.5,
+      "gold": 217,
+      "humans": 618
+    },
+    "resourceRates": {
+      "food": 13.779999999999994,
+      "supplies": 23.9,
+      "gold": 50,
+      "humans": 2
+    },
+    "visibility": {
+      "visible": 8,
+      "explored": 8,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 90,
+        "provisions": 72
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [
+      {
+        "id": "court-boon-kho-lam-1-1789231042144-556",
+        "label": "boon:kho-lam:1",
+        "resourceRateModifier": {
+          "food": 11,
+          "supplies": 5
+        }
+      }
+    ],
+    "court": {
+      "stability": 51,
+      "influence": 50,
+      "favor": 3,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {
+        "treasurer": "ba-do-nuoc"
+      }
+    },
+    "ascent": {
+      "wave": 0,
+      "ticksToWave": 10,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 1748,
+      "powerDelta": -60,
+      "peakPower": 1808,
+      "defensePower": 1390,
+      "threat": 348,
+      "level": 2,
+      "xp": 20,
+      "xpToNext": 121,
+      "cardStacks": {
+        "kho-lam": 1
+      },
+      "retiredCards": [],
+      "heroesSummoned": 1,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 4,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "ready",
+        "lastDecisionTurn": {
+          "court": 5
+        }
+      },
+      "conquestPlans": [],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 1,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {},
+      "lastPromptTurn": 7,
+      "courtCardCooldown": 0,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 51,
+      "favor": 3,
+      "courtSeats": {
+        "treasurer": "ba-do-nuoc"
+      },
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Lãnh Chúa Phương Bắc",
+          "relations": 38,
+          "power": 30,
+          "warAppetite": 1,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 75,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 50,
+          "power": 51,
+          "warAppetite": 1,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 46,
+          "power": 49,
+          "warAppetite": 0,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 0,
+      "prompt": {
+        "kind": "province-order",
+        "options": [
+          "ok"
+        ]
+      },
+      "ui": {
+        "screen": "province-order:district-08:setup:focus:trade,hold",
+        "generatedUiIcons": [
+          "balance",
+          "food",
+          "gold",
+          "humans",
+          "supplies"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "Wall construction started in Sơn Trại Bắc. Ready in 3 economy ticks."
+  },
+  "texts": [
+    {
+      "text": "0/3",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "1/4",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 1 - Winter",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 158,
+      "y": 19
+    },
+    {
+      "text": "307 (+14)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "155 (+24)",
+      "x": 132,
+      "y": 36
+    },
+    {
+      "text": "217 (+50)",
+      "x": 231,
+      "y": 36
+    },
+    {
+      "text": "618 (+2)",
+      "x": 329,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "1,748",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "348",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "next wave in 10",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "Lv 2",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 0",
+      "x": 90,
+      "y": 54
+    },
+    {
+      "text": "Lam Trại Hạ asks what it is for",
+      "x": 195,
+      "y": 114
+    },
+    {
+      "text": "The seat works for nothing in particular yet. Its ground suits Gold — a focus costs nothing, holds until you change it, and can be changed from the Build lane.",
+      "x": 195,
+      "y": 143
+    },
+    {
+      "text": "Work it for Gold",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "text": "About +37 gold a season from this ground, and less of everything else.",
+      "x": 16,
+      "y": 32
+    },
+    {
+      "text": "Leave it as it is",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "text": "The province keeps its own counsel, and the realm keeps the shortfall.",
+      "x": 16,
+      "y": 32
+    }
+  ],
+  "errors": []
+}

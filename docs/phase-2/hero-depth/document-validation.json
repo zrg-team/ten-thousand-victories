@@ -1,0 +1,291 @@
+{
+  "date": "2026-09-13",
+  "scope": "Document QA only; not gameplay balance validation",
+  "checks": [
+    {
+      "name": "HTTP 1440en",
+      "pass": true
+    },
+    {
+      "name": "Language 1440en",
+      "pass": true
+    },
+    {
+      "name": "Page width 1440en",
+      "pass": true
+    },
+    {
+      "name": "Structure 1440en",
+      "pass": true
+    },
+    {
+      "name": "Hidden opposite language 1440en",
+      "pass": true
+    },
+    {
+      "name": "HTTP 1440vi",
+      "pass": true
+    },
+    {
+      "name": "Language 1440vi",
+      "pass": true
+    },
+    {
+      "name": "Page width 1440vi",
+      "pass": true
+    },
+    {
+      "name": "Structure 1440vi",
+      "pass": true
+    },
+    {
+      "name": "Hidden opposite language 1440vi",
+      "pass": true
+    },
+    {
+      "name": "HTTP 390en",
+      "pass": true
+    },
+    {
+      "name": "Language 390en",
+      "pass": true
+    },
+    {
+      "name": "Page width 390en",
+      "pass": true
+    },
+    {
+      "name": "Structure 390en",
+      "pass": true
+    },
+    {
+      "name": "Hidden opposite language 390en",
+      "pass": true
+    },
+    {
+      "name": "HTTP 390vi",
+      "pass": true
+    },
+    {
+      "name": "Language 390vi",
+      "pass": true
+    },
+    {
+      "name": "Page width 390vi",
+      "pass": true
+    },
+    {
+      "name": "Structure 390vi",
+      "pass": true
+    },
+    {
+      "name": "Hidden opposite language 390vi",
+      "pass": true
+    },
+    {
+      "name": "HTTP 320en",
+      "pass": true
+    },
+    {
+      "name": "Language 320en",
+      "pass": true
+    },
+    {
+      "name": "Page width 320en",
+      "pass": true
+    },
+    {
+      "name": "Structure 320en",
+      "pass": true
+    },
+    {
+      "name": "Hidden opposite language 320en",
+      "pass": true
+    },
+    {
+      "name": "HTTP 320vi",
+      "pass": true
+    },
+    {
+      "name": "Language 320vi",
+      "pass": true
+    },
+    {
+      "name": "Page width 320vi",
+      "pass": true
+    },
+    {
+      "name": "Structure 320vi",
+      "pass": true
+    },
+    {
+      "name": "Hidden opposite language 320vi",
+      "pass": true
+    },
+    {
+      "name": "Threshold 0",
+      "pass": true
+    },
+    {
+      "name": "Threshold 6",
+      "pass": true
+    },
+    {
+      "name": "Threshold 16",
+      "pass": true
+    },
+    {
+      "name": "Threshold 30",
+      "pass": true
+    },
+    {
+      "name": "Threshold 48",
+      "pass": true
+    },
+    {
+      "name": "Threshold 70",
+      "pass": true
+    },
+    {
+      "name": "Threshold 96",
+      "pass": true
+    },
+    {
+      "name": "Threshold 126",
+      "pass": true
+    },
+    {
+      "name": "Training cap",
+      "pass": true
+    },
+    {
+      "name": "Perk choices",
+      "pass": true
+    },
+    {
+      "name": "Fate evacuated",
+      "pass": true
+    },
+    {
+      "name": "Fate open",
+      "pass": true
+    },
+    {
+      "name": "Fate trapped",
+      "pass": true
+    },
+    {
+      "name": "Fate hold",
+      "pass": true
+    },
+    {
+      "name": "Contested tie",
+      "pass": true
+    },
+    {
+      "name": "Earlier arrival",
+      "pass": true
+    },
+    {
+      "name": "Expand critiques",
+      "pass": true
+    },
+    {
+      "name": "Controls retained",
+      "pass": true
+    },
+    {
+      "name": "Critiques retained",
+      "pass": true
+    },
+    {
+      "name": "URL switch",
+      "pass": true
+    },
+    {
+      "name": "Saved preference",
+      "pass": true
+    },
+    {
+      "name": "URL override",
+      "pass": true
+    },
+    {
+      "name": "Deep link",
+      "pass": true
+    },
+    {
+      "name": "Keyboard switch",
+      "pass": true
+    },
+    {
+      "name": "200% text en",
+      "pass": true
+    },
+    {
+      "name": "200% text vi",
+      "pass": true
+    },
+    {
+      "name": "Roadmap link VI",
+      "pass": true
+    },
+    {
+      "name": "Roadmap navigation",
+      "pass": true
+    },
+    {
+      "name": "All internal anchors",
+      "pass": true
+    },
+    {
+      "name": "Offline standalone",
+      "pass": true
+    },
+    {
+      "name": "Offline controls",
+      "pass": true
+    },
+    {
+      "name": "No browser errors",
+      "pass": true
+    },
+    {
+      "name": "Final copy layout 1440en",
+      "pass": true
+    },
+    {
+      "name": "Prototype role matches training 1440en",
+      "pass": true
+    },
+    {
+      "name": "Final copy layout 390vi",
+      "pass": true
+    },
+    {
+      "name": "Prototype role matches training 390vi",
+      "pass": true
+    },
+    {
+      "name": "Final copy layout 320vi",
+      "pass": true
+    },
+    {
+      "name": "Prototype role matches training 320vi",
+      "pass": true
+    },
+    {
+      "name": "Idempotent generation",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "passed": 69,
+  "total": 69,
+  "artifactSha256": "6340f5fb8258a6c6455db03a41089a82373d815a564169e8a3c069c651cd922d",
+  "generator": {
+    "translationPairs": 268,
+    "localReferences": 66
+  },
+  "visualReview": "Desktop English and phone Vietnamese opening, growth card and risk model visually inspected. Screenshots are disposable under test_scripts/scratch/hero-depth-qa/."
+}

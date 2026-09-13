@@ -65,7 +65,7 @@ const probe = await page.evaluate(async () => {
   }
 
   // The CLASSIC availability rules live on in the archive — probe them there, so the archive is
-  // proven to still answer, not merely to still compile. See formationsClassic.ts and docs/18.
+  // proven to still answer, not merely to still compile. See formationsClassic.ts and docs/phase-1/18-formation-availability-by-blocks.md.
   const C = await import('/src/data/ascent/formationsClassic.ts');
   const doctrines = ['balanced', 'spears', 'archers', 'shock', 'horse'].map((d) => ({
     d, states: C.classicFormationAvailability(d, 2420, 2420),

@@ -4,7 +4,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_KINGDOM_ID } from '../game/constants';
 import { sheetSpan } from '../game/cameraLayout';
 import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
-import { createAscentGameState } from '../state/GameState';
+import { newAscentRun } from '../state/ascentRun';
 import { requestGuidedRun } from '../state/tour';
 import { beginBattle } from '../systems/ascent/BattleSystem';
 import {
@@ -1044,7 +1044,9 @@ export class BattleArenaScene extends Phaser.Scene {
   private bubbleChoice?: number;
 
   private buildArenaState(): GameState {
-    const state = createAscentGameState({ seaSides: 1, difficulty: 'normal' });
+    // Always the stable rules: a Skirmish is a sandbox for the fight, not a reign, and the beta
+    // toggle is about how a reign plays.
+    const state = newAscentRun({ ruleset: 'stable', sandbox: true });
     state.ascent!.arena = true;
     state.isPaused = false;
     state.isStrategyPause = false;

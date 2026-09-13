@@ -53,6 +53,8 @@ import type { ArmyOrders, InvasionRecord } from '../../../state/types';
 import { ARMY_RATION_USE_PER_100 } from '../../../game/gameplayConfig';
 import { cssHex, hostSize, visibleHostileHosts } from '../constants';
 import { showHunters } from './armyTargets';
+import { rulesOf } from '../../../game/ascentRuleset';
+import { forecastInvader } from '../../../systems/ascent/frontForecast';
 import { clearLanePage } from '../layers';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 
@@ -248,6 +250,8 @@ export function showArmyScreen(self: ConquestUIScene): void {
         )
       : 0;
     const withdrawing = record.plan === 'withdrawing';
+    // Beta (`defenceBand`): what will be standing there when this host arrives, and when that is.
+    const forecast = rulesOf(state).defenceBand && !withdrawing ? forecastInvader(state, record) : undefined;
     // **And every one of them is a door.**
     //
     // These rows were the one part of the war section you could only look at: an invader marching
@@ -264,12 +268,16 @@ export function showArmyScreen(self: ConquestUIScene): void {
         // What they weigh, and what stands in the way, are two figures and now read as two.
         stats: statChips([
           ['threat', attack, withdrawing ? undefined : INK_UI.cinnabar],
-          ['defence', holding],
+          ['defence', forecast ? forecast.ready : holding],
         ]),
         subtitle: t('ascent.war.invaderWhere', {
           plan: planLabel[record.plan ?? 'spearhead'],
           target: target?.name ?? at.name,
-        }),
+        }) + (forecast
+          ? ` · ${forecast.reachTicks !== undefined
+            ? t('beta.war.forecast', { ticks: forecast.reachTicks, assault: forecast.assaultTicks ?? forecast.reachTicks + 1, pct: forecast.holdPct })
+            : t('beta.war.forecastNoRoute', { pct: forecast.holdPct })}`
+          : ''),
         border: withdrawing ? INK_UI.softBrush : INK_UI.cinnabar,
         muted: withdrawing,
       },
@@ -303,7 +311,8 @@ export function showArmyScreen(self: ConquestUIScene): void {
   if (front) {
     addRow({
       title: t('ascent.war.frontRow', { land: front.name }),
-      subtitle: t('ascent.war.frontBody', { pct: Math.round(frontWinChance(state) * 100) }),
+      // `frontWinChance` is already a percentage; the ×100 printed "5300%" (a display bug, fixed for both rulesets).
+      subtitle: t('ascent.war.frontBody', { pct: Math.round(frontWinChance(state)) }),
       border: INK_UI.jade,
     });
   }

@@ -357,11 +357,28 @@ export interface KingdomKing {
   age: number;
 }
 
+/**
+ * Which rules a Dragon Ascent run plays by. `stable` is the shipped game; `beta` is the same engine
+ * with the experiments the player opted into in Settings. See `src/game/ascentRuleset.ts`.
+ */
+export type AscentRulesetId = 'stable' | 'beta';
+
 export interface CampaignConfig {
   seaSides: 0 | 1 | 2 | 3;
   difficulty: Difficulty;
   /** Optional dynasty founder chosen at setup (empire mode) — a starting Legendary hero. */
   founderId?: string;
+  /**
+   * The Dragon Ascent ruleset this run was started under. **Absent means `stable`** — every save
+   * made before rulesets existed, every harness that builds a run by hand, and every stable run
+   * (which deliberately carries no field, so its saves and fingerprints are unchanged). Set only
+   * by `newAscentRun`, and read only through `rulesetIdOf` / `rulesOf`.
+   *
+   * It lives on the config rather than on `AscentState` because the factory writes to the meta
+   * stores and seeds the opening before `state.ascent` exists; a rule that shapes the opening has
+   * to be readable from the input.
+   */
+  ruleset?: AscentRulesetId;
 }
 
 export interface CampaignScore {
@@ -1724,6 +1741,10 @@ export interface ConquestMethodOption {
   armyId?: string;
   /** Why it cannot be chosen right now; `undefined` means takeable. */
   blockedReason?: string;
+  /** Beta (`truthfulNumbers`): diplomacy's trust progress, shown instead of a percentage. */
+  trust?: { now: number; need: number };
+  /** Beta (`truthfulNumbers`): `chance` and `ticks` are estimates, not promises. */
+  estimate?: boolean;
 }
 
 /** One province card on the Conquer prompt. */
@@ -1865,6 +1886,12 @@ export type AscentPrompt =
    * figure the run is not actually holding.
    */
   | { kind: 'inheritance' }
+  /**
+   * Beta (`goal` rule): the reign's goal is won. End in victory now, or rule on into the endless
+   * game with the victory bonus kept. Raised a tick after the deciding Great Invasion settles, and
+   * re-raised from `AscentState.goal` when a save is read, because saves drop pending prompts.
+   */
+  | { kind: 'goal-won'; wave: number }
   /**
    * The first card of a run: which advantage the reign opens with.
    *
@@ -2038,6 +2065,8 @@ export type AscentPrompt =
       kingdomId: string;
       kingdomName: string;
       ticksToArrival: number;
+      /** Beta (`truthfulNumbers`): the province the first column reaches, when the arrival is estimated. */
+      arrivalLandName?: string;
       options: EmpireResponseOption[];
     }
   | { kind: 'wave-result'; wave: number; survived: boolean; lines: string[] }
@@ -2077,6 +2106,12 @@ export type AscentPrompt =
        */
       reign?: string;
       reignDetail?: string;
+      /** Beta: the reign ended because the player chose to, with its goal won. */
+      outcome?: 'victory';
+      /** Beta: the goal was won at this wave (whether the reign then ended or ruled on). */
+      goalWave?: number;
+      goalLands?: number;
+      goalBonus?: number;
     }
   /**
    * The house grows: one dynasty level, two traits, one pick.
@@ -2326,7 +2361,7 @@ export interface AscentBattle {
   freeReform?: boolean;
   /**
    * Stamina: pips in hand for changing shape. Two to start, one spent per change, one back every
-   * `BATTLE_STAMINA_REGEN_BEATS` on `staminaClock`. Absent = full (old saves). See docs/20.
+   * `BATTLE_STAMINA_REGEN_BEATS` on `staminaClock`. Absent = full (old saves). See docs/phase-1/20-two-pips.md.
    */
   stamina?: number;
   staminaClock?: number;
@@ -2605,7 +2640,24 @@ export interface AscentAftermath {
 }
 
 /** Why a Dragon Ascent run ended. Shown on the summary so a loss is legible. */
-export type AscentEndCause = 'capital' | 'annihilated';
+export type AscentEndCause = 'capital' | 'annihilated' | 'goal';
+
+/**
+ * Beta: the reign's finite objective (`GoalRule` in `game/ascentRuleset.ts`). Absent on every stable
+ * run. `choicePending` survives a save so the victory card comes back after a reload.
+ */
+export interface AscentGoal {
+  status: 'open' | 'won';
+  /** While open: the Great Invasion that decides it — wave 12, then the next one after a miss. */
+  targetWave?: number;
+  wonAtWave?: number;
+  /** Provinces held besides the capital when it was won. */
+  landsAtWin?: number;
+  /** Frozen at the win and paid once, by `computeRunScore`, whenever the reign ends. */
+  bonusScore?: number;
+  choicePending?: boolean;
+  choice?: 'rule-on' | 'end';
+}
 
 /** The acts of growth that charge ambition. See `AMBITION_COSTS`. */
 export type AmbitionReason = 'province' | 'card' | 'host';
@@ -2955,6 +3007,8 @@ export interface AscentState {
   remnantWarnedIds?: string[];
   /** Set when the run ends, so the summary can name the cause rather than shrug. */
   endCause?: AscentEndCause;
+  /** Beta only: the reign's goal. See `AscentGoal`. */
+  goal?: AscentGoal;
   /** Province whose fall ended the run. */
   endLandName?: string;
   /** The turn the last prompt was raised, enforcing a gap of real play between modals. */
@@ -3057,6 +3111,12 @@ export interface AscentState {
   waveShape?: WaveShapeId;
   /** The court that sent the wave now in flight, so the dial and the World lane agree on who. */
   waveAggressorId?: string;
+  /**
+   * Beta (`threatProjection`): the court that will send the *next* wave, drawn when this one starts.
+   * The THREAT forecast reads its relations dial instead of an average of four, and `startWave`
+   * sends it unless it has fallen or sworn fealty since.
+   */
+  nextAggressorId?: string;
   /** Turn each court last sent us a relief column, for the ask's cooldown. Keyed by kingdom id. */
   allyAidTurn?: Record<string, number>;
   /** Turn the last world event was raised, so they keep a minimum gap. */

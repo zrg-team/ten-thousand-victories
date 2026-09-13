@@ -1,0 +1,421 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 3, Autumn",
+    "realtimeSeconds": 71,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 829668852,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 493.6139506919642,
+      "supplies": 320.7336139508928,
+      "gold": 1064,
+      "humans": 655
+    },
+    "resourceRates": {
+      "food": 31.717450691964274,
+      "supplies": 18.32611395089285,
+      "gold": 52,
+      "humans": 4
+    },
+    "visibility": {
+      "visible": 8,
+      "explored": 9,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 90,
+        "provisions": 72
+      },
+      {
+        "id": "invasion-southern-rival-17-0",
+        "kingdomId": "southern-rival",
+        "landId": "district-11",
+        "total": 252,
+        "level": 2,
+        "experience": 0,
+        "experienceToNextLevel": 160,
+        "morale": 85,
+        "supply": 90,
+        "rations": 350,
+        "provisions": 250
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [
+      {
+        "id": "court-boon-kho-lam-1-1789231042144-556",
+        "label": "boon:kho-lam:1",
+        "resourceRateModifier": {
+          "food": 11,
+          "supplies": 5
+        }
+      },
+      {
+        "id": "project-levy-reform",
+        "label": "Levy Reform",
+        "recruitSpeedModifier": 0.3
+      }
+    ],
+    "court": {
+      "stability": 52,
+      "influence": 51,
+      "favor": 10,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {
+        "treasurer": "ba-do-nuoc"
+      }
+    },
+    "ascent": {
+      "wave": 1,
+      "ticksToWave": 8,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 2169,
+      "powerDelta": 0,
+      "peakPower": 2206,
+      "defensePower": 1868,
+      "threat": 274,
+      "level": 4,
+      "xp": 34,
+      "xpToNext": 219,
+      "cardStacks": {
+        "kho-lam": 1,
+        "salt-roads": 1
+      },
+      "retiredCards": [],
+      "heroesSummoned": 1,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 10,
+        "upgrades": 1,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "busy",
+        "world": "busy",
+        "lastDecisionTurn": {
+          "court": 19,
+          "conquer": 13,
+          "world": 21
+        }
+      },
+      "conquestPlans": [
+        {
+          "id": "asc-conquest-9-district-17-bribe",
+          "landId": "district-17",
+          "method": "bribe",
+          "createdTurn": 9,
+          "status": "blocked",
+          "reason": "The nobles of Thiên Sơn Tây took your gold and refused. Trust lost. Diplomacy will be harder here."
+        }
+      ],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 1,
+        "edictsEnacted": 1,
+        "parliamentAnswered": 0,
+        "envoyActions": {
+          "ignore": 1
+        },
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {
+        "decree-offer": 6,
+        "law-choice": 6,
+        "envoy": 12
+      },
+      "lastPromptTurn": 21,
+      "courtCardCooldown": 0,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 0,
+      "edicts": [
+        "levy-reform"
+      ],
+      "taxPolicy": "balanced",
+      "stability": 52,
+      "favor": 10,
+      "courtSeats": {
+        "treasurer": "ba-do-nuoc"
+      },
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Nam Hán",
+          "relations": 32,
+          "power": 19,
+          "warAppetite": 7,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 104,
+          "warAppetite": 2,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 38,
+          "power": 59,
+          "warAppetite": 3,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 50,
+          "power": 55,
+          "warAppetite": 7,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 0,
+      "prompt": null,
+      "ui": {
+        "screen": "map",
+        "generatedUiIcons": [
+          "balance",
+          "blade",
+          "book",
+          "chevron-up",
+          "crossed-weapons",
+          "crown",
+          "diplomacy",
+          "food",
+          "gold",
+          "hammer",
+          "hero",
+          "humans",
+          "menu",
+          "pause",
+          "supplies",
+          "territory",
+          "zoom-in",
+          "zoom-out"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "Farm construction started in Lam Trại Hạ. Ready in 3 economy ticks."
+  },
+  "texts": [
+    {
+      "text": "3/4",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "1/3",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "2/6",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 3 - Autumn",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 169,
+      "y": 19
+    },
+    {
+      "text": "494 (+32)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "321 (+18)",
+      "x": 135,
+      "y": 36
+    },
+    {
+      "text": "1.1k (+52)",
+      "x": 229,
+      "y": 36
+    },
+    {
+      "text": "655 (+4)",
+      "x": 324,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "2,169",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "274",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "INVASION 1 · LIVE",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "×1.0 ambition",
+      "x": 376,
+      "y": 84
+    },
+    {
+      "text": "Lv 4",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 1",
+      "x": 91,
+      "y": 54
+    },
+    {
+      "text": "Battle",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Build",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Heroes",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Court",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Army",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Affairs",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Story",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "+386",
+      "x": 48,
+      "y": 765
+    },
+    {
+      "text": "Vương Quốc Phương Nam is at the walls of Lam Trại Hạ — 4 seasons before the assault.",
+      "x": 33,
+      "y": 107
+    }
+  ],
+  "errors": []
+}

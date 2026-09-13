@@ -1,0 +1,855 @@
+{
+  "grades": [
+    [
+      "Meaningful strategic choices",
+      7,
+      7,
+      12,
+      14,
+      "Medium",
+      "Doctrines, claims, hero appointments and cards have consequences. Engaged automation survives almost twice as many waves as declining; this does not establish several equally viable expert plans."
+    ],
+    [
+      "Economy rewards mastery",
+      5.5,
+      5.5,
+      8,
+      12,
+      "Medium",
+      "Terrain, focus, governors, logistics and markets interact. Extra economic activity produced much more gold but only a small, noisy survival improvement in this probe."
+    ],
+    [
+      "Territory and logistics",
+      6.5,
+      7,
+      6,
+      10,
+      "Medium",
+      "Routes, supply connections, loyalty and military travel already matter. The interface could make route value, arrival time and opportunity cost easier to compare."
+    ],
+    [
+      "Tactical combat",
+      6.5,
+      7,
+      10,
+      14,
+      "Medium",
+      "Five formations, stances, stamina, moments, withdrawal and command delegation create a promising decision space. Late escalation also shortens reading windows and removes help."
+    ],
+    [
+      "Clarity and feedback",
+      5,
+      5.5,
+      13,
+      9,
+      "High",
+      "Strong art and useful aftermath coexist with a composite POWER beside a different THREAT quantity, mixed progression labels and a confirmed “certain”/53% contradiction."
+    ],
+    [
+      "First-run learning",
+      4.5,
+      5,
+      10,
+      5,
+      "Medium",
+      "Rich identity creation precedes the strategic hook; an empty inheritance sheet still appears on the first reign. A quick coronation path and contextual Copilot already exist."
+    ],
+    [
+      "Pacing and attention",
+      5.5,
+      6,
+      11,
+      7,
+      "Medium",
+      "The court and combat have useful rhythm, but the played opening repeatedly interrupted preparation. Desktop Hands-on suppresses routine prompts; that changes pacing as well as control."
+    ],
+    [
+      "Progression and reward",
+      6.5,
+      6.5,
+      7,
+      6,
+      "Medium",
+      "Legacy, Dynasty and Cabinet give continuity. Their overlapping levels, duplicates and loadouts make it difficult to tell which reward changes this run."
+    ],
+    [
+      "Replay and satisfying endings",
+      5.5,
+      5.5,
+      7,
+      8,
+      "Medium",
+      "Seeds, heroes, cards, stories and waves provide variety. Main Ascent is endless, with defeat and inheritance rather than a selectable campaign victory contract."
+    ],
+    [
+      "Platform controls",
+      6.5,
+      7.5,
+      7,
+      6,
+      "Medium",
+      "Phone controls use a compact dock; desktop has a map with side sheets, keys and manual orders. Stable shortcuts, comparisons and measured touch ergonomics can improve both."
+    ],
+    [
+      "Identity and presentation",
+      9,
+      9,
+      5,
+      5,
+      "High",
+      "Vietnamese history, named characters and Đông Hồ print art give a coherent identity worth preserving. This is the clearest product differentiator."
+    ],
+    [
+      "Accessibility and interruption comfort",
+      4.5,
+      5,
+      4,
+      4,
+      "Medium",
+      "Save/resume and pauses exist. Late-game assistance overrides and small combat annotations are concrete concerns; physical-device performance and assistive access remain unverified."
+    ]
+  ],
+  "platformScores": {
+    "mobile": 59.5,
+    "desktop": 64.15,
+    "combined": 61.825
+  },
+  "sources": [
+    [
+      "M1",
+      "Thronefall — official Steam description",
+      "https://store.steampowered.com/app/2239150/Thronefall/",
+      "Build by day, defend at night; constrained equipment/perk choices and optional mutators."
+    ],
+    [
+      "M2",
+      "Bad North — official site",
+      "https://www.badnorth.com/",
+      "Real-time island defence, spatial tactics, and PC/mobile availability."
+    ],
+    [
+      "M3",
+      "Into the Breach — Subset Games",
+      "https://www.subsetgames.com/itb.html",
+      "Telegraphed enemy attacks and protection objectives make consequences legible."
+    ],
+    [
+      "M4",
+      "Northgard — official site",
+      "https://northgard.net/",
+      "Distinct clans and conquest, trade and devotion as routes to success."
+    ],
+    [
+      "M5",
+      "Against the Storm — official Steam description",
+      "https://store.steampowered.com/app/1336490/Against_the_Storm/",
+      "Settlement objectives, varied populations and repeated city founding."
+    ],
+    [
+      "M6",
+      "The Battle of Polytopia — official Steam description",
+      "https://store.steampowered.com/app/874390/The_Battle_of_Polytopia/",
+      "Compact 4X with tribes, technology, diplomacy and several game modes."
+    ],
+    [
+      "M7",
+      "9 Kings — official Steam description",
+      "https://store.steampowered.com/app/2784470/9_Kings/",
+      "King-specific decks, positioning, combinations, Quest and Endless modes; listed in Early Access at review."
+    ],
+    [
+      "M8",
+      "Apple — UI Design Dos and Don’ts",
+      "https://developer.apple.com/design/tips/",
+      "Touch controls of at least 44 × 44 points and readable interface text."
+    ],
+    [
+      "M9",
+      "W3C — Understanding Target Size (Enhanced)",
+      "https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced",
+      "44 × 44 CSS pixel enhanced target guidance, with defined exceptions."
+    ]
+  ],
+  "market": [
+    [
+      "Thronefall",
+      "A clear preparation–defence cycle lets a small set of decisions carry the game.",
+      "Give every wave a readable preparation window and a short result. Let optional modifiers supply extra difficulty.",
+      "Copying its small economy would discard the realm simulation that distinguishes Vạn Thắng.",
+      "M1"
+    ],
+    [
+      "Bad North",
+      "Direct a few groups around consequential terrain; many soldiers can express a small number of orders.",
+      "Let mobile issue intentions such as “hold this crossing” or “escort this host”; preserve detailed routes on desktop.",
+      "Do not transplant island missions wholesale or promise identical controls on a phone and a mouse.",
+      "M2"
+    ],
+    [
+      "Into the Breach",
+      "Known enemy intent creates difficult decisions without demanding fast reading.",
+      "Show target, arrival and likely consequence before commitment. Challenge the response, while keeping the information readable.",
+      "It is turn based. This is a lesson about information, not evidence that Ascent must become turn based.",
+      "M3"
+    ],
+    [
+      "Northgard",
+      "Faction identity and different routes to success connect economic choices to strategy.",
+      "Use doctrines or charters to make a trade-led, fortress-led or expansion-led run play differently.",
+      "Several victory paths need distinct bottlenecks; renaming the same power race will not create depth.",
+      "M4"
+    ],
+    [
+      "Against the Storm",
+      "A settlement can be completed, while the larger progression continues.",
+      "Give a reign a finite charter and a banking decision, then let players opt into another chapter or endless play.",
+      "Do not add a second settlement layer or more population needs before the existing economy is readable.",
+      "M5"
+    ],
+    [
+      "The Battle of Polytopia",
+      "A small, consistent action language can support expansion, technology, diplomacy and multiple modes.",
+      "Expose a compact command vocabulary on mobile; reveal exact costs and comparisons on desktop.",
+      "Turn-based networking and its tech tree are not prerequisites for this single-player real-time game.",
+      "M6"
+    ],
+    [
+      "9 Kings",
+      "Distinct decks and interactions produce recognizable run builds; Quest and Endless serve different goals.",
+      "Make existing cards complete a small number of understandable engines, with a finite goal and an optional continuation.",
+      "Avoid relying on escalating numbers or copying a tiny board. Its current Early Access design is not a proven final balance model.",
+      "M7"
+    ]
+  ],
+  "loops": [
+    {
+      "id": "L1",
+      "title": "Keep combat readable as mastery rises",
+      "idea": "Add more speed and hide the counter guide in late waves, so experienced players must react and remember.",
+      "critique": "The current game already does this. Wave 13 enforces fast pace; later steps cap speech, raise enemy difficulty and hide assistance. Success can make the interface less accessible. Memorizing a ring is a different skill from choosing when to spend stamina.",
+      "tune": "Separate enemy competence, combat speed and reading assistance. Retain the player’s slow pace, explicit counter guide and optional automatic pause at a decision.",
+      "challenge": "Unlimited stopping could remove time pressure for players who enjoy it. A globally slower battle could also make ordinary fights drag.",
+      "final": "Ship independent settings: enemy difficulty, pace, readable intent, and pause-on-moment. Keep a clearly chosen timed challenge preset. Use stronger enemy plans and fewer safe responses to raise strategic difficulty; preserve assistance in normal runs.",
+      "measure": "At wave 20+, the selected slow speed and guide remain effective. In usability tests, at least 80% can explain the next enemy action before choosing a response. Treat that percentage as a target to test, not an existing result.",
+      "deps": "B02, B03, B04"
+    },
+    {
+      "id": "L2",
+      "title": "A reign should sometimes end in triumph",
+      "idea": "Add a victory at wave 12, then end every run.",
+      "critique": "A mandatory cutoff would truncate a strong build. A fixed wave count also treats exploration, diplomacy and defence as the same achievement.",
+      "tune": "Offer a finite charter with a wave horizon and one thematic goal, followed by a choice to bank the result or continue.",
+      "challenge": "Stacking several objectives can turn a relaxing phone run into a checklist. Banking too early may become the optimal progression farm.",
+      "final": "Prototype one short charter: hold the capital through the first great invasion and preserve one chosen border. The initial candidate is the first four waves, tuned by observed wall-clock sessions. Award a complete ending; offer a second chapter or Endless. Later charters can emphasize trade or alliances. Normalize rewards by difficulty and meaningful milestones.",
+      "measure": "Candidate mobile chapter: 8–12 minutes including reading; desktop extended reign: 20–35 minutes. These are hypotheses. Keep only if players understand the goal and at least 70% of finishers want another chapter or a new build.",
+      "deps": "B12, B13, B14"
+    },
+    {
+      "id": "L3",
+      "title": "Preparation needs uninterrupted space",
+      "idea": "Remove most court cards and let autopilot handle the economy.",
+      "critique": "Cards are currently the main way many phone players exercise agency. Removing them would turn a grand strategy game into watching the simulation.",
+      "tune": "Queue routine advice in a compact court inbox; interrupt for danger, an expiring commitment or a genuinely new rule.",
+      "challenge": "An inbox can become an invisible backlog. Too much batching can make all strategy happen in one exhausting menu.",
+      "final": "Use the existing Aftermath → Court → Muster → Field structure. Present one strategic headline and up to three optional queued decisions. Pause for urgent, irreversible choices. Allow the player to pull any lane on demand. Let doctrine handle repeat maintenance under visible reserve budgets.",
+      "measure": "Target no more than two unsolicited full-screen decisions between ordinary waves after onboarding. Measure decision comprehension, ignored important events and actions per completed objective—not simply fewer taps.",
+      "deps": "B08, B09, B18"
+    },
+    {
+      "id": "L4",
+      "title": "Make growth feel like an advantage",
+      "idea": "Remove all enemy adaptation and all price scaling.",
+      "critique": "The current game uses several bounded controllers, not a single unlimited rubber band. Removing everything could produce idle snowballs and trivial late-game purchases.",
+      "tune": "Publish the base wave, ambition, rival pressure and adaptive portion; lock a visible wave budget before the player finishes preparing.",
+      "challenge": "A player may exploit the lock by hoarding strength until after the snapshot. Full formulas on a phone would be unreadable.",
+      "final": "First instrument each contribution and run matched policy experiments. Prototype a muster snapshot with a bounded adaptation envelope. Count committed recruitment and construction when appropriate. Keep a short front forecast with a detail drill-down. Demand a measurable benefit from successful preparation before retuning all prices.",
+      "measure": "On the same scenario, a sensible defensive investment should improve losses, territory held or capital safety in a large majority of cases. Pre-register an 80% directional target and inspect exceptions. Compare outcomes as well as the displayed POWER.",
+      "deps": "B10, B15, B16, B17"
+    },
+    {
+      "id": "L5",
+      "title": "Build identity from interactions",
+      "idea": "Add dozens of new cards, units and building levels.",
+      "critique": "There are already 52 card definitions, 22 eligible for normal drafts and eight opening boons. More content may dilute the chance of forming a coherent plan and multiply balance work.",
+      "tune": "Audit the existing pool for three viable engines: fortified food/logistics, trading diplomacy, and mobile expansion. Give each a visible strength and a failure case.",
+      "challenge": "Rigid engines could make drafts solved recipes; forced card bundles would reduce improvisation.",
+      "final": "Keep flexible bridges between engines. Prototype two interaction changes within the existing pool before expanding it. A food surplus might support a reserve host but face wage pressure; trade can fund defence but needs safe connections; expansion opens resources but stretches supply. Clearly mark proposed interactions that do not exist yet.",
+      "measure": "Across 32–64 seeds and several competent policies, no starter engine should dominate every map. Players should name their build and its weakness after the second draft. Rework generic upgrades that cannot change a decision.",
+      "deps": "B20, B21, B22, B23"
+    },
+    {
+      "id": "L6",
+      "title": "One simulation, two comfortable ways to command",
+      "idea": "Give desktop players more compulsory micromanagement than mobile players.",
+      "critique": "Desktop already starts with Hands-on enabled, disabling autopilot and routine lane prompts. More chores are not automatically more depth, and platform defaults can conceal that this is a rules change.",
+      "tune": "Share the economic and combat rules. Let players choose Guided command or Hands-on command on either platform, with clear explanations and easy switching.",
+      "challenge": "An expert workspace can overwhelm a phone; automation must not silently override explicit orders or make experts irrelevant.",
+      "final": "Mobile uses intent presets, single-province drill-down and one urgent front at a time. Desktop adds pinned comparisons, stable shortcuts, routes, queues and optional multi-host selection. Both expose reserve budgets, order precedence and the same consequences. Prototype the command workspace with existing armies before adding units.",
+      "measure": "A desktop player can compare two fronts and queue a response in under 20 seconds after learning the controls. A mobile player can give an equivalent strategic intention in at most three major taps. Validate, do not assume, both targets.",
+      "deps": "B07, B18, B24, B25, B26"
+    },
+    {
+      "id": "L7",
+      "title": "Make inheritance rewarding without obscuring skill",
+      "idea": "Merge Legacy, Dynasty and Cabinet into one universal currency.",
+      "critique": "A hard merge would discard distinct rewards and disrupt existing saves. Removing progression power overnight could make earned collections feel devalued.",
+      "tune": "Unify the explanation and end-of-run presentation while keeping the underlying stores. Distinguish permanent collection level, this-run stack and current-reign experience.",
+      "challenge": "A prettier reward screen alone does not resolve grinding or fresh-profile disadvantage.",
+      "final": "Use one inheritance summary: what was earned, what changed, and one optional next-run choice. Add a normalized challenge preset with clearly defined progression treatment. Prefer new options and sidegrades for future rewards; preserve existing ownership and test any balance migration separately.",
+      "measure": "At least 80% of testers can identify which of three rewards affects the next run, this run or collection completion. Compare new and progressed profiles with identical decision policies.",
+      "deps": "B05, B19, B30, B31"
+    },
+    {
+      "id": "L8",
+      "title": "Turn defeat into a useful next attempt",
+      "idea": "Add a detailed log explaining every multiplier after a loss.",
+      "critique": "There is already an aftermath and chronicle. A huge ledger may explain the engine while failing to help a disappointed player decide what to try next.",
+      "tune": "Show the decisive timeline: arrival, supply failure, formation exchange, reinforcement or capital loss. Offer one plausible alternative with an uncertainty label.",
+      "challenge": "A counterfactual can be wrong when changing an order changes later random events. Automatic advice can sound falsely certain or blame the player.",
+      "final": "Start with facts from the event log: “Relief arrived two seasons after contact.” Add a bounded comparison only where it can be simulated consistently. Let players replay a practice snapshot when feasible. Lead with the story and one learnable cause; keep the detailed ledger optional.",
+      "measure": "After a loss, at least 70% can name one specific adjustment for the next attempt. Verify every factual explanation against recorded events. Do not fabricate precise alternate win chances.",
+      "deps": "B11, B27, B28"
+    },
+    {
+      "id": "L9",
+      "title": "Make Vietnamese strategy part of the rules",
+      "idea": "Build a full naval layer, historical campaign map and many new factions immediately.",
+      "critique": "That scope would compete with the current game’s clarity and balance problems. New movement, combat and economy layers would require extensive teaching and art.",
+      "tune": "Use existing formations, terrain, supply and character stories for a small historical scenario with a distinct tactical problem.",
+      "challenge": "A famous battle becomes a trivia skin if the winning action is unchanged; a scripted historical win can remove agency.",
+      "final": "Prototype one river-crossing or prepared-ground encounter. Telegraph its rule, allow more than one solution, and make a retreat/bait plan costly if mistimed. Keep historical framing separate from invented procedural outcomes. Expand only if this encounter changes players’ decisions and remains legible on a phone.",
+      "measure": "Players should describe the scenario’s terrain rule without opening a codex and use at least two successful approaches. Reuse existing systems before introducing a full navy.",
+      "deps": "B29, B34, B35"
+    }
+  ],
+  "backlog": [
+    [
+      "B01",
+      "P0",
+      "Improve",
+      "Both",
+      "S",
+      "Make probability language truthful",
+      "The played envoy method said “certain” beside a 53% chance.",
+      "Every certainty claim matches the resolver; display success chance, time and refusal cost from shared data.",
+      "Lanes / i18n"
+    ],
+    [
+      "B02",
+      "P0",
+      "Improve",
+      "Both",
+      "M",
+      "Preserve chosen pace and assistance",
+      "Wave escalation currently overrides speed and readability.",
+      "Slow remains slow at wave 30; intent and counter guidance remain available when enabled.",
+      "L1"
+    ],
+    [
+      "B03",
+      "P0",
+      "Extend",
+      "Both",
+      "M",
+      "Separate challenge from reading time",
+      "Enemy strength, timing and hints are currently coupled.",
+      "Independent difficulty, pace and assistance settings survive save/reload and work in Ascent and Skirmish.",
+      "B02"
+    ],
+    [
+      "B04",
+      "P0",
+      "Improve",
+      "Desktop",
+      "S",
+      "Make pause consistent and explicit",
+      "Space pauses the world but is intentionally ignored on the battle screen.",
+      "A documented, stable battle-pause key and obvious clock state; no accidental orders while menus own input.",
+      "L1"
+    ],
+    [
+      "B05",
+      "P0",
+      "Improve",
+      "Both",
+      "S",
+      "Skip empty first-reign inheritance",
+      "The first played reign displayed an empty starting hand and no inherited traits.",
+      "A fresh profile proceeds to a strategic choice; returning houses still see relevant inheritance.",
+      "Opening flow"
+    ],
+    [
+      "B06",
+      "P0",
+      "Improve",
+      "Both",
+      "S",
+      "Fix resume modal text layout",
+      "The inspected 1440×900 resume prompt had its wrapped heading overlap the subtitle.",
+      "No overlap at phone, short phone, tablet and desktop sizes in English and Vietnamese.",
+      "Menu resume"
+    ],
+    [
+      "B07",
+      "P0",
+      "Improve",
+      "Both",
+      "S",
+      "Explain command-mode defaults",
+      "Desktop enables Hands-on; automated factory runs do not.",
+      "At start, describe what automation and routine prompts change, allow either mode on either platform.",
+      "L6"
+    ],
+    [
+      "B08",
+      "P1",
+      "Improve",
+      "Mobile",
+      "M",
+      "Budget full-screen interruptions",
+      "The played preparation was repeatedly displaced by doctrine, province, conquest, draft and court sheets.",
+      "Measure a configurable modal budget; urgent events remain visible and optional advice queues safely.",
+      "L3"
+    ],
+    [
+      "B09",
+      "P1",
+      "Extend",
+      "Both",
+      "M",
+      "Show the existing wave phases",
+      "Aftermath, court and muster rules exist but deserve a stronger player-facing rhythm.",
+      "The player can identify the current phase, what is safe to do and the next commitment.",
+      "B08"
+    ],
+    [
+      "B10",
+      "P0",
+      "Improve",
+      "Both",
+      "M",
+      "Use comparable front forecasts",
+      "POWER includes an economic component; THREAT is not the same quantity.",
+      "Show defence ready by arrival, attacking strength and ETA; keep total realm POWER as a separate progress stat.",
+      "PowerSystem / WaveDirector"
+    ],
+    [
+      "B11",
+      "P0",
+      "Validate",
+      "Both",
+      "M",
+      "Replace the single fun proxy with a test dashboard",
+      "The current proxy nearly saturates while ignoring readability, fatigue and expert-plan diversity.",
+      "Record fresh/progressed profile, layout, command mode, seed, objective outcome, losses and real reading time where applicable.",
+      "Metrics harness"
+    ],
+    [
+      "B12",
+      "P1",
+      "New",
+      "Both",
+      "L",
+      "Add a finite Ascent charter",
+      "No selectable finite victory contract was found in the main Ascent loop.",
+      "Complete one clear objective, award a win, then offer bank, next chapter or Endless.",
+      "L2"
+    ],
+    [
+      "B13",
+      "P1",
+      "Extend",
+      "Mobile",
+      "M",
+      "Make a chapter safe to stop after",
+      "Local save/resume exists; a satisfying planned stop is different from suspension.",
+      "Banked chapter reward and next choice survive interruption, restart and offline resume.",
+      "B12"
+    ],
+    [
+      "B14",
+      "P1",
+      "Extend",
+      "Desktop",
+      "M",
+      "Offer longer optional objectives",
+      "Endless waves already exist; experts need a meaningful reason to pursue a longer reign.",
+      "An extended charter changes priorities rather than merely doubling required waves.",
+      "B12"
+    ],
+    [
+      "B15",
+      "P1",
+      "Validate",
+      "Both",
+      "M",
+      "Audit returns to preparation",
+      "Income, wealth, ambition and defensive adaptation can obscure the benefit of investment.",
+      "Run paired ablations; report losses and land held alongside waves and stockpiles.",
+      "B11"
+    ],
+    [
+      "B16",
+      "P1",
+      "Extend",
+      "Both",
+      "M",
+      "Explain and bound wave adaptation",
+      "Several controllers feed the wave budget, with caps and lags.",
+      "Debug breakdown reconciles exactly; the player sees a short cause summary and a committed forecast.",
+      "B10, B15"
+    ],
+    [
+      "B17",
+      "P1",
+      "Improve",
+      "Both",
+      "M",
+      "Show useful resource forecasts",
+      "Rates and detailed province multipliers exist, but choices often omit the practical runway.",
+      "At a purchase: cost, upkeep change, expected completion and food/supply runway; mark estimates.",
+      "B15"
+    ],
+    [
+      "B18",
+      "P1",
+      "Extend",
+      "Both",
+      "M",
+      "Add visible automation budgets",
+      "Autopilot already builds, upgrades and recruits; explicit orders should remain authoritative.",
+      "Reserve gold, food and supplies; expose the next automated action and why an action was skipped.",
+      "B07, B17"
+    ],
+    [
+      "B19",
+      "P1",
+      "Improve",
+      "Both",
+      "M",
+      "Separate run stacks from collection levels",
+      "The draft mixes Lv2, Stack 1/2 and “3 more to combine.”",
+      "Every reward label names its scope; players correctly sort three representative rewards.",
+      "L7"
+    ],
+    [
+      "B20",
+      "P1",
+      "Validate",
+      "Both",
+      "M",
+      "Measure coherent build diversity",
+      "Many modifiers and three evolution recipes exist, but viable expert archetypes are unproven.",
+      "Compare at least three competent plans over 32–64 seeds; inspect conditional dominance and draft dead ends.",
+      "B11"
+    ],
+    [
+      "B21",
+      "P1",
+      "Improve",
+      "Both",
+      "M",
+      "Tune interactions in the existing draft pool",
+      "22 normal draft cards are a manageable set for an interaction audit.",
+      "Two tested interactions create distinct resource or tactical decisions without a universal best pick.",
+      "B20"
+    ],
+    [
+      "B22",
+      "P1",
+      "Improve",
+      "Both",
+      "M",
+      "Make doctrine consequences visible",
+      "Four doctrines already change multiple autonomous decisions.",
+      "Show one core strength, one cost and current automation intent; preview a doctrine change.",
+      "B18, B20"
+    ],
+    [
+      "B23",
+      "P1",
+      "Extend",
+      "Both",
+      "M",
+      "Compare hero opportunity costs",
+      "Heroes already serve as governors, officers, envoys and commanders; some cards warn about vacated seats.",
+      "All assignment entry points show what is gained and what existing role is lost.",
+      "Existing hero/court screens"
+    ],
+    [
+      "B24",
+      "P1",
+      "Improve",
+      "Desktop",
+      "M",
+      "Keep shortcuts stable and discoverable",
+      "Number keys derive from dynamic action-bar slots; a battle slot can change lane numbering.",
+      "Stable bindings, visible key hints and remapping; switching fronts never silently changes the Build key.",
+      "L6"
+    ],
+    [
+      "B25",
+      "P1",
+      "Extend",
+      "Desktop",
+      "L",
+      "Add a command and comparison workspace",
+      "Side sheets and army orders exist; serial navigation limits simultaneous planning.",
+      "Pin two provinces/fronts, inspect route ETA and queue an order while retaining map context.",
+      "B24, B17"
+    ],
+    [
+      "B26",
+      "P1",
+      "Improve",
+      "Mobile",
+      "M",
+      "Make intent orders easy to issue",
+      "Defend, attack, follow, hunt, recall and withdrawal already exist.",
+      "Give a familiar host an intent in at most three major taps; show target and arrival before commitment.",
+      "L6"
+    ],
+    [
+      "B27",
+      "P1",
+      "Improve",
+      "Both",
+      "M",
+      "Connect aftermath to the decisive cause",
+      "Current reports already show named commanders, casualties and outcomes.",
+      "One verifiable cause is linked to the event timeline; detailed numbers remain available.",
+      "L8, B11"
+    ],
+    [
+      "B28",
+      "P2",
+      "New",
+      "Both",
+      "L",
+      "Replay a bounded practice snapshot",
+      "No player-facing deterministic decision replay was found in the reviewed main flow.",
+      "Replay one battle state with explicit RNG/version metadata; label deviations and avoid false counterfactual certainty.",
+      "B11, B27"
+    ],
+    [
+      "B29",
+      "P2",
+      "Extend",
+      "Both",
+      "M",
+      "Add terrain problems to selected encounters",
+      "Terrain, supply and formations are present; historical mechanics can use them more distinctly.",
+      "One crossing/prepared-ground scenario supports two solutions with readable costs.",
+      "L9"
+    ],
+    [
+      "B30",
+      "P1",
+      "Improve",
+      "Both",
+      "M",
+      "Unify inheritance presentation",
+      "Legacy, Dynasty and Cabinet are useful but overlap in explanation.",
+      "One summary distinguishes ownership, permanent effects and the next-run choice without deleting earned items.",
+      "B19"
+    ],
+    [
+      "B31",
+      "P2",
+      "New",
+      "Both",
+      "M",
+      "Offer a normalized skill challenge",
+      "Fresh and progressed profiles are currently different balance contexts.",
+      "State exactly which progression effects apply; scores cannot mix incompatible presets.",
+      "B11, B30"
+    ],
+    [
+      "B32",
+      "P2",
+      "Extend",
+      "Both",
+      "M",
+      "Make diplomacy commitments legible",
+      "Envoys, opinion, trade and competing rulers already exist.",
+      "Show promise duration, obligations and consequences of breaking an agreement; do not add another currency.",
+      "B01, B17"
+    ],
+    [
+      "B33",
+      "P2",
+      "Improve",
+      "Both",
+      "M",
+      "Make capital recovery actionable",
+      "Defeat includes a capital-loss grace and refuge rules.",
+      "Show remaining recovery time and feasible relief/recapture actions before the loss becomes irreversible.",
+      "B10, B26"
+    ],
+    [
+      "B34",
+      "P2",
+      "Extend",
+      "Both",
+      "M",
+      "Give bosses a distinct strategic demand",
+      "Great invasions and multiple wave shapes already exist.",
+      "At least three boss encounters reward different preparations with a two-season warning that explains the relevant rule.",
+      "B10, B20"
+    ],
+    [
+      "B35",
+      "P2",
+      "Extend",
+      "Both",
+      "L",
+      "Build one playable historical scenario",
+      "Character stories and Vietnamese identity already exist.",
+      "A small authored scenario teaches a real strategic constraint and labels fictional/procedural outcomes.",
+      "B29"
+    ],
+    [
+      "B36",
+      "P1",
+      "Validate",
+      "Mobile",
+      "M",
+      "Audit touch targets on real devices",
+      "Phone screenshots and emulation cannot establish physical thumb comfort.",
+      "Measure hit regions, target spacing and error rate on phone and tablet; use appropriate CSS/point/dp guidance.",
+      "M8, M9"
+    ],
+    [
+      "B37",
+      "P1",
+      "Extend",
+      "Both",
+      "M",
+      "Provide a readable UI scale",
+      "Small annotations coexist with detailed canvas screens.",
+      "Larger text has no clipped decisions, hidden costs or unscrollable buttons at the supported minimum viewport.",
+      "B36"
+    ],
+    [
+      "B38",
+      "P2",
+      "Validate",
+      "Both",
+      "M",
+      "Audit nonvisual and motor access",
+      "No assistive-technology certification was performed.",
+      "Test keyboard focus, semantic text access, colour-independent cues and alternatives to holds/swipes; scope fixes from findings.",
+      "B37"
+    ],
+    [
+      "B39",
+      "P1",
+      "Validate",
+      "Mobile",
+      "M",
+      "Run sustained physical-device performance tests",
+      "This review used desktop Chromium emulation, not a thermally constrained phone.",
+      "On a declared low-end target, test a 20-minute run, crowded combat, background/resume, touch latency and memory.",
+      "Performance harness"
+    ],
+    [
+      "B40",
+      "P2",
+      "Extend",
+      "Both",
+      "M",
+      "Share a reproducible challenge seed",
+      "A seeded debug harness exists; a normal player-facing challenge share flow was not found.",
+      "A share code encodes seed, version, rules and progression preset; invalid versions are explained.",
+      "B11, B31"
+    ],
+    [
+      "B41",
+      "P2",
+      "Validate",
+      "Both",
+      "M",
+      "Audit portable save recovery",
+      "Local persistence and offline resilience exist; cross-device continuity was not verified.",
+      "Prove backup/restore across supported shells before adding cloud sync; preserve migration compatibility.",
+      "Save layer"
+    ],
+    [
+      "B42",
+      "P2",
+      "Improve",
+      "Both",
+      "S",
+      "Use consistent units and glossary",
+      "Seasons, ticks, exchanges, levels and several percentages appear across decisions.",
+      "Player text uses consistent time units and labels chance, loyalty and output separately.",
+      "B01, B19"
+    ],
+    [
+      "B43",
+      "P3",
+      "Defer",
+      "Both",
+      "XL",
+      "Real-time competitive multiplayer",
+      "Networking, fairness, persistence and population would multiply scope.",
+      "Reconsider only after single-player sessions retain users and command rules are stable.",
+      "Core validation"
+    ],
+    [
+      "B44",
+      "P3",
+      "Defer",
+      "Both",
+      "XL",
+      "Full naval combat layer",
+      "A river scenario can test demand with existing systems first.",
+      "Promote only if the limited scenario adds durable strategic value.",
+      "B29"
+    ],
+    [
+      "B45",
+      "P3",
+      "Defer",
+      "Desktop",
+      "L",
+      "Mandatory worker or squad micromanagement",
+      "More repetitive clicks would divide mobile and desktop rules without proving depth.",
+      "Prefer optional queues and intent commands; demand a new decision before adding a control.",
+      "B25"
+    ],
+    [
+      "B46",
+      "P3",
+      "Defer",
+      "Both",
+      "L",
+      "More currencies and progression trees",
+      "The existing three progression layers already need explanation.",
+      "Add only when an existing currency or reward cannot express a verified design need.",
+      "B30"
+    ],
+    [
+      "B47",
+      "P3",
+      "Defer",
+      "Both",
+      "L",
+      "Larger maps and many new units",
+      "More territory and unit types magnify path, UI, performance and balance problems.",
+      "Expand after existing terrain and army roles produce distinct plans on current maps.",
+      "B20, B39"
+    ],
+    [
+      "B48",
+      "P3",
+      "Defer",
+      "Both",
+      "M",
+      "Grind gates, energy timers and daily chores",
+      "They would conflict with short, self-directed reigns unless a separate product case is demonstrated.",
+      "Do not use compulsory waiting or stat grinding to compensate for weak run variety.",
+      "B12, B31"
+    ]
+  ]
+}

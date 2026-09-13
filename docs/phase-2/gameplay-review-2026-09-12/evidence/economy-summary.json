@@ -1,0 +1,43 @@
+{
+  "method": "Paired seed differences; approximate 95% t interval (df=15). Policy changes can consume RNG differently; this is not a controlled causal estimate.",
+  "econStats": [
+    {
+      "policy": "engaged",
+      "n": 16,
+      "waves": 18.5,
+      "goldPeak": 4529.0625,
+      "goldMean": 1324.375,
+      "actions": 0
+    },
+    {
+      "policy": "focused",
+      "n": 16,
+      "waves": 19.0625,
+      "goldPeak": 7179.6875,
+      "goldMean": 2303.9375,
+      "actions": 8.75
+    },
+    {
+      "policy": "steward",
+      "n": 16,
+      "waves": 20.1875,
+      "goldPeak": 16456.25,
+      "goldMean": 6461,
+      "actions": 166.625
+    }
+  ],
+  "deltas": [
+    {
+      "policy": "focused",
+      "mean": 0.5625,
+      "low": -4.880834725238709,
+      "high": 6.005834725238709
+    },
+    {
+      "policy": "steward",
+      "mean": 1.6875,
+      "low": -3.5962010517161405,
+      "high": 6.9712010517161405
+    }
+  ]
+}

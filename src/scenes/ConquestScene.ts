@@ -20,7 +20,8 @@ import {
   advanceBattle, answerBattleMoment, delegateBattle, finishBattle, markPlayerSteered, commitBattleFormation, setBattleFormation,
   setBattleStance,
 } from '../systems/ascent/BattleSystem';
-import { createAscentGameState } from '../state/GameState';
+import { newAscentRun } from '../state/ascentRun';
+import { rulesetIdOf } from '../game/ascentRuleset';
 import { ASCENT_HUD_HEIGHT } from '../ui/ascent/AscentHud';
 import { clashDevice } from '../ui/ink/devices';
 import { PIGMENT } from '../ui/ink/palette';
@@ -433,10 +434,10 @@ export class ConquestScene extends MapScene {
     // Registered through `onUi` like everything else here: this handler starts the scene that
     // registers it, so a leaked copy multiplies restarts geometrically (run N fired N of them).
     this.onUi('ui:restart-ascent', () => {
-      const next = createAscentGameState({ seaSides: 1, difficulty: 'normal' });
       // The hands-on rule carries over from the reign just ended rather than falling back to the
-      // layout's default: a player who flipped it should not be flipped back by "go again".
-      if (next.ascent && this.state.ascent?.hardcore !== undefined) next.ascent.hardcore = this.state.ascent.hardcore;
+      // layout's default: a player who flipped it should not be flipped back by "go again". So does
+      // the ruleset — the next reign plays by the rules this one did, whatever Settings says now.
+      const next = newAscentRun({ ruleset: rulesetIdOf(this.state), hardcore: this.state.ascent?.hardcore });
       this.scene.stop(this.uiSceneKey());
       this.scene.start('ConquestScene', { state: next });
     });

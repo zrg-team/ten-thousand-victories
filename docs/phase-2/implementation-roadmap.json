@@ -1,0 +1,997 @@
+{
+  "date": "2026-09-13",
+  "revision": "3914a9db + current working tree",
+  "status": {
+    "en": "Plan scoped; gameplay implementation not started",
+    "vi": "Đã xác định kế hoạch; chưa triển khai gameplay"
+  },
+  "packages": [
+    {
+      "id": "R00",
+      "milestone": "1",
+      "items": [
+        "B11"
+      ],
+      "depends": [],
+      "days": [
+        3,
+        5
+      ],
+      "title": {
+        "en": "Establish a trustworthy baseline",
+        "vi": "Thiết lập mốc đo đáng tin cậy"
+      },
+      "goal": {
+        "en": "Make changes comparable across fresh and progressed profiles, command modes and layouts.",
+        "vi": "So sánh thay đổi trên hồ sơ mới và đã có tiến trình, các chế độ chỉ huy và bố cục."
+      },
+      "critique": {
+        "en": "A high automated score can hide unreadable decisions. More telemetry alone does not measure enjoyment.",
+        "vi": "Điểm tự động cao có thể che khuất quyết định khó đọc. Thêm số liệu không tự đo được mức độ vui."
+      },
+      "tasks": {
+        "en": [
+          "Extend the existing playtest harness with a versioned result record, isolated storage and declared rule/preferences presets.",
+          "Record seed, revision, profile, mode, objective, losses, land, resource runway, modal count and outcomes. Measure reading time only in real-time sessions.",
+          "Capture 16 paired baseline seeds; reuse the review's fresh-profile drivers and keep human observations separate from simulation summaries."
+        ],
+        "vi": [
+          "Mở rộng bộ chơi thử hiện có với bản ghi có phiên bản, bộ nhớ tách biệt và cấu hình luật/tùy chọn rõ ràng.",
+          "Ghi seed, bản sửa đổi, hồ sơ, chế độ, mục tiêu, tổn thất, đất, thời gian cạn tài nguyên, số hộp thoại và kết quả. Chỉ đo thời gian đọc trong phiên thời gian thực.",
+          "Lưu 16 seed đối chứng theo cặp; tái sử dụng công cụ hồ sơ mới của bản đánh giá và tách quan sát người chơi khỏi mô phỏng."
+        ]
+      },
+      "done": {
+        "en": "Two runs of one declared fixture agree on deterministic outputs; fresh and progressed results cannot mix silently. A baseline artifact and a human-session sheet exist.",
+        "vi": "Chạy hai lần cùng mẫu cho kết quả tất định trùng nhau; không trộn ngầm hồ sơ mới với hồ sơ đã chơi. Có bộ kết quả gốc và phiếu quan sát người chơi."
+      },
+      "files": [
+        "test_scripts/playtest/playtest-lib.mjs",
+        "test_scripts/playtest/playtest-metrics.mjs",
+        "docs/phase-2/gameplay-review-2026-09-12/evidence/review-fresh-metrics.mjs"
+      ],
+      "checks": [
+        "node test_scripts/playtest/playtest-metrics.mjs --seeds 16 --ticks 600 --json"
+      ]
+    },
+    {
+      "id": "R01",
+      "milestone": "1",
+      "items": [
+        "B01",
+        "B05",
+        "B06",
+        "B42"
+      ],
+      "depends": [],
+      "days": [
+        3,
+        5
+      ],
+      "title": {
+        "en": "Fix misleading decisions and the opening",
+        "vi": "Sửa thông tin gây hiểu nhầm và phần mở đầu"
+      },
+      "goal": {
+        "en": "Show what a number means and get a new player to the first useful choice without empty ceremony.",
+        "vi": "Giải thích đúng ý nghĩa con số và đưa người mới tới quyết định hữu ích đầu tiên, không qua nghi thức trống."
+      },
+      "critique": {
+        "en": "Diplomacy's percentage is trust progress, not a random success chance. Removing empty inheritance must not hide real opening benefits; changing a shared modal can affect other screens.",
+        "vi": "Phần trăm ngoại giao là tiến độ tín nhiệm, không phải xác suất ngẫu nhiên. Bỏ gia sản trống không được che lợi ích thực; sửa hộp thoại dùng chung có thể ảnh hưởng màn khác."
+      },
+      "tasks": {
+        "en": [
+          "Introduce a typed conquest assessment separating chance, progress and estimate. Reuse the actual acquisition gain including court multipliers; describe cancellation conditions.",
+          "Derive an effective opening-inheritance summary from Legacy, Dynasty and Cabinet state. Skip only when it has no actionable or applied benefit; keep an optional explanation in the existing guide.",
+          "Measure wrapped title/subtitle heights in the modal helper and allocate content/scroll space. Apply a bilingual glossary for chance, progress, seasons and reward scope."
+        ],
+        "vi": [
+          "Phân loại đánh giá chinh phục thành xác suất, tiến độ và ước tính. Dùng tốc độ tiếp nhận thực gồm hệ số triều đình; nêu điều kiện hủy.",
+          "Tổng hợp gia sản mở đầu từ Legacy, Dynasty và Cabinet. Chỉ bỏ khi không có lợi ích đã áp dụng hoặc lựa chọn cần làm; giữ giải thích tùy chọn trong hướng dẫn.",
+          "Đo chiều cao tiêu đề/phụ đề sau xuống dòng rồi phân bổ vùng nội dung/cuộn. Thống nhất thuật ngữ song ngữ cho xác suất, tiến độ, mùa và phạm vi phần thưởng."
+        ]
+      },
+      "done": {
+        "en": "Diplomacy never labels trust as odds; previews reconcile with unchanged-state execution. Fresh/returning openings preserve all benefits. No title, subtitle or button overlap in the validation matrix.",
+        "vi": "Ngoại giao không gọi tín nhiệm là xác suất; dự báo khớp khi trạng thái không đổi. Mở đầu mới/cũ giữ mọi lợi ích. Không chồng tiêu đề, phụ đề hay nút trong ma trận kiểm tra."
+      },
+      "files": [
+        "src/systems/ascent/ConquestSystem.ts",
+        "src/systems/AcquisitionSystem.ts",
+        "src/state/types.ts",
+        "src/state/GameState.ts",
+        "src/scenes/conquest/prompts/inheritance.ts",
+        "src/scenes/conquest/prompts/conquest.ts",
+        "src/ui/InkUI.ts",
+        "src/scenes/menu/shell.ts",
+        "src/i18n/catalogs/ascent.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-conquest-offer.mjs",
+        "node test_scripts/verify/verify-inheritance-screen.mjs",
+        "node test_scripts/verify/verify-resume.mjs"
+      ]
+    },
+    {
+      "id": "R02",
+      "milestone": "1",
+      "items": [
+        "B02",
+        "B03",
+        "B04",
+        "B07",
+        "B24"
+      ],
+      "depends": [],
+      "days": [
+        6,
+        10
+      ],
+      "title": {
+        "en": "Respect pace, assistance and commands",
+        "vi": "Tôn trọng nhịp chơi, hỗ trợ và lệnh điều khiển"
+      },
+      "goal": {
+        "en": "Keep chosen reading time and guidance available while making input predictable on either platform.",
+        "vi": "Giữ thời gian đọc và hướng dẫn đã chọn, đồng thời làm thao tác nhất quán trên cả hai nền tảng."
+      },
+      "critique": {
+        "en": "Independent settings already exist but effective settings override them. Slow currently changes beats per economy tick, so pacing is not balance-neutral. Context keys need explicit ownership.",
+        "vi": "Đã có tùy chọn riêng nhưng cấu hình thực tế ghi đè chúng. Nhịp chậm đổi số nhịp chiến đấu mỗi lượt kinh tế nên có tác động cân bằng. Phím theo ngữ cảnh cần quyền xử lý rõ ràng."
+      },
+      "tasks": {
+        "en": [
+          "Retain existing preference keys; remove forced pace/hint suppression and separate bubble readability from enemy difficulty. Show effective enemy tier if campaign escalation remains.",
+          "Keep the current simulation/display clock pair in the first patch; test each pace as its own balance context. Prevent Skirmish bubble overrides leaking into Ascent.",
+          "Route Space to the active world's or battle's pause action; menus and text input own keys while open. Use stable action IDs, visible hints and conflict-checked remapping instead of dynamic bar indices.",
+          "Explain Hands-on versus assisted command in the existing opening/menu flow, allow both on both platforms, and record the actual hardcore flag in benchmarks."
+        ],
+        "vi": [
+          "Giữ khóa tùy chọn hiện có; bỏ ép tăng tốc và ẩn gợi ý, tách độ dễ đọc bong bóng khỏi độ khó địch. Hiện cấp địch thực nếu giữ tăng tiến chiến dịch.",
+          "Bản đầu giữ cặp đồng hồ mô phỏng/hiển thị hiện có; kiểm tra cân bằng riêng từng nhịp. Ngăn tùy chọn bong bóng của Skirmish rò sang Ascent.",
+          "Space điều khiển tạm dừng bản đồ hoặc trận hiện tại; menu và ô nhập giữ quyền phím khi mở. Dùng mã hành động cố định, nhãn phím và đổi phím có kiểm tra xung đột.",
+          "Giải thích chỉ huy trực tiếp và có trợ giúp trong luồng mở đầu/menu hiện có, cho chọn trên cả hai nền tảng và ghi cờ hardcore thực trong phép đo."
+        ]
+      },
+      "done": {
+        "en": "Slow and enabled guidance remain selected at waves 1/10/30, after reload and after Skirmish. No leaked orders behind overlays; a changing front never changes the Build binding. Pace effects are reported, not assumed equal.",
+        "vi": "Nhịp chậm và hướng dẫn vẫn giữ ở đợt 1/10/30, sau tải lại và sau Skirmish. Không lọt lệnh qua lớp phủ; đổi mặt trận không đổi phím Xây. Báo tác động nhịp chơi, không giả định chúng ngang nhau."
+      },
+      "files": [
+        "src/game/battleOptions.ts",
+        "src/game/ascentConfig.ts",
+        "src/input/desktopKeys.ts",
+        "src/ui/ActionBar.ts",
+        "src/scenes/SettingsScene.ts",
+        "src/scenes/menu/front.ts",
+        "src/scenes/conquest/battle/shell.ts",
+        "src/scenes/conquest/battle/dock.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-battle-options.mjs",
+        "node test_scripts/verify/verify-escalation.mjs",
+        "node test_scripts/verify/verify-battle-pacing.mjs",
+        "node test_scripts/verify/verify-desktop-layout.mjs"
+      ]
+    },
+    {
+      "id": "R03",
+      "milestone": "1",
+      "items": [
+        "B10"
+      ],
+      "depends": [
+        "R00"
+      ],
+      "days": [
+        3,
+        5
+      ],
+      "title": {
+        "en": "Make front forecasts comparable",
+        "vi": "Làm dự báo mặt trận có thể so sánh"
+      },
+      "goal": {
+        "en": "Let the player judge whether defence can reach a threatened place in time.",
+        "vi": "Giúp người chơi biết quân phòng thủ có tới nơi bị đe dọa kịp lúc hay không."
+      },
+      "critique": {
+        "en": "Realm POWER includes economy. Replacing it with another unlabeled total would retain the confusion; a live estimate cannot promise a frozen future.",
+        "vi": "SỨC MẠNH vương quốc gồm kinh tế. Đổi sang tổng số không rõ nghĩa khác vẫn gây nhầm; ước tính hiện tại không thể hứa một tương lai bất biến."
+      },
+      "tasks": {
+        "en": [
+          "Create a read-only front forecast with target, ETA, attackers, defenders ready by arrival and assumptions.",
+          "Use existing movement/supply and defence readers; keep strategic realm POWER separately labeled.",
+          "Refresh estimates when orders change and distinguish announced commitments from uncertain reinforcements."
+        ],
+        "vi": [
+          "Tạo dự báo chỉ đọc gồm mục tiêu, thời gian tới, quân công, quân thủ kịp tới và giả định.",
+          "Dùng bộ đọc di chuyển/tiếp tế và phòng thủ hiện có; ghi riêng sức mạnh tổng thể vương quốc.",
+          "Cập nhật khi lệnh đổi và phân biệt lực lượng đã cam kết với viện binh chưa chắc chắn."
+        ]
+      },
+      "done": {
+        "en": "Controlled arrival fixtures reconcile with actual participants; late, blocked and recalled defenders are not counted as ready.",
+        "vi": "Mẫu kiểm tra thời gian tới khớp quân thực tham chiến; không tính quân tới muộn, bị chặn hoặc đã triệu hồi là sẵn sàng."
+      },
+      "files": [
+        "src/systems/ascent/PowerSystem.ts",
+        "src/systems/ascent/WaveDirector.ts",
+        "src/systems/ascent/fronts.ts",
+        "src/systems/WarSystem.ts",
+        "src/ui/ascent/AscentHud.ts",
+        "src/scenes/conquest/screens/warBoard.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-fronts.mjs",
+        "node test_scripts/verify/verify-invasion-reach.mjs"
+      ]
+    },
+    {
+      "id": "R04",
+      "milestone": "1",
+      "items": [
+        "B41"
+      ],
+      "depends": [],
+      "days": [
+        3,
+        6
+      ],
+      "title": {
+        "en": "Establish recovery and migration fixtures",
+        "vi": "Thiết lập mẫu khôi phục và chuyển đổi dữ liệu"
+      },
+      "goal": {
+        "en": "Know exactly what survives restart before adding chapters or reward transactions.",
+        "vi": "Biết chính xác dữ liệu nào sống qua khởi động lại trước khi thêm chương hoặc giao dịch phần thưởng."
+      },
+      "critique": {
+        "en": "Manual saves, autosaves and progression stores have different ownership. Cloud sync would add an unrelated failure surface.",
+        "vi": "Bản lưu thủ công, tự lưu và kho tiến trình có vai trò khác nhau. Đồng bộ đám mây sẽ thêm một nguồn lỗi ngoài phạm vi."
+      },
+      "tasks": {
+        "en": [
+          "Inventory snapshot, Legacy, Dynasty, Cabinet and preference storage; document what an export must include and exclude.",
+          "Create disposable old/current-save fixtures and prove recovery after write failure, backgrounding and terminal cleanup.",
+          "Audit portable backup/restore across declared supported shells. Report unavailable-device checks as pending; fix proven migration gaps before chapter work."
+        ],
+        "vi": [
+          "Liệt kê snapshot, Legacy, Dynasty, Cabinet và tùy chọn; ghi dữ liệu cần có và không cần có trong bản xuất.",
+          "Tạo mẫu bản lưu cũ/hiện tại riêng và chứng minh khôi phục sau ghi lỗi, chạy nền, dọn dữ liệu khi kết thúc.",
+          "Kiểm tra sao lưu/khôi phục qua các ứng dụng nền tảng đã khai báo. Ghi kiểm tra thiếu thiết bị là còn chờ; sửa lỗi chuyển đổi đã xác nhận trước khi làm chương."
+        ]
+      },
+      "done": {
+        "en": "The storage contract and migration fixtures pass without overwriting a player's manual save. Cross-shell results explicitly name tested origins/devices and unresolved checks.",
+        "vi": "Hợp đồng lưu trữ và mẫu chuyển đổi đạt, không ghi đè bản lưu thủ công của người chơi. Kết quả liên nền tảng nêu rõ nguồn lưu/thiết bị đã thử và phần còn chờ."
+      },
+      "files": [
+        "src/state/save.ts",
+        "src/state/legacy.ts",
+        "src/state/dynasty.ts",
+        "src/state/cabinet.ts",
+        "src/game/awayPause.ts",
+        "src/game/resilience.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-save-lifecycle.mjs",
+        "node test_scripts/verify/verify-resume.mjs"
+      ]
+    },
+    {
+      "id": "R05",
+      "milestone": "2",
+      "items": [
+        "B08",
+        "B09"
+      ],
+      "depends": [
+        "R00",
+        "R02"
+      ],
+      "days": [
+        4,
+        7
+      ],
+      "title": {
+        "en": "Give the session a readable rhythm",
+        "vi": "Tạo nhịp phiên chơi dễ theo dõi"
+      },
+      "goal": {
+        "en": "Make preparation time usable and tell players what phase they are in.",
+        "vi": "Cho người chơi dùng được thời gian chuẩn bị và biết mình đang ở giai đoạn nào."
+      },
+      "critique": {
+        "en": "A blanket modal cap can hide famine or invasion decisions; queued events can expire or starve behind repeated prompts.",
+        "vi": "Giới hạn hộp thoại cứng có thể che quyết định nạn đói hoặc xâm lược; sự kiện trong hàng đợi có thể hết hạn hoặc bị bỏ đói."
+      },
+      "tasks": {
+        "en": [
+          "Extend the current priority queue with urgent, player-requested and optional presentation policies; preserve valid choices and deduplicate stale advice.",
+          "Initially allow at most one unsolicited optional full-screen prompt per preparation phase; keep remaining advice in the existing affairs/notification flow.",
+          "Expose aftermath, court and muster with next commitment and clock state. Tune the initial budget from observed sessions."
+        ],
+        "vi": [
+          "Mở rộng hàng đợi ưu tiên với cách hiển thị khẩn cấp, do người chơi gọi và tùy chọn; giữ lựa chọn hợp lệ và gộp lời khuyên cũ.",
+          "Ban đầu cho tối đa một hộp thoại tùy chọn tự xuất hiện mỗi giai đoạn chuẩn bị; để phần còn lại trong luồng triều vụ/thông báo hiện có.",
+          "Hiện hậu chiến, triều chính và tập hợp quân cùng cam kết kế tiếp, trạng thái đồng hồ. Tinh chỉnh ngân sách theo phiên quan sát."
+        ]
+      },
+      "done": {
+        "en": "Urgent and requested decisions remain reachable, optional prompts do not starve, and testers can name the current phase and next commitment.",
+        "vi": "Quyết định khẩn và được gọi vẫn truy cập được, hộp thoại tùy chọn không bị bỏ quên, người thử nêu được giai đoạn và cam kết kế tiếp."
+      },
+      "files": [
+        "src/systems/ascent/AscentState.ts",
+        "src/systems/ascent/DecisionDirector.ts",
+        "src/systems/ascent/WaveDirector.ts",
+        "src/scenes/conquest/prompts/router.ts",
+        "src/scenes/conquest/screens/affairs.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-prompt-stack.mjs",
+        "node test_scripts/verify/verify-claiming-window.mjs"
+      ]
+    },
+    {
+      "id": "R06",
+      "milestone": "2",
+      "items": [
+        "B15",
+        "B16",
+        "B17",
+        "B18"
+      ],
+      "depends": [
+        "R00",
+        "R02",
+        "R03"
+      ],
+      "days": [
+        7,
+        12
+      ],
+      "title": {
+        "en": "Prove preparation pays, then expose automation budgets",
+        "vi": "Chứng minh chuẩn bị có giá trị, rồi hiện ngân sách tự động"
+      },
+      "goal": {
+        "en": "Make investment and delegated actions produce understandable tradeoffs.",
+        "vi": "Làm đầu tư và hành động được ủy quyền có đánh đổi dễ hiểu."
+      },
+      "critique": {
+        "en": "Buffing income can simply feed adaptation. Fixed forecasts can be exploited, and reserves can deadlock an otherwise helpful autopilot.",
+        "vi": "Tăng thu nhập có thể chỉ làm địch thích ứng mạnh hơn. Dự báo cố định có thể bị lợi dụng, dự trữ có thể khiến trợ lý tự động không làm được gì."
+      },
+      "tasks": {
+        "en": [
+          "Run paired preparation ablations before changing coefficients; log every wave-budget contribution and retain zero/negative results.",
+          "Extract shared cost, upkeep, completion and resource-runway readers. Freeze only the announced near-term invasion commitment and disclose later adaptation.",
+          "Add explicit gold/food/supply reserves and next-action explanations to current autopilot. Manual orders remain authoritative; surface reserve deadlocks with an optional override."
+        ],
+        "vi": [
+          "Chạy đối chứng chuẩn bị theo cặp trước khi đổi hệ số; ghi mọi phần ngân sách địch và giữ cả kết quả không cải thiện hoặc xấu đi.",
+          "Tách bộ đọc dùng chung cho giá, duy trì, hoàn tất và thời gian cạn tài nguyên. Chỉ khóa cam kết xâm lược gần đã công bố, nêu rõ thích ứng về sau.",
+          "Thêm dự trữ vàng/lương/tiếp tế và giải thích hành động kế tiếp cho trợ lý hiện có. Lệnh tay ưu tiên; chỉ ra bế tắc dự trữ và cho tùy chọn vượt ngưỡng."
+        ]
+      },
+      "done": {
+        "en": "Wave-budget breakdown reconciles; players can explain a purchase's opportunity cost; paired outcomes show where preparation helps. No silent overspend or indefinite reserve deadlock.",
+        "vi": "Phân rã ngân sách địch khớp; người chơi giải thích được chi phí cơ hội; kết quả cặp cho biết chuẩn bị hữu ích ở đâu. Không chi quá ngầm hay bế tắc dự trữ vô hạn."
+      },
+      "files": [
+        "src/systems/ascent/WaveDirector.ts",
+        "src/systems/ResourceSystem.ts",
+        "src/systems/ascent/SupplySystem.ts",
+        "src/systems/ascent/AutopilotSystem.ts",
+        "src/systems/ascent/priceScale.ts",
+        "src/scenes/conquest/screens/build.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-economy.mjs",
+        "node test_scripts/verify/verify-delegation.mjs"
+      ]
+    },
+    {
+      "id": "R07",
+      "milestone": "2",
+      "items": [
+        "B19",
+        "B30"
+      ],
+      "depends": [
+        "R01"
+      ],
+      "days": [
+        4,
+        6
+      ],
+      "title": {
+        "en": "Clarify rewards and inheritance",
+        "vi": "Làm rõ phần thưởng và gia sản"
+      },
+      "goal": {
+        "en": "Let players distinguish a run's power from owned cards and next-run benefits.",
+        "vi": "Giúp phân biệt sức mạnh trong lượt, bài sở hữu và lợi ích cho lượt kế tiếp."
+      },
+      "critique": {
+        "en": "A new summary can become a fourth progression system. Renaming must not alter ownership or duplicate payout calculations.",
+        "vi": "Bảng tổng hợp mới có thể thành hệ tiến trình thứ tư. Đổi tên không được đổi sở hữu hoặc nhân đôi công thức thưởng."
+      },
+      "tasks": {
+        "en": [
+          "Use consistent scope labels: this reign, collection and next reign, across draft, Cabinet and result screens.",
+          "Build one read-only summary from existing inheritance readers and stores; retain entry points to detailed collections.",
+          "Run a three-reward sorting task in both languages before revising reward economics."
+        ],
+        "vi": [
+          "Dùng nhãn nhất quán: đời này, bộ sưu tập, đời kế tiếp trên chọn bài, Cabinet và kết quả.",
+          "Tạo một tổng hợp chỉ đọc từ bộ đọc gia sản và kho hiện có; giữ lối vào bộ sưu tập chi tiết.",
+          "Thử phân loại ba phần thưởng ở cả hai ngôn ngữ trước khi đổi kinh tế thưởng."
+        ]
+      },
+      "done": {
+        "en": "Players classify all three example scopes without coaching; existing card copies, traits, balances and payout totals remain intact.",
+        "vi": "Người thử phân loại đúng ba phạm vi ví dụ mà không được nhắc; số bản bài, đặc tính, số dư và tổng thưởng hiện có được giữ."
+      },
+      "files": [
+        "src/systems/ascent/Inheritance.ts",
+        "src/state/legacy.ts",
+        "src/state/dynasty.ts",
+        "src/state/cabinet.ts",
+        "src/scenes/CabinetScene.ts",
+        "src/scenes/conquest/prompts/run.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-inheritance.mjs",
+        "node test_scripts/verify/verify-cabinet.mjs",
+        "node test_scripts/verify/verify-dynasty.mjs"
+      ]
+    },
+    {
+      "id": "R08",
+      "milestone": "2",
+      "items": [
+        "B12",
+        "B13",
+        "B14"
+      ],
+      "depends": [
+        "R04",
+        "R05",
+        "R06",
+        "R07"
+      ],
+      "days": [
+        10,
+        16
+      ],
+      "title": {
+        "en": "Prototype one complete Ascent charter",
+        "vi": "Thử nghiệm một mục tiêu Ascent trọn vẹn"
+      },
+      "goal": {
+        "en": "Offer a real win and a safe stopping point, with a meaningful option to continue.",
+        "vi": "Cho một chiến thắng thực và điểm dừng an toàn, cùng lựa chọn tiếp tục có ý nghĩa."
+      },
+      "critique": {
+        "en": "The current terminal function marks defeat, banks several stores and blocks later saves. Reusing it for an intermediate chapter would corrupt continuation or duplicate rewards.",
+        "vi": "Hàm kết thúc hiện đánh dấu thua, ghi thưởng vào nhiều kho và chặn lưu sau đó. Dùng nó cho chương giữa có thể hỏng tiếp tục hoặc nhân đôi thưởng."
+      },
+      "tasks": {
+        "en": [
+          "Prototype holding the capital through the first great invasion while retaining one chosen border. Current boss cadence is every four waves, so wave 4 is the first candidate horizon; tune it from observed session time.",
+          "Add versioned charter/chapter progress and explicit active, complete, bank-and-end and continue transitions. Intermediate completion must not call endAscentRun or terminal save cleanup.",
+          "Use a durable reward receipt/journal keyed by run and chapter; save a recoverable pending choice before showing the result. Make each affected store apply a receipt at most once, then recover partial writes.",
+          "Offer bank-and-end, a second chapter or Endless. Prototype one longer objective that changes priorities; tune reward-per-time to avoid an early-bank farm."
+        ],
+        "vi": [
+          "Thử giữ kinh thành qua đại xâm lược đầu và bảo toàn một biên trấn đã chọn. Boss hiện xuất hiện mỗi bốn đợt, nên đợt 4 là mốc ứng viên đầu; tinh chỉnh theo thời gian phiên quan sát.",
+          "Thêm tiến trình mục tiêu/chương có phiên bản và chuyển trạng thái rõ: đang chơi, hoàn tất, nhận thưởng-kết thúc, tiếp tục. Hoàn tất giữa chừng không gọi endAscentRun hay dọn bản lưu kết thúc.",
+          "Dùng biên nhận/nhật ký thưởng bền vững theo lượt và chương; lưu lựa chọn đang chờ trước khi hiện kết quả. Mỗi kho chỉ áp dụng một biên nhận tối đa một lần và khôi phục ghi dở.",
+          "Cho nhận thưởng-kết thúc, sang chương hai hoặc Vô tận. Thử một mục tiêu dài đổi cách ưu tiên; chỉnh thưởng theo thời gian để tránh cày kết thúc sớm."
+        ]
+      },
+      "done": {
+        "en": "Victory is distinguishable from defeat; chapter choices and rewards survive restart/offline use. Repeated clicks, reloads and injected partial writes neither duplicate nor lose rewards. Continuation remains playable.",
+        "vi": "Phân biệt được thắng và thua; lựa chọn chương, phần thưởng sống qua khởi động lại/ngoại tuyến. Bấm lặp, tải lại và lỗi ghi từng phần không mất hoặc nhân đôi thưởng. Tiếp tục vẫn chơi được."
+      },
+      "files": [
+        "src/state/types.ts",
+        "src/state/save.ts",
+        "src/systems/ascent/AscentTick.ts",
+        "src/systems/ascent/AscentResolver.ts",
+        "src/systems/ascent/Ceremony.ts",
+        "src/systems/ascent/WaveDirector.ts",
+        "src/scenes/conquest/prompts/run.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-save-lifecycle.mjs",
+        "node test_scripts/verify/verify-dynasty.mjs",
+        "node test_scripts/verify/verify-cabinet.mjs"
+      ]
+    },
+    {
+      "id": "R09",
+      "milestone": "2",
+      "items": [
+        "B27"
+      ],
+      "depends": [
+        "R00",
+        "R03"
+      ],
+      "days": [
+        3,
+        5
+      ],
+      "title": {
+        "en": "Explain the decisive battle moment",
+        "vi": "Giải thích thời điểm quyết định trận đánh"
+      },
+      "goal": {
+        "en": "Turn a result into a useful next decision.",
+        "vi": "Biến kết quả thành bài học cho quyết định tiếp theo."
+      },
+      "critique": {
+        "en": "A confident causal sentence can invent certainty from correlated events.",
+        "vi": "Một câu kết luận chắc chắn có thể suy diễn nguyên nhân từ các sự kiện chỉ xảy ra cùng nhau."
+      },
+      "tasks": {
+        "en": [
+          "Record bounded battle events with turn/beat and participants; preserve named commanders and existing casualty summaries.",
+          "Show one verifiable observation such as late reinforcement or a sustained counter matchup, with a link to the relevant timeline.",
+          "Keep uncertain explanations labeled and expose detailed numbers on demand."
+        ],
+        "vi": [
+          "Ghi sự kiện trận có giới hạn với lượt/nhịp và quân tham gia; giữ tên chỉ huy cùng tổng kết thương vong.",
+          "Hiện một quan sát kiểm chứng được như viện binh tới muộn hoặc bị khắc chế kéo dài, kèm vị trí dòng thời gian.",
+          "Gắn nhãn giải thích chưa chắc chắn và cho mở số liệu chi tiết khi cần."
+        ]
+      },
+      "done": {
+        "en": "Every highlighted claim is traceable to recorded events; the record is bounded and save/reload does not change its meaning.",
+        "vi": "Mỗi nhận định nổi bật truy được về sự kiện đã ghi; bản ghi có giới hạn và không đổi ý nghĩa sau lưu/tải."
+      },
+      "files": [
+        "src/systems/ascent/battleReport.ts",
+        "src/systems/ascent/BattleSystem.ts",
+        "src/scenes/conquest/screens/aftermath.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-aftermath.mjs",
+        "node test_scripts/verify/verify-costly-victory.mjs"
+      ]
+    },
+    {
+      "id": "R10",
+      "milestone": "3",
+      "items": [
+        "B20",
+        "B21",
+        "B22",
+        "B23"
+      ],
+      "depends": [
+        "R00",
+        "R06",
+        "R07"
+      ],
+      "days": [
+        8,
+        14
+      ],
+      "title": {
+        "en": "Validate three coherent strategic plans",
+        "vi": "Kiểm chứng ba lối chiến lược nhất quán"
+      },
+      "goal": {
+        "en": "Reward mastery through different priorities rather than a larger pool of modifiers.",
+        "vi": "Thưởng sự thành thạo qua ưu tiên khác nhau thay vì thêm nhiều hệ số."
+      },
+      "critique": {
+        "en": "Equal average survival does not prove distinct viable builds; a weak scripted policy can make a good strategy look bad.",
+        "vi": "Sống sót trung bình ngang nhau không chứng minh lối chơi đa dạng; chính sách tự động yếu có thể làm chiến lược tốt trông kém."
+      },
+      "tasks": {
+        "en": [
+          "Define competent economy/logistics, defensive and offensive plans using the existing pool; review decisions by hand on shared seeds.",
+          "Compare 32–64 paired seeds with declared modes and profile presets, including objective wins, losses and conditional matchups. Tune two existing card interactions only after the audit.",
+          "Show doctrine strengths/costs and next automation intent; show the opportunity cost at every hero assignment entry point."
+        ],
+        "vi": [
+          "Định nghĩa lối kinh tế/tiếp tế, phòng thủ và tấn công có năng lực từ nội dung hiện có; xem lại quyết định thủ công trên seed chung.",
+          "So sánh 32–64 seed theo cặp với chế độ, hồ sơ rõ ràng; đo thắng mục tiêu, tổn thất và từng tình huống. Chỉ chỉnh hai tương tác bài hiện có sau phân tích.",
+          "Hiện ưu điểm và đánh đổi của học thuyết và ý định tự động tiếp theo; hiện chi phí cơ hội ở mọi lối bổ nhiệm tướng."
+        ]
+      },
+      "done": {
+        "en": "Each plan has an evidenced use case and cost; no uninvestigated universally dominant pick remains in the tested pool. Hero previews match the role actually vacated.",
+        "vi": "Mỗi lối có tình huống hữu ích và giá phải trả có bằng chứng; không bỏ qua lựa chọn thống trị mọi tình huống trong tập đã thử. Dự báo bổ nhiệm khớp vai trò thực bị bỏ."
+      },
+      "files": [
+        "src/data/ascentCards.ts",
+        "src/systems/ascent/PowerDraftSystem.ts",
+        "src/systems/ascent/RealmDoctrineSystem.ts",
+        "src/systems/ascent/CourtLaneSystem.ts",
+        "src/scenes/conquest/screens/court.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-draft-depth.mjs",
+        "node test_scripts/verify/verify-hero-actions.mjs"
+      ]
+    },
+    {
+      "id": "R11",
+      "milestone": "3",
+      "items": [
+        "B25",
+        "B26"
+      ],
+      "depends": [
+        "R02",
+        "R03",
+        "R06"
+      ],
+      "days": [
+        8,
+        14
+      ],
+      "title": {
+        "en": "Add optional command depth for each platform",
+        "vi": "Thêm chiều sâu điều khiển tùy chọn cho từng nền tảng"
+      },
+      "goal": {
+        "en": "Desktop compares and queues; mobile issues concise intent orders under the same simulation rules.",
+        "vi": "Máy tính so sánh và xếp lệnh; điện thoại ra ý định ngắn gọn với cùng luật mô phỏng."
+      },
+      "critique": {
+        "en": "A large workspace can obscure the map. More taps or mandatory micromanagement would undermine the phone experience.",
+        "vi": "Bàn chỉ huy lớn có thể che bản đồ. Thêm thao tác hoặc bắt điều khiển vụn sẽ làm trải nghiệm điện thoại kém đi."
+      },
+      "tasks": {
+        "en": [
+          "Desktop first slice: pin two provinces/fronts, compare ready defence and route ETA, then queue one order with cancel/reorder feedback.",
+          "Mobile first slice: select host, intent, target/confirm in at most three major taps for a familiar host; show arrival and commitment before execution.",
+          "Reuse existing order validation and preserve intent through sheet closure; bound mounted rows and reuse current virtualization."
+        ],
+        "vi": [
+          "Lát cắt máy tính đầu: ghim hai trấn/mặt trận, so quân thủ kịp tới và thời gian đường đi, rồi xếp một lệnh có phản hồi hủy/đổi thứ tự.",
+          "Lát cắt điện thoại đầu: chọn quân, ý định, mục tiêu/xác nhận trong tối đa ba thao tác chính với đạo quân quen; hiện thời gian tới và cam kết trước khi thi hành.",
+          "Dùng lại kiểm tra lệnh hiện có, giữ ý định khi đóng bảng; giới hạn hàng hiển thị và dùng cơ chế danh sách ảo hiện có."
+        ]
+      },
+      "done": {
+        "en": "Both interfaces produce equivalent legal orders; input counts and map visibility meet the scoped tasks. Dead routes, unavailable hosts and stale selections are explained safely.",
+        "vi": "Hai giao diện tạo lệnh hợp lệ tương đương; số thao tác và độ rõ bản đồ đạt phạm vi. Đường chết, quân không sẵn và lựa chọn cũ được giải thích rõ."
+      },
+      "files": [
+        "src/systems/ascent/armyOrders.ts",
+        "src/systems/ascent/StandingOrders.ts",
+        "src/scenes/conquest/screens/army.ts",
+        "src/scenes/conquest/screens/armyTargets.ts",
+        "src/scenes/conquest/screens/warBoard.ts",
+        "src/input/desktopKeys.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-land-command.mjs",
+        "node test_scripts/verify/verify-desktop-layout.mjs"
+      ]
+    },
+    {
+      "id": "R12",
+      "milestone": "cross",
+      "items": [
+        "B36",
+        "B37",
+        "B38",
+        "B39"
+      ],
+      "depends": [],
+      "days": [
+        7,
+        12
+      ],
+      "title": {
+        "en": "Validate comfort, access and sustained performance",
+        "vi": "Kiểm chứng thao tác, khả năng tiếp cận và hiệu năng dài hạn"
+      },
+      "goal": {
+        "en": "Keep every milestone usable on real devices, including larger text and alternative input.",
+        "vi": "Giữ mỗi mốc dùng được trên thiết bị thật, kể cả chữ lớn và cách nhập thay thế."
+      },
+      "critique": {
+        "en": "Canvas screenshots do not establish thumb comfort or semantic access. A short desktop benchmark cannot establish thermal phone performance.",
+        "vi": "Ảnh canvas không chứng minh thoải mái ngón tay hay truy cập ngữ nghĩa. Đo ngắn trên máy tính không xác nhận hiệu năng điện thoại khi nóng."
+      },
+      "tasks": {
+        "en": [
+          "Audit the first batch on a declared low-end phone and tablet; measure wrong taps, target spacing and the short-screen decision flow.",
+          "Add readable scale through existing layout primitives, then audit focus order, colour-independent cues, text access and hold/swipe alternatives. Scope any major semantic-layer work from findings.",
+          "Run an isolated 20-minute production-build soak with busy battles and background/resume; compare frame time, input latency, memory and recovery with the same device baseline."
+        ],
+        "vi": [
+          "Kiểm tra đợt đầu trên điện thoại cấu hình thấp và máy tính bảng đã khai báo; đo bấm nhầm, khoảng cách nút và quyết định trên màn ngắn.",
+          "Thêm cỡ chữ dễ đọc qua bộ bố cục hiện có, rồi kiểm tra thứ tự focus, tín hiệu không lệ thuộc màu, truy cập chữ và thay thế giữ/vuốt. Xác định riêng việc lớn về lớp ngữ nghĩa từ kết quả.",
+          "Chạy bản production riêng 20 phút với trận đông và chạy nền/tiếp tục; so thời gian khung hình, độ trễ, bộ nhớ, khôi phục với mốc cùng thiết bị."
+        ]
+      },
+      "done": {
+        "en": "No inaccessible required decision or clipped primary action in the tested matrix. Physical-device results name hardware and settings; missing device evidence remains an open gate, not a pass.",
+        "vi": "Không có quyết định bắt buộc không truy cập được hoặc nút chính bị cắt trong ma trận đã thử. Kết quả nêu phần cứng, tùy chọn; thiếu thiết bị là cổng còn mở, không phải đã đạt."
+      },
+      "files": [
+        "src/ui/InkUI.ts",
+        "src/platform/layout.ts",
+        "src/game/renderProfile.ts",
+        "docs/development/performance.md",
+        "test_scripts/perf/android-emulator.mjs"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-performance-layouts.mjs",
+        "node test_scripts/perf/performance-soak.mjs"
+      ]
+    },
+    {
+      "id": "R13",
+      "milestone": "optional",
+      "items": [
+        "B28"
+      ],
+      "depends": [
+        "R00",
+        "R09"
+      ],
+      "days": [
+        5,
+        8
+      ],
+      "title": {
+        "en": "Trial a bounded practice replay",
+        "vi": "Thử phát lại tình huống luyện tập có giới hạn"
+      },
+      "goal": {
+        "en": "Let a player retry one decision and understand the limits of the comparison.",
+        "vi": "Cho thử lại một quyết định và hiểu giới hạn của phép so sánh."
+      },
+      "critique": {
+        "en": "An event log is not a deterministic replay; state, RNG consumption and versioned rules all affect the result.",
+        "vi": "Nhật ký sự kiện không phải bản phát lại tất định; trạng thái, thứ tự RNG và luật theo phiên bản đều ảnh hưởng kết quả."
+      },
+      "tasks": {
+        "en": [
+          "Capture one bounded battle snapshot, RNG state, rule version and decision point.",
+          "First prove identical input produces identical results; then allow one alternative order without progression rewards.",
+          "Label unsupported versions and deviations; keep this optional until aftermath comprehension improves."
+        ],
+        "vi": [
+          "Lưu một trạng thái trận giới hạn, trạng thái RNG, phiên bản luật và điểm quyết định.",
+          "Chứng minh cùng đầu vào ra cùng kết quả trước; sau đó cho đổi một lệnh, không thưởng tiến trình.",
+          "Gắn nhãn phiên bản không hỗ trợ và sai khác; giữ tùy chọn này ngoài lõi cho tới khi hậu chiến giúp hiểu tốt hơn."
+        ]
+      },
+      "done": {
+        "en": "Exact replay passes before counterfactual play is exposed; unsupported snapshots fail clearly and never affect campaign stores.",
+        "vi": "Phát lại chính xác đạt trước khi mở thử phương án khác; trạng thái không hỗ trợ báo rõ và không tác động kho chiến dịch."
+      },
+      "files": [
+        "src/systems/ascent/BattleSystem.ts",
+        "src/systems/ascent/battleReport.ts",
+        "src/state/save.ts"
+      ],
+      "checks": []
+    },
+    {
+      "id": "R14",
+      "milestone": "optional",
+      "items": [
+        "B29",
+        "B34",
+        "B35"
+      ],
+      "depends": [
+        "R03",
+        "R10"
+      ],
+      "days": [
+        8,
+        14
+      ],
+      "title": {
+        "en": "Expand encounters after strategic validation",
+        "vi": "Mở rộng trận sau khi kiểm chứng chiến lược"
+      },
+      "goal": {
+        "en": "Use terrain and Vietnamese historical constraints to demand different preparation.",
+        "vi": "Dùng địa hình và ràng buộc lịch sử Việt Nam để đòi hỏi chuẩn bị khác nhau."
+      },
+      "critique": {
+        "en": "Three scripted bosses or a history label can add content without adding choices.",
+        "vi": "Ba boss theo kịch bản hoặc nhãn lịch sử có thể thêm nội dung mà không thêm lựa chọn."
+      },
+      "tasks": {
+        "en": [
+          "Trial one crossing/prepared-ground encounter with two viable solutions using existing terrain and supply.",
+          "If successful, build three boss demands with explicit two-season warnings and readable rules.",
+          "Build one small historical scenario from the proven encounter; cite historical premises and label procedural/fictional outcomes."
+        ],
+        "vi": [
+          "Thử một trận vượt sông/trận địa chuẩn bị với hai cách giải khả thi bằng địa hình và tiếp tế hiện có.",
+          "Nếu hiệu quả, làm ba yêu cầu boss có cảnh báo rõ trước hai mùa và luật dễ hiểu.",
+          "Dựng một màn lịch sử nhỏ từ tình huống đã chứng minh; dẫn nguồn tiền đề lịch sử, ghi rõ kết quả ngẫu nhiên/hư cấu."
+        ]
+      },
+      "done": {
+        "en": "The small scenario demonstrates two useful plans before content expansion; every boss rewards a different preparation instead of just larger numbers.",
+        "vi": "Màn nhỏ chứng minh hai kế hoạch hữu ích trước khi mở rộng; mỗi boss thưởng cách chuẩn bị khác thay vì chỉ tăng chỉ số."
+      },
+      "files": [
+        "src/systems/ascent/WaveDirector.ts",
+        "src/systems/ascent/BattleSystem.ts",
+        "src/systems/ascent/SupplySystem.ts",
+        "src/game/ascentConfig.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-battle-moments.mjs"
+      ]
+    },
+    {
+      "id": "R15",
+      "milestone": "optional",
+      "items": [
+        "B31",
+        "B40"
+      ],
+      "depends": [
+        "R00",
+        "R07",
+        "R10"
+      ],
+      "days": [
+        5,
+        9
+      ],
+      "title": {
+        "en": "Offer a normalized, shareable challenge",
+        "vi": "Tạo thử thách chuẩn hóa có thể chia sẻ"
+      },
+      "goal": {
+        "en": "Compare skill without mixing incompatible progression or rules.",
+        "vi": "So kỹ năng mà không trộn tiến trình hoặc luật không tương thích."
+      },
+      "critique": {
+        "en": "A seed alone is not reproducible, and a normalized run must not wipe the player's owned progression.",
+        "vi": "Một seed chưa đủ tái hiện, và lượt chuẩn hóa không được xóa tiến trình người chơi sở hữu."
+      },
+      "tasks": {
+        "en": [
+          "Run challenges in an isolated preset overlay with declared difficulty, pace, assistance, command mode and progression effects.",
+          "Encode seed, version and preset in a share code; validate input and explain version mismatch.",
+          "Keep scores partitioned by compatible rules; start with local comparison, without a server leaderboard."
+        ],
+        "vi": [
+          "Chạy thử thách với lớp cấu hình tách biệt, khai báo độ khó, nhịp, hỗ trợ, chỉ huy và hiệu ứng tiến trình.",
+          "Mã chia sẻ chứa seed, phiên bản và cấu hình; kiểm tra đầu vào và giải thích lệch phiên bản.",
+          "Tách điểm theo luật tương thích; bắt đầu bằng so sánh cục bộ, chưa cần bảng xếp hạng máy chủ."
+        ]
+      },
+      "done": {
+        "en": "The same supported code recreates the same setup; challenge exit preserves owned progress and incompatible scores cannot mix.",
+        "vi": "Cùng mã được hỗ trợ tái tạo cùng thiết lập; thoát thử thách giữ tiến trình sở hữu và không trộn điểm khác luật."
+      },
+      "files": [
+        "src/state/GameState.ts",
+        "src/state/legacy.ts",
+        "src/state/dynasty.ts",
+        "src/state/cabinet.ts",
+        "test_scripts/playtest/playtest-lib.mjs"
+      ],
+      "checks": []
+    },
+    {
+      "id": "R16",
+      "milestone": "optional",
+      "items": [
+        "B32",
+        "B33"
+      ],
+      "depends": [
+        "R01",
+        "R03",
+        "R06",
+        "R11"
+      ],
+      "days": [
+        4,
+        7
+      ],
+      "title": {
+        "en": "Clarify commitments and capital recovery",
+        "vi": "Làm rõ cam kết và khôi phục kinh thành"
+      },
+      "goal": {
+        "en": "Make diplomatic obligations and the remaining recovery window actionable.",
+        "vi": "Biến nghĩa vụ ngoại giao và thời gian cứu kinh thành còn lại thành hành động rõ ràng."
+      },
+      "critique": {
+        "en": "A countdown without a feasible action creates pressure rather than agency; another diplomatic currency is unnecessary.",
+        "vi": "Đếm ngược không có hành động khả thi chỉ gây áp lực; không cần thêm tiền tệ ngoại giao."
+      },
+      "tasks": {
+        "en": [
+          "Show duration, obligations, cancellation and consequences using existing agreement state.",
+          "Show capital grace time with feasible relief/recapture intents and arrival estimates.",
+          "Promote either fix earlier if current playtests show it blocks the core charter."
+        ],
+        "vi": [
+          "Hiện thời hạn, nghĩa vụ, hủy và hậu quả từ trạng thái thỏa thuận hiện có.",
+          "Hiện thời gian ân hạn kinh thành cùng ý định cứu viện/tái chiếm khả thi và thời gian tới.",
+          "Đưa một trong hai việc lên sớm nếu chơi thử hiện tại cho thấy nó chặn mục tiêu cốt lõi."
+        ]
+      },
+      "done": {
+        "en": "Displayed obligations match resolution; a relief suggestion cannot arrive after the deadline without warning.",
+        "vi": "Nghĩa vụ hiển thị khớp xử lý; gợi ý cứu viện không được tới sau hạn mà không cảnh báo."
+      },
+      "files": [
+        "src/systems/DiplomacySystem.ts",
+        "src/systems/ascent/EnvoySystem.ts",
+        "src/systems/ascent/AscentTick.ts",
+        "src/scenes/conquest/screens/affairs.ts",
+        "src/scenes/conquest/screens/armyTargets.ts"
+      ],
+      "checks": [
+        "node test_scripts/verify/verify-foreign-relations.mjs",
+        "node test_scripts/verify/verify-crisis-vassal.mjs"
+      ]
+    },
+    {
+      "id": "R17",
+      "milestone": "deferred",
+      "items": [
+        "B43",
+        "B44",
+        "B45",
+        "B46",
+        "B47",
+        "B48"
+      ],
+      "depends": [],
+      "days": [
+        0,
+        0
+      ],
+      "title": {
+        "en": "Keep major expansion out of the current delivery",
+        "vi": "Để mở rộng lớn ngoài đợt triển khai hiện tại"
+      },
+      "goal": {
+        "en": "Protect time for a satisfying single-player core.",
+        "vi": "Giữ thời gian cho lõi chơi đơn trọn vẹn."
+      },
+      "critique": {
+        "en": "Multiplayer, naval layers, mandatory micromanagement, new currencies, much larger maps and grind gates multiply scope before the current decisions are proven.",
+        "vi": "Đa người chơi, hải chiến, điều khiển vụn bắt buộc, tiền tệ mới, bản đồ lớn hơn và cổng cày cuốc nhân phạm vi trước khi quyết định hiện tại được chứng minh."
+      },
+      "tasks": {
+        "en": [
+          "Keep B43–B48 Deferred; use their review conditions for any promotion.",
+          "Require a demonstrated player need, a bounded prototype and a revised estimate before adding them to a milestone."
+        ],
+        "vi": [
+          "Giữ B43–B48 ở trạng thái Hoãn; dùng điều kiện trong bản đánh giá để cân nhắc đưa lên.",
+          "Cần nhu cầu người chơi có bằng chứng, thử nghiệm giới hạn và ước lượng mới trước khi thêm vào mốc."
+        ]
+      },
+      "done": {
+        "en": "No implementation scheduled; reconsideration is a recorded design decision, not automatic backlog expansion.",
+        "vi": "Chưa xếp lịch triển khai; xem xét lại là quyết định thiết kế được ghi nhận, không tự mở rộng backlog."
+      },
+      "files": [],
+      "checks": []
+    }
+  ]
+}

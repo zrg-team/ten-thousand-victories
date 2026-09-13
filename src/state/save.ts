@@ -2,6 +2,8 @@ import type { FieldStance, GameState } from './types';
 import { t } from '../i18n';
 import { ensureAscentLaneState } from '../systems/ascent/ConquestSystem';
 import { clearLiveReign } from './dynasty';
+import { isAscentRulesetId } from '../game/ascentRuleset';
+import { restoreGoalChoice } from '../systems/ascent/Goal';
 
 export const SAVE_SNAPSHOT_VERSION = 1;
 export const SAVE_SNAPSHOT_KEY = 'mandate:snapshot:v1';
@@ -247,6 +249,13 @@ function normalizeSnapshotState(state: GameState): GameState {
   // The map now paints itself from the season, so an absent one would leave the world with no
   // palette at all rather than merely with a wrong HUD label.
   clone.season ??= 'Spring';
+  // A ruleset this build does not know — a save carried back from a newer build, or one written
+  // while an experiment existed that has since been retired — resumes under the stable rules
+  // rather than a half-understood set. `stable` itself is stored as no field at all.
+  if (clone.campaignConfig && 'ruleset' in clone.campaignConfig
+    && (!isAscentRulesetId(clone.campaignConfig.ruleset) || clone.campaignConfig.ruleset === 'stable')) {
+    delete clone.campaignConfig.ruleset;
+  }
   // A prompt was mid-decision when the run was saved; its options were priced against a
   // state that no longer exists, so drop it rather than restore a stale choice.
   clone.pendingAscentPrompt = undefined;
@@ -259,6 +268,8 @@ function normalizeSnapshotState(state: GameState): GameState {
     // had already fought. Dropped on load, exactly as a mid-decision prompt is.
     clone.ascent.waveCues = [];
     ensureAscentLaneState(clone);
+    // Beta: a won goal whose choice was still owed comes back as the open card, paused.
+    restoreGoalChoice(clone);
     // A run saved mid-engagement carries the retired stance ring — `hold` and `loose` are no longer
     // stances at all, and neither side had a formation. Without this the fight resumes on
     // `undefined` and every multiplier in the exchange reads NaN.

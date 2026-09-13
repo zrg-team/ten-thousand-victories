@@ -1,0 +1,472 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 4, Spring",
+    "realtimeSeconds": 85,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 829668852,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 602.5247487723212,
+      "supplies": 383.5112494419642,
+      "gold": 926,
+      "humans": 669
+    },
+    "resourceRates": {
+      "food": 45.2386775892857,
+      "supplies": 19.56303526785714,
+      "gold": 49,
+      "humans": 4
+    },
+    "visibility": {
+      "visible": 8,
+      "explored": 9,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 458,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 90,
+        "provisions": 72
+      },
+      {
+        "id": "invasion-southern-rival-17-0",
+        "kingdomId": "southern-rival",
+        "landId": "district-11",
+        "total": 212,
+        "level": 2,
+        "experience": 0,
+        "experienceToNextLevel": 160,
+        "morale": 85,
+        "supply": 90,
+        "rations": 350,
+        "provisions": 250
+      },
+      {
+        "id": "levy-district-08-25",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 1209,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 120,
+        "morale": 80,
+        "supply": 80,
+        "rations": 999,
+        "provisions": 999
+      }
+    ],
+    "draftChoices": [
+      "Đỗ Nhân Sách",
+      "Giang Vĩnh Đôn",
+      "Chu Vĩnh Cường"
+    ],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [
+      {
+        "id": "court-boon-kho-lam-1-1789231042144-556",
+        "label": "boon:kho-lam:1",
+        "resourceRateModifier": {
+          "food": 11,
+          "supplies": 5
+        }
+      },
+      {
+        "id": "project-levy-reform",
+        "label": "Levy Reform",
+        "recruitSpeedModifier": 0.3
+      },
+      {
+        "id": "court-asc-village-muster-1-1789231906687-5826",
+        "label": "asc:village-muster:1",
+        "recruitSpeedModifier": 0.4,
+        "recruitmentSupplyCostModifier": -0.08
+      }
+    ],
+    "court": {
+      "stability": 52,
+      "influence": 51,
+      "favor": 0,
+      "favorThreshold": 13,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {
+        "treasurer": "ba-do-nuoc"
+      }
+    },
+    "ascent": {
+      "wave": 1,
+      "ticksToWave": 4,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 3330,
+      "powerDelta": 1081,
+      "peakPower": 3330,
+      "defensePower": 2361,
+      "threat": 274,
+      "level": 4,
+      "xp": 102,
+      "xpToNext": 219,
+      "cardStacks": {
+        "kho-lam": 1,
+        "salt-roads": 1,
+        "village-muster": 1
+      },
+      "retiredCards": [],
+      "heroesSummoned": 1,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 10,
+        "upgrades": 4,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "busy",
+        "world": "busy",
+        "lastDecisionTurn": {
+          "court": 23,
+          "conquer": 13,
+          "world": 21
+        }
+      },
+      "conquestPlans": [
+        {
+          "id": "asc-conquest-9-district-17-bribe",
+          "landId": "district-17",
+          "method": "bribe",
+          "createdTurn": 9,
+          "status": "blocked",
+          "reason": "The nobles of Thiên Sơn Tây took your gold and refused. Trust lost. Diplomacy will be harder here."
+        }
+      ],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 1,
+        "edictsEnacted": 1,
+        "parliamentAnswered": 0,
+        "envoyActions": {
+          "ignore": 1
+        },
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {
+        "decree-offer": 2,
+        "law-choice": 2,
+        "envoy": 8
+      },
+      "lastPromptTurn": 25,
+      "courtCardCooldown": 4,
+      "drawnCourtCards": [
+        "tax-shortfall"
+      ],
+      "era": "founding",
+      "edictPoints": 0,
+      "edicts": [
+        "levy-reform"
+      ],
+      "taxPolicy": "balanced",
+      "stability": 52,
+      "favor": 0,
+      "courtSeats": {
+        "treasurer": "ba-do-nuoc"
+      },
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Đại Lý",
+          "relations": 50,
+          "power": 36,
+          "warAppetite": 4,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 114,
+          "warAppetite": 3,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 38,
+          "power": 61,
+          "warAppetite": 3,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 50,
+          "power": 56,
+          "warAppetite": 9,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 0,
+      "prompt": null,
+      "ui": {
+        "screen": "map",
+        "generatedUiIcons": [
+          "balance",
+          "blade",
+          "book",
+          "chevron-up",
+          "crossed-weapons",
+          "crown",
+          "diplomacy",
+          "food",
+          "gold",
+          "hammer",
+          "hero",
+          "humans",
+          "menu",
+          "pause",
+          "supplies",
+          "territory",
+          "zoom-in",
+          "zoom-out"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "A hand higher than last year."
+  },
+  "texts": [
+    {
+      "text": "0/3",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "2/3",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "6/6",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "0/67",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 4 - Spring",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 161,
+      "y": 19
+    },
+    {
+      "text": "603 (+45)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "384 (+20)",
+      "x": 131,
+      "y": 36
+    },
+    {
+      "text": "926 (+49)",
+      "x": 227,
+      "y": 36
+    },
+    {
+      "text": "669 (+4)",
+      "x": 324,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "3,330",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "274",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "INVASION 1 · LIVE",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "×1.0 ambition",
+      "x": 376,
+      "y": 84
+    },
+    {
+      "text": "Lv 4",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 1",
+      "x": 91,
+      "y": 54
+    },
+    {
+      "text": "1,081",
+      "x": 12,
+      "y": 0
+    },
+    {
+      "text": "1,081",
+      "x": 12,
+      "y": 0
+    },
+    {
+      "text": "Battle",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Build",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Heroes",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Court",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Army",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Affairs",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Story",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "+546",
+      "x": 48,
+      "y": 720
+    },
+    {
+      "text": "A hand higher than last year.",
+      "x": 32,
+      "y": 134
+    },
+    {
+      "text": "A siege at Lam Trại Hạ — the fight is running now.",
+      "x": 33,
+      "y": 107
+    },
+    {
+      "text": "Battle",
+      "x": 17,
+      "y": 758
+    }
+  ],
+  "errors": []
+}

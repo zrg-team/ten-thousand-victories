@@ -41,7 +41,7 @@ import { tickStoreWaste } from './GranarySystem';
 import { advanceBattle, beginBattle, delegateBattle } from './BattleSystem';
 import { hasRoomForAnotherFront, liveBattleCount } from './fronts';
 import { tickAscentProgress } from './PowerSystem';
-import { tickRaids, tickWaveDirector } from './WaveDirector';
+import { refreshThreatReadout, tickRaids, tickWaveDirector } from './WaveDirector';
 import { tickEnemyCommand } from './EnemyCommandDirector';
 import { detectConquests, ensureAscentLaneState, refreshAscentLaneState } from './ConquestSystem';
 import { tickDecisionDirector, tickPromptCooldowns } from './DecisionDirector';
@@ -52,6 +52,7 @@ import { tickDecreeEffects } from '../decree/DecreeTick';
 import { courtInRefuge, militaryColonies } from '../decree/rules';
 import { tickEdictDiscovery } from './CourtLaneSystem';
 import { endAscentRun } from './AscentResolver';
+import { raiseGoalChoice } from './Goal';
 import { advanceSeasonClock, greatPowersDue } from '../seasonClock';
 import { seasonLabel, t } from '../../i18n';
 import type { GameState } from '../../state/types';
@@ -188,6 +189,8 @@ export function advanceAscentTick(state: GameState): void {
   }
 
   ensureAscentLaneState(state);
+  // Beta: the victory card, owed since the goal was won. Inert on a stable reign.
+  raiseGoalChoice(state);
 
   const ownedBefore = ownedLandIds(state);
   const wavesBefore = state.ascent.wavesSurvived;
@@ -380,6 +383,7 @@ export function advanceAscentTick(state: GameState): void {
   tickDecisionDirector(state);
   checkAscentDefeat(state);
   drainAscentPrompts(state);
+  refreshThreatReadout(state);
 
   refreshPlayerVisibility(state);
 }

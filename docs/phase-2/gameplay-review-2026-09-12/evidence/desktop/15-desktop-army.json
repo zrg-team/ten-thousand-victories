@@ -1,0 +1,506 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 1, Spring",
+    "realtimeSeconds": 0,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 714453520,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 150,
+      "supplies": 70,
+      "gold": 110,
+      "humans": 600
+    },
+    "resourceRates": {
+      "food": -6,
+      "supplies": 24,
+      "gold": 50,
+      "humans": 0
+    },
+    "visibility": {
+      "visible": 14,
+      "explored": 14,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-15",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 120,
+        "provisions": 80
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [
+      {
+        "id": "court-boon-cam-quan-1-1789232029798-3251",
+        "label": "boon:cam-quan:1",
+        "armyPowerModifier": 0.14
+      }
+    ],
+    "court": {
+      "stability": 50,
+      "influence": 50,
+      "favor": 0,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {}
+    },
+    "ascent": {
+      "wave": 0,
+      "ticksToWave": 16,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 1666,
+      "powerDelta": 0,
+      "peakPower": 1666,
+      "defensePower": 1388,
+      "threat": 348,
+      "level": 1,
+      "xp": 0,
+      "xpToNext": 82,
+      "cardStacks": {
+        "cam-quan": 1
+      },
+      "retiredCards": [],
+      "heroesSummoned": 1,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 0,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "ready",
+        "lastDecisionTurn": {}
+      },
+      "conquestPlans": [],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 0,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {},
+      "lastPromptTurn": 1,
+      "courtCardCooldown": 3,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 50,
+      "favor": 0,
+      "courtSeats": {},
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Lãnh Chúa Phương Bắc",
+          "relations": 38,
+          "power": 52,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 56,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 50,
+          "power": 51,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 46,
+          "power": 50,
+          "warAppetite": 0,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 0,
+      "prompt": null,
+      "ui": {
+        "screen": "lane:army",
+        "generatedUiIcons": [
+          "balance",
+          "book",
+          "chevron-up",
+          "crossed-weapons",
+          "crown",
+          "diplomacy",
+          "food",
+          "gold",
+          "hammer",
+          "heart",
+          "hero",
+          "humans",
+          "menu",
+          "play",
+          "supplies"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "The dragon stirs. Your dynasty begins its ascent."
+  },
+  "texts": [
+    {
+      "text": "Đông Lộ Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Lâm Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Trường Hương Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Cẩm Động",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Sơn",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Phú Xuyên Hạ",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hồng Trại",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Vân Lâm Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Phú Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Phong Lâm Hạ",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 1 - Spring",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 157,
+      "y": 19
+    },
+    {
+      "text": "150 (-6)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "70 (+24)",
+      "x": 131,
+      "y": 36
+    },
+    {
+      "text": "110 (+50)",
+      "x": 231,
+      "y": 36
+    },
+    {
+      "text": "600 (0)",
+      "x": 332,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 88
+    },
+    {
+      "text": "THREAT",
+      "x": 305,
+      "y": 88
+    },
+    {
+      "text": "1,666",
+      "x": 54,
+      "y": 88
+    },
+    {
+      "text": "348",
+      "x": 339,
+      "y": 88
+    },
+    {
+      "text": "ahead",
+      "x": 376,
+      "y": 88
+    },
+    {
+      "text": "next wave in 16",
+      "x": 376,
+      "y": 65
+    },
+    {
+      "text": "Lv 1",
+      "x": 14,
+      "y": 62
+    },
+    {
+      "text": "Wave 0",
+      "x": 49,
+      "y": 62
+    },
+    {
+      "text": "Build",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Heroes",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Court",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Army",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Affairs",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "Story",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "text": "+283",
+      "x": 48,
+      "y": 681
+    },
+    {
+      "text": "16 quiet seasons left. Nothing attacks yet.",
+      "x": 33,
+      "y": 107
+    },
+    {
+      "text": "Army",
+      "x": 195,
+      "y": 66
+    },
+    {
+      "text": "Raise hosts, and give the ones you have their orders.",
+      "x": 195,
+      "y": 95
+    },
+    {
+      "text": "DEFENCE",
+      "x": 43,
+      "y": 7
+    },
+    {
+      "text": "1388",
+      "x": 43,
+      "y": 18
+    },
+    {
+      "text": "THREAT",
+      "x": 129,
+      "y": 7
+    },
+    {
+      "text": "348",
+      "x": 129,
+      "y": 18
+    },
+    {
+      "text": "HOSTS",
+      "x": 215,
+      "y": 7
+    },
+    {
+      "text": "1",
+      "x": 215,
+      "y": 18
+    },
+    {
+      "text": "SOLDIERS",
+      "x": 301,
+      "y": 7
+    },
+    {
+      "text": "460",
+      "x": 301,
+      "y": 18
+    },
+    {
+      "text": "THE REALM'S STRENGTH",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "THE WAR UNDERWAY",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "Wave 1 — 16 more seasons",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "No enemy host stands inside the realm's sight.",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "MUSTER",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "Raise a host",
+      "x": 9,
+      "y": 9
+    },
+    {
+      "text": "Muster 371 soldiers under a free commander",
+      "x": 9,
+      "y": 28
+    },
+    {
+      "text": "STANDING HOSTS",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "text": "Royal Host  ·  460",
+      "x": 10,
+      "y": 8
+    },
+    {
+      "text": "92",
+      "x": 15,
+      "y": 1
+    },
+    {
+      "text": "95",
+      "x": 53,
+      "y": 1
+    },
+    {
+      "text": "Trường Hương  ·  Nguyễn Trung Huyên\nDefend Trường Hương",
+      "x": 10,
+      "y": 50
+    },
+    {
+      "text": "FIELD POWER",
+      "x": 233,
+      "y": 14
+    },
+    {
+      "text": "633",
+      "x": 233,
+      "y": 23
+    },
+    {
+      "text": "LV 1",
+      "x": 233,
+      "y": 42
+    },
+    {
+      "text": "Settings",
+      "x": 20,
+      "y": 620
+    },
+    {
+      "text": "Close",
+      "x": 175,
+      "y": 23
+    }
+  ],
+  "errors": []
+}

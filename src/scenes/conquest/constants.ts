@@ -36,7 +36,7 @@ export const BATTLE_RAILS_HEIGHT = 56;
  *
  * Bottom-up, because that is the order of how often each is touched — the formation strip is worked
  * three to five times an engagement and owns the thumb's own band; the stance strip is worked once
- * or twice and sits above it, smaller and further away. See `docs/14-five-shapes-two-dials.html`.
+ * or twice and sits above it, smaller and further away. See `docs/phase-1/14-five-shapes-two-dials.md`.
  *
  *   stance label 12 + segments 30 = 42
  *   gap 6
@@ -96,7 +96,7 @@ export const BATTLE_EXITS_OFFSET = 56;
  * A glyph per shape, so a chip can be recognised rather than read.
  *
  * Each one draws the *arrangement* its shape puts the men in, seen from above — the same reading
- * the field gives, at 15 points. See `docs/14-five-shapes-two-dials.html` for the ring itself.
+ * the field gives, at 15 points. See `docs/phase-1/14-five-shapes-two-dials.md` for the ring itself.
  */
 export const FORMATION_ICON: Record<BattleFormation, CardIconId> = {
   chong: 'spears',
@@ -312,6 +312,7 @@ export function promptSignature(prompt: AscentPrompt): string {
     // Constant, like the coronation's: the screen has no options and reads every number it prints
     // live from the stores, so nothing about its content can change while it stands.
     case 'inheritance': return 'inheritance';
+    case 'goal-won': return `goal:${prompt.wave}`;
     case 'mandate': return `mandate:${prompt.options.join(',')}`;
     case 'founder': return prompt.options.join(',');
     case 'run-over': return `${prompt.score}`;

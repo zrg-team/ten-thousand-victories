@@ -137,7 +137,7 @@ const out = await page.evaluate(async (fights) => {
     if (policy !== 'auto' && generalMartial === 0) B.markPlayerSteered(st);
 
     // The stances are a tempo dial now and the ring is a *formation* — see
-    // docs/14-five-shapes-two-dials.html. `always-charge` is a host that presses whatever happens;
+    // docs/phase-1/14-five-shapes-two-dials.md. `always-charge` is a host that presses whatever happens;
     // `always-loose` is one that stands in Thế Nỏ and shoots, which is where loosing went.
     if (policy === 'always-charge') B.setBattleStance(st, 'press');
     if (policy === 'always-loose') B.setBattleFormation(st, 'no');

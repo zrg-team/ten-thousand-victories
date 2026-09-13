@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Dynasty Ledger</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f1e9d7; --panel: #f9f4e8; --panel-2: #ece2cc;
+    --ink: #2a211a; --faint: #6f6250;
+    --line: rgba(42,33,26,.18); --line-soft: rgba(42,33,26,.09);
+    --cinnabar: #b23a26; --jade: #33705a; --gold: #96701e; --bronze: #8a6142;
+    --ch-gold: #9d7f2e;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #16110b; --panel: #1f1811; --panel-2: #291f14;
+      --ink: #e9dfc7; --faint: #a3947c;
+      --line: rgba(233,223,199,.2); --line-soft: rgba(233,223,199,.09);
+      --cinnabar: #d96f52; --jade: #64a586; --gold: #c59d49; --bronze: #b08a68;
+      --ch-gold: #b5862a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #16110b; --panel: #1f1811; --panel-2: #291f14;
+    --ink: #e9dfc7; --faint: #a3947c;
+    --line: rgba(233,223,199,.2); --line-soft: rgba(233,223,199,.09);
+    --cinnabar: #d96f52; --jade: #64a586; --gold: #c59d49;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--ground); color: var(--ink); font-family: "Source Serif 4", Georgia, serif; font-size: 16px; line-height: 1.62; margin: 0; }
+  .wrap { max-width: 54rem; margin: 0 auto; padding: 0 20px 90px; }
+  h1, h2, h3 { font-family: "Be Vietnam Pro", system-ui, sans-serif; line-height: 1.15; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.7rem); font-weight: 800; letter-spacing: -0.02em; }
+  h2 { font-size: 1.3rem; font-weight: 800; }
+  h3 { font-size: 1.02rem; font-weight: 700; margin: 24px 0 8px; }
+  p { margin: 0 0 13px; }
+  a { color: var(--jade); }
+  .eyebrow { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--faint); }
+  header { padding: 56px 0 14px; border-bottom: 2px solid var(--ink); margin-bottom: 22px; }
+  .standfirst { color: var(--faint); font-size: 1.05rem; max-width: 42rem; margin-top: 10px; }
+  .standfirst strong { color: var(--ink); }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.85em; }
+  code { background: var(--panel-2); padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
+  pre { background: var(--panel); border: 1px solid var(--line-soft); border-left: 3px solid var(--gold); padding: 13px 15px; overflow-x: auto; font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; line-height: 1.6; margin: 14px 0; }
+  pre code { background: none; padding: 0; white-space: pre; }
+  section { margin-top: 40px; }
+  .chapter-head { display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 16px; }
+  .chapter-head .no { font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; color: var(--faint); }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 18px 0; }
+  .fact { background: var(--panel); border: 1px solid var(--line-soft); border-left: 3px solid var(--gold); padding: 10px 13px; }
+  .fact .k { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+  .fact .v { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 0.98rem; margin-top: 2px; }
+  .table-scroll { overflow-x: auto; margin: 14px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; background: var(--panel); border: 1px solid var(--line-soft); }
+  th { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-align: left; color: var(--faint); padding: 9px 13px 7px; border-bottom: 2px solid var(--line); }
+  td { padding: 8px 13px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; white-space: nowrap; }
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--cinnabar); padding: 15px 18px 11px; margin: 18px 0; }
+  .callout.jade { border-left-color: var(--jade); }
+  .callout h4 { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 7px; color: var(--cinnabar); }
+  .callout.jade h4 { color: var(--jade); }
+  .callout p:last-child { margin-bottom: 0; }
+  ol.steps { padding-left: 0; margin: 0; counter-reset: s; list-style: none; }
+  ol.steps > li { counter-increment: s; border-bottom: 1px solid var(--line-soft); padding: 13px 0 13px 46px; position: relative; margin: 0; }
+  ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 13px; width: 28px; height: 28px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: "Be Vietnam Pro", sans-serif; font-weight: 800; font-size: 0.85rem; color: var(--gold); }
+  ol.steps b.t { font-family: "Be Vietnam Pro", sans-serif; }
+  ol.steps .f { display: block; font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--faint); margin-top: 3px; }
+  ul { padding-left: 1.25em; margin: 0 0 13px; }
+  li { margin-bottom: 6px; }
+  li::marker { color: var(--faint); }
+  figure { margin: 24px 0; }
+  figure svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+  figcaption { font-size: 0.83rem; color: var(--faint); max-width: 40rem; margin: 10px auto 0; text-align: center; }
+  .dod { background: var(--panel); border: 1px solid var(--line-soft); padding: 14px 18px; }
+  .dod div { padding: 5px 0 5px 28px; position: relative; font-size: 0.92rem; border-bottom: 1px solid var(--line-soft); }
+  .dod div:last-child { border-bottom: none; }
+  .dod div::before { content: ""; position: absolute; left: 0; top: 9px; width: 13px; height: 13px; border: 1.5px solid var(--jade); border-radius: 3px; }
+  footer { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 14px; font-size: 0.8rem; color: var(--faint); }
+  /* ── phone-frame mock kit ── */
+  .mockrow { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; align-items: flex-start; margin: 24px 0 6px; }
+  .mock { width: 234px; flex-shrink: 0; }
+  .mock .mtitle { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 0.78rem; text-align: center; margin-bottom: 8px; }
+  .mock .mtitle small { display: block; font-weight: 400; color: var(--faint); font-size: 0.7rem; }
+  .phone { background: var(--panel); border: 2.5px solid var(--ink); border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,.18); padding: 12px 10px 14px; min-height: 430px; display: flex; flex-direction: column; gap: 7px; position: relative; overflow: hidden; }
+  .mhead { font-family: "Be Vietnam Pro", sans-serif; font-weight: 800; font-size: 0.72rem; text-align: center; letter-spacing: 0.04em; }
+  .mhead small { display: block; font-weight: 400; font-family: "Source Serif 4", serif; color: var(--faint); font-size: 0.62rem; letter-spacing: 0; }
+  .mrule { border: none; border-top: 1px solid var(--line); margin: 1px 0; }
+  .mrow { background: var(--panel-2); border: 1px solid var(--line-soft); border-left: 3px solid var(--faint); padding: 6px 8px; font-size: 0.62rem; line-height: 1.45; border-radius: 2px; }
+  .mrow b { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.64rem; }
+  .mrow .sub { color: var(--faint); display: block; }
+  .mrow.gold { border-left-color: var(--gold); }
+  .mrow.jade { border-left-color: var(--jade); }
+  .mrow.red { border-left-color: var(--cinnabar); }
+  .mrow.pick { outline: 2px solid var(--gold); outline-offset: 1px; }
+  .mrow.dim { opacity: 0.55; }
+  .mbtn { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 0.64rem; text-align: center; padding: 7px 6px; border: 1.5px solid var(--ink); border-radius: 4px; margin-top: auto; }
+  .mbtn.primary { background: var(--ink); color: var(--panel); }
+  .mbtn.ghost { color: var(--faint); border-color: var(--line); margin-top: 4px; }
+  .mbar { height: 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
+  .mbar i { display: block; height: 100%; background: var(--gold); }
+  .mcap { font-size: 0.58rem; color: var(--faint); text-align: center; }
+  .mport { width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--gold); background: radial-gradient(circle at 35% 30%, var(--panel-2), var(--bronze)); margin: 2px auto; display: flex; align-items: center; justify-content: center; font-family: "Be Vietnam Pro", sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--ink); }
+  .mchips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+  .mchip { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.52rem; font-weight: 700; border: 1px solid var(--line); border-radius: 99px; padding: 1.5px 7px; color: var(--faint); }
+  .mchip.on { border-color: var(--jade); color: var(--jade); }
+  /* ── chart kit ── */
+  .chartbox { background: var(--panel); border: 1px solid var(--line-soft); padding: 18px 14px 12px; overflow-x: auto; }
+  .fig-title { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 0.85rem; text-align: center; margin-bottom: 2px; }
+  .fig-sub { text-align: center; font-size: 0.76rem; color: var(--faint); margin-bottom: 12px; }
+  svg .grid { stroke: var(--line-soft); stroke-width: 1; }
+  svg .axis { stroke: var(--line); stroke-width: 1.2; }
+  svg .tick { font-family: "IBM Plex Mono", monospace; font-size: 10px; fill: var(--faint); }
+  svg .lbl { font-family: "Be Vietnam Pro", sans-serif; font-size: 11px; font-weight: 700; fill: var(--ink); }
+  svg .note { font-family: "Source Serif 4", serif; font-size: 11px; fill: var(--faint); }
+</style>
+
+</head>
+<body>
+<aside style="padding:14px 20px;background:#f2ead6;color:#243832;font:14px/1.5 system-ui;border-bottom:1px solid #c9bea5"> <strong>Phase 1 archive · Lưu trữ giai đoạn 1.</strong> Historical design; original status and numbered phases belong to that document. <a href="../phase-2/README.md">Phase 2 plan / Kế hoạch giai đoạn 2</a>.</aside>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Vạn Thắng · Dragon Ascent · Implementation plan · Phase 2 of 4</div>
+  <h1>The Dynasty Ledger</h1>
+  <p class="standfirst">Tông Phả — the persistent king. Dynasty XP from every run's score, <strong>a choice of two traits per level</strong>, and the reordered run-over <strong>ceremony</strong> that walks the player through the future before letting them leave. This is the thin slice that ships the <em>feeling</em> of return before any collection exists. From the master dossier, §04 + §08.</p>
+</header>
+
+<div class="facts">
+  <div class="fact"><div class="k">Effort</div><div class="v">~1 week</div></div>
+  <div class="fact"><div class="k">Screens</div><div class="v">2 new + 1 reordered</div></div>
+  <div class="fact"><div class="k">Save impact</div><div class="v">new mandate:dynasty:v1</div></div>
+  <div class="fact"><div class="k">Depends on</div><div class="v">nothing (parallel to Phase 1)</div></div>
+</div>
+
+<section>
+  <div class="chapter-head"><span class="no">01</span><h2>The flow being built</h2></div>
+  <figure>
+    <svg viewBox="0 0 880 130" role="img" aria-label="Ceremony flow: the existing reckoning ledger, then the new dynasty-grows step with a trait choice, then the reworked next-reign screen; the bind and swear steps are placeholders wired in later phases.">
+      <defs><marker id="arrC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker></defs>
+      <g fill="none" stroke="currentColor" stroke-width="1.4">
+        <rect x="14" y="30" width="150" height="62" rx="4"/>
+        <rect x="204" y="30" width="150" height="62" rx="4" stroke="var(--cinnabar)" stroke-width="2"/>
+        <rect x="394" y="30" width="130" height="62" rx="4" stroke-dasharray="5 4"/>
+        <rect x="564" y="30" width="130" height="62" rx="4" stroke-dasharray="5 4"/>
+        <rect x="734" y="30" width="132" height="62" rx="4" stroke="var(--cinnabar)" stroke-width="2"/>
+      </g>
+      <g font-family="'Be Vietnam Pro', sans-serif" font-size="12" font-weight="700" fill="currentColor" text-anchor="middle">
+        <text x="89" y="55">RECKONING</text>
+        <text x="279" y="55">DYNASTY GROWS</text>
+        <text x="459" y="55">BIND A SEAL</text>
+        <text x="629" y="55">SWEAR A NAME</text>
+        <text x="800" y="55">NEXT REIGN</text>
+      </g>
+      <g font-family="'Source Serif 4', serif" font-size="10.5" fill="currentColor" opacity="0.75" text-anchor="middle">
+        <text x="89" y="72">exists — keep as-is</text>
+        <text x="279" y="72">this phase: XP bar +</text><text x="279" y="84">choice of two traits</text>
+        <text x="459" y="72">stub · Phase 3</text>
+        <text x="629" y="72">stub · Phase 4</text>
+        <text x="800" y="72">this phase: founder +</text><text x="800" y="84">trait summary</text>
+      </g>
+      <g stroke="currentColor" stroke-width="1.4" fill="none">
+        <line x1="164" y1="61" x2="202" y2="61" marker-end="url(#arrC)"/>
+        <line x1="354" y1="61" x2="392" y2="61" marker-end="url(#arrC)"/>
+        <line x1="524" y1="61" x2="562" y2="61" marker-end="url(#arrC)"/>
+        <line x1="694" y1="61" x2="732" y2="61" marker-end="url(#arrC)"/>
+      </g>
+    </svg>
+    <figcaption>The ceremony is a chain of prompts on the <b>run-over path</b> — already terminal, already paused — so the in-run decision director's cooldowns can never swallow a step. Dashed steps are wired as pass-throughs now so Phases 3–4 slot in without reordering anything.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <h4>The one rule that keeps this honest</h4>
+    <p>Waves shadow the realm's power (dossier §03), so <b>traits are verbs, options and tempo — never raw power</b>. The published budget: all stat-flavoured traits together ≤ +10% power equivalent, and flat resource seeds land only inside waves 1–5 where <code>EARLY_WAVE_FIELD_SHARE</code> already caps the enemy. Write this cap as a comment at the top of the trait table so future content keeps the promise.</p>
+  </div>
+</section>
+
+<section>
+  <div class="chapter-head"><span class="no">02</span><h2>The screens</h2></div>
+
+  <div class="mockrow">
+    <div class="mock">
+      <div class="mtitle">The Dynasty sheet<small>menu page, beside the Legacy page · the king ages here</small></div>
+      <div class="phone">
+        <div class="mhead">TÔNG PHẢ<small>House of Lê Duyệt · 4th reign</small></div>
+        <div class="mport">Lê</div>
+        <div class="mcap">Dynasty Level 7 · 11,240 / 14,800 XP</div>
+        <div class="mbar"><i style="width: 76%"></i></div>
+        <hr class="mrule">
+        <div class="mchips">
+          <span class="mchip on">Wide Draft ✓</span>
+          <span class="mchip on">Quartermaster ✓</span>
+          <span class="mchip on">Deep Shelf ✓</span>
+          <span class="mchip on">Old Roads ✓</span>
+          <span class="mchip">Twin Doctrine</span>
+          <span class="mchip">Long Memory</span>
+        </div>
+        <hr class="mrule">
+        <div class="mrow"><b>Reigns</b><span class="sub">4 · best score 8,120 · rank: Lord</span></div>
+        <div class="mrow jade"><b>Ancestral code in force</b><span class="sub">Hồng Đức article — the invisible carry-over, finally said out loud</span></div>
+        <div class="mcap" style="margin-top: auto;">portrait = the wardrobe system; the rank badge<br>steps up with dynasty level — 30 reigns <i>look</i> like 30 reigns</div>
+      </div>
+    </div>
+    <div class="mock">
+      <div class="mtitle">The level-up moment<small>ceremony step 2 — fires while the run's memory is warm</small></div>
+      <div class="phone">
+        <div class="mhead">THE DYNASTY GROWS<small>score 6,940 poured into the house</small></div>
+        <div class="mport" style="width: 42px; height: 42px; font-size: 0.85rem;">Lê</div>
+        <div class="mbar"><i style="width: 100%"></i></div>
+        <div class="mcap" style="color: var(--gold); font-weight: 700;">LEVEL 8 — CHOOSE ONE</div>
+        <div class="mrow gold pick"><b>Second Founder</b><span class="sub">Choose from 5 founders, not 3, at every run start</span></div>
+        <div class="mrow gold"><b>First Reroll Free</b><span class="sub">One free power-draft reroll after each level-up</span></div>
+        <div class="mrow dim"><b>Not offered this level</b><span class="sub">the other six wait — two rolled per level, no rerolls, so a pick is a real fork</span></div>
+        <div class="mcap">a run big enough for two levels queues two picks,<br>shown one after the other</div>
+        <div class="mbtn primary">Seal the choice</div>
+      </div>
+    </div>
+    <div class="mock">
+      <div class="mtitle">The next reign<small>the reworked exit — "go again" becomes "go again with"</small></div>
+      <div class="phone">
+        <div class="mhead">THE NEXT REIGN<small>what the house carries forward</small></div>
+        <div class="mrow gold pick"><b>Founder — choose from 5</b><span class="sub">Lê Lợi · Trần Hưng Đạo · Lê Chân · Ngô Quyền · Đinh Bộ Lĩnh</span></div>
+        <div class="mrow jade"><b>Traits in force</b><span class="sub">Wide Draft · Quartermaster · Old Roads (+2 lands' trade bonus)</span></div>
+        <div class="mrow jade"><b>Opening hand</b><span class="sub">empty — Phase 3 fills this slot</span></div>
+        <div class="mrow jade"><b>Companions</b><span class="sub">empty — Phase 4 fills this slot</span></div>
+        <div class="mrow"><b>Ancestral code</b><span class="sub">one Hồng Đức article already law</span></div>
+        <div class="mcap">the two empty rows are deliberate: the screen<br>teaches what the house will one day carry</div>
+        <div class="mbtn primary">Begin the reign</div>
+      </div>
+    </div>
+  </div>
+  <p class="measure" style="max-width: 46rem;">Design notes the master dossier had no room for: the level-up offers <b>two of the un-owned traits, rolled, no reroll</b> — a pick must be a fork, not a menu; the sheet finally <b>says the ancestral code out loud</b> (it has been silently applied since the codes feature shipped — the best-earned carry-over in the game was invisible); and the next-reign screen shows Phase 3/4's empty rows from day one, so the player sees the shape of what's coming. Respec: one full respec per ascension, none casually — traits are a biography, not a loadout.</p>
+</section>
+
+<section>
+  <div class="chapter-head"><span class="no">03</span><h2>Data &amp; the eight launch traits</h2></div>
+  <pre><code>// localStorage 'mandate:dynasty:v1' — parsed defensively, like legacy.ts
+interface DynastyStore {
+  xp: number;              // lifetime; step to gain level n: 2000 * 1.12^(n-1)
+  level: number;
+  traits: string[];        // chosen trait ids
+  pendingPicks: number;    // level-ups not yet chosen (ceremony offers them)
+  reigns: number;          // runs completed, for the sheet
+}</code></pre>
+
+  <figure>
+    <div class="fig-title">Level pacing — runs needed to gain each level</div>
+    <div class="fig-sub">step(n) = 2,000 × 1.12ⁿ⁻¹ XP, at a typical run score of ~6,000 · 25 levels ≈ 45 runs of real play</div>
+    <div class="chartbox">
+    <svg viewBox="0 0 660 260" role="img" aria-label="Bar chart of runs needed per dynasty level. Levels 1 through 8 each cost well under one run; level 10 costs about one run; level 15 about 1.6 runs; level 20 about 3; level 25 about 5. Early levels come every run, late levels become a long climb.">
+      <g class="grid">
+        <line x1="50" y1="220" x2="630" y2="220"/><line x1="50" y1="180" x2="630" y2="180"/>
+        <line x1="50" y1="140" x2="630" y2="140"/><line x1="50" y1="100" x2="630" y2="100"/>
+        <line x1="50" y1="60" x2="630" y2="60"/><line x1="50" y1="20" x2="630" y2="20"/>
+      </g>
+      <g class="tick">
+        <text x="43" y="224" text-anchor="end">0</text><text x="43" y="184" text-anchor="end">1</text>
+        <text x="43" y="144" text-anchor="end">2</text><text x="43" y="104" text-anchor="end">3</text>
+        <text x="43" y="64" text-anchor="end">4</text><text x="43" y="24" text-anchor="end">5</text>
+      </g>
+      <line class="axis" x1="50" y1="220" x2="630" y2="220"/>
+      <g fill="var(--ch-gold)">
+        <rect x="54"  y="206.7" width="18" height="13.3" rx="2"><title>Level 1 — 0.33 runs</title></rect>
+        <rect x="77"  y="205.1" width="18" height="14.9" rx="2"><title>Level 2 — 0.37 runs</title></rect>
+        <rect x="100" y="203.3" width="18" height="16.7" rx="2"><title>Level 3 — 0.42 runs</title></rect>
+        <rect x="123" y="201.3" width="18" height="18.7" rx="2"><title>Level 4 — 0.47 runs</title></rect>
+        <rect x="146" y="199.0" width="18" height="21.0" rx="2"><title>Level 5 — 0.52 runs</title></rect>
+        <rect x="169" y="196.5" width="18" height="23.5" rx="2"><title>Level 6 — 0.59 runs</title></rect>
+        <rect x="192" y="193.7" width="18" height="26.3" rx="2"><title>Level 7 — 0.66 runs</title></rect>
+        <rect x="215" y="190.5" width="18" height="29.5" rx="2"><title>Level 8 — 0.74 runs</title></rect>
+        <rect x="238" y="187.0" width="18" height="33.0" rx="2"><title>Level 9 — 0.83 runs</title></rect>
+        <rect x="261" y="183.0" width="18" height="37.0" rx="2"><title>Level 10 — 0.92 runs</title></rect>
+        <rect x="284" y="178.6" width="18" height="41.4" rx="2"><title>Level 11 — 1.04 runs</title></rect>
+        <rect x="307" y="173.6" width="18" height="46.4" rx="2"><title>Level 12 — 1.16 runs</title></rect>
+        <rect x="330" y="168.0" width="18" height="52.0" rx="2"><title>Level 13 — 1.30 runs</title></rect>
+        <rect x="353" y="161.8" width="18" height="58.2" rx="2"><title>Level 14 — 1.46 runs</title></rect>
+        <rect x="376" y="154.8" width="18" height="65.2" rx="2"><title>Level 15 — 1.63 runs</title></rect>
+        <rect x="399" y="147.0" width="18" height="73.0" rx="2"><title>Level 16 — 1.83 runs</title></rect>
+        <rect x="422" y="138.2" width="18" height="81.8" rx="2"><title>Level 17 — 2.04 runs</title></rect>
+        <rect x="445" y="128.4" width="18" height="91.6" rx="2"><title>Level 18 — 2.29 runs</title></rect>
+        <rect x="468" y="117.4" width="18" height="102.6" rx="2"><title>Level 19 — 2.57 runs</title></rect>
+        <rect x="491" y="105.0" width="18" height="115.0" rx="2"><title>Level 20 — 2.87 runs</title></rect>
+        <rect x="514" y="91.2"  width="18" height="128.8" rx="2"><title>Level 21 — 3.22 runs</title></rect>
+        <rect x="537" y="75.7"  width="18" height="144.3" rx="2"><title>Level 22 — 3.61 runs</title></rect>
+        <rect x="560" y="58.3"  width="18" height="161.7" rx="2"><title>Level 23 — 4.04 runs</title></rect>
+        <rect x="583" y="38.9"  width="18" height="181.1" rx="2"><title>Level 24 — 4.53 runs</title></rect>
+        <rect x="606" y="17.1"  width="18" height="202.9" rx="2"><title>Level 25 — 5.07 runs</title></rect>
+      </g>
+      <g class="tick" text-anchor="middle">
+        <text x="63" y="236">1</text><text x="155" y="236">5</text><text x="270" y="236">10</text>
+        <text x="385" y="236">15</text><text x="500" y="236">20</text><text x="615" y="236">25</text>
+        <text x="340" y="252">dynasty level</text>
+      </g>
+      <text class="lbl" x="60" y="192">a level every run</text>
+      <text class="lbl" x="470" y="100" text-anchor="end">the long climb</text>
+      <text class="note" x="470" y="114" text-anchor="end">picks stay meaningful because they stay scarce</text>
+    </svg>
+    </div>
+    <figcaption>The pacing dial, stated so it can be tuned: the master dossier sketched <span class="mono">1,500 × 1.35ⁿ</span>, which the arithmetic shows walls off level 15 behind 20+ runs — this plan corrects it to <span class="mono">2,000 × 1.12ⁿ⁻¹</span>. Hover a bar for the exact cost. A first session ends around level 2–3 with two choices already made; the 8-trait list must grow past level ~12 (Phase 4's long tail feeds it).</figcaption>
+  </figure>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Trait</th><th>Effect</th><th>The one read site</th></tr>
+    <tr><td><b>Wide Draft</b></td><td>power drafts offer 5 cards, not 4</td><td><code>PowerDraftSystem</code> draft size</td></tr>
+    <tr><td><b>First Reroll Free</b></td><td>one free draft reroll per level-up</td><td><code>rerollPowerDraft</code> price path</td></tr>
+    <tr><td><b>Second Founder</b></td><td>founder prompt offers 5, not 3</td><td>founder prompt builder (<code>AscentState</code>)</td></tr>
+    <tr><td><b>Twin Doctrine</b></td><td>second doctrine slot at era 2</td><td>doctrine offer in the wave director</td></tr>
+    <tr><td><b>Quartermaster</b></td><td>muster completes 1 tick sooner</td><td><code>getMusterEstimate</code></td></tr>
+    <tr><td><b>Old Roads</b></td><td>start with the trade bonus of +2 lands</td><td><code>createAscentGameState</code> seed (lag-window legal)</td></tr>
+    <tr><td><b>Deep Shelf</b></td><td>+1 opening-hand seal slot</td><td>read by Phase 3</td></tr>
+    <tr><td><b>Long Memory</b></td><td>+2 Hall of Names capacity</td><td>read by Phase 4</td></tr>
+  </table>
+  </div>
+  <p>Each trait is <b>one boolean read at one existing site</b> — no new systems. Deep Shelf and Long Memory ship now as stored flags with no reader; their phases pick them up. Offering them early is fine: choosing a future is still a choice.</p>
+</section>
+
+<section>
+  <div class="chapter-head"><span class="no">04</span><h2>Implementation steps</h2></div>
+  <ol class="steps">
+    <li><b class="t">The store.</b> <code>src/state/dynasty.ts</code> modelled line-for-line on <code>legacy.ts</code>: versioned key, defensive shape-checked parse, <code>getDynasty / addRunXp / chooseTrait / hasTrait</code>. <code>addRunXp(score)</code> returns how many level-ups it produced.
+      <span class="f">new src/state/dynasty.ts · pattern: src/state/legacy.ts</span></li>
+    <li><b class="t">The trait table.</b> <code>src/data/dynastyTraits.ts</code> — the eight above with the budget comment. i18n keys <code>dynasty.trait.&lt;id&gt;</code> and <code>.d</code> in <b>both en and vi</b> — a missing key crashes the game at import time; this is the repo's hardest invariant.
+      <span class="f">new src/data/dynastyTraits.ts · src/i18n/catalogs/ (en + vi)</span></li>
+    <li><b class="t">Wire the six live read sites.</b> Draft size, reroll price, founder count, doctrine slot, muster ticks, start seed — each a <code>hasTrait(...)</code> read at the site named in the table. Nothing else changes.
+      <span class="f">PowerDraftSystem.ts · AscentState.ts · MusterSystem.ts · createAscentGameState (GameState.ts)</span></li>
+    <li><b class="t">The ceremony chain.</b> New prompt kind <code>dynasty-level</code> (two trait options, pick one). <code>endAscentRun</code> banks XP via <code>addRunXp(computeRunScore(state))</code> and, if picks are pending, queues <code>dynasty-level</code> prompts <em>before</em> the existing <code>run-over</code>. Resolver case in <code>AscentResolver</code>; prompt signature in <code>constants.ts</code>; renderer beside the run-over page. Bind/swear steps registered as no-op pass-throughs for Phases 3–4.
+      <span class="f">src/systems/ascent/AscentResolver.ts (endAscentRun) · src/scenes/conquest/prompts/run.ts · src/scenes/conquest/constants.ts</span></li>
+    <li><b class="t">The dynasty sheet.</b> A menu page: founder portrait (the layered wardrobe system — promote the rank badge with dynasty level so the king visibly ages), level + XP bar, reign count, owned trait chips. Follow InkUI conventions — cards auto-fit by measured height, notifications only in the header strip.
+      <span class="f">src/scenes/MenuScene.ts (beside the Legacy page at ~line 2664)</span></li>
+    <li><b class="t">The next-reign screen.</b> The run-over exit routes through a pre-run summary — founder pick (5 wide with the trait), owned traits on display — then starts the run. "Go again" must visibly mean "go again <i>with</i>".
+      <span class="f">src/scenes/conquest/prompts/run.ts exit path · MenuScene start flow</span></li>
+    <li><b class="t">The harness.</b> <code>verify-dynasty.mjs</code>, headless: seed a store → end a run → assert XP banked and a <code>dynasty-level</code> prompt raised → choose → new run's draft offers 5 cards. Add the new prompt kind to the option shapes the harness helpers know, or every later harness wedges on it.
+      <span class="f">new test_scripts/verify/verify-dynasty.mjs · pattern: game-harness skill</span></li>
+  </ol>
+</section>
+
+<section>
+  <div class="chapter-head"><span class="no">05</span><h2>Verification gate</h2></div>
+  <div class="dod">
+    <div><code>/smoke</code> green; <code>verify-ascent.mjs</code> stdout shows the same <code>PASS:</code> set as HEAD (it always exits 0 — parse, don't trust the code)</div>
+    <div><code>verify-dynasty.mjs</code> green: XP banks once (guarded like <code>legacyBanked</code>), choice persists, trait effect visible next run</div>
+    <div>Save round-trip: a store written by this build parses after a simulated version bump; garbage in localStorage falls back to defaults</div>
+    <div>Three manual runs each end with a trait choice made in ≤ 3 taps; ceremony adds ≤ 15 seconds</div>
+    <div>16-seed <code>/funscore</code> unchanged from baseline — traits must not move the difficulty needle by themselves</div>
+    <div>Both languages boot — the i18n import-time crash is checked by starting the game in vi</div>
+  </div>
+
+  <h3>Traps</h3>
+  <ul>
+    <li><b>Never route ceremony prompts through the decision director</b> — its per-kind cooldowns and the court-phase window would swallow or delay them. The run-over path is terminal and paused; stay on it.</li>
+    <li><b><code>autoDefend</code> and harness autopilots hide prompts</b> — the dynasty harness must drive prompts explicitly, not wait for them.</li>
+    <li><b>XP double-banking:</b> <code>endAscentRun</code> is guarded by <code>legacyBanked</code> against re-entrant ticks; bank dynasty XP inside the same guard.</li>
+    <li><b>Dual-module HMR:</b> a long dev session can hold two module instances of the store — full reload before judging persistence bugs.</li>
+  </ul>
+</section>
+
+<footer>
+  Phase 2 of 4 · The Return Run implementation series. Previous: <b>Phase 1 — The Army Saves the Land</b>. Next: <b>Phase 3 — The Cabinet of Seals</b> (card bodies, rubbings, combine). Sources verified in-repo 2026-09-02: legacy.ts, AscentResolver.ts, prompts/run.ts, MenuScene.ts.
+</footer>
+</div>
+</body>
+</html>

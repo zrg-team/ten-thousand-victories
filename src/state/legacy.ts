@@ -405,6 +405,21 @@ function applyAncestralCodes(state: GameState): void {
   }
 }
 
+/**
+ * What each thing a Dragon Ascent reign did is worth on its score — the one table the score, the
+ * in-run ledger (`readInheritance`) and anything that quotes a score row read. The hero row used to
+ * carry its own copy of the 40.
+ */
+export const ASCENT_SCORE = {
+  perWaveHeld: 120,
+  peakPowerDivisor: 8,
+  perPeakProvince: 15,
+  perCardStack: 20,
+  perHeroCalled: 40,
+  recordedEnding: 70,
+  divergentEnding: 40,
+} as const;
+
 /** Score for a finished empire run, from lands held, invasions repelled, and Mandate. */
 export function computeRunScore(state: GameState): number {
   // Dragon Ascent is scored on the things that run is actually about: how long you held
@@ -418,17 +433,20 @@ export function computeRunScore(state: GameState): number {
     // number the player is actually chasing. Without it, following the annals paid nothing at all
     // and the tag was decoration.
     const endings = (state.chronicle ?? []).reduce(
-      (sum, entry) => sum + ((entry.historicity ?? 'chinh-su') === 'ngoai-truyen' ? 40 : 70),
+      (sum, entry) => sum + ((entry.historicity ?? 'chinh-su') === 'ngoai-truyen' ? ASCENT_SCORE.divergentEnding : ASCENT_SCORE.recordedEnding),
       0,
     );
-    return (
-      ascent.wavesSurvived * 120 +
-      Math.round(ascent.peakPower / 8) +
-      peakLands * 15 +
-      cardsTaken * 20 +
-      ascent.heroesSummoned * 40 +
+    const total = (
+      ascent.wavesSurvived * ASCENT_SCORE.perWaveHeld +
+      Math.round(ascent.peakPower / ASCENT_SCORE.peakPowerDivisor) +
+      peakLands * ASCENT_SCORE.perPeakProvince +
+      cardsTaken * ASCENT_SCORE.perCardStack +
+      ascent.heroesSummoned * ASCENT_SCORE.perHeroCalled +
       endings
     );
+    // Beta: a won goal's bonus, once, whenever the reign ends. Stable runs have no goal and take
+    // the exact expression above.
+    return ascent.goal?.status === 'won' ? total + (ascent.goal.bonusScore ?? 0) : total;
   }
 
   const score = state.campaignScore;

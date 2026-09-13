@@ -25,6 +25,9 @@ const arg = (flag, fallback) => {
 const SEED_COUNT = arg('--seeds', 8);
 const TICKS = arg('--ticks', 600);
 const JSON_ONLY = process.argv.includes('--json');
+// `--ruleset beta` measures the Dragon Ascent beta (`game/ascentRuleset.ts`); stable by default,
+// so every recorded baseline stays comparable.
+const RULESET = process.argv.includes('--ruleset') ? process.argv[process.argv.indexOf('--ruleset') + 1] : 'stable';
 const SEEDS = Array.from({ length: SEED_COUNT }, (_, i) => 11 + i * 11);
 
 const browser = await chromium.launch();
@@ -40,7 +43,7 @@ await page.waitForFunction(
 await page.evaluate(READ_OPTIONS);
 await page.evaluate(ENGINE_BOOT);
 
-const raw = await page.evaluate(async ({ seeds, ticks, decline }) => {
+const raw = await page.evaluate(async ({ seeds, ticks, decline, ruleset }) => {
   const { advanceAscentTick } = await import('/src/systems/ascent/AscentTick.ts');
   const { resolveAscentPrompt } = await import('/src/systems/ascent/AscentResolver.ts');
   const { drainAscentPrompts } = await import('/src/systems/ascent/AscentState.ts');
@@ -52,7 +55,7 @@ const raw = await page.evaluate(async ({ seeds, ticks, decline }) => {
    * decisions fell, how the danger moved, and how often the battle screen had anything in it.
    */
   const play = async (seed, policy) => {
-    const state = await window.__ptBoot(seed);
+    const state = await window.__ptBoot(seed, { ruleset });
     // The seed stays installed for the whole run, not just world generation — see `__ptBoot`.
     // Restored below so one policy's run cannot inherit the previous one's stream.
     let rnd = ((seed * 2654435761) >>> 0) || 1;
@@ -157,7 +160,7 @@ const raw = await page.evaluate(async ({ seeds, ticks, decline }) => {
     for (const seed of seeds) out[policy].push(await play(seed, policy));
   }
   return out;
-}, { seeds: SEEDS, ticks: TICKS, decline: DECLINE });
+}, { seeds: SEEDS, ticks: TICKS, decline: DECLINE, ruleset: RULESET });
 
 await browser.close();
 
@@ -250,7 +253,7 @@ const report = {
 };
 
 mkdirSync('output/playtest', { recursive: true });
-writeFileSync('output/playtest/metrics.json', JSON.stringify(report, null, 2));
+writeFileSync(RULESET === 'stable' ? 'output/playtest/metrics.json' : `output/playtest/metrics.${RULESET}.json`, JSON.stringify(report, null, 2));
 
 if (JSON_ONLY) {
   console.log(JSON.stringify(report, null, 2));

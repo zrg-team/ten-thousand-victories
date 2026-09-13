@@ -1,6 +1,10 @@
 import { isVassal } from './VassalSystem';
 import { addRubbings, grantDeed } from '../../state/cabinet';
 import { noteLiveReign, noteRubbing } from './Inheritance';
+import { evaluateGoal } from './Goal';
+import { rulesOf } from '../../game/ascentRuleset';
+import { liveStrikeSample, strikeReference } from './strikeReference';
+import { plannedWaveArrival } from './frontForecast';
 import { NEUTRAL_OWNER_ID, PLAYER_KINGDOM_ID } from '../../game/constants';
 import {
   BOSS_EVERY_N_WAVES,
@@ -210,13 +214,19 @@ export function isBossWave(wave: number): boolean {
  * SUB-mirror share — the lag is what makes consolidating between waves worth something, and the
  * share below one is where the player's edge lives.
  */
-export function laggedDefencePower(state: GameState): number {
+export function laggedDefencePower(state: GameState, lookahead = false): number {
   const ascent = state.ascent;
   const live = sizingDefencePower(state);
   if (!ascent) return live * WAVE_OPENING_SHARE;
 
+  // `lookahead` (beta forecast only): read the sample the *next* wave will be sized against —
+  // `startWave` pushes a fresh sample before sizing, so the lag then lands one entry later.
   const samples = ascent.defenceSamples ?? [];
-  const lagged = samples[samples.length - WAVE_LAG];
+  // With one more sample on the list, the lag reads index `length + 1 − WAVE_LAG`; before there is a
+  // sample that old it is the opening share, exactly as for the declared wave.
+  const lagged = lookahead
+    ? samples[samples.length + 1 - WAVE_LAG]
+    : samples[samples.length - WAVE_LAG];
 
   // The opening share hands off to the real sample over `WAVE_OPENING_RAMP_WAVES` waves rather
   // than in one step, and that ramp is half the fix for the reported Year-4 spike.
@@ -226,7 +236,7 @@ export function laggedDefencePower(state: GameState): number {
   // live defence and wave 2's at **0.57** — an 88% step from the lag machinery alone, before any
   // growth was counted. A player who had done nothing between the two waves still met one nearly
   // twice the size, which reads exactly like the game cheating, because it is.
-  const wave = Math.max(1, ascent.wave);
+  const wave = Math.max(1, ascent.wave + (lookahead ? 1 : 0));
   const openingWeight = Math.max(0, 1 - (wave - 1) / WAVE_OPENING_RAMP_WAVES);
   const opening = live * WAVE_OPENING_SHARE;
 
@@ -268,6 +278,50 @@ export function waveTargetPower(
   boss: boolean,
   heat = ambitionHeat(state),
 ): number {
+  return waveSizingParts(state, wave, boss, heat).final;
+}
+
+/**
+ * Every term a wave is sized from, and which of them set it.
+ *
+ * `waveTargetPower` is this function's `final`. It exists as a separate, pure read so the things
+ * that need to see *why* a wave is the size it is — the skill-ceiling gate's per-wave record, a
+ * ruleset that sizes a wave by what it strikes, the THREAT projection — read the same arithmetic
+ * the wave is launched with instead of re-deriving it and drifting (`diag-wave-parts.mjs` drifted
+ * from this in four places). Reads only; never writes, never draws.
+ */
+export interface WaveSizingParts {
+  /** The calendar: `WAVE_BASELINE_POWER × WAVE_BASELINE_GROWTH^(wave−1)`. */
+  baseline: number;
+  /** Baseline × ambition heat × boss. */
+  target: number;
+  /** `waveMatchFactor` against the defence a host has to get through. */
+  match: number;
+  /** The surcharge for the map the rivals hold. */
+  rivalMult: number;
+  curve: number;
+  rampShare: number;
+  heatedShare: number;
+  /** What the realm could field a wave ago (`laggedDefencePower`). */
+  lagged: number;
+  shadow: number;
+  ceiling: number;
+  /** min(max(curve, shadow), max(curve, ceiling)) — before the opening cap. */
+  sized: number;
+  /** The wave. */
+  final: number;
+  /** Which term decided `final`. */
+  bound: 'curve' | 'shadow' | 'ceiling' | 'early' | 'floor';
+}
+
+export function waveSizingParts(
+  state: GameState,
+  wave: number,
+  boss: boolean,
+  heat = ambitionHeat(state),
+  /** Beta forecast only: size the next, not-yet-declared wave against the sample it will read. */
+  lookahead = false,
+): WaveSizingParts {
   const baseline = WAVE_BASELINE_POWER * Math.pow(WAVE_BASELINE_GROWTH, Math.max(0, wave - 1));
   const target = baseline * heat * (boss ? BOSS_PRESSURE_MULT : 1);
   // The run answers strength: a realm marching ahead of the calendar is quoted a wave sized to
@@ -284,7 +338,15 @@ export function waveTargetPower(
   // `waveFacingDefencePower`, not `contestedDefencePower`: what a host has to get through,
   // not what the realm is worth. See the note on that function — the difference is a term that
   // grows with province count, and it was the only part of the curve that punished expanding.
-  const curve = target * waveMatchFactor(waveFacingDefencePower(state), target)
+  // Beta (`strikeSizing`): after the opening, lean every realm reading below toward what this wave's
+  // shape actually marches at. Undefined — and every expression below exactly the shipped one — on
+  // a stable reign and through the opening waves.
+  const strikeShare = rulesOf(state).strikeSizing;
+  const strike = strikeShare > 0 && wave > EARLY_WAVE_FIELD_SHARE.length
+    ? strikeReference(liveStrikeSample(state), waveShapeFor(wave, boss), boss)
+    : undefined;
+  const lean = (realm: number): number => (strike === undefined ? realm : realm + (strike - realm) * strikeShare);
+  const match = waveMatchFactor(strike === undefined ? waveFacingDefencePower(state) : lean(waveFacingDefencePower(state)), target);
     /**
      * ...and the world the player left to the rivals.
      *
@@ -295,7 +357,8 @@ export function waveTargetPower(
      * every district they end up holding is a district the player did not take — so a realm that
      * sits still does not stay small, it faces a world that grew instead of it.
      */
-    * (1 + rivalMapShare(state) * RIVAL_LAND_PRESSURE * rivalPressureRamp(wave));
+  const rivalMult = 1 + rivalMapShare(state) * RIVAL_LAND_PRESSURE * rivalPressureRamp(wave);
+  const curve = target * match * rivalMult;
 
   // The realm's shadow (see the WAVE_SHADOW_* block in ascentConfig): the curve above still
   // owns the floor for a realm that has done nothing, but a compounding economy laps any
@@ -305,7 +368,13 @@ export function waveTargetPower(
   const rampShare = Math.min(WAVE_SHADOW_MAX, WAVE_SHADOW_BASE + WAVE_SHADOW_RAMP * Math.max(0, wave - 1))
     * ASCENT_TUNING.shadowShareMult;
   const heatedShare = Math.min(WAVE_SHADOW_CEIL, rampShare * (1 + (heat - 1) * WAVE_SHADOW_HEAT_SHARE));
-  const shadow = laggedDefencePower(state) * heatedShare * (boss ? BOSS_PRESSURE_MULT : 1);
+  const laggedRealm = laggedDefencePower(state, lookahead);
+  // The strike reference is live; it inherits the realm's lag as a ratio, so a realm that just lost
+  // its army is still quoted the army it had a wave ago, exactly as the realm reading is.
+  const lagged = strike === undefined
+    ? laggedRealm
+    : lean(laggedRealm) - (strike - strike * Math.min(1, laggedRealm / Math.max(1, sizingDefencePower(state)))) * strikeShare;
+  const shadow = lagged * heatedShare * (boss ? BOSS_PRESSURE_MULT : 1);
 
   // The shadow may not outgrow what the realm can actually put in the field.
   //
@@ -320,9 +389,11 @@ export function waveTargetPower(
   // both directions. The baseline curve is the world's own schedule and is never capped, so
   // disbanding the army to shrink the wave does not work — passivity stays fatal. The mirror is
   // capped, because a mirror that outgrows the thing it reflects was never a mirror.
-  const ceiling = Math.max(target, computeFieldDefencePower(state) * WAVE_FIELD_CEILING);
+  const ceiling = Math.max(target, (strike === undefined ? computeFieldDefencePower(state) : lean(computeFieldDefencePower(state))) * WAVE_FIELD_CEILING);
 
   const sized = Math.min(Math.max(curve, shadow), Math.max(curve, ceiling));
+  const sizedBound: WaveSizingParts['bound'] = sized === curve ? 'curve' : sized === shadow ? 'shadow' : 'ceiling';
+  const parts = { baseline, target, match, rivalMult, curve, rampShare, heatedShare, lagged, shadow, ceiling, sized };
 
   /**
    * The opening is sized against the army, not against the realm.
@@ -366,10 +437,12 @@ export function waveTargetPower(
      * the host the realm's people and purse could raise *now* (`fieldablePower`): a realm that
      * lost its army is sized as though it had re-mustered, never as though it had nothing.
      */
-    return Math.max(WAVE_BASELINE_POWER * 0.5, Math.min(sized, fieldablePower(marchable) * share));
+    const early = Math.max(WAVE_BASELINE_POWER * 0.5, Math.min(sized, fieldablePower(marchable) * share));
+    const bound = early === sized ? sizedBound : early === WAVE_BASELINE_POWER * 0.5 ? 'floor' : 'early';
+    return { ...parts, final: early, bound };
   }
 
-  return sized;
+  return { ...parts, final: sized, bound: sizedBound };
 }
 
 /**
@@ -472,9 +545,48 @@ export function waveBudgetSpent(state: GameState, wave: number, boss: boolean): 
  */
 export function projectedWaveThreat(state: GameState, wave: number, heat = ambitionHeat(state)): number {
   const boss = isBossWave(wave);
+  // Beta: the same arithmetic `launchWave` sizes the hosts with, so the number does not jump when
+  // they land. Main crown: budget × shape size ÷ crowns × coalition × dial; a second crown brings
+  // budget × shape size ÷ crowns × dial; difficulty scales both inside `launchOffMapInvasion`.
+  if (rulesOf(state).threatProjection) {
+    const ascent0 = state.ascent;
+    const lookahead = Boolean(ascent0 && wave === ascent0.wave + 1);
+    const target = waveSizingParts(state, wave, boss, heat, lookahead).final;
+    const budget = Math.max(MIN_WAVE_SOLDIERS, Math.round(Math.max(0, target - liveInvaderPower(state)) / INVADER_POWER_PER_SOLDIER));
+    const shape = waveShapeFor(wave, boss);
+    const ascent = state.ascent;
+    const dial = ascent && wave === ascent.wave ? ascent.waveDialBudget ?? 1 : expectedDialBudget(state);
+    const crowns = shape.kingdoms > 1 ? shape.kingdoms : 1;
+    const difficulty = difficultyArmyScale(state.campaignConfig?.difficulty);
+    const main = Math.round(budget * shape.sizeMult / crowns * (ascent?.coalitionPending ? COALITION_WAVE_MULT : 1) * dial);
+    // The second crown only marches when a second court can (`secondCrown` finds none once every
+    // other crown is fallen or sworn), and `launchWave` sizes it *after* the first has landed — its
+    // budget deducts the hosts already marching, so it brings what is left of the target, not half.
+    // Measured before this: two-crown Great Invasions landed ~25% under the forecast.
+    const courts = state.kingdoms.filter((k) => k.id !== PLAYER_KINGDOM_ID && !k.isDefeated && !isVassal(k)).length;
+    let second = 0;
+    if (shape.kingdoms > 1 && courts >= 2) {
+      const marching = liveInvaderPower(state) + main * difficulty * INVADER_POWER_PER_SOLDIER;
+      const allyBudget = Math.max(MIN_WAVE_SOLDIERS, Math.round(Math.max(0, target - marching) / INVADER_POWER_PER_SOLDIER));
+      second = Math.round(allyBudget * shape.sizeMult / shape.kingdoms * dial);
+    }
+    return Math.round((main + second) * difficulty * INVADER_POWER_PER_SOLDIER);
+  }
   // `waveSoldierBudget` is the whole wave's budget, split across its hosts — not a per-host
   // figure, so it must not be multiplied by the host count again.
   return Math.round(waveSoldierBudget(state, wave, boss, heat) * INVADER_POWER_PER_SOLDIER);
+}
+
+/**
+ * Men in a raid: a small share of what the realm could field a wave ago, over its own floor.
+ *
+ * One formula for both raid doors — the scheduled raid clock here and the contact march in
+ * `EnemyCommandDirector` carried identical copies, so a ruleset that resized one would have
+ * silently left the other on the old arithmetic.
+ */
+export function raidSoldierBudget(state: GameState): number {
+  const budget = Math.round(laggedDefencePower(state) * RAID_POWER_SHARE / INVADER_POWER_PER_SOLDIER);
+  return Math.max(MIN_RAID_SOLDIERS, budget);
 }
 
 /** Records what the realm could field, for later waves to be sized against. */
@@ -507,6 +619,38 @@ export function liveInvaderPower(state: GameState): number {
   return Math.round(total);
 }
 
+
+/**
+ * The relations dial's budget a wave not yet declared should expect: each court's band weighted the
+ * way `pickAggressor` weighs its odds of marching. No roll — a forecast must not spend randomness.
+ * The peace floor, once breached, forces a full-size wave.
+ */
+function expectedDialBudget(state: GameState): number {
+  if (peaceFloorBreached(state)) return 1;
+  // Beta: the court is already chosen, so its own band — not the average — is what will land.
+  const next = forecastAggressor(state);
+  if (next) return relationsDial(state, next.id).budget;
+  let total = 0;
+  let weighted = 0;
+  for (const kingdom of state.kingdoms) {
+    if (kingdom.id === PLAYER_KINGDOM_ID || kingdom.isDefeated || isVassal(kingdom)) continue;
+    const weight = Math.max(5, 100 - (kingdom.relations ?? 50) + (kingdom.power ?? 40) * 0.5);
+    total += weight;
+    weighted += weight * relationsDial(state, kingdom.id).budget;
+  }
+  return total > 0 ? weighted / total : 1;
+}
+
+/**
+ * Beta: the court drawn for the next wave, while it can still march (not fallen, not sworn).
+ * Undefined on stable, before the first draw, and once it can no longer come.
+ */
+function forecastAggressor(state: GameState): Kingdom | undefined {
+  const id = state.ascent?.nextAggressorId;
+  if (!id || !rulesOf(state).threatProjection || rulesOf(state).aggressorForecast <= 0) return undefined;
+  return state.kingdoms.find((kingdom) => kingdom.id === id
+    && kingdom.id !== PLAYER_KINGDOM_ID && !kingdom.isDefeated && !isVassal(kingdom));
+}
 
 /** Picks the aggressor: the angriest and strongest surviving empire, with some spread. */
 function pickAggressor(state: GameState): Kingdom | undefined {
@@ -856,6 +1000,9 @@ function resolveWaveResult(state: GameState): void {
     noteRubbing(state);
     pushToast(state, t('coronation.unlock.warHarness'), 'reward');
   }
+  // Beta: whether this settle won the reign's goal. Decided here, on both settle paths, so it can
+  // never disagree with the banner below. Inert on a stable reign (no goal).
+  evaluateGoal(state, snapshot);
 
   // Reported, not modal.
   //
@@ -928,7 +1075,11 @@ function startWave(state: GameState): void {
   // at you and the next war is further off and smaller; ignore them and it is sooner and heavier.
   // Reading an average of all four instead would make every gift equally useful and none of them
   // a decision — the whole point is that the player has to read the board.
-  const aggressor = pickAggressor(state);
+  // Beta (`aggressorForecast`): the court was drawn a few seasons early so THREAT could quote its own
+  // dial (measured: the averaged dial was the largest part of the landing jump). Spent here.
+  const aggressor = forecastAggressor(state) ?? pickAggressor(state);
+  // Only touched when set, so a stable reign's state never grows the key.
+  if (ascent.nextAggressorId !== undefined) delete ascent.nextAggressorId;
 
   // **The floor takes the dial away entirely.**
   //
@@ -1001,20 +1152,37 @@ function startWave(state: GameState): void {
   const mustAsk = ascent.lastWaveBoss || ascent.coalitionPending;
   if (!mustAsk && best >= RESPONSE_ASK_BELOW_WIN) {
     addAscentXp(state, ENDURE_MOMENTUM);
-    pushToast(state, t('ascent.wave.metAlone', { kingdom: aggressor.name, chance: best }), 'info');
+    // Beta: posted as the wave launches, before any contact — a forecast, not a result.
+    pushToast(state, rulesOf(state).truthfulNumbers
+      ? t('beta.wave.metAlone', { kingdom: aggressor.name, chance: best })
+      : t('ascent.wave.metAlone', { kingdom: aggressor.name, chance: best }), 'info');
     launchWave(state, aggressor.id, aggressor.king?.name ?? aggressor.name);
     return;
   }
 
+  // Beta: when they reach the realm, walked from where the spawner will muster them — not a flat 3.
+  const shapeNow = waveShapeFor(ascent.wave, ascent.lastWaveBoss);
+  const arrival = rulesOf(state).truthfulNumbers
+    ? plannedWaveArrival(state, [
+      { kingdomId: aggressor.id, hosts: waveHostCount(shapeNow, Boolean(ascent.coalitionPending), ascent.waveDialHosts ?? 0) },
+      ...(shapeNow.kingdoms > 1 && secondCrown(state, aggressor.id) ? [{ kingdomId: secondCrown(state, aggressor.id)!.id, hosts: 1 }] : []),
+    ], shapeNow, aimLandFor(state, shapeNow.aim))
+    : undefined;
   enqueueAscentPrompt(state, {
     kind: 'empire-response',
     wave: ascent.wave,
     threat: ascent.threat,
     kingdomId: aggressor.id,
     kingdomName: aggressor.name,
-    ticksToArrival: 3,
+    ticksToArrival: arrival?.ticks ?? 3,
+    ...(arrival ? { arrivalLandName: state.lands.find((land) => land.id === arrival.landId)?.name } : {}),
     options,
   });
+}
+
+/** Hosts a crown sends for a wave of this shape — shared by `launchWave` and the arrival forecast. */
+function waveHostCount(shape: WaveShape, coalition: boolean, dialHosts: number): number {
+  return Math.max(1, Math.min(MAX_HOSTS_PER_KINGDOM, shape.hosts + (coalition ? 2 : 0) + dialHosts));
 }
 
 /**
@@ -1146,10 +1314,7 @@ function launchWave(state: GameState, kingdomId: string, warlordName?: string): 
   ascent.waveShape = shape.id;
   const dialHosts = ascent.waveDialHosts ?? 0;
   const dialBudget = ascent.waveDialBudget ?? 1;
-  const hosts = Math.max(1, Math.min(
-    MAX_HOSTS_PER_KINGDOM,
-    shape.hosts + (coalition ? 2 : 0) + dialHosts,
-  ));
+  const hosts = waveHostCount(shape, coalition, dialHosts);
   // Difficulty is applied once, centrally, inside `launchOffMapInvasion` — it used to be
   // compensated for here because the normalisation there divided it back out, which left every
   // caller *without* a local fix (the contact floor, story strikes, raids) silently running at
@@ -1259,11 +1424,10 @@ export function tickRaids(state: GameState): void {
   // Sized off field power directly, with its own small floor. Reusing the wave budget (and
   // its `MIN_WAVE_SOLDIERS` floor) made an early raid as large as the wave it was supposed to
   // be a prelude to, and two of them stacked on the capital ended runs before wave three.
-  const budget = Math.round(laggedDefencePower(state) * RAID_POWER_SHARE / INVADER_POWER_PER_SOLDIER);
   launchOffMapInvasion(state, raider.id, {
     forceCoalition: 1,
     forceRaid: true,
-    totalSoldiers: Math.max(MIN_RAID_SOLDIERS, budget),
+    totalSoldiers: raidSoldierBudget(state),
   });
   pushToast(state, t('ascent.raid.incoming', { kingdom: raider.name }), 'threat');
 }
@@ -1355,6 +1519,25 @@ export function responseCommanderName(state: GameState, heroId: string | undefin
  * Per-tick wave clock: telegraphs a Great Invasion two seasons out, fires the next wave when
  * the countdown elapses, and reports the result once the last host of a wave leaves the map.
  */
+/**
+ * Beta (`threatProjection`): re-read THREAT once the season's fights are done.
+ *
+ * `tickWaveDirector` sets the readout before the hosts march and fight, so a season whose last host
+ * died left the band quoting that dead host's strength until the next season — measured as the
+ * largest single landing "jump" once the forecast itself was right (822 quoted, 6,118 landed). Only
+ * that case is re-read: hosts still standing keep the figure they were given this season, and a
+ * declared wave waiting on its response card keeps the card's own quote.
+ */
+export function refreshThreatReadout(state: GameState): void {
+  const ascent = state.ascent;
+  if (!ascent || !rulesOf(state).threatProjection || !rulesOf(state).threatRefresh) return;
+  if ((ascent.invasionsLastTick ?? 0) === 0 || (state.invasions?.length ?? 0) > 0) return;
+  const awaitingAnswer = state.pendingAscentPrompt?.kind === 'empire-response'
+    || ascent.promptQueue.some((prompt) => prompt.kind === 'empire-response');
+  if (awaitingAnswer) return;
+  ascent.threat = projectedWaveThreat(state, ascent.wave + 1);
+}
+
 export function tickWaveDirector(state: GameState): void {
   const ascent = state.ascent;
   if (!ascent) return;
@@ -1370,6 +1553,14 @@ export function tickWaveDirector(state: GameState): void {
   // spawned yet: raids and waves share `state.invasions`, and a raid clears like anything else.
   if (wasInFlight && liveInvasions === 0 && (ascent.pendingWave?.hosts ?? 0) > 0) {
     resolveWaveResult(state);
+  }
+
+  // Beta: the next wave's court is drawn `aggressorForecast` seasons before it marches (and again if
+  // it falls or swears fealty meanwhile) — here, in the tick, so the forecast below never has to
+  // spend randomness itself. `ticksToWave` counts down just below, so this is the lead it will have.
+  const lead = rulesOf(state).threatProjection ? rulesOf(state).aggressorForecast : 0;
+  if (lead > 0 && ascent.ticksToWave - 1 <= lead && !forecastAggressor(state)) {
+    ascent.nextAggressorId = pickAggressor(state)?.id;
   }
 
   // THREAT tracks the hosts on the map while a wave is live; between waves it shows what

@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Army Saves the Land</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f1e9d7; --panel: #f9f4e8; --panel-2: #ece2cc;
+    --ink: #2a211a; --faint: #6f6250;
+    --line: rgba(42,33,26,.18); --line-soft: rgba(42,33,26,.09);
+    --cinnabar: #b23a26; --jade: #33705a; --gold: #96701e;
+    --ch-gold: #9d7f2e; --ch-red: #b23a26; --ch-green: #1f7a52;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #16110b; --panel: #1f1811; --panel-2: #291f14;
+      --ink: #e9dfc7; --faint: #a3947c;
+      --line: rgba(233,223,199,.2); --line-soft: rgba(233,223,199,.09);
+      --cinnabar: #d96f52; --jade: #64a586; --gold: #c59d49;
+      --ch-gold: #b5862a; --ch-red: #dc6c4b; --ch-green: #19754d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #16110b; --panel: #1f1811; --panel-2: #291f14;
+    --ink: #e9dfc7; --faint: #a3947c;
+    --line: rgba(233,223,199,.2); --line-soft: rgba(233,223,199,.09);
+    --cinnabar: #d96f52; --jade: #64a586; --gold: #c59d49;
+    --ch-gold: #b5862a; --ch-red: #dc6c4b;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--ground); color: var(--ink); font-family: "Source Serif 4", Georgia, serif; font-size: 16px; line-height: 1.62; margin: 0; }
+  .wrap { max-width: 54rem; margin: 0 auto; padding: 0 20px 90px; }
+  h1, h2, h3 { font-family: "Be Vietnam Pro", system-ui, sans-serif; line-height: 1.15; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.7rem); font-weight: 800; letter-spacing: -0.02em; }
+  h2 { font-size: 1.3rem; font-weight: 800; }
+  h3 { font-size: 1.02rem; font-weight: 700; margin: 24px 0 8px; }
+  p { margin: 0 0 13px; }
+  a { color: var(--jade); }
+  .eyebrow { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--faint); }
+  header { padding: 56px 0 14px; border-bottom: 2px solid var(--ink); margin-bottom: 22px; }
+  .standfirst { color: var(--faint); font-size: 1.05rem; max-width: 42rem; margin-top: 10px; }
+  .standfirst strong { color: var(--ink); }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.85em; }
+  code { background: var(--panel-2); padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
+  pre { background: var(--panel); border: 1px solid var(--line-soft); border-left: 3px solid var(--gold); padding: 13px 15px; overflow-x: auto; font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; line-height: 1.6; margin: 14px 0; }
+  pre code { background: none; padding: 0; white-space: pre; }
+  section { margin-top: 40px; }
+  .chapter-head { display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 16px; }
+  .chapter-head .no { font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; color: var(--faint); }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 18px 0; }
+  .fact { background: var(--panel); border: 1px solid var(--line-soft); border-left: 3px solid var(--gold); padding: 10px 13px; }
+  .fact .k { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+  .fact .v { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 0.98rem; margin-top: 2px; }
+  .table-scroll { overflow-x: auto; margin: 14px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; background: var(--panel); border: 1px solid var(--line-soft); }
+  th { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-align: left; color: var(--faint); padding: 9px 13px 7px; border-bottom: 2px solid var(--line); }
+  td { padding: 8px 13px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; white-space: nowrap; }
+  .callout { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--cinnabar); padding: 15px 18px 11px; margin: 18px 0; }
+  .callout.jade { border-left-color: var(--jade); }
+  .callout h4 { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 7px; color: var(--cinnabar); }
+  .callout.jade h4 { color: var(--jade); }
+  .callout p:last-child { margin-bottom: 0; }
+  ol.steps { padding-left: 0; margin: 0; counter-reset: s; list-style: none; }
+  ol.steps > li { counter-increment: s; border-bottom: 1px solid var(--line-soft); padding: 13px 0 13px 46px; position: relative; margin: 0; }
+  ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 13px; width: 28px; height: 28px; border: 1.5px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: "Be Vietnam Pro", sans-serif; font-weight: 800; font-size: 0.85rem; color: var(--gold); }
+  ol.steps b.t { font-family: "Be Vietnam Pro", sans-serif; }
+  ol.steps .f { display: block; font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--faint); margin-top: 3px; }
+  ul { padding-left: 1.25em; margin: 0 0 13px; }
+  li { margin-bottom: 6px; }
+  li::marker { color: var(--faint); }
+  figure { margin: 24px 0; }
+  figure svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+  figcaption { font-size: 0.83rem; color: var(--faint); max-width: 40rem; margin: 10px auto 0; text-align: center; }
+  .dod { background: var(--panel); border: 1px solid var(--line-soft); padding: 14px 18px; }
+  .dod div { padding: 5px 0 5px 28px; position: relative; font-size: 0.92rem; border-bottom: 1px solid var(--line-soft); }
+  .dod div:last-child { border-bottom: none; }
+  .dod div::before { content: ""; position: absolute; left: 0; top: 9px; width: 13px; height: 13px; border: 1.5px solid var(--jade); border-radius: 3px; }
+  footer { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 14px; font-size: 0.8rem; color: var(--faint); }
+  /* ── chart kit ── */
+  .chartbox { background: var(--panel); border: 1px solid var(--line-soft); padding: 18px 14px 12px; overflow-x: auto; }
+  .fig-title { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 0.85rem; text-align: center; margin-bottom: 2px; }
+  .fig-sub { text-align: center; font-size: 0.76rem; color: var(--faint); margin-bottom: 12px; }
+  .legend { display: flex; gap: 18px; justify-content: center; font-size: 0.78rem; color: var(--faint); margin-top: 6px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 14px; height: 3px; margin-right: 6px; vertical-align: middle; border-radius: 2px; }
+  .legend i.dot { width: 9px; height: 9px; border-radius: 50%; }
+  svg .grid { stroke: var(--line-soft); stroke-width: 1; }
+  svg .axis { stroke: var(--line); stroke-width: 1.2; }
+  svg .tick { font-family: "IBM Plex Mono", monospace; font-size: 10px; fill: var(--faint); }
+  svg .lbl { font-family: "Be Vietnam Pro", sans-serif; font-size: 11px; font-weight: 700; fill: var(--ink); }
+  svg .note { font-family: "Source Serif 4", serif; font-size: 11px; fill: var(--faint); }
+  .bars { margin: 18px 0; display: grid; gap: 14px; }
+  .bar-row { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: center; }
+  .bar-row .lbl2 { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); text-align: right; }
+  .bar { display: flex; height: 34px; gap: 2px; }
+  .seg { display: flex; align-items: center; justify-content: center; font-family: "IBM Plex Mono", monospace; font-size: 0.68rem; color: var(--ground); white-space: nowrap; overflow: hidden; border-radius: 2px; }
+  .seg.masonry { background: var(--ch-gold); } .seg.militia { background: var(--ch-green); } .seg.army { background: var(--ch-red); }
+  @media (max-width: 620px) { .bar-row { grid-template-columns: 1fr; gap: 4px; } .bar-row .lbl2 { text-align: left; } }
+  /* ── phone mock kit ── */
+  .mockrow { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; align-items: flex-start; margin: 24px 0 6px; }
+  .mock { width: 234px; flex-shrink: 0; }
+  .mock .mtitle { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 0.78rem; text-align: center; margin-bottom: 8px; }
+  .mock .mtitle small { display: block; font-weight: 400; color: var(--faint); font-size: 0.7rem; }
+  .phone { background: var(--panel); border: 2.5px solid var(--ink); border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,.18); padding: 12px 10px 14px; min-height: 400px; display: flex; flex-direction: column; gap: 7px; }
+  .mhead { font-family: "Be Vietnam Pro", sans-serif; font-weight: 800; font-size: 0.72rem; text-align: center; letter-spacing: 0.04em; }
+  .mhead small { display: block; font-weight: 400; font-family: "Source Serif 4", serif; color: var(--faint); font-size: 0.62rem; letter-spacing: 0; }
+  .mrow { background: var(--panel-2); border: 1px solid var(--line-soft); border-left: 3px solid var(--faint); padding: 6px 8px; font-size: 0.62rem; line-height: 1.45; border-radius: 2px; }
+  .mrow b { font-family: "Be Vietnam Pro", sans-serif; font-size: 0.64rem; }
+  .mrow .sub { color: var(--faint); display: block; }
+  .mrow.gold { border-left-color: var(--gold); }
+  .mrow.jade { border-left-color: var(--jade); }
+  .mrow.red { border-left-color: var(--cinnabar); }
+  .mrow.dim { opacity: 0.55; }
+  .mbtn { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 0.64rem; text-align: center; padding: 7px 6px; border: 1.5px solid var(--ink); border-radius: 4px; margin-top: auto; }
+  .mbtn.primary { background: var(--ink); color: var(--panel); }
+  .mcap { font-size: 0.58rem; color: var(--faint); text-align: center; }
+</style>
+</head>
+<body>
+<aside style="padding:14px 20px;background:#f2ead6;color:#243832;font:14px/1.5 system-ui;border-bottom:1px solid #c9bea5"> <strong>Phase 1 archive · Lưu trữ giai đoạn 1.</strong> Historical design; original status and numbered phases belong to that document. <a href="../phase-2/README.md">Phase 2 plan / Kế hoạch giai đoạn 2</a>.</aside>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Vạn Thắng · Dragon Ascent · Implementation plan · Phase 1 of 4</div>
+  <h1>The Army Saves the Land</h1>
+  <p class="standfirst">Balance first: walls become a <strong>siege clock</strong>, the <strong>relief march</strong> becomes the core verb, and the field army becomes the deciding share of every contested defence. Everything later (dynasty, cards, heroes) sits on this loop — ship and measure it alone. From the master dossier <i>The Return Run</i>, §07.</p>
+</header>
+
+<div class="facts">
+  <div class="fact"><div class="k">Effort</div><div class="v">~1 week</div></div>
+  <div class="fact"><div class="k">Screens</div><div class="v">0 new (flags + lines only)</div></div>
+  <div class="fact"><div class="k">Save impact</div><div class="v">2 optional Land fields</div></div>
+  <div class="fact"><div class="k">Risk</div><div class="v">shared-mode fallout — gate it</div></div>
+</div>
+
+<section>
+  <div class="chapter-head"><span class="no">01</span><h2>What changes, in one picture</h2></div>
+  <figure>
+    <svg viewBox="0 0 860 150" role="img" aria-label="Siege timeline: invader arrives, walls hold for a breach clock of about defense over twelve ticks, during which a relief march can join; then the assault resolves with the army as the deciding share.">
+      <defs><marker id="arrT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker></defs>
+      <line x1="30" y1="75" x2="830" y2="75" stroke="currentColor" stroke-width="1.6" marker-end="url(#arrT)"/>
+      <g stroke="currentColor" stroke-width="1.6"><line x1="60" y1="60" x2="60" y2="90"/><line x1="560" y1="60" x2="560" y2="90"/></g>
+      <rect x="60" y="66" width="500" height="18" fill="var(--ch-gold)" opacity="0.28"/>
+      <rect x="150" y="66" width="410" height="18" fill="var(--ch-red)" opacity="0.3"/>
+      <g font-family="'Be Vietnam Pro', sans-serif" font-size="12" font-weight="700" fill="currentColor" text-anchor="middle">
+        <text x="60" y="48">invader arrives</text>
+        <text x="310" y="120">siege clock — walls hold (≈ defense / 12 ticks)</text>
+        <text x="560" y="48">assault resolves</text>
+      </g>
+      <g font-family="'Source Serif 4', serif" font-size="11" fill="var(--cinnabar)" text-anchor="middle"><text x="355" y="60">relief window: march a host in, join the defence</text></g>
+      <g font-family="'Source Serif 4', serif" font-size="11" fill="currentColor" opacity="0.75" text-anchor="middle">
+        <text x="700" y="60">army is the deciding share;</text><text x="700" y="98">walls only cap the damage</text>
+      </g>
+    </svg>
+    <figcaption>A capital (defense ~48) buys ≈4 ticks — a real window to muster and march. The verified diagnosis: garrison = <span class="mono">defense × 16</span>, the opening board's contested defence is <i>"three-quarters capital masonry"</i> (comment in <span class="mono">ascentConfig.ts</span>), and the hidden roll counts only one host (<span class="mono">.find</span> in <span class="mono">WarSystem.defenderPower</span> — a defect the code itself defers to "its own measured pass"). This is that pass.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <h4>Scope decision — gate to Dragon Ascent first</h4>
+    <p><code>defenderPower</code> (WarSystem), <code>landGarrisonPower</code> (PowerSystem) and <code>resolveInvaderBattle</code> (InvasionSystem) are shared by rival, campaign and empire. Every dial below lands behind <b>an ascent-only gate</b> (mode check or a config constant the classic modes keep at today's value), and <code>verify-modes-regression</code> must print a byte-identical 60-tick fingerprint for the other three modes. Empire adoption is a separate, later, measured decision (the year-4-fairness round showed rules gated off empire cause their own unfairness — decide with numbers, not now).</p>
+  </div>
+</section>
+
+<section>
+  <div class="chapter-head"><span class="no">02</span><h2>The evidence, charted</h2></div>
+
+  <figure>
+    <div class="fig-title">Why your host never mattered — the odds curve it fights on</div>
+    <div class="fig-sub">winChance vs the ratio of army power to garrison power (the actual formula, clamp included)</div>
+    <div class="chartbox">
+    <svg viewBox="0 0 660 300" role="img" aria-label="Win chance rises with the army-to-garrison power ratio along r over one plus r, clamped at 10 and 90 percent. A 300-power host against a castle garrison of about 1,000 sits at 23 percent; against a plain province at 41 percent. After the proposed masonry rescale the same host against the same castle reaches about 37 percent, and relief battles bypass this roll entirely.">
+      <g class="grid">
+        <line x1="60" y1="250" x2="620" y2="250"/><line x1="60" y1="195" x2="620" y2="195"/>
+        <line x1="60" y1="140" x2="620" y2="140"/><line x1="60" y1="85" x2="620" y2="85"/><line x1="60" y1="30" x2="620" y2="30"/>
+      </g>
+      <g class="tick">
+        <text x="52" y="254" text-anchor="end">0%</text><text x="52" y="199" text-anchor="end">25%</text>
+        <text x="52" y="144" text-anchor="end">50%</text><text x="52" y="89" text-anchor="end">75%</text><text x="52" y="34" text-anchor="end">100%</text>
+        <text x="60" y="268">0</text><text x="243" y="268" text-anchor="middle">1×</text>
+        <text x="427" y="268" text-anchor="middle">2×</text><text x="610" y="268" text-anchor="end">3× army ÷ garrison</text>
+      </g>
+      <line class="axis" x1="60" y1="250" x2="620" y2="250"/>
+      <line x1="60" y1="228" x2="80" y2="228" stroke="var(--ink)" stroke-width="2"/>
+      <text class="note" x="63" y="220">clamped at 10%</text>
+      <polyline fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round"
+        points="80,228 106,206 152,177 197,155 243,140 289,127 335,118 381,109 427,103 472,98 518,94 610,85"/>
+      <g>
+        <circle cx="113" cy="200.5" r="6" fill="var(--ch-red)" stroke="var(--panel)" stroke-width="2"><title>Today — a 300-power host vs a castle garrison ≈ 1,035: ratio 0.29 → 23% per attempt</title></circle>
+        <circle cx="188" cy="159.4" r="6" fill="var(--ch-red)" stroke="var(--panel)" stroke-width="2"><title>Today — the same host vs a plain province ≈ 430: ratio 0.70 → 41%</title></circle>
+        <circle cx="166" cy="169.3" r="6" fill="var(--ch-green)" stroke="var(--panel)" stroke-width="2"><title>After this phase — masonry term halved: the same host vs the same castle ≈ 520: ratio 0.58 → 37%, and the walls now cost the attacker a siege clock instead</title></circle>
+      </g>
+      <text class="lbl" x="122" y="192" fill="var(--ch-red)">castle, today: 23%</text>
+      <text class="lbl" x="197" y="152" fill="var(--ch-red)">plain land, today: 41%</text>
+      <text class="lbl" x="175" y="181" fill="var(--ch-green)">castle, after: 37%</text>
+      <text class="note" x="380" y="70">and a relief battle skips this roll entirely —</text>
+      <text class="note" x="380" y="85">it resolves as a watchable fight the player commands</text>
+    </svg>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background: var(--ch-red)"></i>today</span>
+      <span><i class="dot" style="background: var(--ch-green)"></i>after the rescale</span>
+      <span><i style="background: var(--ink)"></i>winChance = r ÷ (1 + r), clamp 10–90</span>
+    </div>
+    <figcaption>The curve is brutally flat where the player lives: with garrison = <span class="mono">defense × 16</span>, an early host fights at ratios of 0.3–0.7 — the 20–40% zone — on every attempt, against ground that regrows.</figcaption>
+  </figure>
+
+  <div class="bars">
+    <div class="bar-row"><span class="lbl2">Today (opening)</span>
+      <div class="bar">
+        <div class="seg masonry" style="flex: 75;" title="Static walls: land.defense × 16 — ~75% of the opening board's contested defence">walls 75%</div>
+        <div class="seg militia" style="flex: 12;" title="Local militia">militia</div>
+        <div class="seg army" style="flex: 13;" title="Field armies — a rounding error">army</div>
+      </div>
+    </div>
+    <div class="bar-row"><span class="lbl2">Target (wave 5)</span>
+      <div class="bar">
+        <div class="seg masonry" style="flex: 35;" title="Walls after rescale — and they now also buy a siege clock">walls 35%</div>
+        <div class="seg militia" style="flex: 15;" title="Local militia">militia</div>
+        <div class="seg army" style="flex: 50;" title="Field armies — the deciding share">army 50%</div>
+      </div>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i style="background: var(--ch-gold); height: 10px; width: 10px;"></i>masonry</span>
+    <span><i style="background: var(--ch-green); height: 10px; width: 10px;"></i>militia</span>
+    <span><i style="background: var(--ch-red); height: 10px; width: 10px;"></i>field army</span>
+    <span>· share of contested defence power (illustrative) — the 45–60% army share is this phase's measured gate</span>
+  </div>
+
+  <h3>What the player sees — no new screens, three loud additions</h3>
+  <div class="mockrow">
+    <div class="mock">
+      <div class="mtitle">The war board, during a siege<small>existing screen + the clock and the verb</small></div>
+      <div class="phone">
+        <div class="mhead">WAR BOARD<small>wave 7 · two fronts</small></div>
+        <div class="mrow red"><b>⚑ Vân Đồn — UNDER SIEGE</b><span class="sub">walls hold 3 more ticks · garrison 380 vs invaders 910 · <b>a relief host can still arrive</b></span></div>
+        <div class="mrow jade"><b>March the Đông Quân to relieve ›</b><span class="sub">4 ticks away — arrives before the walls break · joins the defence at full strength</span></div>
+        <div class="mrow"><b>Chi Lăng — quiet</b><span class="sub">garrison 240 · no threat in reach</span></div>
+        <div class="mrow dim"><b>Advisor</b><span class="sub">"Vân Đồn calls for relief. Walls buy time; only a host wins the fight."</span></div>
+        <div class="mrow gold"><b>If relieved</b><span class="sub">loyalty +8, the province keeps its buildings — the reward line prints on the aftermath card</span></div>
+        <div class="mcap" style="margin-top: auto;">besieged flag on the map hex · one advisor line ·<br>the clock on the war-board row — that's the whole UI bill</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="chapter-head"><span class="no">03</span><h2>The dials</h2></div>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Dial</th><th>Today</th><th>Probe</th><th>Where</th></tr>
+    <tr><td><b>Masonry power term</b></td><td class="num">defense × 16</td><td class="num">defense × 8</td><td><code>PowerSystem.landGarrisonPower</code> + <code>WarSystem.defenderPower</code> (one shared constant)</td></tr>
+    <tr><td><b>Masonry share cap</b></td><td class="num">—</td><td class="num">≤ 55% of total</td><td>same two sites, after summing hosts</td></tr>
+    <tr><td><b>Siege clock</b></td><td class="num">none</td><td class="num">⌈defense / 12⌉ ticks</td><td><code>InvasionSystem</code> arrival path</td></tr>
+    <tr><td><b>Hosts counted in defence</b></td><td class="num">.find (one)</td><td class="num">.filter (all present)</td><td><code>WarSystem.defenderPower</code></td></tr>
+    <tr><td><b>Retake bonus</b></td><td class="num">own seat only</td><td class="num">+25%, decaying over 3 waves</td><td><code>WarSystem.attackLand</code> + loss recording</td></tr>
+    <tr><td><b>Muster supply cost</b></td><td class="num">1.0×</td><td class="num">0.85×</td><td><code>getMusterEstimate</code> / <code>MusterSystem</code></td></tr>
+  </table>
+  </div>
+  <p>Every value is a <b>probe</b>. The repo's law is measure-don't-reason: expect at least one re-tune loop, and remember the free coupling — waves floor against <em>lagged defence</em>, so halving masonry also softens the threat curve; wave targets likely need nudging <em>up</em>, not down.</p>
+</section>
+
+<section>
+  <div class="chapter-head"><span class="no">04</span><h2>Implementation steps</h2></div>
+  <ol class="steps">
+    <li><b class="t">Capture the baseline before touching anything.</b> 16-seed <code>/funscore</code>, plus the 60-tick <code>verify-modes-regression</code> fingerprint, on a HEAD copy served from a second port. Use the archive technique — never a worktree, never a stash:
+      <span class="f">git archive HEAD | tar -x -C &lt;scratch&gt;/baseline · junction node_modules · vite --port 5200 · stop vite before rm -rf; delete the junction with (Get-Item …).Delete()</span></li>
+    <li><b class="t">Extract the masonry constant.</b> Replace the literal <code>16</code> with <code>MASONRY_POWER_PER_DEFENSE</code> (and the share cap) in one place both callers import; classic modes read the legacy value, ascent reads the probe.
+      <span class="f">src/systems/ascent/PowerSystem.ts · src/systems/WarSystem.ts (defenderPower) · new constants in src/game/ascentConfig.ts</span></li>
+    <li><b class="t">Count every host present.</b> <code>.find → .filter</code> in <code>defenderPower</code>, summing all non-levy hosts of the owner on the land (the levy stays excluded — it <i>is</i> the walls). Run the fingerprint immediately: if classic modes move, gate this too and note it.
+      <span class="f">src/systems/WarSystem.ts:213–248 — the comment block there documents the defect and blesses exactly this pass</span></li>
+    <li><b class="t">Add the siege state.</b> Two optional fields on <code>Land</code> — <code>siege?: {{ attackerId, ticksLeft }}</code> and <code>lostAtWave?</code>. Optional so old saves parse untouched.
+      <span class="f">src/state/types.ts · loaders need no migration for optional fields</span></li>
+    <li><b class="t">Arrival starts a siege, not a battle.</b> In the invader-arrival path (ascent-gated): set <code>siege</code> with <code>ticksLeft = ⌈defense/12⌉</code> instead of resolving; tick it down in the invasion phase of <code>advanceAscentTick</code>; on zero, resolve the assault as today (which now counts every host that marched in).
+      <span class="f">src/systems/InvasionSystem.ts (resolveInvaderBattle callers) · src/systems/ascent/AscentTick.ts invasion step</span></li>
+    <li><b class="t">Make the siege loud.</b> Besieged flag on the province's map render + province card, one advisor line ("Vân Đồn is under siege — 3 ticks to the walls"), and the war board row shows the clock. No new screens.
+      <span class="f">src/scenes/conquest/screens/warBoard.ts · advisor strip · province card renderer</span></li>
+    <li><b class="t">The relief march.</b> A host ordered to a besieged own province marches as normal; on arrival it joins the defence set. If the fight is "worth watching", the watchable battle opens with every present host enrolled (BattleSystem already does this); otherwise the roll now includes them via step 3. Pay a small loyalty/economy reward on a relieved siege so rescue visibly matters.
+      <span class="f">src/systems/ascent/ConquestSystem.ts (standing orders / march targets) · src/systems/BattleSystem.ts (verify enrolment, don't rebuild it)</span></li>
+    <li><b class="t">The retake window.</b> On a player land lost, stamp <code>lostAtWave</code>. <code>attackLand</code> grants +25% attacker power against that land, decaying linearly to zero over 3 waves. Stacks with the existing seat-liberation rule; walls staying down after a loss is already shipped (land-consequences round) — this completes lose → muster → take it back.
+      <span class="f">src/systems/WarSystem.ts (attackLand) · loss detection in detectConquests / invasion resolution</span></li>
+    <li><b class="t">Muster economics dial.</b> −15% muster supply cost (ascent-gated constant). The spreadsheet answer to "how do I defend?" must become "raise a host" — walls already escalate in price per purchase.
+      <span class="f">src/systems/WarSystem.ts (getMusterEstimate) · src/systems/ascent/MusterSystem.ts</span></li>
+    <li><b class="t">Measure, tune, repeat.</b> A/B against the step-1 baseline: 16-seed funscore, the behavioral gates below, and only then adjust wave targets if the softened defence floor made waves lag.
+      <span class="f">test_scripts/verify/verify-land-consequences.mjs (extend) · new verify-siege-relief.mjs</span></li>
+  </ol>
+</section>
+
+<section>
+  <div class="chapter-head"><span class="no">05</span><h2>Verification gate</h2></div>
+  <div class="dod">
+    <div>16-seed <code>/funscore</code> ≥ baseline (8 seeds has a ±4 noise floor and once reversed a verdict — never trust it)</div>
+    <div>≥ 50% of sieges see a relief march arrive in autoplay probes (new <code>verify-siege-relief.mjs</code>, counting siege-opened vs relief-joined events)</div>
+    <div>Army share of contested defence power lands at 45–60% by wave 5 (probe harness prints the three-way split)</div>
+    <div><code>verify-modes-regression</code> fingerprint byte-identical for rival / campaign / empire</div>
+    <div><code>verify-land-consequences.mjs</code> still green, extended with: siege delays resolution · relief joins the fight · retake bonus decays to zero</div>
+    <div><code>/smoke</code> green — no console errors, no blank frame, all four modes boot</div>
+  </div>
+
+  <h3>Traps (all previously hit in this repo)</h3>
+  <ul>
+    <li><code>verify-ascent.mjs</code> <b>always exits 0</b> — parse stdout for <code>PASS:</code> vs <code>CHECK:</code>.</li>
+    <li><code>ConquestSystem.ts</code> has <b>mixed CRLF/LF</b> — an LF-only exact-match patch silently misses the middle of the file.</li>
+    <li>A harness that strips the realm to one province trips <code>isDefeated</code>, after which every tick is a no-op — reset the flag when probing curves.</li>
+    <li>Several battle harnesses (<code>verify-battle-dials</code>, <code>verify-battle-motion</code>, <code>verify-scroll</code>) fail intermittently <b>on HEAD</b> — always run a suspect harness against the baseline before believing you broke it.</li>
+    <li>A long-lived dev server can serve a <b>stale Phaser</b> — check <code>Phaser.VERSION</code> before trusting local behavior.</li>
+  </ul>
+</section>
+
+<footer>
+  Phase 1 of 4 · The Return Run implementation series. Next: <b>Phase 2 — The Dynasty Ledger</b> (dynasty XP, traits, the run-over ceremony). Sources verified in-repo 2026-09-02: PowerSystem.ts, WarSystem.ts, InvasionSystem.ts, ascentConfig.ts, AscentTick.ts.
+</footer>
+</div>
+</body>
+</html>

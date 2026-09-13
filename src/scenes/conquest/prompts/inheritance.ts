@@ -34,6 +34,9 @@ import { powerCardView } from '../../../systems/ascent/PowerDraftSystem';
 import { AMBITION_PER_POWER_CARD } from '../../../game/ascentConfig';
 import { PROMPT_HINT_ROOM, RARITY_COLOR, RARITY_WASH, cssHex } from '../constants';
 import type { ConquestUIScene } from '../../ConquestUIScene';
+import { rulesOf } from '../../../game/ascentRuleset';
+import { readCarriedOver } from '../../../systems/ascent/CarriedOver';
+import { getLegacyPerk, perkDescription, PERK_MAX_LEVEL } from '../../../state/legacy';
 
 /** The way back is the way in: the two controls are the run-start twin of the ceremony's foot. */
 const BEGIN_H = 46;
@@ -81,9 +84,11 @@ interface Row {
 }
 
 export function showInheritance(self: ConquestUIScene): void {
+  // Beta (B30): the summary names every layer the house carries, Legacy included.
+  const summary = rulesOf(self.state).carriedSummary;
   const { content, body, bodyWidth, finish } = self.promptScrollBody(
-    t('ascent.inheritance.title'),
-    t('ascent.inheritance.subtitle'),
+    summary ? t('beta.inherit.title') : t('ascent.inheritance.title'),
+    summary ? t('beta.inherit.subtitle') : t('ascent.inheritance.subtitle'),
     FOOTER,
   );
 
@@ -107,7 +112,7 @@ export function showInheritance(self: ConquestUIScene): void {
   let y = 0;
 
   // ── The house ───────────────────────────────────────────────────────────────
-  y += houseBlock(self, body, built, inset, bodyWidth, y, store);
+  y += houseBlock(self, body, built, inset, bodyWidth, y, store, summary);
   y += 10;
 
   // ── The opening hand ────────────────────────────────────────────────────────
@@ -150,7 +155,7 @@ export function showInheritance(self: ConquestUIScene): void {
       accent: INK_UI.jade,
     });
   }
-  if (store.traits.length === 0) {
+  if (store.traits.length === 0 && !summary) {
     rows.push({
       icon: 'scroll',
       label: t('dynasty.next.traitsNone'),
@@ -173,6 +178,37 @@ export function showInheritance(self: ConquestUIScene): void {
   for (const row of rows) {
     y += traitRow(self, body, built, inset, bodyWidth, y, row);
     y += 8;
+  }
+
+  // ── Beta: the Legacy vault ──────────────────────────────────────────────────
+  //
+  // The one layer this card never mentioned: perks carried at their ranks were applied at the
+  // founding (gold, people, walls, standing modifiers) with nothing on the page to say so.
+  if (summary) {
+    const carried = readCarriedOver();
+    const legacyRows: Row[] = carried.perks.flatMap(({ id, level }) => {
+      const perk = getLegacyPerk(id);
+      return perk ? [{
+        icon: 'coin' as CardIconId,
+        label: `${t(`empire.legacy.perk.${id}` as Parameters<typeof t>[0])} · ${t('beta.inherit.perkRank', { level, max: PERK_MAX_LEVEL })}`,
+        delta: perkDescription(perk, level),
+        accent: INK_UI.gold,
+      }] : [];
+    });
+    if (carried.codes > 0) {
+      legacyRows.push({ icon: 'scroll', label: t('beta.inherit.codes', { n: carried.codes }), delta: t('beta.inherit.codesD'), accent: INK_UI.jade });
+    }
+    if (carried.legacyPoints > 0) {
+      legacyRows.push({ icon: 'coin', label: t('beta.inherit.vault', { points: carried.legacyPoints }), delta: t('beta.inherit.vaultD'), accent: INK_UI.softBrush });
+    }
+    if (legacyRows.length > 0) {
+      y += 2;
+      y += sectionHead(self, body, inset, y, t('beta.inherit.legacyHead'));
+      for (const row of legacyRows) {
+        y += traitRow(self, body, built, inset, bodyWidth, y, row);
+        y += 8;
+      }
+    }
   }
 
   finish(y + 8);
@@ -232,6 +268,7 @@ function houseBlock(
   width: number,
   y: number,
   store: ReturnType<typeof getDynasty>,
+  summary = false,
 ): number {
   const HEIGHT = 74;
   const holder = self.add.container(inset, y);
@@ -266,7 +303,7 @@ function houseBlock(
       reigns: store.reigns,
       score: Math.round(store.bestScore).toLocaleString('en-US'),
     })
-    : t('ascent.inheritance.ledgerFirst'), 'caption', {
+    : summary ? t('beta.inherit.ledgerFirst') : t('ascent.inheritance.ledgerFirst'), 'caption', {
     fontSize: '10px', wordWrap: { width: width - left - 12 },
   }));
 

@@ -148,7 +148,7 @@ export function drawDynastyLineage(self: MenuScene,
       text: t('dynasty.page.epitaph', {
         waves: record.waves,
         lands: record.lands,
-        ending: t(record.ending === 'collapse' ? 'dynasty.page.ending.collapse' : 'dynasty.page.ending.conquest'),
+        ending: record.ending === 'victory' ? t('beta.dynasty.endingVictory') : t(record.ending === 'collapse' ? 'dynasty.page.ending.collapse' : 'dynasty.page.ending.conquest'),
       }),
     });
     if (record.fight) {
@@ -257,7 +257,7 @@ function openChronicleSheet(self: MenuScene, record: ReignRecord): void {
     title: t('dynasty.page.chronicleTitle', { n: record.n }),
     subtitle: t('dynasty.page.epitaph', {
       waves: record.waves, lands: record.lands,
-      ending: t(record.ending === 'collapse' ? 'dynasty.page.ending.collapse' : 'dynasty.page.ending.conquest'),
+      ending: record.ending === 'victory' ? t('beta.dynasty.endingVictory') : t(record.ending === 'collapse' ? 'dynasty.page.ending.collapse' : 'dynasty.page.ending.conquest'),
     }),
     onClose: () => self.closeModal(),
     height: Math.min(GAME_HEIGHT - 24, 104 + 66 + 24 + Math.max(1, lines.length) * 34),
@@ -301,7 +301,7 @@ export function openReignsSheet(self: MenuScene): void {
     const best = record.score > 0 && record.score === store.bestScore;
     const line = `${t('dynasty.page.reign', { n: record.n })}${best ? ` · ${t('dynasty.page.record')}` : ''} · ${t('dynasty.page.epitaph', {
       waves: record.waves, lands: record.lands,
-      ending: t(record.ending === 'collapse' ? 'dynasty.page.ending.collapse' : 'dynasty.page.ending.conquest'),
+      ending: record.ending === 'victory' ? t('beta.dynasty.endingVictory') : t(record.ending === 'collapse' ? 'dynasty.page.ending.collapse' : 'dynasty.page.ending.conquest'),
     })}${record.trait ? ` · ${t(`dynasty.trait.${record.trait}` as Parameters<typeof t>[0])}` : ''}`;
     self.modalObjects.push(self.ui.label(contentBounds.x + 4, cursor, line, 'caption',
       { fontSize: '10px', wordWrap: { width: contentBounds.width - 70 }, ...(best ? { color: '#8a5f1c' } : {}) }));

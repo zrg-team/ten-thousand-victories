@@ -1,0 +1,557 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 1, Spring",
+    "realtimeSeconds": 0,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 829668852,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 150,
+      "supplies": 70,
+      "gold": 110,
+      "humans": 600
+    },
+    "resourceRates": {
+      "food": 3,
+      "supplies": 16,
+      "gold": 30,
+      "humans": 1
+    },
+    "visibility": {
+      "visible": 6,
+      "explored": 6,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 120,
+        "provisions": 80
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [],
+    "court": {
+      "stability": 50,
+      "influence": 50,
+      "favor": 0,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {}
+    },
+    "ascent": {
+      "wave": 0,
+      "ticksToWave": 16,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 1458,
+      "powerDelta": 0,
+      "peakPower": 1458,
+      "defensePower": 1233,
+      "threat": 348,
+      "level": 1,
+      "xp": 0,
+      "xpToNext": 82,
+      "cardStacks": {},
+      "retiredCards": [],
+      "heroesSummoned": 0,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 0,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "ready",
+        "lastDecisionTurn": {}
+      },
+      "conquestPlans": [],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 0,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {},
+      "lastPromptTurn": 1,
+      "courtCardCooldown": 3,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 50,
+      "favor": 0,
+      "courtSeats": {},
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Lãnh Chúa Phương Bắc",
+          "relations": 38,
+          "power": 49,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 63,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 50,
+          "power": 49,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 46,
+          "power": 48,
+          "warAppetite": 0,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 3,
+      "prompt": {
+        "kind": "coronation",
+        "options": [
+          "crowned"
+        ]
+      },
+      "ui": {
+        "screen": "coronation:coronation",
+        "generatedUiIcons": [
+          "balance",
+          "bamboo",
+          "banner",
+          "blade",
+          "bronze-drum",
+          "dragon",
+          "food",
+          "gold",
+          "grain",
+          "humans",
+          "lac-bird",
+          "lotus",
+          "supplies",
+          "turtle"
+        ],
+        "bannerEditor": {
+          "field": 2502972,
+          "trim": 14201946,
+          "emblem": "crown",
+          "emblemName": "Bronze drum",
+          "preview": "crown",
+          "display": "sign",
+          "points": 0,
+          "currency": "legacy",
+          "message": "",
+          "options": [
+            {
+              "id": "crown",
+              "name": "Bronze drum",
+              "locked": false,
+              "cost": 0,
+              "owned": true
+            },
+            {
+              "id": "banner",
+              "name": "Command flag",
+              "locked": false,
+              "cost": 0,
+              "owned": true
+            },
+            {
+              "id": "blade",
+              "name": "Sword",
+              "locked": false,
+              "cost": 0,
+              "owned": true
+            },
+            {
+              "id": "grain",
+              "name": "Rice",
+              "locked": false,
+              "cost": 0,
+              "owned": true
+            },
+            {
+              "id": "branch",
+              "name": "Bamboo",
+              "locked": true,
+              "cost": 80,
+              "owned": false
+            },
+            {
+              "id": "tortoise",
+              "name": "Sacred turtle",
+              "locked": true,
+              "cost": 120,
+              "owned": false
+            },
+            {
+              "id": "lotus",
+              "name": "Lotus",
+              "locked": true,
+              "cost": 60,
+              "owned": false
+            },
+            {
+              "id": "lacBird",
+              "name": "Lạc bird",
+              "locked": true,
+              "cost": 100,
+              "owned": false
+            },
+            {
+              "id": "dragon",
+              "name": "Dragon",
+              "locked": true,
+              "cost": 240,
+              "owned": false
+            },
+            {
+              "id": "phoenix",
+              "name": "Phoenix",
+              "locked": true,
+              "cost": 220,
+              "owned": false
+            },
+            {
+              "id": "tiger",
+              "name": "Tiger",
+              "locked": true,
+              "cost": 160,
+              "owned": false
+            },
+            {
+              "id": "buffalo",
+              "name": "Buffalo",
+              "locked": true,
+              "cost": 80,
+              "owned": false
+            },
+            {
+              "id": "carp",
+              "name": "Carp",
+              "locked": true,
+              "cost": 100,
+              "owned": false
+            },
+            {
+              "id": "mountain",
+              "name": "Mountain",
+              "locked": true,
+              "cost": 60,
+              "owned": false
+            },
+            {
+              "id": "wave",
+              "name": "Wave",
+              "locked": true,
+              "cost": 60,
+              "owned": false
+            },
+            {
+              "id": "star",
+              "name": "Guiding star",
+              "locked": true,
+              "cost": 140,
+              "owned": false
+            }
+          ]
+        },
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "The dragon stirs. Your dynasty begins its ascent."
+  },
+  "texts": [
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 1 - Spring",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 157,
+      "y": 19
+    },
+    {
+      "text": "150 (+3)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "70 (+16)",
+      "x": 131,
+      "y": 36
+    },
+    {
+      "text": "110 (+30)",
+      "x": 227,
+      "y": 36
+    },
+    {
+      "text": "600 (+1)",
+      "x": 328,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "1,458",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "348",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "next wave in 16",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "Lv 1",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 0",
+      "x": 88,
+      "y": 54
+    },
+    {
+      "text": "Dynasty Sign",
+      "x": 195,
+      "y": 114
+    },
+    {
+      "text": "the mark of Nhà Ngô",
+      "x": 195,
+      "y": 143
+    },
+    {
+      "text": "THE MARK OF YOUR HOUSE",
+      "x": 120,
+      "y": 4
+    },
+    {
+      "text": "Nhà Ngô",
+      "x": 120,
+      "y": 23
+    },
+    {
+      "text": "Bronze drum",
+      "x": 120,
+      "y": 63
+    },
+    {
+      "text": "The sun on an ancient drum.",
+      "x": 120,
+      "y": 84
+    },
+    {
+      "text": "Sign",
+      "x": 85,
+      "y": 15
+    },
+    {
+      "text": "On a flag",
+      "x": 85,
+      "y": 15
+    },
+    {
+      "text": "Random sign",
+      "x": 172,
+      "y": 17
+    },
+    {
+      "text": "Dynasty treasury · 0 Legacy points",
+      "x": 0,
+      "y": 208
+    },
+    {
+      "text": "Preview a locked sign to unlock it forever. Purchases are kept even if you discard changes.",
+      "x": 0,
+      "y": 230
+    },
+    {
+      "text": "Field",
+      "x": 0,
+      "y": 264
+    },
+    {
+      "text": "Deep indigo",
+      "x": 344,
+      "y": 264
+    },
+    {
+      "text": "Sign colour",
+      "x": 0,
+      "y": 332
+    },
+    {
+      "text": "Gold",
+      "x": 344,
+      "y": 332
+    },
+    {
+      "text": "Choose a sign · 16 symbols",
+      "x": 0,
+      "y": 400
+    },
+    {
+      "text": "Bronze drum",
+      "x": 55,
+      "y": 473
+    },
+    {
+      "text": "Command flag",
+      "x": 172,
+      "y": 473
+    },
+    {
+      "text": "Sword",
+      "x": 289,
+      "y": 473
+    },
+    {
+      "text": "Rice",
+      "x": 55,
+      "y": 564
+    },
+    {
+      "text": "Bamboo",
+      "x": 172,
+      "y": 564
+    },
+    {
+      "text": "80 points",
+      "x": 172,
+      "y": 578
+    },
+    {
+      "text": "Sacred turtle",
+      "x": 289,
+      "y": 564
+    },
+    {
+      "text": "120 points",
+      "x": 289,
+      "y": 578
+    },
+    {
+      "text": "Back — the name",
+      "x": 98,
+      "y": 20
+    },
+    {
+      "text": "Next — the crown",
+      "x": 74,
+      "y": 20
+    }
+  ],
+  "errors": []
+}

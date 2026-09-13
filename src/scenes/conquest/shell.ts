@@ -36,6 +36,7 @@ import {
 } from '../../ui/inputGeneration';
 import { playWaveBanner } from '../../ui/ascent/waveBanner';
 import { AscentHud } from '../../ui/ascent/AscentHud';
+import { rulesOf } from '../../game/ascentRuleset';
 import { AdvisorStrip } from '../../ui/ascent/AdvisorStrip';
 import { BarHint } from '../../ui/ascent/BarHint';
 import { InheritanceChip } from '../../ui/ascent/InheritanceChip';
@@ -179,7 +180,9 @@ export function create(self: ConquestUIScene): void {
   });
   self.ledgerHit = ledgerHit;
 
-  self.hud = new AscentHud(self, isDesktopSheet() ? { compact: true, width: readoutWidth() } : {});
+  // Beta (`defenceBand`): the band shows DEFENCE beside THREAT.
+  const defenceBand = rulesOf(self.state).defenceBand;
+  self.hud = new AscentHud(self, isDesktopSheet() ? { compact: true, width: readoutWidth(), defenceBand } : { defenceBand });
   if (isDesktopSheet()) {
     // The readout beside the strip, laid out on the strip's own two rows (`AscentHud.placeCompact`)
     // and lifted so its band's top is the bar's top; the bar's band is its plate, so the readout's
@@ -804,6 +807,10 @@ function barStatusColor(self: ConquestUIScene, action: string): number | undefin
       return (state.mandate?.edictPoints ?? 0) > 0 ? INK_UI.gold : undefined;
     case 'army':
       // The one number that decides whether the run survives the next wave.
+      // Beta: lit on the same reading the band calls "behind" (≥ 1.1), so the dot and the word agree.
+      if (rulesOf(state).defenceBand) {
+        return ascent.defensePower > 0 && ascent.threat >= ascent.defensePower * 1.1 ? INK_UI.cinnabar : undefined;
+      }
       return ascent.defensePower > 0 && ascent.threat > ascent.defensePower ? INK_UI.cinnabar : undefined;
     case 'affairs':
       return ascent.laneState.world === 'alert' ? INK_UI.cinnabar : undefined;

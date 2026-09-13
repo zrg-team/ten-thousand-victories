@@ -2,9 +2,11 @@ import { installPerformanceBench } from './game/performanceBench';
 import { pageLoadingState } from './ui/pageLoading';
 import Phaser from 'phaser';
 import { gameConfig } from './game/config';
-import { createInitialGameState, createCampaignGameState, createEmpireGameState, createAscentGameState } from './state/GameState';
+import { createInitialGameState, createCampaignGameState, createEmpireGameState } from './state/GameState';
 import { scheduleCampaignEvents } from './systems/CampaignEventSystem';
-import type { GameState } from './state/types';
+import type { AscentRulesetId, GameState } from './state/types';
+import { newAscentRun } from './state/ascentRun';
+import { rulesetIdOf } from './game/ascentRuleset';
 import { getLanguage, heroName, politicsTitle, seasonLabel, subscribeLanguageChange, t } from './i18n';
 import { cacheTipsForSplash } from './data/tips';
 import { noteShellUpdate, registerServiceWorker } from './pwa/updates';
@@ -61,7 +63,7 @@ declare global {
      * `empire`, `campaign` and `rival` are shelved and reachable only through this hook — see the
      * note on the implementation before reading a green run in one of them as shipped surface.
      */
-    __startBenchGame?: (seed?: number, mode?: 'rival' | 'campaign' | 'empire' | 'ascent' | 'arena') => void;
+    __startBenchGame?: (seed?: number, mode?: 'rival' | 'campaign' | 'empire' | 'ascent' | 'arena', ruleset?: AscentRulesetId) => void;
     /**
      * The two halves of the launch splash, both declared inline in `index.html` so they exist
      * before this bundle does. `__splashDone` takes the splash down — `MenuScene` calls it once
@@ -312,6 +314,7 @@ window.render_game_to_text = () => {
     },
     ascent: state.ascent
       ? {
+          ruleset: rulesetIdOf(state),
           wave: state.ascent.wave,
           ticksToWave: state.ascent.ticksToWave,
           bossTelegraphed: state.ascent.bossTelegraphed,
@@ -399,6 +402,8 @@ function describeAscentPromptOptions(state: GameState, prompt: NonNullable<GameS
     // Same shape, same reason: one button, any id accepted, and named here so a blind driver
     // logs the card it answered rather than the ['ok'] fallthrough.
     case 'inheritance': return ['acknowledged'];
+    // Beta: rule on first, so a blind driver keeps playing; 'end' banks the reign as a victory.
+    case 'goal-won': return ['rule-on', 'end'];
     case 'founder': return prompt.options;
     case 'power-draft': return [...prompt.cards, 'skip'];
     case 'conquer-target': return [...prompt.targets.map((target) => target.landId), 'hold'];
@@ -450,7 +455,7 @@ window.advanceTime = (ms: number) => {
  * What ships: `ascent` (Dragon Ascent, the game) and `arena` (the Skirmish). Restoring either long
  * classic run is putting its entry back in `renderClassic`'s list, and this comment is then wrong.
  */
-window.__startBenchGame = (seed = 1337, mode = 'rival') => {
+window.__startBenchGame = (seed = 1337, mode = 'rival', ruleset: AscentRulesetId = 'stable') => {
   // The Skirmish carries no GameState: it builds both hosts from its own dials and hands the fight
   // to ConquestScene on "Take command". Routed here so a gate can reach the one classic mode a
   // player is actually offered by the same call it uses for everything else.
@@ -474,7 +479,8 @@ window.__startBenchGame = (seed = 1337, mode = 'rival') => {
   let state: GameState;
   try {
     if (mode === 'ascent') {
-      state = createAscentGameState({ seaSides: 1, difficulty: 'normal' });
+      // Named explicitly, never read from Settings: a bench run is reproducible or it is nothing.
+      state = newAscentRun({ ruleset });
     } else if (mode === 'empire') {
       state = createEmpireGameState({ seaSides: 1, difficulty: 'normal' });
       scheduleCampaignEvents(state);

@@ -1,0 +1,392 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 2, Summer",
+    "realtimeSeconds": 35,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 829668852,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 350.38571428571424,
+      "supplies": 208.35714285714283,
+      "gold": 442,
+      "humans": 627
+    },
+    "resourceRates": {
+      "food": 16.15714285714285,
+      "supplies": 22.07142857142857,
+      "gold": 93,
+      "humans": 2
+    },
+    "visibility": {
+      "visible": 8,
+      "explored": 8,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 90,
+        "provisions": 72
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [
+      {
+        "id": "court-boon-kho-lam-1-1789231042144-556",
+        "label": "boon:kho-lam:1",
+        "resourceRateModifier": {
+          "food": 11,
+          "supplies": 5
+        }
+      }
+    ],
+    "court": {
+      "stability": 51,
+      "influence": 50,
+      "favor": 5,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {
+        "treasurer": "ba-do-nuoc"
+      }
+    },
+    "ascent": {
+      "wave": 0,
+      "ticksToWave": 6,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 2093,
+      "powerDelta": -85,
+      "peakPower": 2178,
+      "defensePower": 1592,
+      "threat": 348,
+      "level": 2,
+      "xp": 88,
+      "xpToNext": 121,
+      "cardStacks": {
+        "kho-lam": 1
+      },
+      "retiredCards": [],
+      "heroesSummoned": 1,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 6,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "ready",
+        "lastDecisionTurn": {
+          "court": 5,
+          "conquer": 9
+        }
+      },
+      "conquestPlans": [
+        {
+          "id": "asc-conquest-9-district-17-bribe",
+          "landId": "district-17",
+          "method": "bribe",
+          "createdTurn": 9,
+          "status": "blocked",
+          "reason": "The nobles of Thiên Sơn Tây took your gold and refused. Trust lost. Diplomacy will be harder here."
+        }
+      ],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 1,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {
+        "province-order": 5,
+        "conquer-target": 1
+      },
+      "lastPromptTurn": 11,
+      "courtCardCooldown": 0,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 51,
+      "favor": 5,
+      "courtSeats": {
+        "treasurer": "ba-do-nuoc"
+      },
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Lãnh Chúa Phương Bắc",
+          "relations": 38,
+          "power": 32,
+          "warAppetite": 3,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 77,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 38,
+          "power": 52,
+          "warAppetite": 1,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 46,
+          "power": 51,
+          "warAppetite": 1,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 0,
+      "prompt": {
+        "kind": "power-draft",
+        "options": [
+          "earthen-ramparts",
+          "feigned-retreat",
+          "mountain-pass",
+          "salt-roads",
+          "skip"
+        ]
+      },
+      "ui": {
+        "screen": "power-draft:2:earthen-ramparts,feigned-retreat,mountain-pass,salt-roads:59",
+        "generatedUiIcons": [
+          "balance",
+          "food",
+          "gold",
+          "humans",
+          "supplies"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "The reeds at Uy Viễn are white on the hill again. The children still lay out battles, and one of them still carries the banner."
+  },
+  "texts": [
+    {
+      "text": "0/4",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "1/4",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 2 - Summer",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 172,
+      "y": 19
+    },
+    {
+      "text": "350 (+16)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "208 (+22)",
+      "x": 129,
+      "y": 36
+    },
+    {
+      "text": "442 (+93)",
+      "x": 227,
+      "y": 36
+    },
+    {
+      "text": "627 (+2)",
+      "x": 326,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "2,093",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "348",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "next wave in 6",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "Lv 2",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 0",
+      "x": 90,
+      "y": 54
+    },
+    {
+      "text": "Level 2 — Choose your power",
+      "x": 195,
+      "y": 114
+    },
+    {
+      "text": "Every choice is permanent and stacks.",
+      "x": 195,
+      "y": 143
+    },
+    {
+      "text": "Salt Roads  ·  NEW",
+      "x": 14,
+      "y": 10
+    },
+    {
+      "text": "Bronze  Stack 1/2",
+      "x": 14,
+      "y": 30
+    },
+    {
+      "text": "Walls and sellswords cost 22% less",
+      "x": 14,
+      "y": 48
+    },
+    {
+      "text": "Lv2: Walls and sellswords cost 27% less",
+      "x": 14,
+      "y": 67
+    },
+    {
+      "text": "3 more to combine",
+      "x": 12,
+      "y": 192
+    },
+    {
+      "text": "Take this",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "↑ Swipe up to select\nSlide to browse · Double-tap also selects",
+      "x": 195,
+      "y": 486
+    },
+    {
+      "text": "Reroll — 59g",
+      "x": 85,
+      "y": 20
+    },
+    {
+      "text": "Skip → +36 momentum",
+      "x": 85,
+      "y": 20
+    }
+  ],
+  "errors": []
+}

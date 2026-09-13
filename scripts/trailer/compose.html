@@ -70,6 +70,17 @@ const emblemReady = new Promise((resolve) => {
   emblem.src = '/app-emblem.webp';
 });
 
+/**
+ * Who made it — the same avatar the play page signs with, so the film and the page it sends people
+ * to carry one face. Served out of `public/`, which is where the landing page reads it from too.
+ */
+const author = new Image();
+const authorReady = new Promise((resolve) => {
+  author.onload = () => resolve(true);
+  author.onerror = () => resolve(false);
+  author.src = '/share/author-zrg-team.png';
+});
+
 function load(dataUrl) {
   return new Promise((resolve, reject) => {
     image.onload = () => { loaded = dataUrl; resolve(); };
@@ -284,12 +295,12 @@ function endCardWide(alpha, lang) {
     ? {
       pitch: ['Lịch sử Việt Nam,', 'trong tay bạn.'],
       ask: 'Triều đại của bạn đi được bao xa?',
-      scan: 'Quét để chơi',
+      scan: 'Quét để biết thêm',
     }
     : {
       pitch: ['Vietnamese history,', 'in your hands.'],
       ask: 'How far would your reign get?',
-      scan: 'Scan to play',
+      scan: 'Scan to know more',
     };
 
   const x = Math.round(W * 0.06);
@@ -326,25 +337,27 @@ function endCardWide(alpha, lang) {
   ctx.textAlign = 'left';
   ctx.fillStyle = PIGMENT.muc;
   ctx.font = '700 54px "Source Serif 4", Georgia, serif';
-  ctx.fillText(say.pitch[0], textX, y + 150);
-  ctx.fillText(say.pitch[1], textX, y + 212);
+  ctx.fillText(say.pitch[0], textX, y + 130);
+  ctx.fillText(say.pitch[1], textX, y + 192);
 
   ctx.fillStyle = PIGMENT.son;
-  ctx.fillRect(textX, y + 262, 150, 4);
+  ctx.fillRect(textX, y + 240, 150, 4);
 
   ctx.fillStyle = PIGMENT.mucSoft;
   ctx.font = '400 32px "Be Vietnam Pro", system-ui, sans-serif';
-  ctx.fillText(say.ask, textX, y + 316);
+  ctx.fillText(say.ask, textX, y + 292);
 
-  ctx.fillStyle = PIGMENT.muc;
-  ctx.font = '600 28px "Be Vietnam Pro", system-ui, sans-serif';
-  ctx.fillText('zrg-team.github.io/ten-thousand-victories', textX, y + height - 96);
-
+  // No play address under it. A viewer cannot type a URL off a moving picture, and printing one
+  // next to a code that already carries it only invites the attempt — the code is the door.
   ctx.font = 'italic 600 28px "Source Serif 4", Georgia, serif';
   ctx.fillStyle = PIGMENT.mucSoft;
   ctx.globalAlpha = alpha * 0.75;
-  ctx.fillText('Nam quốc sơn hà Nam đế cư.', textX, y + height - 52);
+  ctx.fillText('Nam quốc sơn hà Nam đế cư.', textX, y + 352);
   ctx.restore();
+
+  // Left-aligned with the words rather than centred: on a wide card the text column is the page,
+  // and a signature belongs at the foot of the page, not the foot of the sheet.
+  signature(textX, y + 462, 'left', alpha, 0.9);
   void right;
 }
 
@@ -367,12 +380,12 @@ function endCard(alpha, lang) {
     ? {
       pitch: ['Lịch sử Việt Nam,', 'trong tay bạn.'],
       ask: 'Triều đại của bạn đi được bao xa?',
-      scan: 'Quét để chơi',
+      scan: 'Quét để biết thêm',
     }
     : {
       pitch: ['Vietnamese history,', 'in your hands.'],
       ask: 'How far would your reign get?',
-      scan: 'Scan to play',
+      scan: 'Scan to know more',
     };
 
   ctx.save();
@@ -410,18 +423,79 @@ function endCard(alpha, lang) {
   ctx.fillStyle = PIGMENT.muc;
   ctx.font = '600 40px "Be Vietnam Pro", system-ui, sans-serif';
   ctx.fillText(say.scan, W / 2, top + 706);
-  ctx.font = '400 32px "Be Vietnam Pro", system-ui, sans-serif';
-  ctx.fillStyle = PIGMENT.mucSoft;
-  ctx.fillText('zrg-team.github.io/ten-thousand-victories', W / 2, top + 758);
 
+  // No play address under it. A viewer cannot type a URL off a moving picture, and printing one
+  // next to a code that already carries it only invites the attempt — the code is the door.
   ctx.font = 'italic 600 36px "Source Serif 4", Georgia, serif';
+  ctx.fillStyle = PIGMENT.mucSoft;
   ctx.globalAlpha = alpha * 0.75;
-  ctx.fillText('Nam quốc sơn hà Nam đế cư.', W / 2, top + 870);
+  ctx.fillText('Nam quốc sơn hà Nam đế cư.', W / 2, top + 786);
   ctx.restore();
+
+  signature(W / 2, top + 900, 'center', alpha);
 }
 
 /** Where the code points: one page, three doors — the browser, Play, the App Store. */
 const PLAY_URL = 'https://zrg-team.github.io/ten-thousand-victories/play/';
+
+/** Who signs the film: a face, a name, and a way to reach the person. Nothing else. */
+const AUTHOR_NAME = 'zrg-team';
+const AUTHOR_MAIL = 'zerglingno2@outlook.com';
+
+/**
+ * The author's mark: the avatar, the name, and an address to write to.
+ *
+ * No repository line. The film carries exactly one thing to act on — the code above it — and a
+ * second address underneath competes with it for the two seconds the card is up. The project's
+ * GitHub lives on the page the code opens, which is where somebody who wants it will be.
+ *
+ * `y` is the middle of the avatar, not the top of the block, because the avatar is the one part
+ * whose height is fixed — everything else is measured off it.
+ */
+function signature(x, y, align, alpha, scale = 1) {
+  const px = (n) => Math.round(n * scale);
+  const d = px(66);
+  const gap = px(16);
+  const nameFont = `600 ${px(28)}px "Be Vietnam Pro", system-ui, sans-serif`;
+  const mailFont = `400 ${px(24)}px "Be Vietnam Pro", system-ui, sans-serif`;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.textBaseline = 'middle';
+
+  ctx.font = nameFont;
+  const nameW = ctx.measureText(AUTHOR_NAME).width;
+  ctx.font = mailFont;
+  const mailW = ctx.measureText(AUTHOR_MAIL).width;
+  const rowW = d + gap + Math.max(nameW, mailW);
+  const left = align === 'center' ? Math.round(x - rowW / 2) : x;
+
+  if (author.naturalWidth) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(left + d / 2, y, d / 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(author, left, y - d / 2, d, d);
+    ctx.restore();
+    ctx.strokeStyle = PIGMENT.mucSoft;
+    ctx.globalAlpha = alpha * 0.45;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(left + d / 2, y, d / 2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = alpha;
+  }
+
+  const textX = left + d + gap;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = PIGMENT.muc;
+  ctx.font = nameFont;
+  ctx.fillText(AUTHOR_NAME, textX, y - px(13));
+  ctx.fillStyle = PIGMENT.mucSoft;
+  ctx.font = mailFont;
+  ctx.fillText(AUTHOR_MAIL, textX, y + px(16));
+  ctx.restore();
+}
 
 /**
  * The code, drawn by the game's own encoder rather than fetched from anywhere.
@@ -558,6 +632,7 @@ window.__compose = async (spec) => {
  */
 const VIET = 'VẠN THẮNG đêểọụỹ Cố thủ Thúc quân Lịch sử Việt Nam';
 await emblemReady;
+await authorReady;
 await document.fonts.ready;
 await Promise.all([
   ...['700 118px', '700 56px', '700 48px', '700 42px', '600 54px', '600 46px', 'italic 600 36px']

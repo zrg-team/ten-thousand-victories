@@ -30,6 +30,8 @@ import { chargeAmbition } from './AmbitionSystem';
 import { isAutoHost } from './armyOrders';
 import { hostOrderRefusal, setArmyOrders } from './StandingOrders';
 import { releaseHeroAssignment } from '../CourtSystem';
+import { rulesOf } from '../../game/ascentRuleset';
+import { estimateDiplomacySeasons, estimateIntimidation } from '../AcquisitionSystem';
 import { pushToast } from '../empire/notifications';
 import { applyResourceDelta, getLandAptitude, militiaCapacity, refreshAllLandOutputs } from '../ResourceSystem';
 import { addAscentXp, landGarrisonPower } from './PowerSystem';
@@ -303,6 +305,30 @@ function diplomacyOption(state: GameState, land: Land): ConquestMethodOption {
   const threshold = getDiplomacyThreshold(land);
   const gain = Math.max(0.5, 1 + (hero?.stats.administration ?? 0) * 0.03);
 
+  // Beta: the trust it actually is, the seasons the real gain takes, and a province that can
+  // never be won by an envoy said to be exactly that.
+  if (rulesOf(state).truthfulNumbers) {
+    const need = Math.ceil(threshold);
+    const seasons = hero ? estimateDiplomacySeasons(state, land, hero) : undefined;
+    return {
+      method: 'diplomacy',
+      cost: { supplies: cost },
+      ticks: seasons ?? 0,
+      loyalty: 85,
+      chance: Math.round(Math.min(99, Math.max(20, (trust / Math.max(1, threshold)) * 100))),
+      heroId: hero?.id,
+      trust: { now: Math.floor(trust), need },
+      estimate: true,
+      blockedReason: !hero
+        ? t('ascent.conquer.needHero')
+        : need > 100
+          ? t('beta.conquer.trustUnreachable', { need })
+          : state.resources.supplies < cost
+            ? t('ascent.conquer.needSupplies', { cost, have: Math.floor(state.resources.supplies) })
+            : undefined,
+    };
+  }
+
   return {
     method: 'diplomacy',
     cost: { supplies: cost },
@@ -322,6 +348,20 @@ function diplomacyOption(state: GameState, land: Land): ConquestMethodOption {
 
 function intimidationOption(state: GameState, land: Land): ConquestMethodOption {
   const army = bestAdjacentOwnedArmy(state, land);
+  // Beta: the claim's own power check and pace, so the card never offers a method the claim then
+  // refuses, and says the one way it can stop.
+  if (army && rulesOf(state).truthfulNumbers) {
+    const estimate = estimateIntimidation(land, army);
+    return {
+      method: 'intimidation',
+      ticks: estimate.seasons,
+      loyalty: 50,
+      chance: 100,
+      armyId: army.id,
+      estimate: true,
+      blockedReason: estimate.tooWeak ? t('ascent.conquer.hostTooWeak') : undefined,
+    };
+  }
   const power = army ? armyPower(state, army) : 0;
   const needed = Math.max(1, land.localSoldiers * 0.5);
   return {
@@ -366,6 +406,19 @@ function occupyOption(state: GameState, land: Land): ConquestMethodOption {
 
 function siegeOption(state: GameState, land: Land): ConquestMethodOption {
   const { chance, armyId } = bestBattle(state, land);
+  // Beta: the roll `attackLand` really makes is clamped to 10–90, so the card quotes that, as an
+  // estimate — a named host's assault becomes a watched fight whose result the player shapes.
+  if (rulesOf(state).truthfulNumbers) {
+    return {
+      method: 'siege',
+      ticks: 3,
+      loyalty: 45,
+      chance: Math.max(10, Math.min(90, chance)),
+      armyId,
+      estimate: true,
+      blockedReason: !armyId ? noHostReason(state) : undefined,
+    };
+  }
   return {
     method: 'siege',
     ticks: 3,

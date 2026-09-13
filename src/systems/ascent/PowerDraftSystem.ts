@@ -18,6 +18,8 @@ import { cabinetLevel, cabinetWeightMult, grantDeed, learnRecipe, openingHand, r
 import { noteRubbing } from './Inheritance';
 import { realmPriceScale } from './priceScale';
 import { t } from '../../i18n';
+import { rulesOf } from '../../game/ascentRuleset';
+import { masonryPowerPerDefense } from '../WarSystem';
 import type { AscentState, CourtModifier, GameState, PowerCardDef } from '../../state/types';
 
 /**
@@ -175,7 +177,7 @@ export function rollPowerDraftCards(state: GameState): string[] {
  * head start honestly, which is the snowball guard the whole feature stands on. Slots are
  * optional; an empty hand starts at zero extra ambition, and the choice is the strategy.
  */
-export function applyOpeningHand(state: GameState): void {
+export function applyOpeningHand(state: GameState, countTraitUses = true): void {
   const ascent = state.ascent;
   if (!ascent) return;
   const hand = openingHand();
@@ -187,8 +189,8 @@ export function applyOpeningHand(state: GameState): void {
     chargeAmbition(state, 'card');
   }
   // The shelf paid when the hand actually used the slot it opened.
-  if (hand.length >= 2) noteTraitUse('deep-shelf');
-  if (hand.length >= 3) noteTraitUse('deep-shelf-2');
+  if (countTraitUses && hand.length >= 2) noteTraitUse('deep-shelf');
+  if (countTraitUses && hand.length >= 3) noteTraitUse('deep-shelf-2');
 }
 
 /** Opens a Power Draft for one banked level-up. */
@@ -362,7 +364,9 @@ export function estimatePowerGainPct(state: GameState, card: PowerCardDef): numb
     }) - engineTerm(now);
   }
   if (level.effect.defenseBoost) {
-    after += level.effect.defenseBoost * 16 * 0.6;
+    // Beta: at what an Ascent wall point is actually worth (8, not the classic 16 — the preview
+    // promised defence cards twice the POWER they delivered).
+    after += level.effect.defenseBoost * (rulesOf(state).truthfulNumbers ? masonryPowerPerDefense(state) : 16) * 0.6;
   }
 
   return Math.max(0, Math.round(((after - before) / before) * 100));

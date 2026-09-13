@@ -1,0 +1,376 @@
+[
+  {
+    "at": "2026-09-12T16:34:40.507Z",
+    "op": "tap",
+    "x": 245,
+    "y": 649,
+    "name": "02-mobile-menu-en"
+  },
+  {
+    "at": "2026-09-12T16:34:51.763Z",
+    "op": "tap",
+    "x": 192,
+    "y": 445,
+    "name": "03-mobile-first-run"
+  },
+  {
+    "at": "2026-09-12T16:35:02.534Z",
+    "op": "shot",
+    "name": "04-mobile-opening-settled"
+  },
+  {
+    "at": "2026-09-12T16:35:37.699Z",
+    "op": "tap",
+    "x": 295,
+    "y": 815,
+    "name": "05-mobile-name"
+  },
+  {
+    "at": "2026-09-12T16:35:49.716Z",
+    "op": "tap",
+    "x": 295,
+    "y": 815,
+    "name": "06-mobile-sign"
+  },
+  {
+    "at": "2026-09-12T16:36:11.974Z",
+    "op": "tap",
+    "x": 295,
+    "y": 815,
+    "name": "07-mobile-crown"
+  },
+  {
+    "at": "2026-09-12T16:36:21.658Z",
+    "op": "tap",
+    "x": 295,
+    "y": 815,
+    "name": "08-mobile-inheritance"
+  },
+  {
+    "at": "2026-09-12T16:37:05.000Z",
+    "op": "tap",
+    "x": 197,
+    "y": 773,
+    "name": "09-mobile-mandate"
+  },
+  {
+    "at": "2026-09-12T16:37:22.092Z",
+    "op": "tap",
+    "x": 303,
+    "y": 511,
+    "name": "10-mobile-founder"
+  },
+  {
+    "at": "2026-09-12T16:37:36.493Z",
+    "op": "tap",
+    "x": 356,
+    "y": 698,
+    "name": "11-mobile-founder-alternative"
+  },
+  {
+    "at": "2026-09-12T16:37:49.417Z",
+    "op": "tap",
+    "x": 30,
+    "y": 698
+  },
+  {
+    "at": "2026-09-12T16:37:49.725Z",
+    "op": "tap",
+    "x": 190,
+    "y": 808,
+    "name": "12-mobile-governor-choice"
+  },
+  {
+    "at": "2026-09-12T16:38:21.049Z",
+    "op": "tap",
+    "x": 180,
+    "y": 211,
+    "name": "13-mobile-realm"
+  },
+  {
+    "at": "2026-09-12T16:38:33.541Z",
+    "op": "click",
+    "x": 180,
+    "y": 211,
+    "name": "14-mobile-first-map"
+  },
+  {
+    "at": "2026-09-12T16:38:59.148Z",
+    "op": "eval",
+    "code": "JSON.stringify({prompt:window.__mandateState.pendingAscentPrompt,canvas:window.__phaserGame.canvas.getBoundingClientRect().toJSON(),pointer:{x:window.__phaserGame.input.activePointer.x,y:window.__phaserGame.input.activePointer.y},paused:window.__mandateState.isStrategyPause})"
+  },
+  {
+    "at": "2026-09-12T16:39:15.760Z",
+    "op": "eval",
+    "code": "(async()=>{const c=window.__phaserGame.canvas;c.dispatchEvent(new MouseEvent('mousedown',{clientX:180,clientY:211,button:0,buttons:1,bubbles:true}));await new Promise(r=>setTimeout(r,160));c.dispatchEvent(new MouseEvent('mouseup',{clientX:180,clientY:211,button:0,buttons:0,bubbles:true}));return window.__mandateState.pendingAscentPrompt?.kind;})()",
+    "name": "15-mobile-delayed-press"
+  },
+  {
+    "at": "2026-09-12T16:39:35.995Z",
+    "op": "eval",
+    "code": "window.reviewTap=async(x,y)=>{const c=window.__phaserGame.canvas;c.dispatchEvent(new MouseEvent('mousedown',{clientX:x,clientY:y,button:0,buttons:1,bubbles:true}));await new Promise(r=>setTimeout(r,160));c.dispatchEvent(new MouseEvent('mouseup',{clientX:x,clientY:y,button:0,buttons:0,bubbles:true}));};null"
+  },
+  {
+    "at": "2026-09-12T16:39:36.274Z",
+    "op": "shot",
+    "name": "16-mobile-doctrine"
+  },
+  {
+    "at": "2026-09-12T16:39:50.532Z",
+    "op": "eval",
+    "code": "window.reviewTap(180,228)",
+    "name": "17-mobile-fortify"
+  },
+  {
+    "at": "2026-09-12T16:40:01.568Z",
+    "op": "shot",
+    "name": "18-mobile-next-choice"
+  },
+  {
+    "at": "2026-09-12T16:40:39.990Z",
+    "op": "eval",
+    "code": "window.reviewTap(180,248)",
+    "name": "19-mobile-gold-focus"
+  },
+  {
+    "at": "2026-09-12T16:41:00.613Z",
+    "op": "shot",
+    "name": "20-mobile-expansion-offer"
+  },
+  {
+    "at": "2026-09-12T16:41:16.900Z",
+    "op": "eval",
+    "code": "window.reviewTap(180,211)",
+    "name": "21-mobile-conquest-methods"
+  },
+  {
+    "at": "2026-09-12T16:41:30.455Z",
+    "op": "eval",
+    "code": "window.reviewTap(180,224)",
+    "name": "22-mobile-claim-ordered"
+  },
+  {
+    "at": "2026-09-12T16:41:43.424Z",
+    "op": "tap",
+    "x": 310,
+    "y": 815
+  },
+  {
+    "at": "2026-09-12T16:41:43.722Z",
+    "op": "wait",
+    "ms": 8000,
+    "name": "23-mobile-power-draft"
+  },
+  {
+    "at": "2026-09-12T16:42:01.363Z",
+    "op": "shot",
+    "name": "24-mobile-draft-settled"
+  },
+  {
+    "at": "2026-09-12T16:42:15.781Z",
+    "op": "tap",
+    "x": 320,
+    "y": 657,
+    "name": "25-mobile-draft-salt-roads"
+  },
+  {
+    "at": "2026-09-12T16:42:31.397Z",
+    "op": "tap",
+    "x": 310,
+    "y": 533
+  },
+  {
+    "at": "2026-09-12T16:42:31.702Z",
+    "op": "wait",
+    "ms": 12000,
+    "name": "26-mobile-before-wave"
+  },
+  {
+    "at": "2026-09-12T16:42:53.278Z",
+    "op": "shot",
+    "name": "27-mobile-wave-preparation"
+  },
+  {
+    "at": "2026-09-12T16:43:06.169Z",
+    "op": "tap",
+    "x": 190,
+    "y": 815
+  },
+  {
+    "at": "2026-09-12T16:43:06.486Z",
+    "op": "wait",
+    "ms": 16000,
+    "name": "28-mobile-first-wave"
+  },
+  {
+    "at": "2026-09-12T16:43:34.159Z",
+    "op": "shot",
+    "name": "29-mobile-first-threat"
+  },
+  {
+    "at": "2026-09-12T16:43:49.958Z",
+    "op": "eval",
+    "code": "window.reviewTap(180,590)"
+  },
+  {
+    "at": "2026-09-12T16:43:50.419Z",
+    "op": "wait",
+    "ms": 15000,
+    "name": "30-mobile-live-battle"
+  },
+  {
+    "at": "2026-09-12T16:44:05.888Z",
+    "op": "shot",
+    "name": "31-mobile-battle-current"
+  },
+  {
+    "at": "2026-09-12T16:44:31.751Z",
+    "op": "eval",
+    "code": "window.reviewTap(180,375)"
+  },
+  {
+    "at": "2026-09-12T16:44:32.241Z",
+    "op": "wait",
+    "ms": 12000,
+    "name": "32-mobile-contact"
+  },
+  {
+    "at": "2026-09-12T16:45:16.936Z",
+    "op": "shot",
+    "name": "33-mobile-contact-settled"
+  },
+  {
+    "at": "2026-09-12T16:49:54.309Z",
+    "op": "shot",
+    "name": "34-mobile-current"
+  },
+  {
+    "at": "2026-09-12T16:50:22.145Z",
+    "op": "eval",
+    "code": "window.reviewTap(310,815)",
+    "name": "35-mobile-map"
+  },
+  {
+    "at": "2026-09-12T16:50:34.187Z",
+    "op": "shot",
+    "name": "36-mobile-after-envoy"
+  },
+  {
+    "at": "2026-09-12T16:50:49.718Z",
+    "op": "eval",
+    "code": "window.reviewTap(300,815)",
+    "name": "37-mobile-resume"
+  },
+  {
+    "at": "2026-09-12T16:51:08.237Z",
+    "op": "shot",
+    "name": "38-mobile-threat"
+  },
+  {
+    "at": "2026-09-12T16:51:21.224Z",
+    "op": "eval",
+    "code": "window.reviewTap(310,532)",
+    "name": "39-mobile-muster-card"
+  },
+  {
+    "at": "2026-09-12T16:51:46.468Z",
+    "op": "eval",
+    "code": "window.reviewTap(156,510)",
+    "name": "40-mobile-take-muster"
+  },
+  {
+    "at": "2026-09-12T16:52:02.632Z",
+    "op": "eval",
+    "code": "window.reviewTap(43,765)",
+    "name": "41-mobile-battle-open"
+  },
+  {
+    "at": "2026-09-12T16:52:14.802Z",
+    "op": "eval",
+    "code": "({prompt:window.__mandateState.pendingAscentPrompt,battles:window.__mandateState.activeBattles,keys:Object.keys(window.__mandateState).filter(k=>/battle/i.test(k))})"
+  },
+  {
+    "at": "2026-09-12T16:52:32.525Z",
+    "op": "eval",
+    "code": "({battle:window.__mandateState.pendingBattle,ascentKeys:Object.keys(window.__mandateState.ascent).filter(k=>/battle/i.test(k))})"
+  },
+  {
+    "at": "2026-09-12T16:52:44.556Z",
+    "op": "eval",
+    "code": "window.reviewTap(185,235)",
+    "name": "42-mobile-defend-border"
+  },
+  {
+    "at": "2026-09-12T16:52:45.333Z",
+    "op": "eval",
+    "code": "window.reviewTap(22,760)",
+    "name": "43-mobile-battle"
+  },
+  {
+    "at": "2026-09-12T16:53:01.371Z",
+    "op": "shot",
+    "name": "44-mobile-current"
+  },
+  {
+    "at": "2026-09-12T16:53:50.384Z",
+    "op": "eval",
+    "code": "window.__phaserGame.scene.start('BattleArenaScene')"
+  },
+  {
+    "at": "2026-09-12T16:54:04.857Z",
+    "op": "shot",
+    "name": "45-mobile-skirmish-setup"
+  },
+  {
+    "at": "2026-09-12T16:54:31.113Z",
+    "op": "eval",
+    "code": "(()=>{const g=window.__phaserGame;g.scene.stop('ConquestUIScene');g.scene.stop('ConquestScene');g.scene.start('BattleArenaScene');return g.scene.getScenes(true).map(s=>s.sys.settings.key)})()"
+  },
+  {
+    "at": "2026-09-12T16:54:45.423Z",
+    "op": "shot",
+    "name": "46-mobile-arena-real"
+  },
+  {
+    "at": "2026-09-12T16:55:16.181Z",
+    "op": "eval",
+    "code": "window.reviewTap(195,766)",
+    "name": "47-mobile-fight"
+  },
+  {
+    "at": "2026-09-12T16:55:28.576Z",
+    "op": "eval",
+    "code": "window.reviewTap(55,815)",
+    "name": "48-mobile-paused-fight"
+  },
+  {
+    "at": "2026-09-12T16:55:39.533Z",
+    "op": "eval",
+    "code": "window.reviewTap(55,815)",
+    "name": "49-mobile-combat-pause"
+  },
+  {
+    "at": "2026-09-12T16:56:10.526Z",
+    "op": "eval",
+    "code": "window.reviewTap(275,695)",
+    "name": "50-mobile-save-shafts"
+  },
+  {
+    "at": "2026-09-12T16:56:11.142Z",
+    "op": "eval",
+    "code": "window.reviewTap(269,734)",
+    "name": "51-mobile-shields-order"
+  },
+  {
+    "at": "2026-09-12T16:56:11.781Z",
+    "op": "eval",
+    "code": "window.reviewTap(285,670)",
+    "name": "52-mobile-press"
+  },
+  {
+    "at": "2026-09-12T16:56:12.459Z",
+    "op": "eval",
+    "code": "window.reviewTap(55,815)",
+    "name": "53-mobile-held"
+  }
+]

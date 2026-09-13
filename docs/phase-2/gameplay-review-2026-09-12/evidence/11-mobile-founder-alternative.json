@@ -1,0 +1,492 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 1, Spring",
+    "realtimeSeconds": 0,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 829668852,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 150,
+      "supplies": 70,
+      "gold": 110,
+      "humans": 600
+    },
+    "resourceRates": {
+      "food": 28.214285714285715,
+      "supplies": 20.642857142857142,
+      "gold": 30,
+      "humans": 2
+    },
+    "visibility": {
+      "visible": 6,
+      "explored": 6,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 120,
+        "provisions": 80
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [
+      {
+        "id": "court-boon-kho-lam-1-1789231042144-556",
+        "label": "boon:kho-lam:1",
+        "resourceRateModifier": {
+          "food": 11,
+          "supplies": 5
+        }
+      }
+    ],
+    "court": {
+      "stability": 50,
+      "influence": 50,
+      "favor": 0,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {}
+    },
+    "ascent": {
+      "wave": 0,
+      "ticksToWave": 16,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 1458,
+      "powerDelta": 0,
+      "peakPower": 1458,
+      "defensePower": 1233,
+      "threat": 348,
+      "level": 1,
+      "xp": 0,
+      "xpToNext": 82,
+      "cardStacks": {
+        "kho-lam": 1
+      },
+      "retiredCards": [],
+      "heroesSummoned": 0,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 0,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "ready",
+        "lastDecisionTurn": {}
+      },
+      "conquestPlans": [],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 0,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {},
+      "lastPromptTurn": 1,
+      "courtCardCooldown": 3,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 50,
+      "favor": 0,
+      "courtSeats": {},
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Lãnh Chúa Phương Bắc",
+          "relations": 38,
+          "power": 49,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 63,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 50,
+          "power": 49,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 46,
+          "power": 48,
+          "warAppetite": 0,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 0,
+      "prompt": {
+        "kind": "founder",
+        "options": [
+          "ba-do-nuoc",
+          "nu-su-cham-pa",
+          "thai-uy-bien-cuong"
+        ]
+      },
+      "ui": {
+        "screen": "founder:ba-do-nuoc,nu-su-cham-pa,thai-uy-bien-cuong",
+        "generatedUiIcons": [
+          "balance",
+          "food",
+          "gold",
+          "humans",
+          "retreat",
+          "supplies"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "The dragon stirs. Your dynasty begins its ascent."
+  },
+  "texts": [
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 1 - Spring",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 157,
+      "y": 19
+    },
+    {
+      "text": "150 (+28)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "70 (+21)",
+      "x": 135,
+      "y": 36
+    },
+    {
+      "text": "110 (+30)",
+      "x": 227,
+      "y": 36
+    },
+    {
+      "text": "600 (+2)",
+      "x": 325,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "1,458",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "348",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "next wave in 16",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "Lv 1",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 0",
+      "x": 88,
+      "y": 54
+    },
+    {
+      "text": "Found your dynasty",
+      "x": 195,
+      "y": 114
+    },
+    {
+      "text": "One champion raises the dynasty with you.\n0 of 127 champions recorded",
+      "x": 195,
+      "y": 143
+    },
+    {
+      "text": "Common",
+      "x": 25,
+      "y": 12
+    },
+    {
+      "text": "governor",
+      "x": 322,
+      "y": 12
+    },
+    {
+      "text": "Triệu Thị Uyên",
+      "x": 169,
+      "y": 181
+    },
+    {
+      "text": "Brings a neighbouring district, already his to administer",
+      "x": 51,
+      "y": 341
+    },
+    {
+      "text": "10",
+      "x": 67,
+      "y": 215
+    },
+    {
+      "text": "Martial",
+      "x": 67,
+      "y": 241
+    },
+    {
+      "text": "32",
+      "x": 169,
+      "y": 215
+    },
+    {
+      "text": "Logistics",
+      "x": 169,
+      "y": 241
+    },
+    {
+      "text": "24",
+      "x": 271,
+      "y": 215
+    },
+    {
+      "text": "Governance",
+      "x": 271,
+      "y": 241
+    },
+    {
+      "text": "Fights the mining licences every season and loses politely.",
+      "x": 18,
+      "y": 288
+    },
+    {
+      "text": "Epic",
+      "x": 25,
+      "y": 12
+    },
+    {
+      "text": "minister",
+      "x": 322,
+      "y": 12
+    },
+    {
+      "text": "Kiều Nhật Cẩn",
+      "x": 169,
+      "y": 181
+    },
+    {
+      "text": "Brings the treasury he has been keeping",
+      "x": 51,
+      "y": 355
+    },
+    {
+      "text": "48",
+      "x": 67,
+      "y": 215
+    },
+    {
+      "text": "Martial",
+      "x": 67,
+      "y": 241
+    },
+    {
+      "text": "42",
+      "x": 169,
+      "y": 215
+    },
+    {
+      "text": "Logistics",
+      "x": 169,
+      "y": 241
+    },
+    {
+      "text": "52",
+      "x": 271,
+      "y": 215
+    },
+    {
+      "text": "Governance",
+      "x": 271,
+      "y": 241
+    },
+    {
+      "text": "Was a village schoolmaster until a censor read one of the essays.",
+      "x": 18,
+      "y": 287
+    },
+    {
+      "text": "Rare",
+      "x": 25,
+      "y": 12
+    },
+    {
+      "text": "agent",
+      "x": 322,
+      "y": 12
+    },
+    {
+      "text": "Ngô Cẩm Thoa",
+      "x": 169,
+      "y": 181
+    },
+    {
+      "text": "Brings the country's goodwill, and the people who trust the name",
+      "x": 51,
+      "y": 341
+    },
+    {
+      "text": "18",
+      "x": 67,
+      "y": 215
+    },
+    {
+      "text": "Martial",
+      "x": 67,
+      "y": 241
+    },
+    {
+      "text": "32",
+      "x": 169,
+      "y": 215
+    },
+    {
+      "text": "Logistics",
+      "x": 169,
+      "y": 241
+    },
+    {
+      "text": "34",
+      "x": 271,
+      "y": 215
+    },
+    {
+      "text": "Governance",
+      "x": 271,
+      "y": 241
+    },
+    {
+      "text": "Was a temple dancer, and can hold a room without saying anything.",
+      "x": 18,
+      "y": 280
+    },
+    {
+      "text": "Swipe ◀ ▶ to see another  ·  swipe ▲ to choose this one",
+      "x": 195,
+      "y": 689
+    },
+    {
+      "text": "Choose this champion",
+      "x": 175,
+      "y": 20
+    }
+  ],
+  "errors": []
+}

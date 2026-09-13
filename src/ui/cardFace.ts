@@ -340,6 +340,12 @@ export interface CardOverlayData {
   inHand?: boolean;
   /** Copies held, as a count on the corner — the binder's *how many of this do I have*. */
   held?: number;
+  /**
+   * Beta (`scopeLabels`): the copies line names the Deck, and a card the Deck does not hold says
+   * so rather than counting copies toward a combine it cannot make.
+   */
+  scoped?: boolean;
+  owned?: boolean;
 }
 
 /**
@@ -394,7 +400,15 @@ export function cardFaceOverlay(
 
   // Copies toward the next combine, bottom-left, clear of the stars and the chop.
   if (data.level !== undefined || data.copies !== undefined) {
-    const line = data.level === 3
+    const line = data.scoped
+      ? !data.owned
+        ? t('beta.deck.notInDeck')
+        : data.level === 3
+          ? t('cabinet.maxShort')
+          : (data.copies ?? 0) >= (data.need ?? 1)
+            ? t('beta.deck.ready', { level: (data.level ?? 1) + 1 })
+            : t('beta.deck.toNext', { n: Math.max(0, (data.need ?? 0) - (data.copies ?? 0)), level: (data.level ?? 1) + 1 })
+      : data.level === 3
       ? t('cabinet.maxShort')
       : (data.copies ?? 0) >= (data.need ?? 1)
         ? t('cabinet.readyShort')

@@ -18,6 +18,7 @@ export function renderPrompt(self: ConquestUIScene, prompt: AscentPrompt): void 
   switch (prompt.kind) {
     case 'coronation': self.showCoronation(); break;
     case 'inheritance': self.showInheritance(); break;
+    case 'goal-won': self.showGoalWon(prompt); break;
     case 'mandate': self.showMandate(prompt); break;
     case 'founder': self.showFounder(prompt); break;
     case 'power-draft': self.showPowerDraft(prompt); break;

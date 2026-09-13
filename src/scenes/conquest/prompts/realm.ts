@@ -465,7 +465,9 @@ export function showEmpireResponse(self: ConquestUIScene, prompt: Extract<Ascent
   // Aliased: `body` is the per-option description string built inside the loop below.
   const { body: scrollBody, bodyWidth, finish } = self.promptScrollBody(
     t('ascent.response.title', { kingdom: prompt.kingdomName }),
-    t('ascent.response.subtitle', { ticks: prompt.ticksToArrival, threat: Math.round(prompt.threat) }),
+    prompt.arrivalLandName
+      ? t('beta.response.subtitle', { land: prompt.arrivalLandName, ticks: prompt.ticksToArrival, threat: Math.round(prompt.threat) })
+      : t('ascent.response.subtitle', { ticks: prompt.ticksToArrival, threat: Math.round(prompt.threat) }),
     0,
   );
 

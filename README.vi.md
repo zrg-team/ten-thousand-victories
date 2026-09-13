@@ -271,6 +271,8 @@ Và chính bức tranh: giấy điệp quét vỏ sò, bản màu in trước, b
 
 ## 🛠️ Phát triển
 
+Xem [mục lục tài liệu](docs/README.md) để tra cứu [lưu trữ Giai đoạn 1](docs/phase-1/README.md) và [kế hoạch gameplay Giai đoạn 2](docs/phase-2/README.md), gồm bản đánh giá song ngữ và danh sách theo dõi triển khai.
+
 ```bash
 corepack enable          # lấy đúng bản Yarn đã ghim
 yarn install
@@ -344,7 +346,7 @@ Game miễn phí, và sẽ mãi miễn phí — chuyện đó thì không đổi
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="docs/readme/qr-wise.png" alt="Mã QR Wise" width="220"><br><br>
+      <img src="public/support/qr-wise.png" alt="Mã QR Wise" width="220"><br><br>
       <a href="https://wise.com/pay/me/tand99"><b>Wise · quốc tế</b></a><br>
       <sub>wise.com/pay/me/tand99 · @tand99</sub>
     </td>

@@ -1,0 +1,124 @@
+[
+  {
+    "at": "2026-09-12T16:49:55.428Z",
+    "op": "shot",
+    "name": "02-desktop-current"
+  },
+  {
+    "at": "2026-09-12T16:50:23.258Z",
+    "op": "click",
+    "x": 726,
+    "y": 458,
+    "name": "03-desktop-start"
+  },
+  {
+    "at": "2026-09-12T16:50:35.314Z",
+    "op": "shot",
+    "name": "04-desktop-start-settled"
+  },
+  {
+    "at": "2026-09-12T16:50:50.835Z",
+    "op": "eval",
+    "code": "({hardcore:window.__mandateState.ascent.hardcore,scenes:window.__phaserGame.scene.getScenes(true).map(s=>({key:s.sys.settings.key,methods:Object.getOwnPropertyNames(Object.getPrototypeOf(s)).filter(k=>/prompt|resolve|show/i.test(k))}))})"
+  },
+  {
+    "at": "2026-09-12T16:51:09.374Z",
+    "op": "eval",
+    "code": "({desktop:window.__layoutDiagnosis,hardcore:window.__mandateState.hardcore,ascent:window.__mandateState.ascent?.hardcore})"
+  },
+  {
+    "at": "2026-09-12T16:51:47.593Z",
+    "op": "eval",
+    "code": "location.href='http://127.0.0.1:5179/?capture=1&layout=desktop'"
+  },
+  {
+    "at": "2026-09-12T16:52:01.521Z",
+    "op": "shot",
+    "name": "05-desktop-layout-menu"
+  },
+  {
+    "at": "2026-09-12T16:52:13.665Z",
+    "op": "shot",
+    "name": "06-desktop-ready"
+  },
+  {
+    "at": "2026-09-12T16:52:43.435Z",
+    "op": "eval",
+    "code": "localStorage.clear();location.reload()"
+  },
+  {
+    "at": "2026-09-12T16:53:00.258Z",
+    "op": "shot",
+    "name": "07-desktop-fresh-menu"
+  },
+  {
+    "at": "2026-09-12T16:53:18.368Z",
+    "op": "click",
+    "x": 1160,
+    "y": 330,
+    "name": "08-desktop-start-real"
+  },
+  {
+    "at": "2026-09-12T16:53:29.987Z",
+    "op": "eval",
+    "code": "({hardcore:window.__mandateState.ascent.hardcore,layout:window.__layoutDiagnosis})"
+  },
+  {
+    "at": "2026-09-12T16:53:49.260Z",
+    "op": "eval",
+    "code": "(async()=>{const st=window.__mandateState; const ui=window.__phaserGame.scene.getScene('ConquestUIScene'); for(let i=0;i<10&&st.pendingAscentPrompt;i++){const p=st.pendingAscentPrompt; const id=p.kind==='mandate'?p.options[0]:p.kind==='founder'?p.options[0]:p.kind==='hero-choice'?p.heroIds[0]:p.kind==='court-appointment'?p.options[0].id:'ok';ui.events.emit('ui:ascent-choice',id); await new Promise(r=>setTimeout(r,80));}st.isStrategyPause=true;ui.events.emit('state-changed');return {hardcore:st.ascent.hardcore,prompt:st.pendingAscentPrompt};})()",
+    "name": "09-desktop-map"
+  },
+  {
+    "at": "2026-09-12T16:53:59.587Z",
+    "op": "key",
+    "key": "1",
+    "name": "10-desktop-build"
+  },
+  {
+    "at": "2026-09-12T16:54:32.228Z",
+    "op": "click",
+    "x": 1110,
+    "y": 360,
+    "name": "11-desktop-province"
+  },
+  {
+    "at": "2026-09-12T16:54:46.533Z",
+    "op": "eval",
+    "code": "import('/src/data/ascentCards.ts').then(m=>({total:m.POWER_CARDS.length,draft:m.ROLLABLE_POWER_CARDS.length,opening:m.OPENING_BOONS.length}))"
+  },
+  {
+    "at": "2026-09-12T16:55:17.293Z",
+    "op": "click",
+    "x": 1175,
+    "y": 615,
+    "name": "12-desktop-defend-focus"
+  },
+  {
+    "at": "2026-09-12T16:55:18.833Z",
+    "op": "key",
+    "key": "Escape"
+  },
+  {
+    "at": "2026-09-12T16:55:19.323Z",
+    "op": "key",
+    "key": "4",
+    "name": "13-desktop-army"
+  },
+  {
+    "at": "2026-09-12T16:55:40.651Z",
+    "op": "shot",
+    "name": "14-desktop-army-settled"
+  },
+  {
+    "at": "2026-09-12T16:55:58.351Z",
+    "op": "key",
+    "key": "Escape"
+  },
+  {
+    "at": "2026-09-12T16:55:58.792Z",
+    "op": "key",
+    "key": "4",
+    "name": "15-desktop-army"
+  }
+]

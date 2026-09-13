@@ -974,7 +974,7 @@ function reforming(beats?: number): boolean {
  *
  * Two pips. Every change of formation spends one, whatever the shape, whatever the distance;
  * a pip comes back on its own every `BATTLE_STAMINA_REGEN_BEATS`, whatever the stance. That is the
- * whole rule — and it replaces the per-shape wind of docs/19, whose five clocks, stance-driven
+ * whole rule — and it replaces the per-shape wind of docs/phase-1/19-five-shapes-one-clock.md, whose five clocks, stance-driven
  * recovery and match exception were three rules too many for a screen read at speed: nobody knew
  * why a chip was grey or what to do about it. With two pips the penalty for changing shape too
  * fast is simply having no pip when the next answer is needed, and the smart move in that wait —
@@ -1853,7 +1853,7 @@ export function fightRound(state: GameState): void {
 
   // Spread across every host they have, always. Concentrating the line on one enemy column used to
   // be an order; it was a second cursor on a one-thumb screen, and it was very nearly always
-  // correct, which makes it a tax rather than a choice. See `docs/14-five-shapes-two-dials.html`.
+  // correct, which makes it a tax rather than a choice. See `docs/phase-1/14-five-shapes-two-dials.md`.
   const theirLoss = theirs.reduce((total, host) => total + bleed(host, Math.min(0.9, theirShare)), 0);
 
   // What the dock prints as the price of standing here.
@@ -2597,7 +2597,7 @@ export function setBattleStance(state: GameState, stance: FieldStance): boolean 
  *
  * Every shape is always on the dock; the only question is stamina. A Moment's `freeReform` is the
  * one exception, and it is a gift the fight hands over, not a rule. The two earlier availability
- * rules — by army block (docs/18) and by per-shape wind (docs/19) — are retired; see `staminaOf`.
+ * rules — by army block (docs/phase-1/18-formation-availability-by-blocks.md) and by per-shape wind (docs/phase-1/19-five-shapes-one-clock.md) — are retired; see `staminaOf`.
  */
 export function canFormFormation(state: GameState, formation: BattleFormation): boolean {
   const battle = state.ascent?.activeBattle;

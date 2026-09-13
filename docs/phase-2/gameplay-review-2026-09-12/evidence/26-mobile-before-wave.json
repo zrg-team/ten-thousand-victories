@@ -1,0 +1,422 @@
+{
+  "state": {
+    "coordinateSystem": "Phaser canvas pixels, origin top-left, x right, y down",
+    "language": "en",
+    "mapTheme": "dong-ho",
+    "mode": "playing",
+    "time": "Year 2, Autumn",
+    "realtimeSeconds": 42,
+    "mapRenderMode": "terrain",
+    "mapSettings": {
+      "cols": 30,
+      "rows": 52,
+      "hexSize": 18,
+      "seed": 829668852,
+      "riverHexCount": 92,
+      "neutralDistrictTarget": 40
+    },
+    "resources": {
+      "food": 371.79428571428565,
+      "supplies": 244.5428571428571,
+      "gold": 625,
+      "humans": 631
+    },
+    "resourceRates": {
+      "food": 15.251428571428562,
+      "supplies": 22.11428571428571,
+      "gold": 90,
+      "humans": 2
+    },
+    "visibility": {
+      "visible": 8,
+      "explored": 8,
+      "total": 42
+    },
+    "acquisitionOrders": [],
+    "selectedLand": null,
+    "armies": [
+      {
+        "id": "ascent-royal-host",
+        "kingdomId": "dai-viet",
+        "landId": "district-08",
+        "total": 460,
+        "level": 1,
+        "experience": 0,
+        "experienceToNextLevel": 100,
+        "morale": 92,
+        "supply": 95,
+        "rations": 90,
+        "provisions": 72
+      }
+    ],
+    "draftChoices": [],
+    "politicsCard": null,
+    "pendingCourtRequest": null,
+    "activeCourtModifiers": [
+      {
+        "id": "court-boon-kho-lam-1-1789231042144-556",
+        "label": "boon:kho-lam:1",
+        "resourceRateModifier": {
+          "food": 11,
+          "supplies": 5
+        }
+      }
+    ],
+    "court": {
+      "stability": 51,
+      "influence": 51,
+      "favor": 6,
+      "favorThreshold": 12,
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "seats": {
+        "treasurer": "ba-do-nuoc"
+      }
+    },
+    "ascent": {
+      "wave": 0,
+      "ticksToWave": 4,
+      "bossTelegraphed": false,
+      "wavesSurvived": 0,
+      "power": 2105,
+      "powerDelta": -15,
+      "peakPower": 2178,
+      "defensePower": 1630,
+      "threat": 348,
+      "level": 3,
+      "xp": 3,
+      "xpToNext": 168,
+      "cardStacks": {
+        "kho-lam": 1,
+        "salt-roads": 1
+      },
+      "retiredCards": [],
+      "heroesSummoned": 1,
+      "frontBlocked": false,
+      "autopilot": {
+        "builds": 6,
+        "upgrades": 0,
+        "recruits": 0,
+        "marches": 0
+      },
+      "lanes": {
+        "conquer": "ready",
+        "court": "ready",
+        "world": "ready",
+        "lastDecisionTurn": {
+          "court": 5,
+          "conquer": 9
+        }
+      },
+      "conquestPlans": [
+        {
+          "id": "asc-conquest-9-district-17-bribe",
+          "landId": "district-17",
+          "method": "bribe",
+          "createdTurn": 9,
+          "status": "blocked",
+          "reason": "The nobles of Thiên Sơn Tây took your gold and refused. Trust lost. Diplomacy will be harder here."
+        }
+      ],
+      "decisionPressure": 0,
+      "idleTicks": 0,
+      "laneStats": {
+        "conquestsByMethod": {
+          "bribe": 0,
+          "diplomacy": 0,
+          "intimidation": 0,
+          "settle": 0,
+          "occupy": 0,
+          "siege": 0
+        },
+        "appointments": 1,
+        "edictsEnacted": 0,
+        "parliamentAnswered": 0,
+        "envoyActions": {},
+        "rivalAnswers": 0
+      },
+      "promptCooldowns": {
+        "province-order": 3
+      },
+      "lastPromptTurn": 13,
+      "courtCardCooldown": 0,
+      "drawnCourtCards": [],
+      "era": "founding",
+      "edictPoints": 1,
+      "edicts": [],
+      "taxPolicy": "balanced",
+      "stability": 51,
+      "favor": 6,
+      "courtSeats": {
+        "treasurer": "ba-do-nuoc"
+      },
+      "unlockedSeats": [
+        "marshal",
+        "treasurer",
+        "steward"
+      ],
+      "governors": [],
+      "rivals": [
+        {
+          "id": "northern-rival",
+          "name": "Nam Hán",
+          "relations": 32,
+          "power": 27,
+          "warAppetite": 2,
+          "ambassador": null
+        },
+        {
+          "id": "southern-rival",
+          "name": "Vương Quốc Phương Nam",
+          "relations": 32,
+          "power": 95,
+          "warAppetite": 0,
+          "ambassador": null
+        },
+        {
+          "id": "eastern-rival",
+          "name": "Liên Minh Phương Đông",
+          "relations": 38,
+          "power": 55,
+          "warAppetite": 2,
+          "ambassador": null
+        },
+        {
+          "id": "western-rival",
+          "name": "Bộ Lạc Phương Tây",
+          "relations": 50,
+          "power": 52,
+          "warAppetite": 3,
+          "ambassador": null
+        }
+      ],
+      "queuedPrompts": 0,
+      "prompt": {
+        "kind": "conquer-target",
+        "options": [
+          "district-17",
+          "district-11",
+          "district-26",
+          "district-37",
+          "hold"
+        ]
+      },
+      "ui": {
+        "screen": "conquer-target:district-17,district-11,district-26,district-37",
+        "generatedUiIcons": [
+          "balance",
+          "food",
+          "gold",
+          "humans",
+          "supplies"
+        ],
+        "chronicleTab": null,
+        "claimsAskFirst": true,
+        "mustersAskFirst": true,
+        "storiesWait": false
+      }
+    },
+    "message": "The empire of Lãnh Chúa Phương Bắc has fallen — Nam Hán rises in its place!"
+  },
+  "texts": [
+    {
+      "text": "2/4",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "3/4",
+      "x": 10,
+      "y": -8
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Lam Trại Hạ Capital",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Sơn Trại Bắc",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "text": "Year 2 - Autumn",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "text": "The Realm's Books",
+      "x": 169,
+      "y": 19
+    },
+    {
+      "text": "372 (+15)",
+      "x": 34,
+      "y": 36
+    },
+    {
+      "text": "245 (+22)",
+      "x": 129,
+      "y": 36
+    },
+    {
+      "text": "625 (+90)",
+      "x": 228,
+      "y": 36
+    },
+    {
+      "text": "631 (+2)",
+      "x": 328,
+      "y": 36
+    },
+    {
+      "text": "POWER",
+      "x": 14,
+      "y": 54
+    },
+    {
+      "text": "THREAT",
+      "x": 376,
+      "y": 54
+    },
+    {
+      "text": "2,105",
+      "x": 14,
+      "y": 63
+    },
+    {
+      "text": "348",
+      "x": 376,
+      "y": 63
+    },
+    {
+      "text": "ahead",
+      "x": 335,
+      "y": 69
+    },
+    {
+      "text": "next wave in 4",
+      "x": 326,
+      "y": 54
+    },
+    {
+      "text": "×1.0 ambition",
+      "x": 376,
+      "y": 84
+    },
+    {
+      "text": "Lv 3",
+      "x": 62,
+      "y": 54
+    },
+    {
+      "text": "Wave 0",
+      "x": 90,
+      "y": 54
+    },
+    {
+      "text": "Where do we press?",
+      "x": 195,
+      "y": 114
+    },
+    {
+      "text": "2 provinces held. Choose one, then choose how.",
+      "x": 195,
+      "y": 143
+    },
+    {
+      "text": "Thiên Sơn Tây",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "text": "Village — nobles hold it  ·  Suits Food · 97%",
+      "x": 16,
+      "y": 32
+    },
+    {
+      "text": "4 ways in  ·  Garrison 130",
+      "x": 16,
+      "y": 70
+    },
+    {
+      "text": "Vân Đèo",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "text": "Village — nobles hold it  ·  Suits Gold · 100%\nSacred ground — extra momentum",
+      "x": 16,
+      "y": 32
+    },
+    {
+      "text": "4 ways in  ·  Garrison 142",
+      "x": 16,
+      "y": 70
+    },
+    {
+      "text": "Hải Quan Bắc",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "text": "Village — nobles hold it  ·  Suits Gold · 100%\nRich province — strong gold",
+      "x": 16,
+      "y": 32
+    },
+    {
+      "text": "4 ways in  ·  Garrison 208",
+      "x": 16,
+      "y": 70
+    },
+    {
+      "text": "Việt Hương Thượng",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "text": "Village — nobles hold it  ·  Suits Goods · 100%",
+      "x": 16,
+      "y": 32
+    },
+    {
+      "text": "4 ways in  ·  Garrison 317",
+      "x": 16,
+      "y": 70
+    },
+    {
+      "text": "Hold a card to choose it",
+      "x": 195,
+      "y": 782
+    },
+    {
+      "text": "Hold and consolidate",
+      "x": 175,
+      "y": 20
+    }
+  ],
+  "errors": []
+}
