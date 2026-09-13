@@ -14,6 +14,8 @@ import { treasuryGraftFrom } from './priceScale';
 import { STORE_KEYS, marketCapacity, storeWasteFrom } from './GranarySystem';
 import { resourceLabel } from '../../i18n';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
+import { rulesOf } from '../../game/ascentRuleset';
+import { goalCapitalAloneWave, goalHold, goalNeed, goalProvincesPhrase } from './Goal';
 import { heatFor } from './AmbitionSystem';
 import { contestedFronts } from './battleReport';
 import { landSupply } from './SupplySystem';
@@ -312,15 +314,39 @@ export function adviseAscent(state: GameState): Advice[] {
   }
 
   // ── The named wave ───────────────────────────────────────────────────────
+  // Beta: the reign's goal, while it is open. The Great Invasion that decides it is named as that,
+  // and a realm short of the provinces it needs is told so while there is time to take them.
+  const goal = ascent.goal?.status === 'open' ? ascent.goal : undefined;
+  const goalRule = goal ? rulesOf(state).goal : null;
+  const goalHeld = goal && goalRule ? goalHold(state) : undefined;
+  const decidesGoal = Boolean(goal && goalRule && ascent.bossTelegraphed && ascent.wave + 1 === goal.targetWave);
+  // What the Great Invasion the goal waits on asks for: provinces at the third, the capital alone later.
+  const target = goal?.targetWave ?? 0;
+  const need = goal && goalRule ? goalNeed(goalRule, target) : 0;
+  const goalParams: Record<string, string | number> = goalRule && goalHeld
+    ? { provinces: goalProvincesPhrase(need), have: goalHeld.others, goal: target, late: goalCapitalAloneWave(goalRule) ?? target }
+    : {};
   if (ascent.bossTelegraphed) {
     add({
       id: 'boss',
       tone: 'urgent',
       priority: 88,
-      line: 'advice.boss.line',
-      body: 'advice.boss.body',
-      params: { ticks: ascent.ticksToWave },
+      line: decidesGoal ? 'beta.advice.bossGoal.line' : 'advice.boss.line',
+      body: decidesGoal ? (need > 0 ? 'beta.advice.bossGoal.body' : 'beta.advice.bossGoal.bodyAlone') : 'advice.boss.body',
+      params: decidesGoal ? { ticks: ascent.ticksToWave, ...goalParams } : { ticks: ascent.ticksToWave },
       lane: 'army',
+    });
+  }
+  if (goal && goalRule && goalHeld && goal.targetWave !== undefined
+    && ascent.wave >= goal.targetWave - 4 && goalHeld.others < need) {
+    add({
+      id: 'goal-short',
+      tone: 'chance',
+      priority: 64,
+      line: 'beta.advice.goalShort.line',
+      body: 'beta.advice.goalShort.body',
+      params: goalParams,
+      lane: 'affairs',
     });
   }
 
@@ -462,12 +488,14 @@ export function adviseAscent(state: GameState): Advice[] {
     id: 'steady',
     tone: 'calm',
     priority: 0,
-    line: 'advice.steady.line',
-    body: 'advice.steady.body',
+    // Beta: the steady line quotes the two numbers the verdict compares.
+    line: rulesOf(state).defenceBand ? 'beta.advice.steady.line' : 'advice.steady.line',
+    body: rulesOf(state).defenceBand ? 'beta.advice.steady.body' : 'advice.steady.body',
     params: {
       wave: ascent.wave,
       ticks: ascent.ticksToWave,
       power: formatNumber(ascent.power),
+      defence: formatNumber(ascent.defensePower),
       threat: formatNumber(ascent.threat),
     },
   });

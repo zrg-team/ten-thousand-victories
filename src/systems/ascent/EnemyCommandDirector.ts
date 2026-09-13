@@ -29,9 +29,6 @@ import {
   ENEMY_RETREAT_HYSTERESIS_TICKS,
   ENEMY_RETREAT_POWER_RATIO,
   MAX_LIVE_INVADER_HOSTS,
-  MIN_RAID_SOLDIERS,
-  RAID_POWER_SHARE,
-  INVADER_POWER_PER_SOLDIER,
   COALITION_JOIN_BELOW_RELATIONS,
   COALITION_JOIN_DRAW,
   COALITION_JOIN_RATIO,
@@ -48,7 +45,7 @@ import { getEmpirePower } from '../DiplomacySystem';
 import { armyPower } from '../WarSystem';
 import { ambitionHeat } from './AmbitionSystem';
 import { contestedDefencePower, landGarrisonPower } from './PowerSystem';
-import { laggedDefencePower, peaceFloorBreached, waveSoldierBudget } from './WaveDirector';
+import { peaceFloorBreached, raidSoldierBudget, waveSoldierBudget } from './WaveDirector';
 import { t } from '../../i18n';
 import type { GameState, InvasionRecord, Kingdom, Land } from '../../state/types';
 
@@ -205,7 +202,6 @@ function maybeLaunch(state: GameState): void {
   // The floor exists to guarantee *contact*, not to double the difficulty curve. A raid-sized host
   // is contact: it is a real battle, it is survivable, and it resets the clock — which is all the
   // guarantee was ever for.
-  const budget = Math.round(laggedDefencePower(state) * RAID_POWER_SHARE / INVADER_POWER_PER_SOLDIER);
   // One host in the opening, not a rolled coalition.
   //
   // Without `forceCoalition` the spawner rolls `armyCount` off relations and sends up to three at
@@ -215,7 +211,7 @@ function maybeLaunch(state: GameState): void {
   // seed 12161 at four hosts from two crowns during wave 2, defeated by wave 5. The grace has to
   // bound the *shape* of what arrives, not only how often.
   launchOffMapInvasion(state, chosen.id, {
-    totalSoldiers: Math.max(MIN_RAID_SOLDIERS, budget),
+    totalSoldiers: raidSoldierBudget(state),
     ...(ascent.wave <= EARLY_WAVE_GRACE ? { forceCoalition: 1 } : {}),
   });
   ascent.lastContactTurn = state.turn;

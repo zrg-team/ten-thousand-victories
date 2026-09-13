@@ -38,6 +38,10 @@ import type { AscentPrompt, Hero } from '../../../state/types';
 import { PROMPT_FOOTER_HEIGHT, PROMPT_HINT_ROOM, RARITY_COLOR, cssHex } from '../constants';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 import { soundDirector } from '../../../ui/sound/SoundDirector';
+import { goalCapitalAloneWave, goalFirstWave, goalProvincesPhrase, goalRule } from '../../../systems/ascent/Goal';
+import { rulesOf } from '../../../game/ascentRuleset';
+import { readCarriedOver } from '../../../systems/ascent/CarriedOver';
+import { PERK_MAX_LEVEL } from '../../../state/legacy';
 
 /**
  * The founding: the champion who raises the dynasty you rule, dealt as a hand you hold.
@@ -116,9 +120,13 @@ function addThroneHall(self: ConquestUIScene, parent: Phaser.GameObjects.Contain
  * heights, *then* the surfaces. Letting each card size itself independently gives a ragged row.
  */
 export function showMandate(self: ConquestUIScene, prompt: Extract<AscentPrompt, { kind: 'mandate' }>): void {
+  // Beta: the reign's goal is stated on its first card, where the player decides how to play it.
+  const goal = goalRule(self.state);
   const { content, body, bodyWidth, finish } = self.promptScrollBody(
     t('ascent.mandate.title'),
-    t('ascent.mandate.subtitle'),
+    goal
+      ? `${t('ascent.mandate.subtitle')}\n${t('beta.goal.statement', { wave: goalFirstWave(goal), provinces: goalProvincesPhrase(goal.provincesBesidesCapital), late: goalCapitalAloneWave(goal) ?? goalFirstWave(goal) })}`
+      : t('ascent.mandate.subtitle'),
     0,
   );
 
@@ -349,14 +357,26 @@ export function showRunOver(self: ConquestUIScene, prompt: Extract<AscentPrompt,
   // The reign leads the subtitle when it has a name. The Reckoning previously said only how the
   // dynasty fell, so a run that legislated its way to the Hong Duc code closed on exactly the
   // same sentence as one that never passed a law — the two things it is most worth telling apart.
-  const fall = prompt.cause === 'capital'
-    ? t('ascent.over.causeCapital', { land: prompt.landName ?? '', waves: ascent?.wavesSurvived ?? 0 })
-    : t('ascent.over.causeAnnihilated', { waves: ascent?.wavesSurvived ?? 0 });
-  const content = self.promptFrame(
-    prompt.reign ?? t('ascent.over.title'),
-    prompt.reignDetail ? `${prompt.reignDetail}
-${fall}` : fall,
-  );
+  const victory = prompt.outcome === 'victory';
+  const fall = victory
+    ? (prompt.goalLands ?? 0) > 0
+      ? t('beta.goal.reckoningCause', { wave: prompt.goalWave ?? 0, provinces: goalProvincesPhrase(prompt.goalLands ?? 0) })
+      : t('beta.goal.reckoningCauseAlone', { wave: prompt.goalWave ?? 0 })
+    : prompt.cause === 'capital'
+      ? t('ascent.over.causeCapital', { land: prompt.landName ?? '', waves: ascent?.wavesSurvived ?? 0 })
+      : t('ascent.over.causeAnnihilated', { waves: ascent?.wavesSurvived ?? 0 });
+  // Beta: a reign that won its goal and ruled on until it fell still says it kept the goal.
+  const kept = !victory && prompt.goalWave !== undefined
+    ? `\n${t('beta.goal.kept', { wave: prompt.goalWave, bonus: prompt.goalBonus ?? 0 })}`
+    : '';
+  const content = victory
+    ? self.promptFrame(t('beta.goal.reckoningTitle'),
+      [prompt.reign, prompt.reignDetail, fall].filter(Boolean).join('\n'))
+    : self.promptFrame(
+      prompt.reign ?? t('ascent.over.title'),
+      (prompt.reignDetail ? `${prompt.reignDetail}
+${fall}` : fall) + kept,
+    );
 
   // Every band on this page is paid for out of one budget, because the page must not scroll and
   // `GAME_HEIGHT` clamps as low as 620 — where the frame above has already spent most of it on a
@@ -397,7 +417,7 @@ ${fall}` : fall,
   // it is the difference between a panel and a document.
   plate.fillStyle(INK_UI.parchment, 0.96);
   plate.fillRect(content.x, content.y, content.width, plateH);
-  plate.lineStyle(2.2, beatBest ? INK_UI.gold : INK_UI.brush, 0.95);
+  plate.lineStyle(2.2, beatBest || victory ? INK_UI.gold : INK_UI.brush, 0.95);
   plate.strokeRect(content.x, content.y, content.width, plateH);
   plate.lineStyle(0.9, INK_UI.brush, 0.5);
   plate.strokeRect(content.x + 4, content.y + 4, content.width - 8, plateH - 8);
@@ -422,7 +442,10 @@ ${fall}` : fall,
   self.modalLayer.add(self.ui.label(content.x + 14, scoreY + 12,
     prompt.score.toLocaleString('en-US'), 'label', { fontSize: '32px' }));
   self.modalLayer.add(self.ui.label(content.x + content.width - 64, scoreY + 24,
-    t('ascent.over.best', { best: Math.max(prompt.previousBest, prompt.score).toLocaleString('en-US') }),
+    // Beta (B30): the Legacy the reign banked, beside the record — the prompt always carried it and
+    // nothing drew it.
+    t('ascent.over.best', { best: Math.max(prompt.previousBest, prompt.score).toLocaleString('en-US') })
+      + (rulesOf(self.state).carriedSummary ? ` · ${t('beta.over.legacy', { earned: prompt.legacyEarned })}` : ''),
     'caption', { align: 'right', fontSize: '10px' }).setOrigin(1, 0));
 
   // Pressed, not printed: the seal rides the corner and overhangs the rule, because that is what
@@ -441,7 +464,7 @@ ${fall}` : fall,
     [t('ascent.over.slain'), (score?.enemySoldiersSlain ?? 0).toLocaleString('en-US'), INK_UI.cinnabar],
     [t('ascent.over.hostsBroken'), String(score?.armiesDefeated ?? 0), INK_UI.cinnabar],
     [t('ascent.over.ourDead'), (score?.ownSoldiersLost ?? 0).toLocaleString('en-US'), INK_UI.softBrush],
-    [t('ascent.over.peakPower'), Math.round(ascent?.peakPower ?? 0).toLocaleString('en-US'), INK_UI.jade],
+    [rulesOf(self.state).defenceBand ? t('beta.over.peakWorth') : t('ascent.over.peakPower'), Math.round(ascent?.peakPower ?? 0).toLocaleString('en-US'), INK_UI.jade],
     [t('ascent.over.lands'), String(score?.peakLandsHeld ?? 0), INK_UI.jade],
   ];
   tiles.forEach(([label, value, accent], index) => {
@@ -952,7 +975,8 @@ export function showDynastyLevel(
       ? [
         t('dynasty.page.epitaph', {
           waves: record.waves, lands: record.lands,
-          ending: t(record.ending === 'collapse' ? 'dynasty.page.ending.collapse' : 'dynasty.page.ending.conquest'),
+          ending: record.ending === 'victory' ? t('beta.dynasty.endingVictory')
+            : t(record.ending === 'collapse' ? 'dynasty.page.ending.collapse' : 'dynasty.page.ending.conquest'),
         }),
         record.fight ? t('dynasty.page.fight', {
           land: record.fight.land, n: record.fight.theirStart.toLocaleString('en-US'),
@@ -1262,7 +1286,12 @@ export function showNextReign(
   self: ConquestUIScene,
   prompt: Extract<AscentPrompt, { kind: 'next-reign' }>,
 ): void {
-  const content = self.promptFrame(t('dynasty.next.title'), t('dynasty.next.subtitle'));
+  // Beta (`carriedSummary`): the page names every layer that carries over, Legacy included.
+  const summary = rulesOf(self.state).carriedSummary;
+  const content = self.promptFrame(
+    summary ? t('beta.next.title') : t('dynasty.next.title'),
+    summary ? t('beta.next.subtitle') : t('dynasty.next.subtitle'),
+  );
 
   // The controls take the foot and never move; the rows are measured back from them, so the page
   // holds together at both ends of the `GAME_HEIGHT` clamp.
@@ -1309,6 +1338,26 @@ export function showNextReign(
       detail: t('dynasty.next.rubbingsD'),
       accent: INK_UI.gold,
     });
+  }
+  // Beta: the Legacy perks that will be applied at the founding, and the vault the reign banked into.
+  if (summary) {
+    const carried = readCarriedOver();
+    if (carried.perks.length > 0) {
+      rows.push({
+        label: t('beta.inherit.legacyHead'),
+        detail: carried.perks
+          .map(({ id, level }) => `${t(`empire.legacy.perk.${id}` as Parameters<typeof t>[0])} · ${t('beta.inherit.perkRank', { level, max: PERK_MAX_LEVEL })}`)
+          .join('\n'),
+        accent: INK_UI.gold,
+      });
+    }
+    if (carried.legacyPoints > 0) {
+      rows.push({
+        label: t('beta.inherit.vault', { points: carried.legacyPoints }),
+        detail: t('beta.inherit.vaultD'),
+        accent: INK_UI.softBrush,
+      });
+    }
   }
 
   const room = buttonY - content.y - 8;

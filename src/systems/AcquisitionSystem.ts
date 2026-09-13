@@ -304,6 +304,26 @@ export function getGoldBribeCost(state: GameState, land: Land): number {
   return Math.ceil(Math.max(priced, floor));
 }
 
+/**
+ * Seasons an envoy would need from here, simulated with the exact step `progressAcquisitions`
+ * takes — `(1 + administration × 0.03) × court acquisition speed`, trust capped at 100. Undefined
+ * when the province asks for more trust than the cap allows, which no envoy can ever reach.
+ * An estimate: a seat vacated by the envoy, or a court change on the way, moves it.
+ */
+export function estimateDiplomacySeasons(state: GameState, land: Land, hero: Hero): number | undefined {
+  const need = Math.ceil(getDiplomacyThreshold(land));
+  const gain = (1 + hero.stats.administration * 0.03) * getCourtBonuses(state).acquisitionSpeedMult;
+  let trust = getLandTrust(land, PLAYER_KINGDOM_ID);
+  let seasons = 0;
+  while (trust < need && seasons < 400) {
+    const next = Math.min(100, trust + gain);
+    if (next <= trust) return undefined;
+    trust = next;
+    seasons += 1;
+  }
+  return trust >= need ? Math.max(1, seasons) : undefined;
+}
+
 export function getDiplomacyThreshold(land: Land): number {
   return DIPLOMACY_TRUST_THRESHOLD_BASE + getNoblePower(land) * 0.3;
 }
@@ -573,6 +593,21 @@ export function startIntimidation(state: GameState, landId: string, armyId: stri
   refreshPlayerVisibility(state);
   state.message = t('msg.armyPressures', { land: land.name });
   return true;
+}
+
+/**
+ * What an intimidation with this host would actually do, by the claim's own arithmetic — the power
+ * `startIntimidation` checks and `progressAcquisitions` applies (not `armyPower`, which counts court,
+ * general and elite bonuses the claim never sees). `tooWeak` is the exact refusal; `seasons` the
+ * ticks to 100 pressure if the host stays on the border.
+ */
+export function estimateIntimidation(land: Land, army: Army): { tooWeak: boolean; seasons: number } {
+  const power = computeArmyPower(army);
+  const gain = power / Math.max(1, land.localSoldiers * RESIST_FACTOR);
+  return {
+    tooWeak: power < land.localSoldiers * MIN_INTIMIDATION_RATIO,
+    seasons: gain > 0 ? Math.max(1, Math.ceil(INTIMIDATION_REQUIRED / gain - 1e-9)) : 0,
+  };
 }
 
 function computeArmyPower(army: Army): number {

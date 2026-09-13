@@ -9,6 +9,7 @@ import type {
   Season,
 } from '../state/types';
 import { enAscent, viAscent } from './catalogs/ascent';
+import { enAscentBeta, viAscentBeta } from './catalogs/ascentBeta';
 import { enCore, viCore } from './catalogs/core';
 import { enCoronation, viCoronation } from './catalogs/coronation';
 import { enEmpire, viEmpire } from './catalogs/empire';
@@ -26,6 +27,20 @@ export const DEFAULT_LANGUAGE: LanguageCode = 'vi';
 
 type TranslationParams = Record<string, string | number>;
 
+/** Each English source by name, so a key declared twice can be caught before the spread hides it. */
+const EN_SOURCES = {
+  core: enCore,
+  world: enWorld,
+  heroes: enHeroes,
+  heroBios: enHeroBios,
+  empire: enEmpire,
+  ascent: enAscent,
+  ascentBeta: enAscentBeta,
+  coronation: enCoronation,
+  guide: enGuide,
+  tips: enTips,
+} as const;
+
 const en = {
   ...enCore,
   ...enWorld,
@@ -33,6 +48,7 @@ const en = {
   ...enHeroBios,
   ...enEmpire,
   ...enAscent,
+  ...enAscentBeta,
   ...enCoronation,
   ...enGuide,
   ...enTips,
@@ -45,6 +61,7 @@ const vi = {
   ...viHeroBios,
   ...viEmpire,
   ...viAscent,
+  ...viAscentBeta,
   ...viCoronation,
   ...viGuide,
   ...viTips,
@@ -230,12 +247,18 @@ function findPoliticsChoice(choiceId: string): { label: string; description: str
 
 function validateCatalogs(): void {
   const englishKeys = Object.keys(en);
-  const vietnameseKeys = Object.keys(vi);
-  const uniqueEnglishKeys = new Set(englishKeys);
-  const uniqueVietnameseKeys = new Set(vietnameseKeys);
 
-  if (englishKeys.length !== uniqueEnglishKeys.size || vietnameseKeys.length !== uniqueVietnameseKeys.size) {
-    throw new Error('Localization catalogs contain duplicate keys after merge.');
+  // A key declared in two catalogs. Checked per source, before the merge: after it, object spread
+  // has already let the later catalog win and `Object.keys` can never report a duplicate — the old
+  // after-merge comparison could not fire. It matters most for `ascentBeta`, whose whole contract
+  // is that a beta string never replaces a stable one.
+  const owner = new Map<string, string>();
+  for (const [source, catalog] of Object.entries(EN_SOURCES)) {
+    for (const key of Object.keys(catalog)) {
+      const first = owner.get(key);
+      if (first) throw new Error(`Localization key "${key}" is declared in both the ${first} and ${source} catalogs.`);
+      owner.set(key, source);
+    }
   }
 
   for (const key of englishKeys) {

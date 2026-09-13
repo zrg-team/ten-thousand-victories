@@ -2,7 +2,8 @@ import { PLAYER_KINGDOM_ID } from '../game/constants';
 import { BATTLE_RALLY_BASE } from '../game/ascentConfig';
 import { formatCourtPositionEffect, getCourtPositionLabel } from '../systems/CourtSystem';
 import { seatPrimaryStat } from '../systems/ascent/CourtLaneSystem';
-import { getDiplomacyThreshold, getLandTrust } from '../systems/AcquisitionSystem';
+import { estimateDiplomacySeasons, getDiplomacyThreshold, getLandTrust } from '../systems/AcquisitionSystem';
+import { rulesOf } from '../game/ascentRuleset';
 import { armyPower, createBattlePreview, findLandPath } from '../systems/WarSystem';
 import { hostOrderLabel } from '../systems/ascent/armyOrders';
 import { hostOddsAgainst, hostOrderRefusal } from '../systems/ascent/StandingOrders';
@@ -159,6 +160,8 @@ function isCurrentFor(state: GameState, hero: Hero, target: HeroPickerTarget): b
 function envoySeasons(state: GameState, hero: Hero, landId: string): number {
   const land = state.lands.find((candidate) => candidate.id === landId);
   if (!land) return 0;
+  // Beta: the same simulation the method card uses, court multiplier included, for *this* envoy.
+  if (rulesOf(state).truthfulNumbers) return estimateDiplomacySeasons(state, land, hero) ?? 0;
   const trust = getLandTrust(land, PLAYER_KINGDOM_ID);
   const threshold = getDiplomacyThreshold(land);
   const gain = Math.max(0.5, 1 + hero.stats.administration * 0.03);

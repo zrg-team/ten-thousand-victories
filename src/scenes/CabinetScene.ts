@@ -4,6 +4,7 @@ import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
 import { sheetSpan } from '../game/cameraLayout';
 import { applyRenderScale, localPointer } from '../game/graphicsQuality';
 import { t } from '../i18n';
+import { isAscentBetaEnabled } from '../game/betaOptions';
 import { POWER_CARDS, findPowerCard } from '../data/ascentCards';
 import {
   CABINET_DEEDS,
@@ -215,7 +216,9 @@ export class CabinetScene extends Phaser.Scene {
     // folded away until asked for.
     const hero = store.rubbings > 0;
     const heroTitle = hero ? t('cabinet.hero.title', { n: store.rubbings }) : t('cabinet.hero.none');
-    const heroBody = this.ui.label(PAD + 12, 0, hero ? t('cabinet.hero.body') : t('cabinet.hero.noneBody'), 'caption',
+    // Beta (menu pages follow the opt-in): the combine thresholds as they are — three copies to Lv2,
+    // five more to Lv3 — and the hand's slots as the house has them, not "up to three".
+    const heroBody = this.ui.label(PAD + 12, 0, hero ? (isAscentBetaEnabled() ? t('beta.cabinet.heroBody') : t('cabinet.hero.body')) : t('cabinet.hero.noneBody'), 'caption',
       { fontSize: '10px', wordWrap: { width: W - 24 } });
     // Title, one sentence, the button, then the odds as a footnote under it — in that order.
     // The odds line used to sit between the sentence and the button with a ring floating at
@@ -272,7 +275,7 @@ export class CabinetScene extends Phaser.Scene {
     const stepW = Math.floor((W - 12) / 3);
     (['1', '2', '3'] as const).forEach((step, index) => {
       const x = PAD + index * (stepW + 6);
-      const text = this.ui.label(x + 6, y + 18, t(`cabinet.steps.${step}` as Parameters<typeof t>[0]), 'caption',
+      const text = this.ui.label(x + 6, y + 18, step === '3' && isAscentBetaEnabled() ? t('beta.cabinet.step3') : t(`cabinet.steps.${step}` as Parameters<typeof t>[0]), 'caption',
         { fontSize: '9px', wordWrap: { width: stepW - 12 } });
       const h = 18 + text.height + 8;
       scroll.content.add(this.ui.panel({ x, y, width: stepW, height: h }, { border: INK_UI.softBrush, fillAlpha: 0.4 }));
@@ -453,6 +456,7 @@ export class CabinetScene extends Phaser.Scene {
           need: combineCost(held.level),
           inHand: hand.includes(card.id),
           held: held.copies,
+          ...(isAscentBetaEnabled() ? { scoped: true, owned: true } : {}),
         }));
         this.gridTap(scroll, x, cy, cellW, cellH, () => this.openCardView(card.id, {
           x, y: listTop + cy + (this.scroll?.content.y ?? 0), width: cellW, height: cellH,
@@ -638,6 +642,7 @@ ${t('cabinet.grid.unfound')}`,
     }
     const faceOverlay = keep(cardFaceOverlay(this, { x: bigX, y: bigY, width: bigW, height: bigH }, {
       level: held.level, copies: held.copies, need: combineCost(held.level), inHand: openingHand().includes(cardId), held: held.copies,
+      ...(isAscentBetaEnabled() ? { scoped: true, owned: true } : {}),
     }));
 
     // The ladder, beside the face: every level's line, the held one marked, the copies bar under it.

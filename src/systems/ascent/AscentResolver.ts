@@ -1,6 +1,7 @@
 import { bankLegacy, computeRunScore, getLegacy } from '../../state/legacy';
 import { addRunXp, chooseTrait, getDynasty, isCrowned, setDynastyFounder } from '../../state/dynasty';
 import { storyText } from '../../i18n/story';
+import { t } from '../../i18n';
 import { addCabinetCard, addRubbings, learnRecipe } from '../../state/cabinet';
 import { advanceCeremony } from './Ceremony';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
@@ -37,6 +38,7 @@ import { applyFoundingGift } from '../../state/GameState';
 import { rollFounder } from '../../ui/faces/kingLook';
 import { findLand } from '../LandSystem';
 import type { AscentConquestMethod, GameState } from '../../state/types';
+import { clearFinishedRunSaves } from '../../state/save';
 
 /**
  * The single entry point the UI calls to answer whatever prompt is open. One dispatcher
@@ -345,6 +347,28 @@ export function resolveAscentPrompt(state: GameState, choiceId: string): boolean
       break;
     }
 
+    case 'goal-won': {
+      // Beta. A stale card — the choice already made, or a reload that raced the answer — closes
+      // with no effect.
+      const goal = ascent.goal;
+      if (!goal || goal.status !== 'won' || !goal.choicePending) {
+        handled = true;
+        break;
+      }
+      goal.choicePending = false;
+      if (choiceId === 'end') {
+        goal.choice = 'end';
+        endAscentRun(state, 'victory');
+        // Terminal, like the Reckoning it raises.
+        return true;
+      }
+      // Anything else rules on — the safe default for a blind driver, which must not end a reign.
+      goal.choice = 'rule-on';
+      pushToast(state, t('beta.goal.ruledOn', { bonus: goal.bonusScore ?? 0 }), 'reward');
+      handled = true;
+      break;
+    }
+
     case 'run-over': {
       // Terminal: the scene takes over from here. The Reckoning's "go again" walks the ceremony
       // (`ui:ascent-ceremony`) rather than restarting, so the run does not end until the house
@@ -469,15 +493,21 @@ export function rerollAscentDraft(state: GameState): boolean {
  * Ends the run: banks Legacy once and raises the terminal prompt. Guarded by `legacyBanked`
  * so a re-entrant tick can never pay out twice.
  */
-export function endAscentRun(state: GameState): void {
+export function endAscentRun(state: GameState, outcome: 'fallen' | 'victory' = 'fallen'): void {
   const ascent = state.ascent;
   if (!ascent || state.legacyBanked) return;
+  // Beta: a victory is only ever the player's answer to a won goal, never a way to end a reign early.
+  const victory = outcome === 'victory' && ascent.goal?.status === 'won';
+  if (outcome === 'victory' && !victory) return;
 
   state.legacyBanked = true;
   state.isDefeated = true;
   // Read before it is overwritten: a realm that collapsed from within says so on its tablet.
   const endedBy: 'conquest' | 'collapse' = state.defeatReason === 'collapse' ? 'collapse' : 'conquest';
   state.defeatReason = 'conquest';
+  if (victory) ascent.endCause = 'goal';
+  if (ascent.goal) ascent.goal.choicePending = false;
+  const goalWon = ascent.goal?.status === 'won' ? ascent.goal : undefined;
 
   const score = computeRunScore(state);
   // Read before banking: `bankLegacy` raises `bestScore` to this run's, so asking afterwards
@@ -529,7 +559,8 @@ export function endAscentRun(state: GameState): void {
       const line = storyText(key, entry.params);
       return line !== key ? line : '';
     }).filter(Boolean),
-    ending: endedBy,
+    ending: victory ? 'victory' : endedBy,
+    ...(goalWon?.wonAtWave !== undefined ? { goalWave: goalWon.wonAtWave } : {}),
   });
   // The cabinet's always-faucet: +1 rubbing, every run, however it ended. Inside the same
   // `legacyBanked` guard for the same reason the XP is — a re-entrant tick must not pay twice.
@@ -546,6 +577,12 @@ export function endAscentRun(state: GameState): void {
     legacyTotal: getLegacy().points,
     reign: reignName(state),
     reignDetail: reignSummary(state),
+    ...(victory ? { outcome: 'victory' as const } : {}),
+    ...(goalWon ? { goalWave: goalWon.wonAtWave, goalLands: goalWon.landsAtWin, goalBonus: goalWon.bonusScore } : {}),
   };
   state.isPaused = true;
+  // The saves go in the same step as the banking (B13). The scene clears a finished run's saves
+  // every frame, but that left one frame in which the reign was paid and its manual save still
+  // resumable — an app killed there reopened on Continue, and the reign could be paid again.
+  clearFinishedRunSaves(state);
 }

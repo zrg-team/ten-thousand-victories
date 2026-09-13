@@ -1,5 +1,5 @@
 import type { GameState } from '../../state/types';
-import { computeRunScore, getLegacy, LEGACY_PERKS, nextPerkCost, nextRankAbove, perkLevel, rankForScore } from '../../state/legacy';
+import { ASCENT_SCORE, computeRunScore, getLegacy, LEGACY_PERKS, nextPerkCost, nextRankAbove, perkLevel, rankForScore } from '../../state/legacy';
 import { dynastyXpStep, getDynasty, isCrowned, levelForXp, noteLiveReign as writeLiveReign } from '../../state/dynasty';
 import { combineCost, deedDone, getCabinet, meltValue } from '../../state/cabinet';
 import { DYNASTY_TRAITS } from '../../data/dynastyTraits';
@@ -76,8 +76,6 @@ export interface InheritanceLedger {
   founderName?: string;
 }
 
-/** Score per champion called, from `computeRunScore`. Quoted so the hero row can add it up. */
-const HERO_SCORE = 40;
 
 /** Reads the ledger. Cheap: one score, three store reads (memoised in the stores) and a sort. */
 export function readInheritance(state: GameState): InheritanceLedger | undefined {
@@ -163,7 +161,7 @@ export function readInheritance(state: GameState): InheritanceLedger | undefined
     rankAfter,
     ...(nextRank ? { nextRank } : {}),
     heroesSummoned: ascent.heroesSummoned,
-    heroPoints: ascent.heroesSummoned * HERO_SCORE,
+    heroPoints: ascent.heroesSummoned * ASCENT_SCORE.perHeroCalled,
     ...(deedDone('wave-ten') ? {} : { harnessWavesLeft: Math.max(0, 10 - ascent.wavesSurvived) }),
     ...(founder ? { founderName: founder.name } : {}),
   };

@@ -151,6 +151,9 @@ export function createAscentState(): AscentState {
  */
 const PROMPT_PRIORITY: Record<AscentPromptKind, number> = {
   'run-over': 0,
+  // Beta: the goal is won. Ahead of everything a running reign can raise — it is the question of
+  // whether the reign goes on at all — and behind only the terminal cards.
+  'goal-won': 0.3,
   // Ahead of the mandate, which is ahead of the founding: the rite that makes the king comes
   // before the throne is handed anything and before anybody rises beside him.
   coronation: 0.4,
@@ -242,6 +245,8 @@ const SUPERSEDED: ReadonlySet<AscentPromptKind> = new Set<AscentPromptKind>([
   // Same argument, and the same reload: the inheritance reads the stores live at draw time, so
   // two of them are one screen and the second is only ever the truer one.
   'inheritance',
+  // One goal per reign, so one card; re-raised from state, never stacked.
+  'goal-won',
 ]);
 
 /**

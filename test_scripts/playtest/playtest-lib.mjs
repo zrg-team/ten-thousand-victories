@@ -31,6 +31,9 @@ window.__ptOptions = (forState) => {
     // Gia sản dòng họ. A summary with one button, so like the rite it takes any id — named
     // here rather than left on the ['ok'] fallthrough so a driver's log says which card it read.
     case 'inheritance': return ['acknowledged'];
+    // Beta: the goal is won. Rule on first, so every policy keeps playing and waves stay comparable
+    // with stable; verify-goal answers 'end' on purpose.
+    case 'goal-won': return ['rule-on', 'end'];
     case 'founder': return p.options;
     case 'power-draft': return [...p.cards, 'skip'];
     case 'conquer-target': return [...p.targets.map((t) => t.landId), 'hold'];
@@ -123,10 +126,26 @@ window.__ptSeedRandom = (seed) => {
  */
 const __ptRealRandom = Math.random;
 window.__ptRestoreRandom = () => { Math.random = __ptRealRandom; };
-window.__ptBoot = async (seed) => {
+window.__ptBoot = async (seed, options = {}) => {
   const { createAscentGameState } = await import('/src/state/GameState.ts');
   window.__ptSeedRandom(seed);
-  return createAscentGameState({ seaSides: 1, difficulty: 'normal' });
+  // A stable run carries no ruleset field, exactly as the game's own door builds it.
+  const config = { seaSides: 1, difficulty: 'normal' };
+  if (options.ruleset && options.ruleset !== 'stable') config.ruleset = options.ruleset;
+  return createAscentGameState(config);
+};
+
+/**
+ * Wipes every meta store (dynasty, cabinet, legacy, codex, chronicle echoes, tours) and keeps the
+ * language, so the next boot is a first-ever profile. Without it each run inherits what the last
+ * one banked — the founder card reads the Codex the previous run wrote — and "the same seed under
+ * two rulesets" is not the same world. The stores re-read storage on each call, so removing the
+ * keys is enough.
+ */
+window.__ptFreshProfile = () => {
+  const language = localStorage.getItem('mandate:language:v1');
+  localStorage.clear();
+  if (language) localStorage.setItem('mandate:language:v1', language);
 };
 `;
 
@@ -149,8 +168,8 @@ export async function openGame(browser, { language = 'en', viewport = { width: 3
 }
 
 /** Starts a rendered run in the real scenes, so the UI is exercised too. */
-export async function startRenderedRun(page, seed) {
-  await page.evaluate((s) => window.__startBenchGame(s, 'ascent'), seed);
+export async function startRenderedRun(page, seed, ruleset = 'stable') {
+  await page.evaluate(([s, r]) => window.__startBenchGame(s, 'ascent', r), [seed, ruleset]);
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await page.waitForTimeout(800);
 }

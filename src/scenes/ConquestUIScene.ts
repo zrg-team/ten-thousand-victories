@@ -49,6 +49,7 @@ import * as promptsCourt from './conquest/prompts/court';
 import * as promptsCoronation from './conquest/prompts/coronation';
 import * as promptsInheritance from './conquest/prompts/inheritance';
 import * as promptsFrame from './conquest/prompts/frame';
+import * as promptsGoal from './conquest/prompts/goal';
 import * as promptsOptionCard from './conquest/prompts/optionCard';
 import * as promptsRealm from './conquest/prompts/realm';
 import * as promptsRouter from './conquest/prompts/router';
@@ -1039,6 +1040,7 @@ export class ConquestUIScene extends Phaser.Scene {
     promptsRun.heroDeckPrompt(this, opts);
   }
 
+  showGoalWon(prompt: Extract<AscentPrompt, { kind: 'goal-won' }>): void { promptsGoal.showGoalWon(this, prompt); }
   showRunOver(prompt: Extract<AscentPrompt, { kind: 'run-over' }>): void { promptsRun.showRunOver(this, prompt); }
   showDynastyLevel(prompt: Extract<AscentPrompt, { kind: 'dynasty-level' }>): void { promptsRun.showDynastyLevel(this, prompt); }
   showBindCard(prompt: Extract<AscentPrompt, { kind: 'bind-card' }>): void { promptsRun.showBindCard(this, prompt); }

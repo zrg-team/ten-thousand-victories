@@ -146,8 +146,13 @@ export class AscentHud {
   /** How wide the compact readout is; the phone band is the column's width. */
   private width: number;
 
-  constructor(private readonly scene: Phaser.Scene, opts: { compact?: boolean; width?: number } = {}) {
+  /** Beta (`defenceBand`): the left figure is DEFENCE, the same unit THREAT is judged against. */
+  private readonly defenceBand: boolean;
+  private tickerFrom?: number;
+
+  constructor(private readonly scene: Phaser.Scene, opts: { compact?: boolean; width?: number; defenceBand?: boolean } = {}) {
     this.compact = opts.compact ?? false;
+    this.defenceBand = opts.defenceBand ?? false;
     this.width = opts.width ?? GAME_WIDTH;
     this.root = scene.add.container(0, 0).setDepth(90);
     this.ui = new InkUI(scene);
@@ -199,7 +204,7 @@ export class AscentHud {
     // Count up rather than snap: the number moving is the feedback for a card just taken. The
     // counter writes into a text object that now outlives the render, so a rebuild can no longer
     // orphan a tween half way through its climb.
-    const target = ascent.power;
+    const target = this.defenceBand ? Math.round(ascent.defensePower) : ascent.power;
     if (this.shownPower !== target) {
       this.scene.tweens.killTweensOf(parts.powerValue);
       parts.powerValue.setText(formatNumber(target));
@@ -218,8 +223,19 @@ export class AscentHud {
       });
     }
 
-    const delta = ascent.power - ascent.powerPrev;
-    if (delta !== 0 && ascent.powerPrev > 0) this.spawnTicker(delta, parts.powerValue.width);
+    if (this.defenceBand) {
+      // Only on a change worth reading, and once per change: render runs every battle beat, and a
+      // per-render ticker stacked the same delta several times over.
+      if (this.tickerFrom === undefined) this.tickerFrom = target;
+      const moved = target - this.tickerFrom;
+      if (Math.abs(moved) >= Math.max(10, this.tickerFrom * 0.01)) {
+        this.spawnTicker(moved, parts.powerValue.width);
+        this.tickerFrom = target;
+      }
+    } else {
+      const delta = ascent.power - ascent.powerPrev;
+      if (delta !== 0 && ascent.powerPrev > 0) this.spawnTicker(delta, parts.powerValue.width);
+    }
 
     // ── THREAT ───────────────────────────────────────────────────────────
     const x = (this.compact ? this.width : GAME_WIDTH) - 14;
@@ -308,7 +324,11 @@ export class AscentHud {
     // otherwise start the frieze under the word POWER, and a very long one would squeeze it to a
     // stub against THREAT.
     write(parts.level, t('ascent.hud.level', { level: ascent.level }));
-    write(parts.wave, t('ascent.hud.wave', { wave: ascent.wave }));
+    // Beta: while the reign's goal is open the wave reads against the Great Invasion that decides it.
+    const goalWave = ascent.goal?.status === 'open' ? ascent.goal.targetWave : undefined;
+    write(parts.wave, goalWave
+      ? t('beta.hud.waveGoal', { wave: ascent.wave, goal: goalWave })
+      : t('ascent.hud.wave', { wave: ascent.wave }));
 
     let barX: number;
     let barWidth: number;
@@ -475,7 +495,7 @@ export class AscentHud {
     const x = (compact ? this.width : GAME_WIDTH) - 14;
     // In the bar the captions stand on the store row beside their figures, centred on it like the
     // strip's own labels; on the phone band they head their columns.
-    const powerLabel = this.ui.label(14, TOP + 2, t('ascent.hud.power'), 'caption', {
+    const powerLabel = this.ui.label(14, TOP + 2, this.defenceBand ? t('beta.hud.defence') : t('ascent.hud.power'), 'caption', {
       color: INK_UI_HEX.mutedText, fontSize: '9px',
     }).setOrigin(0, compact ? 0.5 : 0).setAlpha(0.7).setDepth(91);
     const threatLabel = this.ui.label(x, TOP + 2, t('ascent.hud.threat'), 'caption', {

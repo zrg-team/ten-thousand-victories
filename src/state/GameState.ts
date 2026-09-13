@@ -13,6 +13,9 @@ import { recomputeOpinion } from '../systems/DiplomacySystem';
 import { createInitialMandate } from '../systems/empire/MandateSystem';
 import { initDirectives } from '../systems/empire/DirectiveSystem';
 import { createAscentState, enqueueAscentPrompt } from '../systems/ascent/AscentState';
+import { openingGoal } from '../systems/ascent/Goal';
+import { carriesAnything, readCarriedOver } from '../systems/ascent/CarriedOver';
+import { rulesOf } from '../game/ascentRuleset';
 import { applyOpeningHand } from '../systems/ascent/PowerDraftSystem';
 import { computeAscentPower, contestedDefencePower } from '../systems/ascent/PowerSystem';
 import { projectedWaveThreat } from '../systems/ascent/WaveDirector';
@@ -550,7 +553,18 @@ const EMPIRE_KINGDOM_IDS = ['northern-rival', 'southern-rival', 'eastern-rival',
  * court cards, foreign affairs, and invasions (see InvasionSystem). Endless: there
  * is no elimination victory, only survival and the high-score screen on defeat.
  */
-export function createEmpireGameState(config: CampaignConfig): GameState {
+/** Run-creation options that are not part of the saved campaign. */
+export interface RunCreationOptions {
+  /**
+   * A sandbox run (the Skirmish): built like a real reign so the fight reads real court and hero
+   * data, but it writes nothing to the house — no founding draws banked, no trait uses counted.
+   * Before this, every Skirmish fight paid the Legacy perk's founding draws, so the practice yard
+   * was a draw farm.
+   */
+  sandbox?: boolean;
+}
+
+export function createEmpireGameState(config: CampaignConfig, options: RunCreationOptions = {}): GameState {
   const mapConfig = createCampaignMapConfig(config);
   // Empty rival list → player castle + neutral districts only, no enemy castles.
   const { lands, hexTiles } = createCampaignLands(mapConfig, []);
@@ -630,7 +644,7 @@ export function createEmpireGameState(config: CampaignConfig): GameState {
 
   applyFounder(state, config.founderId);
   applyLegacyPerks(state);
-  addRubbings(legacyStartRubbings());
+  if (!options.sandbox) addRubbings(legacyStartRubbings());
   initDirectives(state);
   refreshAllLandOutputs(state);
   refreshPlayerVisibility(state);
@@ -675,18 +689,22 @@ function pairFeuds(state: GameState): void {
   }
 }
 
-export function createAscentGameState(config: CampaignConfig): GameState {
-  const state = createEmpireGameState(config);
+export function createAscentGameState(config: CampaignConfig, options: RunCreationOptions = {}): GameState {
+  const state = createEmpireGameState(config, options);
   state.gameMode = 'ascent';
   state.ascent = createAscentState();
+  // Beta: the reign's goal. Nothing on a stable reign — `openingGoal` reads the ruleset off the
+  // config, which is already on the state by now.
+  const goal = openingGoal(state);
+  if (goal) state.ascent.goal = goal;
   pairFeuds(state);
   state.directives = undefined;
   state.directiveDeckCursor = undefined;
 
-  seedAscentOpening(state);
+  seedAscentOpening(state, options);
   // The Cabinet's opening hand, before the mandate card: the seals the house slotted arrive at
   // one stack each and pre-pay the mode's own threat counter (+2 ambition per slot).
-  applyOpeningHand(state);
+  applyOpeningHand(state, !options.sandbox);
   // Before everything, and once in a lifetime: the rite that makes the king. Gated on the
   // dynasty store — `isCrowned` — rather than on a scene flag or a run field, because both of
   // those come back on an HMR reload and a coronation that re-raises itself is the opposite of
@@ -700,9 +718,15 @@ export function createAscentGameState(config: CampaignConfig): GameState {
   // deliberately raised on the first reign too, when it has almost nothing to report — the empty
   // slot and the "none yet" trait row are the only place the mode ever explains what the runs
   // ahead will fill, and the same argument the next-reign card was built on.
-  enqueueAscentPrompt(state, { kind: 'inheritance' });
+  //
+  // Beta (B05): a house with nothing in force and nothing waiting on the menu goes straight to the
+  // first real choice. A first-ever reign learns what later reigns carry from the in-run chip and
+  // the ceremony's next-reign page, not from a full screen of empty rows. Stable keeps the card.
+  if (!rulesOf(state).inheritanceGate || carriesAnything(readCarriedOver())) {
+    enqueueAscentPrompt(state, { kind: 'inheritance' });
+  }
   offerMandateChoice(state);
-  offerFounderChoice(state);
+  offerFounderChoice(state, options);
 
   state.message = t('ascent.msg.runStart');
   // What this run's armies look like. Seeded off the map, so the same seed opens on the same
@@ -786,7 +810,7 @@ function pickFounderOptions(candidates: Hero[], wanted: number): string[] {
  * opened on the same three champions in the same three slots, so the card that is meant to
  * shape the whole run read as a fixed script.
  */
-function offerFounderChoice(state: GameState): void {
+function offerFounderChoice(state: GameState, options: RunCreationOptions = {}): void {
   const recorded = new Set(getFounderPool());
   // Rulers are not founders. They carry an `arrival` — a host, a province, a crown bending the
   // knee — and handing one of those out on turn one would decide the run before it started.
@@ -801,11 +825,11 @@ function offerFounderChoice(state: GameState): void {
   // Three, or five when the house has learned Second Founder (`dynastyTraits`). Read off the
   // dynasty store rather than off `GameState`, because a trait chosen in the ceremony has to be
   // true for the very run the ceremony is about to start.
-  const options = pickFounderOptions(candidates, founderOptionCount());
-  if (options.length > 3) noteTraitUse('second-founder');
+  const founders = pickFounderOptions(candidates, founderOptionCount());
+  if (founders.length > 3 && !options.sandbox) noteTraitUse('second-founder');
 
-  if (options.length > 0) {
-    enqueueAscentPrompt(state, { kind: 'founder', options });
+  if (founders.length > 0) {
+    enqueueAscentPrompt(state, { kind: 'founder', options: founders });
     state.isPaused = true;
     state.pendingAscentPrompt = state.ascent?.promptQueue.shift();
     // Promoted by hand rather than through `drainAscentPrompts`, so stamp the turn here too
@@ -893,7 +917,7 @@ export function applyFoundingGift(state: GameState, hero: Hero): void {
  * host puts the loop in motion from the first tick, the same way the games this borrows
  * from hand you a weapon before the first wave.
  */
-function seedAscentOpening(state: GameState): void {
+function seedAscentOpening(state: GameState, options: RunCreationOptions = {}): void {
   const capital = state.lands.find(
     (land) => land.ownerId === PLAYER_KINGDOM_ID && land.type === 'castle',
   ) ?? state.lands.find((land) => land.ownerId === PLAYER_KINGDOM_ID);
@@ -944,7 +968,7 @@ function seedAscentOpening(state: GameState): void {
    * head start it buys.
    */
   if (hasTrait('old-roads')) {
-    noteTraitUse('old-roads');
+    if (!options.sandbox) noteTraitUse('old-roads');
     addCourtModifier(state, {
       id: 'dynasty-old-roads',
       label: t('dynasty.trait.old-roads'),

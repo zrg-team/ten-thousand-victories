@@ -129,7 +129,9 @@ export interface ReignRecord {
   /** The fight that decided the reign: the largest one won, else the largest fought. */
   fight?: { land: string; theirStart: number; won: boolean };
   /** How it ended. `conquest` is the seat lost; `collapse` is the realm failing from within. */
-  ending: 'conquest' | 'collapse';
+  ending: 'conquest' | 'collapse' | 'victory';
+  /** Beta: the wave the reign's goal was won at, whether it then ended or ruled on. */
+  goalWave?: number;
   /** The trait chosen at this reign's ceremony, if a level came. */
   trait?: string;
   /** The champion who raised this reign, as the portrait system needs him. */
@@ -186,7 +188,8 @@ function readRecord(value: unknown): ReignRecord | undefined {
     ...(fight && typeof fight.land === 'string'
       ? { fight: { land: fight.land.slice(0, 80), theirStart: num(fight.theirStart), won: fight.won === true } }
       : {}),
-    ending: raw.ending === 'collapse' ? 'collapse' : 'conquest',
+    ending: raw.ending === 'collapse' ? 'collapse' : raw.ending === 'victory' ? 'victory' : 'conquest',
+    ...(typeof raw.goalWave === 'number' && Number.isFinite(raw.goalWave) ? { goalWave: num(raw.goalWave, 1e5) } : {}),
     ...(typeof raw.trait === 'string' && findDynastyTrait(raw.trait) ? { trait: raw.trait } : {}),
     ...(readReignFounder(raw.founder) ? { founder: readReignFounder(raw.founder) } : {}),
     ...(Array.isArray(raw.cards) ? { cards: raw.cards.filter((id): id is string => typeof id === 'string').slice(0, 40) } : {}),
@@ -526,6 +529,8 @@ export function addRunXp(
     ...(record?.cards && record.cards.length > 0 ? { cards: record.cards.slice(0, 40) } : {}),
     ...(record?.chronicle && record.chronicle.length > 0 ? { chronicle: record.chronicle.slice(0, 16) } : {}),
     ending: record?.ending ?? 'conquest',
+    // Beta: a reign that won its goal says so, whether it ended there or ruled on.
+    ...(record?.goalWave !== undefined ? { goalWave: record.goalWave } : {}),
   }].slice(-HISTORY_CAP);
   writeDynasty(store);
   return gained;

@@ -312,6 +312,7 @@ export function promptSignature(prompt: AscentPrompt): string {
     // Constant, like the coronation's: the screen has no options and reads every number it prints
     // live from the stores, so nothing about its content can change while it stands.
     case 'inheritance': return 'inheritance';
+    case 'goal-won': return `goal:${prompt.wave}`;
     case 'mandate': return `mandate:${prompt.options.join(',')}`;
     case 'founder': return prompt.options.join(',');
     case 'run-over': return `${prompt.score}`;

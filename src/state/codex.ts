@@ -23,17 +23,28 @@ interface CodexStore {
   storiesMet?: string[];
 }
 
-const EMPTY: CodexStore = { unlocked: [], pulls: {} };
+/**
+ * A fresh empty store on every call — never a shared constant spread with `{ ...EMPTY }`.
+ *
+ * The spread copied the object but not its `unlocked` array or `pulls` map, so the first summon
+ * on an empty profile (`unlockHero` pushes into the store it read) wrote into the module's own
+ * default. From then on every "empty" read in that page returned the first run's champions:
+ * measured 2026-09-13, a wiped profile's founder card still led with `real-an-tu`, shuffling one
+ * extra champion and shifting every roll after it, so two same-seed runs diverged at tick 12.
+ */
+function emptyCodex(): CodexStore {
+  return { unlocked: [], pulls: {} };
+}
 
 function canUseLocalStorage(): boolean {
   return typeof localStorage !== 'undefined';
 }
 
 export function getCodex(): CodexStore {
-  if (!canUseLocalStorage()) return { ...EMPTY };
+  if (!canUseLocalStorage()) return emptyCodex();
   try {
     const raw = localStorage.getItem(CODEX_KEY);
-    if (!raw) return { ...EMPTY };
+    if (!raw) return emptyCodex();
     const parsed = JSON.parse(raw) as Partial<CodexStore>;
     return {
       unlocked: Array.isArray(parsed.unlocked) ? parsed.unlocked.filter((id) => typeof id === 'string') : [],
@@ -43,7 +54,7 @@ export function getCodex(): CodexStore {
         : [],
     };
   } catch {
-    return { ...EMPTY };
+    return emptyCodex();
   }
 }
 
