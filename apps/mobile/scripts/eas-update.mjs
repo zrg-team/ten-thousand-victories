@@ -107,26 +107,29 @@ console.log(`version ${version} → runtimes ${runtimes.join(', ')}${dryRun ? ' 
 if (dryRun) process.exit(0);
 
 const windows = process.platform === 'win32';
-// Windows runs `npx.cmd` through the shell, which joins arguments with spaces — so a commit message
-// would arrive as a dozen arguments. Quote each one for cmd.exe; elsewhere nothing is joined.
+// The global `eas` CLI, as the old `eas update` script used — not `npx eas`: eas-cli is not a
+// dependency here, and npx would go looking for an unrelated npm package named "eas". Windows runs
+// `eas.cmd` through the shell, which joins arguments with spaces — so a commit message would arrive
+// as a dozen arguments. Quote each one for cmd.exe; elsewhere nothing is joined.
 const quote = (arg) => (windows ? `"${String(arg).replace(/"/g, '""')}"` : arg);
 runtimes.forEach((runtime, index) => {
   const command = [
-    'eas', 'update', '--branch', 'production', '--non-interactive',
+    'update', '--branch', 'production', '--non-interactive',
     ...(message !== undefined ? ['--message', message] : []),
     ...(index > 0 ? ['--skip-bundler'] : []),
     ...passThrough,
   ];
   console.log(`\n── runtime ${runtime} ──`);
-  const result = spawnSync(windows ? 'npx.cmd' : 'npx', command.map(quote), {
+  const result = spawnSync('eas', command.map(quote), {
     cwd: here,
     stdio: 'inherit',
     shell: windows,
     env: { ...process.env, VAN_THANG_RUNTIME: runtime },
   });
-  if (result.status !== 0) {
+  if (result.error || result.status !== 0) {
+    if (result.error) console.error(result.error.message);
     console.error(`eas update failed for runtime ${runtime}; the runtimes before it were published.`);
-    process.exit(result.status ?? 1);
+    process.exit(result.status || 1);
   }
 });
 console.log(`\npublished ${version} to ${runtimes.join(', ')}`);
