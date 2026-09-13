@@ -114,7 +114,9 @@ const windows = process.platform === 'win32';
 const quote = (arg) => (windows ? `"${String(arg).replace(/"/g, '""')}"` : arg);
 runtimes.forEach((runtime, index) => {
   const command = [
-    'update', '--branch', 'production', '--non-interactive',
+    // eas-cli 23 requires the environment in non-interactive mode (SDK 55+); production has no
+    // server-side variables today, so it only names where they would come from.
+    'update', '--branch', 'production', '--environment', 'production', '--non-interactive',
     ...(message !== undefined ? ['--message', message] : []),
     ...(index > 0 ? ['--skip-bundler'] : []),
     ...passThrough,
