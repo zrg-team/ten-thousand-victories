@@ -59,6 +59,31 @@
   .act  { grid-area: act; }
   .foot { grid-area: foot; }
 
+  /* The language line, as the game's front page draws it: both languages, Vietnamese first, flags
+     beside the names, the current one inked and the other muted and pressable. The choice is saved
+     under the game's own key, so the game opened from this page is already in that language. */
+  .lang {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    margin: 0 0 1.4rem;
+  }
+  .lang button {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .35rem .2rem;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: .88rem;
+    color: var(--muc-soft);
+    cursor: pointer;
+  }
+  .lang button:hover { color: var(--son); }
+  .lang button[aria-pressed="true"] { color: var(--muc); font-weight: 700; cursor: default; }
+  .lang svg { display: block; width: 22px; height: 14px; flex: none; }
+
   .wordmark {
     font-family: "Source Serif 4", Georgia, serif;
     font-weight: 700;
@@ -202,6 +227,7 @@
      of that is the account that publishes it — the avatar and the name GitHub serves, linking back
      to the profile so the claim can be checked rather than merely read. */
   .by {
+    position: relative;
     display: flex;
     align-items: center;
     gap: .8rem;
@@ -211,6 +237,11 @@
     border-radius: 10px;
     background: var(--paper-hi);
   }
+  .by:hover { border-color: var(--muc); background: #fff8e6; }
+  /* The whole card is the link to the profile: the name's link is stretched over it, and the mail
+     address sits above that stretch so it still opens mail. */
+  .by-link { color: inherit; text-decoration: none; }
+  .by-link::after { content: ""; position: absolute; inset: 0; border-radius: 10px; }
   .by img {
     flex: none;
     width: 52px;
@@ -231,12 +262,8 @@
     margin-top: .2rem;
     overflow-wrap: anywhere;
   }
-  .contact a { color: var(--muc-soft); text-decoration: underline; text-underline-offset: 2px; }
+  .contact a { position: relative; z-index: 1; color: var(--muc-soft); text-decoration: underline; text-underline-offset: 2px; }
   .contact a:hover { color: var(--son); }
-  /* GitHub is a mark, not an address. The repository belongs to whoever goes looking for it; the
-     page should not spend a line of the credit on a URL nobody is going to type. */
-  .contact .gh { display: inline-flex; align-items: center; text-decoration: none; }
-  .contact .gh svg { display: block; width: 1.05rem; height: 1.05rem; fill: currentColor; }
 
   /* Support. Quieter than the door on purpose — outlined, not filled, and below everything that
      actually gets somebody playing. It is an offer, not an ask. */
@@ -303,6 +330,7 @@
     .shot { align-self: center; }
     .wordmark { font-size: 4.2rem; }
     .pitch { font-size: 1.6rem; margin-top: 1.6rem; }
+    .lang { justify-content: flex-start; }
     .play img { margin-inline: 0; }
     button.trailer { margin-inline: 0; justify-content: flex-start; }
     .stores { grid-template-columns: 1fr 1fr; }
@@ -333,6 +361,17 @@
 <body>
 <main>
   <header class="head">
+    <nav class="lang" aria-label="Language · Ngôn ngữ">
+      <button type="button" data-lang="vi" lang="vi">
+        <svg viewBox="0 0 22 14" aria-hidden="true"><rect width="22" height="14" fill="#b7352a"/><path fill="#f4d35e" d="M11 2.94l.94 2.72h2.87l-2.33 1.69.89 2.73L11 8.39 8.63 10.08l.89-2.73L7.19 5.66h2.87z"/><rect x=".4" y=".4" width="21.2" height="13.2" fill="none" stroke="#2a2118" stroke-opacity=".65" stroke-width=".8"/></svg>
+        Tiếng Việt
+      </button>
+      <button type="button" data-lang="en" lang="en">
+        <svg viewBox="0 0 22 14" aria-hidden="true"><rect width="22" height="14" fill="#23436d"/><path d="M0 0l22 14M0 14L22 0" stroke="#f7efd9" stroke-width="3.9"/><path d="M0 0l22 14M0 14L22 0" stroke="#b7352a" stroke-width="1.5"/><path d="M0 7h22M11 0v14" stroke="#f7efd9" stroke-width="5.3"/><path d="M0 7h22M11 0v14" stroke="#b7352a" stroke-width="2.8"/><rect x=".4" y=".4" width="21.2" height="13.2" fill="none" stroke="#2a2118" stroke-opacity=".65" stroke-width=".8"/></svg>
+        English
+      </button>
+    </nav>
+
     <h1 class="wordmark">Vạn Thắng</h1>
     <p class="sub">Ten Thousand Victories</p>
 
@@ -384,13 +423,10 @@
       <div class="by">
         <img src="../share/author-zrg-team.png" alt="zrg-team's GitHub avatar" width="200" height="200" loading="lazy">
         <div class="byText">
-          <b>zrg-team</b>
+          <a class="by-link" href="https://github.com/zrg-team" aria-label="zrg-team on GitHub" data-vi-label="zrg-team trên GitHub"><b>zrg-team</b></a>
           <span data-en="Made by one person, in the open." data-vi="Do một người làm, công khai.">Made by one person, in the open.</span>
           <span class="contact">
             <a href="mailto:zerglingno2@outlook.com">zerglingno2@outlook.com</a>
-            <a class="gh" href="https://github.com/zrg-team" aria-label="zrg-team on GitHub" title="zrg-team on GitHub">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-            </a>
           </span>
         </div>
       </div>
@@ -427,25 +463,51 @@
 </dialog>
 
 <script>
-  // Vietnamese for a Vietnamese browser, English for everyone else. Both strings ship in the markup
-  // so the page reads correctly with no script at all, and there is nothing to fetch.
-  if ((navigator.language || '').toLowerCase().startsWith('vi')) {
-    document.documentElement.lang = 'vi';
-    document.title = 'Chơi Vạn Thắng — Ten Thousand Victories';
+  // The page's language: the one chosen in the game (or on this page) if there is one — the same
+  // key the game reads, on the same origin — else Vietnamese for a Vietnamese browser and English
+  // for everyone else. Both strings ship in the markup so the page reads with no script at all.
+  const LANGUAGE_KEY = 'mandate:language:v1';
+  const english = new Map();
+  for (const node of document.querySelectorAll('[data-vi]')) english.set(node, node.textContent);
+  for (const img of document.querySelectorAll('[data-vi-src]')) english.set(img, { src: img.getAttribute('src'), alt: img.alt, width: img.getAttribute('width') });
+  for (const node of document.querySelectorAll('[data-vi-label]')) english.set(node, node.getAttribute('aria-label'));
+
+  function applyLanguage(language) {
+    const vi = language === 'vi';
+    document.documentElement.lang = language;
+    document.title = vi ? 'Chơi Vạn Thắng — Ten Thousand Victories' : 'Play Vạn Thắng — Ten Thousand Victories';
     for (const node of document.querySelectorAll('[data-vi]')) {
-      node.textContent = node.getAttribute('data-vi');
+      node.textContent = vi ? node.getAttribute('data-vi') : (node.getAttribute('data-en') ?? english.get(node));
     }
-    // The banner is drawn art with its words baked in, so the Vietnamese one is a different file.
+    // The banner is drawn art with its words baked in, so the Vietnamese one is a different file —
+    // and a wider one: say so, or the box reserved before it loads is the other one's and it nudges.
     for (const img of document.querySelectorAll('[data-vi-src]')) {
-      img.src = img.getAttribute('data-vi-src');
-      if (img.hasAttribute('data-vi-alt')) img.alt = img.getAttribute('data-vi-alt');
-      // The Vietnamese banner is a wider file — say so, or the box reserved before it loads is the
-      // English one's and the page nudges when it lands.
-      if (img.hasAttribute('data-vi-width')) img.width = Number(img.getAttribute('data-vi-width'));
+      const en = english.get(img);
+      img.src = vi ? img.getAttribute('data-vi-src') : en.src;
+      if (img.hasAttribute('data-vi-alt')) img.alt = vi ? img.getAttribute('data-vi-alt') : en.alt;
+      if (img.hasAttribute('data-vi-width')) img.setAttribute('width', vi ? img.getAttribute('data-vi-width') : en.width);
     }
     for (const node of document.querySelectorAll('[data-vi-label]')) {
-      node.setAttribute('aria-label', node.getAttribute('data-vi-label'));
+      node.setAttribute('aria-label', vi ? node.getAttribute('data-vi-label') : english.get(node));
     }
+    for (const button of document.querySelectorAll('.lang button')) {
+      button.setAttribute('aria-pressed', String(button.dataset.lang === language));
+    }
+  }
+
+  let stored = null;
+  try { stored = localStorage.getItem(LANGUAGE_KEY); } catch { /* storage blocked: fall back to the browser */ }
+  applyLanguage(stored === 'vi' || stored === 'en'
+    ? stored
+    : (navigator.language || '').toLowerCase().startsWith('vi') ? 'vi' : 'en');
+
+  for (const button of document.querySelectorAll('.lang button')) {
+    button.addEventListener('click', () => {
+      const language = button.dataset.lang;
+      if (document.documentElement.lang === language) return;
+      try { localStorage.setItem(LANGUAGE_KEY, language); } catch { /* the page still switches */ }
+      applyLanguage(language);
+    });
   }
 
   // The trailer: the cut for this window's shape, lettered in the page's language. Nothing is

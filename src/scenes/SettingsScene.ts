@@ -4,7 +4,7 @@ import { LAYOUT_RESIZED } from '../game/desktopResize';
 import { applyRenderScale, applyPendingRenderScale, renderScale, requestRenderScale, GRAPHICS_MODES, getGraphicsMode, setGraphicsMode } from '../game/graphicsQuality';
 import { getLanguage, setLanguage, t, type LanguageCode } from '../i18n';
 import { isAscentBetaEnabled, setAscentBetaEnabled } from '../game/betaOptions';
-import { applyUpdate, buildStamp, checkForUpdate, getUpdateStatus, subscribeUpdateStatus } from '../pwa/updates';
+import { applyUpdate, buildStamp, canCheckForUpdate, checkForUpdate, getUpdateCheckResult, getUpdateStatus, subscribeUpdateStatus } from '../pwa/updates';
 import { BACK_BAR_BAND, BACK_BAR_HEIGHT, InkUI, INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type InkScrollArea } from '../ui/InkUI';
 import {
   BATTLE_DIFFICULTIES,
@@ -43,7 +43,7 @@ import { createMapRenderer, type MapRenderer } from '../ui/MapRenderer';
 import { applyPaperFX } from '../ui/ink/PaperFX';
 import { attachPagePaper } from '../ui/ink/paperSheet';
 import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
-import { shellDisplayMode, shellDisplayModes, setShellDisplayMode, type DisplayMode } from '../platform/shell';
+import { isShell, shellDisplayMode, shellDisplayModes, setShellDisplayMode, type DisplayMode } from '../platform/shell';
 
 const SIDE = 12;
 /** Where the list starts: under the title and the subtitle. No tab strip on this page. */
@@ -591,7 +591,8 @@ export class SettingsScene extends Phaser.Scene {
 
     // The manual check is offered only at rest. While anything is in flight the game is already
     // asking, and a button that re-asks a question being answered is a button that does nothing.
-    if (status === 'offlineReady') {
+    // The web's link; the app's check is the button below.
+    if (status === 'offlineReady' && !isShell()) {
       const check = this.ui.textLink(
         x + width,
         cursor + version.height / 2,
@@ -613,14 +614,35 @@ export class SettingsScene extends Phaser.Scene {
     }
     cursor += version.height + 4;
 
-    const line = this.ui.label(x, cursor, t(`menu.update.${status}` as 'menu.update.ready'), 'caption', {
-      color: status === 'ready' ? '#8a2a1b' : INK_UI_HEX.mutedText,
+    // The status, or — right after the app's own check — what that check found (never on the web).
+    const result = getUpdateCheckResult();
+    const lineKey = result === 'failed' ? 'menu.update.checkFailed'
+      : result ? `menu.update.${result}` : `menu.update.${status}`;
+    const line = this.ui.label(x, cursor, t(lineKey as 'menu.update.ready'), 'caption', {
+      color: status === 'ready' || result === 'failed' ? '#8a2a1b' : INK_UI_HEX.mutedText,
       fontSize: '11px',
-      fontStyle: status === 'ready' ? '700' : '400',
+      fontStyle: status === 'ready' || result === 'upToDate' ? '700' : '400',
       wordWrap: { width },
     }).setOrigin(0, 0);
     holder.add(line);
     cursor += line.height;
+
+    // The app's manual check (iOS/Android shell only), offered at rest. A button, not the web's
+    // link: in the app it is the one way to ask for an update, and a nine-pixel link beside the
+    // stamp is dropped whenever the Vietnamese stamp fills the line.
+    if (status === 'offlineReady' && canCheckForUpdate()) {
+      cursor += 8;
+      const checking = result === 'checking';
+      holder.add(this.ui.button(
+        { x, y: cursor, width, height: 34 },
+        checking ? t('menu.update.checking') : t('menu.update.check'),
+        // Forced: a player who taps a button labelled "check for updates" gets a check, not the
+        // throttle that keeps the background poll from spending their data.
+        () => { if (!checking) checkForUpdate(true); },
+        { variant: checking ? 'disabled' : 'secondary', fontSize: '13px' },
+      ));
+      cursor += 34;
+    }
 
     if (status === 'ready') {
       cursor += 8;

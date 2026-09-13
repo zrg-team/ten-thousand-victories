@@ -274,6 +274,9 @@ export const enCore = {
   "menu.update.tapHere": "Tap here to update",
   "menu.update.reload": "Reload to update",
   "menu.update.check": "Check for updates",
+  "menu.update.checking": "Checking for a new version…",
+  "menu.update.upToDate": "You have the latest version",
+  "menu.update.checkFailed": "Couldn't check for updates — check your connection and try again",
   // ── Adding the game to the home screen ──
   //
   // One sheet, four sets of steps. Which set is shown is decided by `installRoute()` and not by
@@ -895,6 +898,9 @@ export const viCore = {
   "menu.update.tapHere": "Chạm vào đây để cập nhật",
   "menu.update.reload": "Tải lại để cập nhật",
   "menu.update.check": "Kiểm tra bản mới",
+  "menu.update.checking": "Đang kiểm tra bản mới…",
+  "menu.update.upToDate": "Bạn đang dùng bản mới nhất",
+  "menu.update.checkFailed": "Không kiểm tra được bản mới — hãy kiểm tra kết nối mạng rồi thử lại",
   "menu.install.action": "Cài ứng dụng",
   "menu.install.tip": "Chơi được ngoại tuyến, mở toàn màn hình. Không cần cửa hàng hay tài khoản.",
   "menu.install.title": "Cài Vạn Thắng",
