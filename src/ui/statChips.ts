@@ -76,6 +76,12 @@ const STAT_ICON = {
   income: 'chevrons-up',
   /** What went back out. */
   outgo: 'chevrons-down',
+  /** Who holds a province of ours — the figure is a name. */
+  governor: 'hero',
+  /** How far a province's goods travel to the seat, and how much arrives. */
+  haulage: 'cart',
+  /** What a province being carried still yields. Down, like outgo: it is a loss. */
+  yieldCut: 'chevrons-down',
 } as const satisfies Record<string, ConquestUiIconId>;
 
 export type StatKind = keyof typeof STAT_ICON;
@@ -101,6 +107,9 @@ const STAT_LABEL: Record<StatKind, () => string> = {
   seasons: () => t('ascent.chip.seasons'),
   income: () => t('ascent.chip.in'),
   outgo: () => t('ascent.chip.out'),
+  governor: () => t('land.section.assignment'),
+  haulage: () => t('ascent.supply.row'),
+  yieldCut: () => t('ascent.falling.reducedYield'),
 };
 
 /**

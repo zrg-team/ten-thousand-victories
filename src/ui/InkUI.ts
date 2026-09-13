@@ -282,10 +282,25 @@ export interface InkCardOptions extends InkSurfaceOptions {
    * supply 83") and a card that carries both a reading and a price needs two strips, not one:
    * merged, the player cannot tell which figures they are being asked to spend.
    *
-   * Always set at `'stat'` weight, whatever `chipSize` says about the price below — a reading
-   * that shouts as loud as a price is the thing this replaced.
+   * Set at `'stat'` weight unless `statsSize` says otherwise, whatever `chipSize` says about the
+   * price below — a reading that shouts as loud as a price is the thing this replaced.
    */
   stats?: CostChip[];
+  /**
+   * A second strip of readings under the first, starting on its own line.
+   *
+   * For a card whose readings come in two kinds: the province card on the map carries its figures
+   * (garrison, food, supplies, gold) and then who holds it and how it is worked. Merged into one
+   * strip the wrap decides where a name lands beside a number; two strips keep each kind on its
+   * own row.
+   */
+  statsSecond?: CostChip[];
+  /**
+   * The readings' weight. `'stat'` (the default) where the chips replaced a list row's subtitle;
+   * `'price'` where they are the card's whole content — the province card on the map, whose rows
+   * were 12px body type and whose chips at 10px would be the quietest thing on it.
+   */
+  statsSize?: ChipSize;
   /**
    * How loudly the strip is set. `'price'` (the default) is the figure that decides the tap;
    * `'stat'` is the smaller cut used where the chips replaced the card's own subtitle — a
@@ -817,7 +832,8 @@ export class InkUI {
       measureInkText(this.scene, value, { ...textStyle(variant), wordWrap: { width: textWidth }, ...extra });
     let height = 18;
     if (opts.title) height += measure(opts.title, 'label', { wordWrap: { width: textWidth - (opts.status ? 58 : 0) } }) + 5;
-    if (opts.stats?.length) height += measureCostChips(this.scene, opts.stats, textWidth, 0, 'stat') + 4;
+    if (opts.stats?.length) height += measureCostChips(this.scene, opts.stats, textWidth, 0, opts.statsSize ?? 'stat') + 4;
+    if (opts.statsSecond?.length) height += measureCostChips(this.scene, opts.statsSecond, textWidth, 0, opts.statsSize ?? 'stat') + 4;
     if (opts.subtitle) height += measure(opts.subtitle, 'caption') + 4;
     for (const row of opts.rows ?? []) {
       const value = `${row.label}: ${row.value}`;
@@ -934,10 +950,12 @@ export class InkUI {
 
     // Readings first, prose second. A province's defence and loyalty under five lines of
     // "the levy is still coming home" is a footnote; over them it is the row's headline.
-    if (opts.stats?.length) {
-      container.add(drawCostChips(this.scene, opts.stats,
-        { x: padding, y: cursorY, width: textWidth, muted: opts.muted, size: 'stat' }));
-      cursorY += measureCostChips(this.scene, opts.stats, textWidth, 0, 'stat') + 4;
+    for (const strip of [opts.stats, opts.statsSecond]) {
+      if (!strip?.length) continue;
+      const size = opts.statsSize ?? 'stat';
+      container.add(drawCostChips(this.scene, strip,
+        { x: padding, y: cursorY, width: textWidth, muted: opts.muted, size }));
+      cursorY += measureCostChips(this.scene, strip, textWidth, 0, size) + 4;
     }
 
     if (opts.subtitle) {
