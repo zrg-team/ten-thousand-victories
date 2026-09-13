@@ -14,7 +14,8 @@ Tài liệu được chia theo hai giai đoạn phát triển sản phẩm. **Gi
 1. Read the [Phase 2 guide](phase-2/README.md) for the goals and working process.
 2. Open the [interactive gameplay review](phase-2/gameplay-review-2026-09-12/index.html) and use **English / Tiếng Việt** to switch languages.
 3. Open the [bilingual implementation roadmap](phase-2/implementation-roadmap.html), start with the [first batch](phase-2/first-implementation-batch.md), and update the [48-item backlog](phase-2/backlog.md) as work proceeds.
-4. Consult the [Phase 1 index](phase-1/README.md) when investigating an earlier design decision.
+4. Read the new [hero-depth design — English / Tiếng Việt](phase-2/hero-depth/index.html): levels through service, specialization, hero risks, diplomacy, cards and H01–H12 delivery packages.
+5. Consult the [Phase 1 index](phase-1/README.md) when investigating an earlier design decision.
 
 Đọc hướng dẫn Giai đoạn 2, xem bản đánh giá có nút chuyển ngôn ngữ, rồi theo dõi kế hoạch triển khai và danh sách 48 hạng mục. Tài liệu Giai đoạn 1 giúp tra cứu lý do của các quyết định trước đây.
 
@@ -32,6 +33,7 @@ docs/
     validation-plan.md               software, human and device checks
     backlog.md                      editable B01–B48 status tracker
     gameplay-review-2026-09-12/      bilingual report, data and evidence
+    hero-depth/                     bilingual hero design addendum and H01–H12 plan
   development/                      shared build and performance references
   art/, brand/, design/             shared visual production references
   research/                         other research and old report URL redirect

@@ -14,6 +14,7 @@
 | --- | --- |
 | [Gameplay review — English](gameplay-review-2026-09-12/index.html?lang=en) / [Tiếng Việt](gameplay-review-2026-09-12/index.html?lang=vi) | Baseline assessment, market comparisons, nine design loops, 48 recommendations and recorded evidence |
 | [Interactive implementation roadmap — English / Tiếng Việt](implementation-roadmap.html) | 18 scoped work packages, dependencies, effort ranges, criticism and completion gates |
+| [Hero depth — English](hero-depth/index.html?lang=en) / [Tiếng Việt](hero-depth/index.html?lang=vi) | New design addendum: service levels, specialization, evacuation, recovery, resident diplomacy, six cards and H01–H12 implementation packages / Bổ sung chiều sâu anh hùng và kế hoạch triển khai |
 | [Implementation plan — English](implementation-plan.md) / [Tiếng Việt](implementation-plan.vi.md) | Complete Markdown version of the roadmap |
 | [First implementation batch](first-implementation-batch.md) | Engineering checklist for baseline, correctness, controls, forecasts and recovery |
 | [Validation protocol](validation-plan.md) | Software matrix, human playtests, balance comparisons and physical-device gates |
@@ -23,6 +24,8 @@
 | [Documentation index](../README.md) | Phase boundaries and shared reference folders |
 
 The review is a dated baseline of the build inspected on September 12. Its weighted grades are editorial assessments, not measured enjoyment or a claim about later builds. Recorded simulations establish specific balance observations; human playtests and physical-device checks remain necessary.
+
+**New scope, September 13:** [Hero depth](hero-depth/README.md) extends B23/R10. All H01–H12 packages are Proposed and sit outside the original roadmap estimate. Start with service growth; enable lethal outcomes only after readable warnings and recoverable losses pass their gates. / **Phạm vi mới ngày 13/09:** H01–H12 mở rộng B23/R10, đều là Đề xuất và nằm ngoài ước lượng cũ. Làm trưởng thành trước; chỉ mở tử trận sau khi cảnh báo và phục hồi đạt tiêu chí.
 
 Bản đánh giá ghi nhận phiên bản đã khảo sát ngày 12/09. Điểm số là nhận định có trọng số, không phải phép đo mức độ vui của người chơi. Mô phỏng hỗ trợ phân tích cân bằng; vẫn cần chơi thử với người thật và kiểm tra trên thiết bị thật.
 
