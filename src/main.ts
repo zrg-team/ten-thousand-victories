@@ -10,7 +10,7 @@ import { rulesetIdOf } from './game/ascentRuleset';
 import { heroSummary } from './systems/heroes/HeroService';
 import { getLanguage, heroName, politicsTitle, seasonLabel, subscribeLanguageChange, t } from './i18n';
 import { cacheTipsForSplash } from './data/tips';
-import { noteShellUpdate, registerServiceWorker } from './pwa/updates';
+import { noteShellCheck, noteShellUpdate, registerServiceWorker, registerShellUpdates } from './pwa/updates';
 import { watchInstall } from './pwa/install';
 import { usesServiceWorker } from './platform/shell';
 import { getMapTheme } from './ui/mapTheme';
@@ -33,6 +33,7 @@ declare global {
     /** Live census of the ink-stamp registry - backend, count, bytes, pools. */
     /** How a native shell tells the game it has a newer bundle waiting. See below. */
     __gameUpdateReady?: (version?: string) => void;
+    __gameUpdateCheck?: (news: string, version?: string) => void;
     __inkStamps?: typeof stampStats;
     /** The quality ladder: state(), force(id), hold(ms) — see qualityLadder.ts. */
     __ladder?: ReturnType<typeof installQualityLadder>;
@@ -95,6 +96,9 @@ if (usesServiceWorker()) {
  * Named for what it does rather than after the shell, because the next cabinet will call it too.
  */
 window.__gameUpdateReady = noteShellUpdate;
+// And what a check the player asked for found, so the Settings page can answer the tap.
+window.__gameUpdateCheck = noteShellCheck;
+registerShellUpdates();
 
 // Before Phaser for a second reason: `beforeinstallprompt` is fired at the window the moment
 // Chromium decides the site is installable, and a listener attached after that never hears it.

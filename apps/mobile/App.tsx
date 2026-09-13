@@ -101,6 +101,30 @@ const HEALTH_PING = `(function () {
 const PONG_MS = 4000;
 
 /**
+ * How long a resumed app leaves between its own quiet looks for a newer bundle. The boot check
+ * alone never reached a player who keeps the app suspended for days instead of closing it.
+ */
+const UPDATE_RECHECK_MS = 30 * 60 * 1000;
+
+/** What an update check found, told to the game's `window.__gameUpdateCheck`. */
+type UpdateCheckNews = 'checking' | 'upToDate' | 'installing' | 'failed';
+
+function updateCheckScript(news: UpdateCheckNews, version?: string): string {
+  return `window.__gameUpdateCheck && window.__gameUpdateCheck(${JSON.stringify(news)}, ${JSON.stringify(version ?? '')}); true;`;
+}
+
+function updateReadyScript(version?: string): string {
+  return `window.__gameUpdateReady && window.__gameUpdateReady(${JSON.stringify(version ?? '')}); true;`;
+}
+
+/** The game version an update carries: `app.config.js` writes the root package.json's into it. */
+function manifestVersion(manifest: unknown): string | undefined {
+  const version = (manifest as { extra?: { expoClient?: { version?: unknown } } } | undefined)
+    ?.extra?.expoClient?.version;
+  return typeof version === 'string' && version.length > 0 ? version : undefined;
+}
+
+/**
  * Ask the origin for the game's own index, from the JS thread.
  *
  * Deliberately `index.html` rather than `/`: a directory index can be answered by a server that
@@ -174,6 +198,14 @@ function Shell() {
   const restarts = useRef(0);
   /** When the page last answered `HEALTH_PING`. */
   const pongAt = useRef(0);
+  /** A check in flight, so a tap during the boot check joins it rather than asking twice. */
+  const updateChecking = useRef(false);
+  const lastUpdateCheck = useRef(0);
+  /** Set once a newer bundle is downloaded; its version, when the manifest named one. */
+  const updateReady = useRef(false);
+  const updateVersion = useRef<string | undefined>(undefined);
+  /** `failed`, readable from inside a check that began before it changed. */
+  const failedNow = useRef(false);
 
   const note = useCallback((line: string) => {
     // Stamped with the seconds since boot: a diary without a clock could not say whether the
@@ -450,47 +482,107 @@ function Shell() {
    * server for a device's attention at the one moment the app has none to spare.
    */
   useEffect(() => {
-    if (!ready || !Updates.isEnabled) return;
-    let cancelled = false;
-    void (async () => {
-      try {
-        const found = await Updates.checkForUpdateAsync();
-        if (cancelled || !found.isAvailable) return;
-        await Updates.fetchUpdateAsync();
-        if (cancelled) return;
-        /**
-         * The game owns the notice, not the shell.
-         *
-         * It already has one — the version line at the foot of the front page, which says the same
-         * thing for a waiting service worker on the web. Drawing a second bar over the canvas would
-         * put two update prompts in one product and land this one in the only place the art
-         * direction forbids: floating over the game. So the shell says its piece through
-         * `window.__gameUpdateReady` and lets the menu render it in both languages, in the right
-         * place, in ink.
-         */
-        /**
-         * **A shell showing an error has nothing to interrupt, so it applies the update itself.**
-         *
-         * Everything below this offers a new bundle to the game and lets the player choose. There
-         * is no game here to offer it to: the web view was never created, so the injection lands
-         * nowhere and the newer build — the one carrying the fix for whatever wedged this launch —
-         * is downloaded, stored, and never run. A device broken by a bad archive would stay broken
-         * through every release until it was deleted and reinstalled.
-         */
-        if (failed) {
-          note('a newer build arrived — restarting into it');
-          try { await server.current?.stop('reloading into a newer bundle'); } catch { /* the next bundle adopts it */ }
-          await Updates.reloadAsync();
-          return;
-        }
-        web.current?.injectJavaScript('window.__gameUpdateReady && window.__gameUpdateReady(); true;');
-      } catch {
-        // No network, no update server, a malformed manifest: all of them mean the player keeps
-        // playing what they have. An update is never worth an error in front of somebody.
+    failedNow.current = failed;
+  }, [failed]);
+
+  /**
+   * One check, three callers: the boot, a resume after `UPDATE_RECHECK_MS`, and the player's
+   * "Check for updates" on the Settings page (`manual`).
+   *
+   * Only a manual check reports "up to date" and "could not check": those answer a tap, and
+   * volunteered on their own they would be a notice about nothing. A download, and the bundle
+   * waiting after it, are told either way.
+   */
+  const checkForUpdate = useCallback(async (manual: boolean) => {
+    const tell = (script: string) => web.current?.injectJavaScript(script);
+    if (!Updates.isEnabled) {
+      if (manual) tell(updateCheckScript('failed'));
+      return;
+    }
+    // Already downloaded: the page may have been remounted since it was told, so tell it again
+    // rather than asking the server about a bundle that is sitting on the device.
+    if (updateReady.current) {
+      tell(updateReadyScript(updateVersion.current));
+      return;
+    }
+    if (updateChecking.current) {
+      if (manual) tell(updateCheckScript('checking'));
+      return;
+    }
+    updateChecking.current = true;
+    lastUpdateCheck.current = Date.now();
+    if (manual) tell(updateCheckScript('checking'));
+    let downloading = false;
+    try {
+      const found = await Updates.checkForUpdateAsync();
+      if (!found.isAvailable) {
+        if (manual) tell(updateCheckScript('upToDate'));
+        return;
       }
-    })();
-    return () => { cancelled = true; };
-  }, [failed, note, ready]);
+      const incoming = manifestVersion(found.manifest);
+      downloading = true;
+      tell(updateCheckScript('installing', incoming));
+      const fetched = await Updates.fetchUpdateAsync();
+      if (!fetched.isNew) {
+        tell(updateCheckScript('upToDate'));
+        return;
+      }
+      updateReady.current = true;
+      updateVersion.current = manifestVersion(fetched.manifest) ?? incoming;
+      note(`update ${updateVersion.current ?? '?'} downloaded`);
+      /**
+       * The game owns the notice, not the shell.
+       *
+       * It already has one — the version line at the foot of the front page, which says the same
+       * thing for a waiting service worker on the web. Drawing a second bar over the canvas would
+       * put two update prompts in one product and land this one in the only place the art
+       * direction forbids: floating over the game. So the shell says its piece through
+       * `window.__gameUpdateReady` and lets the menu render it in both languages, in the right
+       * place, in ink.
+       */
+      /**
+       * **A shell showing an error has nothing to interrupt, so it applies the update itself.**
+       *
+       * Everything below this offers a new bundle to the game and lets the player choose. There
+       * is no game here to offer it to: the web view was never created, so the injection lands
+       * nowhere and the newer build — the one carrying the fix for whatever wedged this launch —
+       * is downloaded, stored, and never run. A device broken by a bad archive would stay broken
+       * through every release until it was deleted and reinstalled.
+       */
+      if (failedNow.current) {
+        note('a newer build arrived — restarting into it');
+        try { await server.current?.stop('reloading into a newer bundle'); } catch { /* the next bundle adopts it */ }
+        await Updates.reloadAsync();
+        return;
+      }
+      tell(updateReadyScript(updateVersion.current));
+    } catch (error) {
+      // No network, no update server, a malformed manifest: all of them mean the player keeps
+      // playing what they have. An update is never worth an error in front of somebody — but a
+      // player who asked, or a front page already saying "downloading", is owed the answer.
+      if (manual || downloading) tell(updateCheckScript('failed'));
+      if (manual) note(`update check failed: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      updateChecking.current = false;
+    }
+  }, [note]);
+
+  // Deliberately after `ready` (see above). `failed` too: a shell that gave up still looks, so the
+  // bundle carrying the fix can restart it.
+  useEffect(() => {
+    if (!ready) return;
+    void checkForUpdate(false);
+  }, [checkForUpdate, failed, ready]);
+
+  // And again on resume, at most every half hour.
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state !== 'active' || !ready) return;
+      if (Date.now() - lastUpdateCheck.current < UPDATE_RECHECK_MS) return;
+      void checkForUpdate(false);
+    });
+    return () => subscription.remove();
+  }, [checkForUpdate, ready]);
 
   /**
    * Nothing may navigate away from the game — that is what makes this an app rather than a browser
@@ -601,6 +693,13 @@ function Shell() {
             const data = event.nativeEvent.data;
             if (data === 'boot:ready') {
               reveal();
+              // A remounted page has forgotten the notice the last one was given.
+              if (updateReady.current) web.current?.injectJavaScript(updateReadyScript(updateVersion.current));
+            }
+            // "Check for updates" on the Settings page.
+            if (data === 'update:check') {
+              void checkForUpdate(true);
+              return;
             }
             // The page answering the resume ping, with its own health reading for the diary.
             if (typeof data === 'string' && data.startsWith('pong:')) {

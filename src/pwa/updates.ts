@@ -11,7 +11,7 @@
  */
 
 import { getLanguage, t } from '../i18n';
-import { applyShellUpdate, isShell } from '../platform/shell';
+import { applyShellUpdate, checkShellForUpdate, isShell, shellCanCheckForUpdate } from '../platform/shell';
 
 export type UpdateStatus =
   /** Dev build, or a browser without service workers. Nothing to show. */
@@ -24,6 +24,13 @@ export type UpdateStatus =
   | 'installing'
   /** A new version is cached and waiting for the tap. */
   | 'ready';
+
+/**
+ * The answer to a native shell's "Check for updates", shown under the version on the Settings
+ * page. The web's check never sets it. Separate from `UpdateStatus`: the status is what the game
+ * *has*; this is what the last tap *found*, and it is cleared the moment the status moves on.
+ */
+export type UpdateCheckResult = 'checking' | 'upToDate' | 'failed';
 
 /** The version to bump — `package.json`, and nothing else. */
 export const BUILD_VERSION = __APP_VERSION__;
@@ -71,6 +78,7 @@ export function buildStamp(): string {
 
 const listeners = new Set<(status: UpdateStatus) => void>();
 let status: UpdateStatus = 'unsupported';
+let checkResult: UpdateCheckResult | undefined;
 let registration: ServiceWorkerRegistration | undefined;
 /** Set the moment we ask a waiting worker to take over, so `controllerchange` reloads exactly once. */
 let applying = false;
@@ -87,6 +95,25 @@ let lastCheck = 0;
 
 export function getUpdateStatus(): UpdateStatus {
   return status;
+}
+
+export function getUpdateCheckResult(): UpdateCheckResult | undefined {
+  return checkResult;
+}
+
+/** Whether a native shell can be asked for a newer game from the Settings page. The web never is. */
+export function canCheckForUpdate(): boolean {
+  return isShell() && shellCanCheckForUpdate();
+}
+
+function setCheckResult(next: UpdateCheckResult | undefined): void {
+  if (next === checkResult) {
+    return;
+  }
+  checkResult = next;
+  for (const listener of listeners) {
+    listener(status);
+  }
 }
 
 /**
@@ -148,6 +175,42 @@ export function noteShellUpdate(version?: string): void {
   }
   setStatus('ready');
 }
+
+/**
+ * A shell that can check on request. It has everything `noteShellUpdate` assumed and one thing
+ * more, so its resting state is the same `offlineReady` a registered worker rests in — the game is
+ * inside the binary — and the Settings page draws the build card and its check button for it.
+ */
+export function registerShellUpdates(): void {
+  if (!shellCanCheckForUpdate() || status !== 'unsupported') {
+    return;
+  }
+  setStatus('offlineReady');
+}
+
+/**
+ * What the shell's check found, called through `window.__gameUpdateCheck`. `installing` is a
+ * download under way (the front page's "Downloading version …"); the bundle it ends in arrives
+ * through `noteShellUpdate`.
+ */
+export function noteShellCheck(news: string, version?: string): void {
+  if (news === 'installing') {
+    if (typeof version === 'string' && version.length > 0) {
+      incomingVersion = version;
+    }
+    setStatus('installing');
+    return;
+  }
+  if (news !== 'checking' && news !== 'upToDate' && news !== 'failed') {
+    return;
+  }
+  // A download that failed, or turned out to be nothing new, puts the front page back at rest.
+  if (news !== 'checking' && status === 'installing') {
+    incomingVersion = undefined;
+    setStatus('offlineReady');
+  }
+  setCheckResult(news);
+}
 export function subscribeUpdateStatus(listener: (status: UpdateStatus) => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
@@ -158,6 +221,8 @@ function setStatus(next: UpdateStatus): void {
     return;
   }
   status = next;
+  // "Up to date" was true of the state being left; a new one owes nobody that sentence.
+  checkResult = undefined;
   for (const listener of listeners) {
     listener(status);
   }
@@ -256,7 +321,17 @@ function refresh(): void {
 }
 
 export function checkForUpdate(force = false): void {
-  if (!registration || applying) {
+  if (applying) {
+    return;
+  }
+  // In a shell the check is the shell's to make; it answers through `noteShellCheck`.
+  if (isShell()) {
+    if (force && shellCanCheckForUpdate()) {
+      checkShellForUpdate();
+    }
+    return;
+  }
+  if (!registration) {
     return;
   }
   // Offline, `update()` rejects and — in some browsers — takes the registration down with it.

@@ -13,7 +13,7 @@
     "eas:ios:submit": "eas submit -p ios --latest",
     "eas:android:submit": "eas submit -p android --latest",
     "eas:submit": "eas submit -p all --latest",
-    "eas:update": "eas update --branch production",
+    "eas:update": "node scripts/eas-update.mjs",
     "eas:preview": "node scripts/clean-native.mjs && eas build -p all --profile preview",
     "eas:ios:preview": "node scripts/clean-native.mjs && eas build -p ios --profile preview",
     "eas:android:preview": "node scripts/clean-native.mjs && eas build -p android --profile preview",

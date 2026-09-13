@@ -68,9 +68,6 @@
       }
     },
     "owner": "zerglingno2s-team",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
     "updates": {
       "enabled": true,
       "checkAutomatically": "NEVER",

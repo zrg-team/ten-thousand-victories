@@ -57,6 +57,13 @@ export interface ShellDescriptor {
    * cannot update itself simply never calls `noteShellUpdate`, and the game never offers.
    */
   applyUpdate?: () => void;
+  /**
+   * Ask the shell's update server for a newer game now — the Settings page's "Check for updates".
+   * It answers through `window.__gameUpdateCheck` and, once a bundle is down, `__gameUpdateReady`.
+   * Offered only while `canCheckForUpdate` is true: a development build has no server to ask.
+   */
+  checkForUpdate?: () => void;
+  canCheckForUpdate?: boolean;
 
   /**
    * Called once, on the first frame the menu is actually on the glass.
@@ -249,6 +256,19 @@ export function shellSteam(): NonNullable<ShellDescriptor['steam']> | undefined 
  * Safe everywhere: on the web there is no shell and nothing happens, which is why `applyUpdate`
  * in `pwa/updates.ts` checks `isShell()` before calling rather than relying on this to no-op.
  */
+/** Whether this shell can be asked for a newer game from the Settings page. */
+export function shellCanCheckForUpdate(): boolean {
+  return window.__shell?.canCheckForUpdate === true && typeof window.__shell.checkForUpdate === 'function';
+}
+
+export function checkShellForUpdate(): void {
+  try {
+    window.__shell?.checkForUpdate?.();
+  } catch {
+    // As `applyShellUpdate`: nothing the game can do about a shell that throws.
+  }
+}
+
 export function applyShellUpdate(): void {
   try {
     window.__shell?.applyUpdate?.();

@@ -31,6 +31,28 @@ const { join } = require('node:path');
 const root = join(__dirname, '..', '..');
 const pkg = require(join(root, 'package.json'));
 
+/**
+ * **The native runtime: which binaries an over-the-air update may be delivered to.**
+ *
+ * expo-updates hands an update only to a binary whose runtime version matches it exactly. This was
+ * `{ policy: 'appVersion' }` — the full version, bumped with every web release — so every release
+ * moved the runtime too: the 1.1.5 update was published for runtime 1.1.5 while every phone ran a
+ * 1.1.2 binary, and no phone could see it.
+ *
+ * **The runtime is the release line: major.minor.** Every 1.1.x binary is runtime `1.1` and takes
+ * every 1.1.x update; 1.2.0 starts runtime `1.2`, which no 1.1 binary is ever offered. So the
+ * rule is: **a patch release (1.1.x) must not touch the native side** — no Expo SDK upgrade, no
+ * native module added or updated, nothing in `plugins/`, `patches/` or `app.json` that prebuild
+ * turns into native code. A change like that is a minor release: bump to 1.2.0 and ship new store
+ * binaries. `scripts/eas-update.mjs` checks this before it publishes (`native-lines.json`).
+ *
+ * The binaries built before this rule carry their full version (1.1.0, 1.1.1, 1.1.2) and cannot be
+ * changed from here; `scripts/eas-update.mjs` publishes each update to those runtimes as well, by
+ * evaluating this file once per runtime with `VAN_THANG_RUNTIME` set.
+ */
+const releaseLine = (version) => version.split('.').slice(0, 2).join('.');
+const runtimeVersion = process.env.VAN_THANG_RUNTIME || releaseLine(pkg.version);
+
 /** A positive integer, or undefined. Guards every path below against `NaN` reaching the stores. */
 const count = (value) => {
   const n = Number(value);
@@ -74,6 +96,7 @@ module.exports = ({ config }) => {
   return {
     ...config,
     version: pkg.version,
+    runtimeVersion,
     ios: { ...config.ios, buildNumber: String(build) },
     android: { ...config.android, versionCode: build },
   };
