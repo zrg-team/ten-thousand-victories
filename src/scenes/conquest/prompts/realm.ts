@@ -11,15 +11,18 @@
 import Phaser from 'phaser';
 import { responseCommanderName } from '../../../systems/ascent/WaveDirector';
 import { envoyOptionDetail } from '../../../systems/ascent/EnvoySystem';
+import { heroCapability } from '../../../systems/heroes/heroModel';
+import { showResidentPosting } from '../screens/heroDepth';
 import { realmStanding } from '../../../systems/ascent/RivalDirector';
-import { TRIBUTE_REFUSE_TICKS } from '../../../game/ascentConfig';
+import { HOST_RESCUE_MORALE, TRIBUTE_REFUSE_TICKS } from '../../../game/ascentConfig';
+import { hostRescueQuote } from '../../../systems/ascent/hostRescue';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import { INK_UI } from '../../../ui/InkUI';
 import { PROMPT_FOOTER_HEIGHT } from '../constants';
 import { promptFoot } from './frame';
 import { iconForOption, type CardIconId } from '../../../ui/CardIcons';
 import { staggerIn } from '../../../ui/animations';
-import { heroName, resourceLabel, t } from '../../../i18n';
+import { formatResourceList, heroName, resourceLabel, t } from '../../../i18n';
 import { resourceChips } from '../../../ui/costChips';
 import { focusTitle } from '../../../ui/focusPanel';
 import { storyPrintHeader } from '../../../ui/storyPrint';
@@ -72,7 +75,12 @@ export function showEnvoy(self: ConquestUIScene, prompt: Extract<AscentPrompt, {
         accent: option.affordable ? (option.id === 'tribute' ? INK_UI.cinnabar : INK_UI.gold) : INK_UI.softBrush,
         disabled: !option.affordable,
         parent: body,
-        onTap: () => self.choose(option.id),
+        onTap: () => {
+          if (option.id === 'ambassador' && heroCapability(self.state, 'residency')) {
+            self.choose('ignore'); self.openLane('heroes');
+            self.replaceLanePage(() => showResidentPosting(self, undefined, prompt.kingdomId));
+          } else self.choose(option.id);
+        },
       },
     );
     cards.push(card);
@@ -584,12 +592,17 @@ export function showEmpireResponse(self: ConquestUIScene, prompt: Extract<Ascent
  * tells rather than asks, because by the time this is raised there is nothing left to decide.
  */
 export function showHostLost(self: ConquestUIScene, prompt: Extract<AscentPrompt, { kind: 'host-lost' }>): void {
+  if (prompt.rescue) {
+    showHostRescue(self, prompt, prompt.rescue);
+    return;
+  }
   const content = self.promptFrame(
     t('ascent.hostLost.title', { army: prompt.armyName }),
     [
       t(`ascent.hostLost.${prompt.reason}`, { army: prompt.armyName, men: prompt.men }),
       t('ascent.hostLost.returned', { humans: prompt.men }),
-    ].join('\n'),
+      prompt.unaffordable ? t('ascent.hostLost.couldNot', { cost: formatResourceList(prompt.unaffordable) }) : '',
+    ].filter(Boolean).join('\n'),
   );
 
   self.modalLayer.add(self.ui.button(
@@ -598,6 +611,60 @@ export function showHostLost(self: ConquestUIScene, prompt: Extract<AscentPrompt
     () => self.choose('ok'),
     { variant: 'primary', fontSize: '14px' },
   ));
+}
+
+/**
+ * A host at its breaking point, held for the player's word (`hostRescue.ts`): relieve it at the
+ * realm's price, or let the men go home. The price is read live — the card can stand while the
+ * stores move — and falls back to the one quoted when the card was raised.
+ */
+function showHostRescue(
+  self: ConquestUIScene,
+  prompt: Extract<AscentPrompt, { kind: 'host-lost' }>,
+  offer: NonNullable<Extract<AscentPrompt, { kind: 'host-lost' }>['rescue']>,
+): void {
+  const army = self.state.armies.find((candidate) => candidate.id === offer.armyId);
+  const quote = army ? hostRescueQuote(self.state, army) : { cost: offer.cost, affordable: false };
+  const men = army ? army.units.spearmen + army.units.archers + army.units.heavyInfantry : prompt.men;
+
+  const { body, bodyWidth, finish } = self.promptScrollBody(
+    t('ascent.hostRescue.title', { army: prompt.armyName }),
+    t(`ascent.hostRescue.${prompt.reason}`, { army: prompt.armyName, men }),
+    0,
+  );
+
+  const rowHeight = 78;
+  const cards: Phaser.GameObjects.Container[] = [];
+  let used = 0;
+  const rows: { id: 'rescue' | 'release'; icon: CardIconId }[] = [
+    { id: 'rescue', icon: 'cart' },
+    { id: 'release', icon: 'retreat' },
+  ];
+  for (const row of rows) {
+    const rescue = row.id === 'rescue';
+    const disabled = rescue && !quote.affordable;
+    const card = self.optionCard(
+      { x: 0, y: used, width: bodyWidth, height: rowHeight },
+      {
+        icon: row.icon,
+        title: t(rescue ? 'ascent.hostRescue.save' : 'ascent.hostRescue.release'),
+        body: rescue
+          ? t('ascent.hostRescue.saveD', { morale: HOST_RESCUE_MORALE })
+          : t('ascent.hostRescue.releaseD', { humans: men }),
+        costs: rescue ? resourceChips(quote.cost, quote.affordable ? undefined : INK_UI.cinnabar) : undefined,
+        note: disabled ? t('ascent.response.cantAfford') : undefined,
+        noteColor: disabled ? '#a4402c' : undefined,
+        accent: disabled ? INK_UI.softBrush : rescue ? INK_UI.jade : INK_UI.cinnabar,
+        disabled,
+        parent: body,
+        onTap: () => { if (!disabled) self.choose(row.id); },
+      },
+    );
+    cards.push(card);
+    used += ((card.getData('cardHeight') as number) ?? rowHeight) + 10;
+  }
+  staggerIn(self, cards);
+  finish(used);
 }
 
 export function showWaveResult(self: ConquestUIScene, prompt: Extract<AscentPrompt, { kind: 'wave-result' }>): void {

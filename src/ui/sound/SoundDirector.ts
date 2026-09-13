@@ -351,6 +351,8 @@ class SoundDirector {
   private noise?: AudioBuffer;
   private enabled = readSettings().enabled;
   private musicEnabled = readSettings().music;
+  /** A film is playing over the game (`ui/trailerPlayer.ts`): the context stays suspended until it closes. */
+  private hushed = false;
   /** Context time of the last voice played — see `claimVoice`. */
   private lastVoiceAt = -1;
   /** Decoded pieces by URL, a few at a time — see `BED_CACHE`. */
@@ -432,7 +434,7 @@ class SoundDirector {
         // Suspending the context freezes every buffer source where it is, so a fight picked up
         // after a minute away resumes where it was left — the beds need no pause of their own.
         if (document.hidden) void this.ctx.suspend();
-        else if (this.enabled) void this.ctx.resume();
+        else if (this.enabled && !this.hushed) void this.ctx.resume();
       });
     }
     /**
@@ -449,7 +451,9 @@ class SoundDirector {
      * where a fresh context is `running` on the first line. The check below now runs again on the
      * other side of the promise.
      */
-    if (this.ctx.state === 'suspended') {
+    // Not while hushed: every press inside the trailer's own controls comes through the capture
+    // listener above, and each would otherwise wake the menu bed under the film's soundtrack.
+    if (this.ctx.state === 'suspended' && !this.hushed) {
       void this.ctx.resume().then(() => this.startPendingAmbient());
     }
     return true;
@@ -996,8 +1000,20 @@ class SoundDirector {
     if (!value) { this.stopBattleMusic(); this.stopAmbient(); }
     else if (this.pendingAmbient !== 'none') this.ambientMusic(this.pendingAmbient);
     if (!this.ctx) return;
-    if (value) void this.ctx.resume();
+    if (value && !this.hushed) void this.ctx.resume();
     else void this.ctx.suspend();
+  }
+
+  /**
+   * Holds every sound the game makes while a film plays over it, and lets it go after. Suspending
+   * the context freezes each bed where it stands, so the menu's music picks up mid-phrase rather
+   * than starting over when the trailer closes.
+   */
+  setHushed(value: boolean): void {
+    this.hushed = value;
+    if (!this.ctx) return;
+    if (value) void this.ctx.suspend();
+    else if (this.enabled && !document.hidden) void this.ctx.resume().then(() => this.startPendingAmbient());
   }
 
   isEnabled(): boolean {

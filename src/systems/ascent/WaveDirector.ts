@@ -59,6 +59,8 @@ import {
 } from '../../game/ascentConfig';
 import { weightedPick } from '../../utils/math';
 import { difficultyArmyScale, launchOffMapInvasion } from '../empire/InvasionSystem';
+import { committedAggressor } from './wavePlanView';
+import { assignHeroDuty } from '../heroes/HeroService';
 import { applyResourceDelta, canSpend } from '../ResourceSystem';
 import { armyPower, queueRecruitment } from '../WarSystem';
 import { pushToast } from '../empire/notifications';
@@ -646,10 +648,7 @@ function expectedDialBudget(state: GameState): number {
  * Undefined on stable, before the first draw, and once it can no longer come.
  */
 function forecastAggressor(state: GameState): Kingdom | undefined {
-  const id = state.ascent?.nextAggressorId;
-  if (!id || !rulesOf(state).threatProjection || rulesOf(state).aggressorForecast <= 0) return undefined;
-  return state.kingdoms.find((kingdom) => kingdom.id === id
-    && kingdom.id !== PLAYER_KINGDOM_ID && !kingdom.isDefeated && !isVassal(kingdom));
+  return committedAggressor(state);
 }
 
 /** Picks the aggressor: the angriest and strongest surviving empire, with some spread. */
@@ -806,6 +805,7 @@ function emergencyLevySize(state: GameState): number {
 function releaseHero(state: GameState, heroId: string): void {
   const hero = state.heroes.find((candidate) => candidate.id === heroId);
   if (!hero?.assignedTo) return;
+  if (hero.growth) { assignHeroDuty(state, hero.id, { kind: 'home' }); return; }
 
   if (hero.assignedTo.startsWith('court:')) {
     const seat = hero.assignedTo.slice('court:'.length) as CourtPositionId;

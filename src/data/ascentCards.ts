@@ -1,5 +1,6 @@
 import { PLAYER_KINGDOM_ID } from '../game/constants';
 import type { PowerCardDef } from '../state/types';
+import { HERO_POWER_CARDS } from './heroPolicies';
 
 /**
  * The Dragon Ascent Power Draft pool.
@@ -785,7 +786,7 @@ export const POWER_CARDS: PowerCardDef[] = [
 const BY_ID = new Map(POWER_CARDS.map((card) => [card.id, card]));
 
 export function findPowerCard(id: string): PowerCardDef | undefined {
-  return BY_ID.get(id);
+  return BY_ID.get(id) ?? HERO_POWER_CARDS.find(card => card.id === id);
 }
 
 /** Cards eligible to be rolled in a draft (evolution results are granted, not offered). */

@@ -1,5 +1,6 @@
 import { BOSS_EVERY_N_WAVES, MUSTER_TICKS, WAVE_INTERVAL_TICKS } from '../../game/ascentConfig';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
+import { initializeRecruitedHero } from '../heroes/HeroService';
 import { applyResourceDelta, canSpend } from '../ResourceSystem';
 import { scaledCost } from '../ascent/priceScale';
 import { pushToast } from '../empire/notifications';
@@ -246,8 +247,8 @@ function makeCtx(state: GameState, story: ActiveStory, world: StoryWorldDelta): 
     world,
     quietFor: state.turn - story.lastSpokeTurn,
     age: state.turn - story.seededTurn,
-    hero: () => state.heroes.find((candidate) => candidate.id === story.cast.heroId),
-    otherHero: () => state.heroes.find((candidate) => candidate.id === story.cast.otherHeroId),
+    hero: () => state.heroes.find((candidate) => candidate.id === story.cast.heroId && (!candidate.life || candidate.life.kind === 'active')),
+    otherHero: () => state.heroes.find((candidate) => candidate.id === story.cast.otherHeroId && (!candidate.life || candidate.life.kind === 'active')),
     land: () => state.lands.find((candidate) => candidate.id === story.cast.landId),
     rival: () => state.kingdoms.find((candidate) => candidate.id === story.cast.kingdomId),
     recall: (key) => story.memory[key] ?? 0,
@@ -955,6 +956,7 @@ export function resolveStoryBeat(state: GameState, storyId: string, fragmentId: 
   // than the authored figure: the deposit was scaled, and the literal no longer matches it.
   ctx.paid = paid;
   option.apply(ctx);
+  for (const hero of state.heroes) initializeRecruitedHero(state, hero);
   // The trunk moves *after* the effect, so an `apply` that reads the current node still sees the
   // one the player was answering from.
   if (option.to && template) {
@@ -1132,6 +1134,7 @@ export function takeOpening(state: GameState, storyId: string, fragmentId: strin
     // than the authored figure: the deposit was scaled, and the literal no longer matches it.
     ctx.paid = paid;
     option.apply(ctx);
+    for (const hero of state.heroes) initializeRecruitedHero(state, hero);
     // A repeatable offering — Thánh Gióng's granary, say — names its own node in `to`, so taking
     // it leaves the story exactly where it was and the door can be opened again.
     if (option.to && template) {

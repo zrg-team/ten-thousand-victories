@@ -1,3 +1,5 @@
+import { effectiveHeroStats, heroActive, heroCapability } from '../heroes/heroModel';
+import { postResident } from '../heroes/HeroService';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import {
   ALLY_AID_MIN_RELATIONS, BUYOFF_MIN_RELATIONS,
@@ -69,8 +71,8 @@ function envoyUrgency(state: GameState, kingdom: Kingdom): number {
 /** An unposted hero to send as ambassador — diplomacy is what the posting actually uses. */
 function bestAmbassador(state: GameState): Hero | undefined {
   return state.heroes
-    .filter((hero) => !hero.assignedTo)
-    .sort((a, b) => b.stats.diplomacy - a.stats.diplomacy)[0];
+    .filter((hero) => !hero.assignedTo && heroActive(hero) && (!state.ascent?.heroDepth || hero.id !== 'king'))
+    .sort((a, b) => effectiveHeroStats(b).diplomacy - effectiveHeroStats(a).diplomacy)[0];
 }
 
 /**
@@ -215,6 +217,7 @@ export function offerEnvoyTo(state: GameState, kingdomId: string | undefined, re
  * `tickGreatPowersYear` already reads to warm relations and cool war appetite each year.
  */
 export function resolveEnvoy(state: GameState, kingdomId: string, optionId: string): boolean {
+  if (heroCapability(state, 'residency') && optionId.startsWith('ambassador:')) return postResident(state, optionId.slice(11), kingdomId).ok;
   const ascent = state.ascent;
   const kingdom = state.kingdoms.find((candidate) => candidate.id === kingdomId);
   if (!kingdom) return false;
@@ -283,6 +286,7 @@ export function resolveEnvoy(state: GameState, kingdomId: string, optionId: stri
       ok = true;
       break;
     case 'ambassador': {
+      if (heroCapability(state, 'residency')) break; // Enabled runs choose the envoy explicitly.
       const hero = bestAmbassador(state);
       if (hero && !kingdom.ambassadorHeroId) {
         kingdom.ambassadorHeroId = hero.id;

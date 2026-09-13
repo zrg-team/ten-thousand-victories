@@ -1,3 +1,5 @@
+import { effectiveHeroStats } from './heroes/heroModel';
+import { beginHeroClaim, finishHeroClaim } from './heroes/HeroService';
 import { NEUTRAL_OWNER_ID, PLAYER_KINGDOM_ID } from '../game/constants';
 import { getAcquisitionOrder, findLand, isLandVisibleToPlayer, refreshPlayerVisibility } from './LandSystem';
 import { applyResourceDelta, canSpend, landPopulationCapacity, refreshAllLandOutputs } from './ResourceSystem';
@@ -312,7 +314,7 @@ export function getGoldBribeCost(state: GameState, land: Land): number {
  */
 export function estimateDiplomacySeasons(state: GameState, land: Land, hero: Hero): number | undefined {
   const need = Math.ceil(getDiplomacyThreshold(land));
-  const gain = (1 + hero.stats.administration * 0.03) * getCourtBonuses(state).acquisitionSpeedMult;
+  const gain = (1 + effectiveHeroStats(hero).administration * 0.03) * getCourtBonuses(state).acquisitionSpeedMult;
   let trust = getLandTrust(land, PLAYER_KINGDOM_ID);
   let seasons = 0;
   while (trust < need && seasons < 400) {
@@ -372,8 +374,9 @@ export function getAssignedDiplomaticHero(state: GameState, order: AcquisitionOr
 }
 
 function releaseDiplomaticHero(state: GameState, order: AcquisitionOrder, addFatigue: boolean): void {
-  const hero = getAssignedDiplomaticHero(state, order);
+  const hero = getAssignedDiplomaticHero(state, order) ?? state.heroes.find(person => person.growth && person.id === order.heroId);
   if (!hero) return;
+  if (hero.growth) { finishHeroClaim(state, hero, order.landId, addFatigue); return; }
   hero.assignedTo = undefined;
   if (addFatigue) {
     hero.fatigue = Math.min(100, hero.fatigue + 20);
@@ -531,8 +534,9 @@ export function startDiplomaticClaim(state: GameState, landId: string, heroId?: 
     return false;
   }
 
+  if (hero.growth && !beginHeroClaim(state, hero, landId)) return false;
   applyResourceDelta(state, { supplies: -suppliesCost });
-  hero.assignedTo = getDiplomacyAssignment(landId);
+  if (!hero.growth) hero.assignedTo = getDiplomacyAssignment(landId);
 
   const threshold = getDiplomacyThreshold(land);
   const currentTrust = getLandTrust(land, PLAYER_KINGDOM_ID);
@@ -714,12 +718,13 @@ export function progressAcquisitions(state: GameState): boolean {
           break;
         }
         if (!hero || hero.assignedTo !== getDiplomacyAssignment(order.landId)) {
+          if (hero?.life?.kind === 'transit' && hero.life.intendedPost.kind === 'claim' && hero.life.intendedPost.landId === order.landId) break;
           state.message = t('msg.diplomacyCancelledNoHero', { land: land.name });
           toCancel.push(order.landId);
           break;
         }
         const bonuses = getCourtBonuses(state);
-        const gain = (1 + hero.stats.administration * 0.03) * bonuses.acquisitionSpeedMult;
+        const gain = (1 + effectiveHeroStats(hero).administration * 0.03) * bonuses.acquisitionSpeedMult;
         land.trust[PLAYER_KINGDOM_ID] = Math.min(100, getLandTrust(land, PLAYER_KINGDOM_ID) + gain);
         // Mirror trust into the order so the progress badge advances visibly.
         order.progress = Math.floor(land.trust[PLAYER_KINGDOM_ID]);

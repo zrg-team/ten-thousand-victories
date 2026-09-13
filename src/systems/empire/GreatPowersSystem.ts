@@ -4,6 +4,7 @@ import { addOpinionModifier, applyEnvy, naturalBaseline, recomputeOpinion } from
 import { pushToast } from './notifications';
 import { reconcileRivalDecrees, tickRivalDecrees } from '../decree/RivalDecreeSystem';
 import { t } from '../../i18n';
+import { releaseKingdomPrisoners } from '../heroes/HeroService';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Model
@@ -103,6 +104,7 @@ function pickEmpireName(state: GameState, kingdom: Kingdom): string {
 
 /** A fallen empire is reborn as a new realm in the same slot — a "new empire rises". */
 function rebirthEmpire(state: GameState, kingdom: Kingdom): void {
+  if (state.ascent?.heroDepth) releaseKingdomPrisoners(state, kingdom.id);
   const oldName = kingdom.name;
   // Free any ambassador we had posted there.
   if (kingdom.ambassadorHeroId) {

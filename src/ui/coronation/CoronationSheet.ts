@@ -269,21 +269,34 @@ export class CoronationSheet {
   }
 
   /** Draws the current step into `body`, and returns the height it used. */
-  draw(body: Phaser.GameObjects.Container, width: number): number {
+  //
+  // `preview: false` leaves the king's portrait and caption out of the King step, for a host that
+  // stands them beside the controls instead (`drawPreview`) — the desktop Temple, where the king
+  // stays in view while the long column of steppers scrolls past him.
+  draw(body: Phaser.GameObjects.Container, width: number, opts: { preview?: boolean } = {}): number {
     if (this.wardrobeOpen) return this.drawRoyalWardrobe(body, width);
     if (this.grid) return this.drawGrid(body, width, this.grid);
     switch (this.current()) {
       case 'name': return this.drawName(body, width);
       case 'banner': return this.drawBanner(body, width);
       case 'crown': return this.drawCrown(body, width);
-      default: return this.drawKing(body, width);
+      default: return this.drawKing(body, width, opts.preview ?? true);
     }
   }
 
-  private drawKing(body: Phaser.GameObjects.Container, width: number): number {
+  /** Whether this step has a king to show beside its controls: the King step, nothing open over it. */
+  hasPreview(): boolean {
+    return !this.wardrobeOpen && !this.grid && this.current() === 'king';
+  }
+
+  /** The king, and the line naming what he wears, with the portrait `height` tall. Returns the height used. */
+  drawPreview(body: Phaser.GameObjects.Container, width: number, height: number, maxScale = 1): number {
+    return this.drawCaption(body, width, this.drawPortrait(body, width, 0, height, maxScale));
+  }
+
+  private drawKing(body: Phaser.GameObjects.Container, width: number, preview = true): number {
     const scene = this.host.scene;
-    let y = this.drawPortrait(body, width, 0, 132);
-    y = this.drawCaption(body, width, y);
+    let y = preview ? this.drawPreview(body, width, 132) : 0;
 
     y = this.chipRow(body, width, y, t('coronation.field.sex'), [
       { label: t('coronation.sex.woman'), on: this.choice.sex === 'woman', tap: () => this.setSex('woman') },
@@ -696,7 +709,9 @@ export class CoronationSheet {
     const rank = this.rank();
     const total = this.poolSize(field);
     const here = this.at(field);
-    const columns = 3;
+    // Three across on the phone; more where a wider host gives the room, so a cell stays near the
+    // phone's size instead of stretching around a portrait capped at 96.
+    const columns = Math.max(3, Math.floor(width / 130));
     const gap = 6;
     const cell = Math.floor((width - gap * (columns - 1)) / columns);
     const portrait = Math.min(cell - 8, 96);
@@ -760,7 +775,7 @@ export class CoronationSheet {
     body.add(this.host.ui.label(0, 26, this.wardrobeMessage || (vi
       ? 'Mua một lần, dùng qua mọi triều đại. Chỉ thay đổi diện mạo.'
       : 'Buy once, keep across reigns. Appearance only.'), 'caption', { fontSize: '10px', wordWrap: { width } }));
-    const cols = width < 240 ? 2 : 3, gap = 7, cell = (width - gap * (cols - 1)) / cols;
+    const cols = width < 240 ? 2 : Math.max(3, Math.floor(width / 150)), gap = 7, cell = (width - gap * (cols - 1)) / cols;
     const height = 180, start = 62;
     items.forEach((item, index) => {
       const x = index % cols * (cell + gap), y = start + Math.floor(index / cols) * (height + gap);
@@ -801,13 +816,13 @@ export class CoronationSheet {
     return start + Math.ceil(items.length / cols) * (height + gap) + 10;
   }
 
-  private drawPortrait(body: Phaser.GameObjects.Container, width: number, y: number, height: number): number {
+  private drawPortrait(body: Phaser.GameObjects.Container, width: number, y: number, height: number, maxScale = 1): number {
     const box = { x: (width - height * 0.82) / 2, y: y + 4, width: height * 0.82, height };
     body.add(this.host.ui.panel(box, { border: INK_UI.gold, fillAlpha: 0.42 }));
     // Composed fresh every draw rather than through the baked cache: the cache is keyed on a
     // hero's identity, and every tap here produces a different king under the same identity.
     // One build per tap is a tap's worth of work, not a frame's.
-    body.add(renderLookInBox(this.host.scene, this.look(), box, 1));
+    body.add(renderLookInBox(this.host.scene, this.look(), box, maxScale));
     return y + height + 10;
   }
 

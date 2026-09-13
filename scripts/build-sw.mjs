@@ -57,6 +57,10 @@ const BASE = (() => {
  */
 const skip = (rel) =>
   rel === 'sw.js' || rel.startsWith('share/') || rel.split('/').some((part) => part.startsWith('.'))
+  // The trailers: seventy megabytes of film, streamed when a player presses Play and never before.
+  // Precached — even as optional art — every install would download all four cuts, in both
+  // languages and both layouts, to watch at most one of them.
+  || rel.startsWith('trailers/')
   // Portrait source PNGs are editable assets; runtime and offline play only need the atlas.
   || /^faces-dongho-v\d+\/(parts\/|provenance\.json$)/.test(rel)
   // Royal wardrobe loads one combined atlas; individual cutouts and the earlier war pack are build inputs.

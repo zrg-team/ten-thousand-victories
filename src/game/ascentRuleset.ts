@@ -43,6 +43,16 @@ export interface GoalRule {
 
 export interface AscentRuleset {
   readonly id: AscentRulesetId;
+  readonly heroGrowth: boolean;
+  readonly heroSpecializations: boolean;
+  readonly heroTravel: boolean;
+  readonly heroRecovery: boolean;
+  readonly heroResidency: boolean;
+  readonly heroCards: boolean;
+  readonly heroLethal: boolean;
+  readonly heroRulesVersion: 1 | 2;
+  /** Frozen into new hero runs; zero is used only by the training-ablation harness. */
+  readonly heroTrainingPerLevel: 0 | 2;
   /** B12 — one goal, then Endless. */
   readonly goal: GoalRule | null;
   /** B05 — a house carrying nothing in force and nothing waiting skips the run-start summary. */
@@ -96,6 +106,13 @@ export interface AscentRuleset {
    * the whole realm. 0 is the shipped sizing, byte for byte.
    */
   readonly strikeSizing: number;
+  /**
+   * The paid talent search (`ChampionSearch.talentSearchPrice`) is priced by how far the court's
+   * Favour meter still has to go — dearer than the whole treasury right after a free champion,
+   * cheapest just before the next one — and climbs with every search already bought this reign.
+   * Off is the shipped price: a base or a flat share of the treasury, whichever is greater.
+   */
+  readonly talentPriceByFavor: boolean;
 }
 // strikeSizing, measured and NOT adopted for the beta (verify-skill-ceiling, 16 dev seeds, goal at
 // capital + 2, 2026-09-13; beta baseline: raw spread 1.31×, paired 78%, agency 1.60×):
@@ -110,6 +127,15 @@ export const ASCENT_RULESET_IDS: readonly AscentRulesetId[] = ['stable', 'beta']
 
 const STABLE: AscentRuleset = {
   id: 'stable',
+  heroGrowth: false,
+  heroRulesVersion: 1,
+  heroTrainingPerLevel: 2,
+  heroSpecializations: false,
+  heroTravel: false,
+  heroRecovery: false,
+  heroResidency: false,
+  heroCards: false,
+  heroLethal: false,
   goal: null,
   inheritanceGate: false,
   carriedSummary: false,
@@ -120,12 +146,23 @@ const STABLE: AscentRuleset = {
   threatRefresh: false,
   scopeLabels: false,
   strikeSizing: 0,
+  talentPriceByFavor: false,
 };
 
 /** Stable, plus the experiments. Spread so a field the beta does not override reads as stable. */
 const BETA: AscentRuleset = {
   ...STABLE,
   id: 'beta',
+  talentPriceByFavor: true,
+  heroGrowth: true,
+  heroRulesVersion: 2,
+  heroSpecializations: true,
+  heroTravel: true,
+  heroRecovery: true,
+  heroResidency: true,
+  heroCards: true,
+  // Warning comprehension and physical-device/player cohorts remain release gates.
+  heroLethal: false,
   // Wave 12 is ~9.5 simulated minutes. Two provinces besides the capital, not three — measured with
   // the honest skill-ceiling plans on 32 unseen seeds (1009 + 37i), 2026-09-13: at three, the wide
   // plans kept it in 7/32 and 6/32 reigns; at two, 13/32 and 9/32, declining 0/32 either way, and

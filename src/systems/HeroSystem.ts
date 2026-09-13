@@ -4,6 +4,7 @@ import { SUMMON_WEIGHTS } from '../game/ascentConfig';
 import { chooseByIndex, weightedPickIndex } from '../utils/math';
 import type { GameState, Hero, HeroType } from '../state/types';
 import { heroName, t } from '../i18n';
+import { initializeRecruitedHero, commitHeroAssignment } from './heroes/HeroService';
 
 /** Low rarity first, so "walk down the ladder" is an index walk toward zero. */
 const RARITY_LADDER: ReadonlyArray<Hero['rarity']> = ['Common', 'Rare', 'Epic', 'Legendary'];
@@ -82,6 +83,7 @@ export function recruitHero(state: GameState, heroId: string): boolean {
   }
 
   state.heroes.push(hero);
+  initializeRecruitedHero(state, hero);
   state.heroDeck = state.heroDeck.filter((candidate) => candidate.id !== hero.id);
   state.activeHeroDraft = undefined;
   state.message = t('msg.heroJoins', { hero: heroName(hero) });
@@ -91,6 +93,7 @@ export function recruitHero(state: GameState, heroId: string): boolean {
     if (army && !army.generalHeroId) {
       army.generalHeroId = hero.id;
       hero.assignedTo = army.id;
+      if (hero.growth) commitHeroAssignment(state, hero, { kind: 'host', armyId: army.id });
     }
   }
 

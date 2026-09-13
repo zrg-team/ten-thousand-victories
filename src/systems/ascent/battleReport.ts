@@ -25,6 +25,7 @@
  */
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { liveBattles } from './fronts';
+import { recordHeroBattle } from '../heroes/HeroService';
 import { provinceIsFalling } from '../LandSystem';
 import type { AscentBattleRecord, GameState } from '../../state/types';
 
@@ -40,6 +41,7 @@ const HISTORY_KEPT = 24;
 export function recordEngagement(state: GameState, record: AscentBattleRecord): void {
   const ascent = state.ascent;
   if (!ascent) return;
+  recordHeroBattle(state, record);
   const history = (ascent.battleHistory ??= []);
   history.push(record);
   tallyBlood(state, record);

@@ -5,6 +5,10 @@ import {
   XP_SKIP_REFUND_SHARE,
 } from '../../game/ascentConfig';
 import { findPowerCard, ROLLABLE_POWER_CARDS } from '../../data/ascentCards';
+import { HERO_POWER_CARDS } from '../../data/heroPolicies';
+import { heroCapability } from '../heroes/heroModel';
+import { heroMeasurements, measureHeroDraft } from '../heroes/heroMeasurements';
+import type { HeroPolicyId } from '../heroes/types';
 import { weightedPickIndex } from '../../utils/math';
 import { applyCourtEffect } from '../PoliticsSystem';
 import { applyResourceDelta, canSpend } from '../ResourceSystem';
@@ -67,7 +71,7 @@ export function isEvolutionReady(ascent: AscentState, card: PowerCardDef): boole
 
 /** Cards that could still be offered: not maxed, not retired by an evolution, requirements met. */
 function eligibleCards(state: GameState, ascent: AscentState): PowerCardDef[] {
-  return ROLLABLE_POWER_CARDS.filter((card) => {
+  return (heroCapability(state, 'cards') ? [...ROLLABLE_POWER_CARDS, ...HERO_POWER_CARDS] : ROLLABLE_POWER_CARDS).filter((card) => {
     if (ascent.retiredCards.includes(card.id)) return false;
     if (isMaxed(ascent, card)) return false;
     if (card.requires && !card.requires(state)) return false;
@@ -147,7 +151,9 @@ export function rollPowerDraftCards(state: GameState): string[] {
   if (hasTrait('wide-draft')) noteTraitUse('wide-draft');
   if (hasTrait('wide-draft-2')) noteTraitUse('wide-draft-2');
   while (picks.length < wanted && picks.length < pool.length) {
-    const candidates = pool.filter((card) => !picks.includes(card.id));
+    const candidates = pool.filter((card) => !picks.includes(card.id) && (!card.id.startsWith('hero-')
+      || (!picks.some(id => id.startsWith('hero-')) && pool.filter(item => !item.id.startsWith('hero-')).length >= 2
+        && wanted - picks.length > Math.max(0, 2 - picks.filter(id => !id.startsWith('hero-')).length))));
     const index = weightedPickIndex(
       candidates.map((card) => {
         const rarityWeight = ascent.draftWeights[card.rarity] ?? 1;
@@ -220,6 +226,7 @@ export function offerPowerDraft(state: GameState): void {
     rerollCost: ascent.rerollCost,
     level: ascent.level,
   });
+  measureHeroDraft(state, cards);
 }
 
 /** Re-rolls the open draft for gold. The price doubles each time within the same draft. */
@@ -244,6 +251,7 @@ export function rerollPowerDraft(state: GameState): boolean {
   const cards = rollPowerDraftCards(state);
   if (cards.length > 0) {
     prompt.cards = cards;
+    measureHeroDraft(state, cards);
   }
   prompt.rerollCost = ascent.rerollCost;
   return true;
@@ -296,12 +304,16 @@ export function takePowerCard(state: GameState, cardId: string): boolean {
   const ascent = state.ascent;
   const card = findPowerCard(cardId);
   if (!ascent || !card) return false;
+  if (cardId.startsWith('hero-') && (!card.requires?.(state) || !heroCapability(state, 'cards'))) return false;
 
   const stack = cardStack(ascent, cardId);
   if (stack >= card.maxStacks) return false;
 
   applyPowerCardEffect(state, card, stack);
   ascent.cardStacks[cardId] = stack + 1;
+  const measurements = heroMeasurements(state);
+  if (measurements) measurements.choices[cardId] = (measurements.choices[cardId] ?? 0) + 1;
+  if (cardId.startsWith('hero-')) ascent.heroDepth!.policies.push(cardId as HeroPolicyId);
   if (card.rarity === 'jade' && grantDeed('first-jade')) noteRubbing(state);
   ascent.pendingLevelUps = Math.max(0, ascent.pendingLevelUps - 1);
   ascent.rerollCost = rerollPriceFor(ascent.level, realmPriceScale(state));

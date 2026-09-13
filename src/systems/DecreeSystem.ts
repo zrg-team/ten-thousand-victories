@@ -1,4 +1,5 @@
 import { getProject, REALM_PROJECTS } from '../data/edicts';
+import { assignHeroDuty } from './heroes/HeroService';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
 import { ESTATE_IDS, type EstateId, type GameState, type Land } from '../state/types';
 import { eraIndex } from './empire/MandateSystem';
@@ -348,9 +349,12 @@ function tickEstateCrises(state: GameState): void {
   if (estateStanding(state, 'vo') < ESTATE_CRISIS) {
     const commander = state.heroes.find((hero) => hero.type === 'general' && hero.assignedTo);
     if (commander && Math.random() < 0.25) {
-      const army = state.armies.find((host) => host.generalHeroId === commander.id);
-      if (army) army.generalHeroId = undefined;
-      commander.assignedTo = undefined;
+      if (commander.growth) assignHeroDuty(state, commander.id, { kind: 'home' });
+      else {
+        const army = state.armies.find((host) => host.generalHeroId === commander.id);
+        if (army) army.generalHeroId = undefined;
+        commander.assignedTo = undefined;
+      }
       pushToast(state, t('decree.estate.angry', {
         estate: t('decree.estate.vo'),
         effect: t('decree.estate.vo.angry'),

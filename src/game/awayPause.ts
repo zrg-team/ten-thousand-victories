@@ -64,6 +64,8 @@ export function installAwayPause(state: GameState, onChange?: () => void): AwayP
 
   const leave = (): void => {
     state.isAwayPause = true;
+    // A risky Beta reign resumes only after the player's deliberate Continue, never on focus.
+    if (state.ascent?.heroDepth?.rules.capabilities.recovery) state.isStrategyPause = true;
     store();
   };
 

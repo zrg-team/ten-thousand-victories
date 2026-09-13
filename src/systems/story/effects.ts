@@ -1,4 +1,5 @@
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
+import { initializeRecruitedHero, recoverStoryHero, captureStoryHero, memorializeHero, assignHeroDuty } from '../heroes/HeroService';
 import { addCourtModifier } from '../CourtSystem';
 import { addOpinionModifier } from '../DiplomacySystem';
 import { t } from '../../i18n';
@@ -55,6 +56,7 @@ function scaleUnits(army: Army, factor: number): void {
 
 /** Detaches a hero from every office, seat and command. Used before removing or moving them. */
 function unseat(ctx: StoryCtx, hero: Hero): void {
+  if (hero.growth) { assignHeroDuty(ctx.state, hero.id, { kind: 'home' }); return; }
   const { state } = ctx;
   hero.assignedTo = undefined;
   for (const seat of Object.keys(state.court.seats)) {
@@ -136,6 +138,7 @@ export function defectHost(ctx: StoryCtx, toKingdomId?: string): Army | undefine
   army.kingdomId = rival;
   army.morale = Math.min(100, army.morale + 12);
   if (general) {
+    if (general.growth) memorializeHero(ctx.state, general, 'dismissed');
     unseat(ctx, general);
     ctx.state.heroes = ctx.state.heroes.filter((hero) => hero.id !== general.id);
     army.name = general.name;
@@ -251,6 +254,7 @@ export function secede(ctx: StoryCtx, count: number, leader?: Hero): Land[] {
     land.loyalty = 55;
   }
   if (leader) {
+    if (leader.growth) memorializeHero(ctx.state, leader, 'dismissed');
     unseat(ctx, leader);
     ctx.state.heroes = ctx.state.heroes.filter((hero) => hero.id !== leader.id);
   }
@@ -321,6 +325,7 @@ export function grantStoryHero(
   hero.stats.renown = opts.renown ?? hero.stats.renown;
   hero.traits = [...(hero.traits ?? []), opts.trait];
   ctx.state.heroes.push(hero);
+  initializeRecruitedHero(ctx.state, hero);
   ctx.note('hero', 1, hero.name);
   return hero;
 }
@@ -329,6 +334,8 @@ export function grantStoryHero(
 export function killHero(ctx: StoryCtx, hero?: Hero): Hero | undefined {
   const target = hero ?? ctx.hero();
   if (!target) return undefined;
+  if (recoverStoryHero(ctx.state, target)) return target;
+  if (target.growth) memorializeHero(ctx.state, target, 'dead');
   unseat(ctx, target);
   ctx.state.heroes = ctx.state.heroes.filter((candidate) => candidate.id !== target.id);
   ctx.note('heroLost', 1, target.name);
@@ -339,6 +346,7 @@ export function killHero(ctx: StoryCtx, hero?: Hero): Hero | undefined {
 export function heroLeaves(ctx: StoryCtx, hero?: Hero, leaveEcho = true): Hero | undefined {
   const target = hero ?? ctx.hero();
   if (!target) return undefined;
+  if (target.growth) { memorializeHero(ctx.state, target, 'dismissed'); delete target.growth; delete target.life; }
   unseat(ctx, target);
   ctx.state.heroes = ctx.state.heroes.filter((candidate) => candidate.id !== target.id);
   ctx.state.heroDeck.push(target);
@@ -377,7 +385,10 @@ export function feudHeroes(ctx: StoryCtx, a?: Hero, b?: Hero): boolean {
   first.stats.loyalty = Math.max(0, first.stats.loyalty - 12);
   second.stats.loyalty = Math.max(0, second.stats.loyalty - 12);
   // One of them will not take an order from the other's province.
-  if (second.assignedTo && second.assignedTo === first.assignedTo) second.assignedTo = undefined;
+  if (second.assignedTo && second.assignedTo === first.assignedTo) {
+    if (second.growth) assignHeroDuty(ctx.state, second.id, { kind: 'home' });
+    else second.assignedTo = undefined;
+  }
   ctx.note('feud', undefined, `${first.name} · ${second.name}`);
   return true;
 }
@@ -386,6 +397,7 @@ export function feudHeroes(ctx: StoryCtx, a?: Hero, b?: Hero): boolean {
 export function captureHero(ctx: StoryCtx, hero?: Hero): Hero | undefined {
   const target = hero ?? ctx.hero();
   if (!target) return undefined;
+  if (captureStoryHero(ctx.state, target)) return target;
   unseat(ctx, target);
   target.traits = [...(target.traits ?? []), 'Captive'];
   return target;
@@ -914,6 +926,7 @@ export function monument(ctx: StoryCtx, opts: { defense: number; stability: numb
 export function exileHero(ctx: StoryCtx, hero?: Hero, stability = 12): Hero | undefined {
   const target = hero ?? ctx.hero();
   if (!target) return undefined;
+  if (target.growth) memorializeHero(ctx.state, target, 'dismissed');
   unseat(ctx, target);
   ctx.state.heroes = ctx.state.heroes.filter((candidate) => candidate.id !== target.id);
   ctx.state.court.stability = Math.min(100, ctx.state.court.stability + stability);

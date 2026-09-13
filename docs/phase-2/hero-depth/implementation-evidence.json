@@ -1,0 +1,2377 @@
+{
+  "schema": 2,
+  "date": "2026-09-14",
+  "heroNumericalVersion": 2,
+  "status": "User-requested removal of comparison and HTML overlays implemented; game-native UI verified; accessibility and release gates remain open",
+  "completionAudit": {
+    "date": "2026-09-14",
+    "complete": false,
+    "method": "Source review and fresh v1/v2 gameplay, interface, statistical and seeded-agent checks; no physical devices or human cohort",
+    "source": "completion-audit.mjs",
+    "packages": [
+      {
+        "id": "H01",
+        "status": {
+          "en": "V2 implemented · full matrix open",
+          "vi": "Đã có V2 · còn ma trận đầy đủ"
+        },
+        "present": {
+          "en": "New Beta runs snapshot numerical v2. V1 saves retain their rules. Failed departure, XP, fate, ransom and memorial writes preserve both slots; command retry and recovery reload are checked.",
+          "vi": "Beta mới chụp luật số học V2. Lưu V1 giữ luật cũ. Lỗi ghi khi đi, thưởng KN, số phận, chuộc và ghi công giữ cả hai ô; đã kiểm lệnh lặp và tải phục hồi."
+        },
+        "remaining": {
+          "en": "The five transaction fixtures do not cover every story, recruitment and faction-removal entrypoint or an operating-system kill. Complete that matrix and physical restart checks.",
+          "vi": "Năm tình huống giao dịch chưa bao phủ mọi điểm truyện, tuyển và loại phe hay hệ điều hành tắt ứng dụng. Cần hoàn tất ma trận và thử khởi động lại thiết bị."
+        },
+        "file": "src/systems/heroes/HeroService.ts"
+      },
+      {
+        "id": "H02",
+        "status": {
+          "en": "V2 rules verified",
+          "vi": "Đã kiểm luật V2"
+        },
+        "present": {
+          "en": "Successful participating commanders now receive 2 deed XP on legal withdrawal. A real requested resupply column awards its 2 deed XP only on final delivery. Both retain the dispatch/encounter window and duplicate protection. Curve and 6+2 cap are unchanged.",
+          "vi": "Tướng tham chiến rút hợp lệ nhận 2 KN công trạng. Đoàn tiếp tế được yêu cầu thật chỉ nhận 2 KN công trạng khi giao xong. Cả hai giữ cửa sổ lúc gửi/giao tranh và chống trùng. Không đổi đường cong và trần 6+2."
+        },
+        "remaining": {
+          "en": "Progression pacing and late-recruit usefulness remain H04/H12 balance questions, rather than missing deed hooks. A requested column means an actual resupply order with a positive deficit.",
+          "vi": "Nhịp trưởng thành và giá trị tuyển muộn còn là vấn đề cân bằng H04/H12, không còn thiếu điểm nối công trạng. Yêu cầu tiếp tế là lệnh gửi thật có thiếu hụt dương."
+        },
+        "file": "src/systems/heroes/HeroService.ts"
+      },
+      {
+        "id": "H03",
+        "status": {
+          "en": "Game-native UI · access validation open",
+          "vi": "UI trong game · còn kiểm tiếp cận"
+        },
+        "present": {
+          "en": "September 14 user decision: remove the comparison modal and floating Aa/HTML panels. Hero roster, details, transfers, grouped aftermath and chronicle use the existing Phaser/InkUI screens. Portraits now use fixed card frames with a compact bottom-right level badge; XP labels and bars sit inside the information panel. Keep destination training and actual contribution previews.",
+          "vi": "Quyết định người dùng ngày 14/09: bỏ hộp so sánh và bảng Aa/HTML nổi. Danh sách, chi tiết, điều chuyển, tổng kết gộp và sử anh hùng dùng màn hình Phaser/InkUI hiện có. Chân dung nay có khung thẻ cố định và nhãn cấp gọn ở góc dưới phải; số KN và thanh tiến độ nằm trong bảng thông tin. Giữ nghề ở đích và dự báo đóng góp thật."
+        },
+        "remaining": {
+          "en": "Validate readability, keyboard and screen-reader support within the game interface, including enlarged text and physical devices. Old 200% DOM-panel checks are superseded. The comparison modal is removed by request, not a missing feature to rebuild.",
+          "vi": "Cần kiểm dễ đọc, bàn phím và trình đọc trong giao diện game, gồm chữ lớn và thiết bị thật. Kiểm bảng DOM 200% cũ đã hết hiệu lực. Hộp so sánh bị bỏ theo yêu cầu, không phải tính năng thiếu để xây lại."
+        },
+        "file": "src/scenes/conquest/screens/heroDepth.ts"
+      },
+      {
+        "id": "H04",
+        "status": {
+          "en": "Effects and output caps shown · pacing open",
+          "vi": "Có hiệu ứng và trần sản lượng · còn nhịp độ"
+        },
+        "present": {
+          "en": "Sixteen perks and one home respec remain. Governed food/supply modifiers now show raw and capped values from the production reader. Local measurements record offers, choices and level milestones.",
+          "vi": "Giữ 16 đặc tính và một lần học lại ở nhà. Hiệu chỉnh lương/thứ tiếp tế hiện số trước/sau trần từ bộ đọc sản lượng. Đo cục bộ ghi lựa chọn được mở, lựa chọn đã chọn và mốc cấp."
+        },
+        "remaining": {
+          "en": "Evaluate first/second-tier timing by peaceful role and late recruitment. Production-cap display does not yet form a complete per-category combat/diplomacy breakdown.",
+          "vi": "Đánh giá thời điểm bậc đầu/thứ hai theo vai hòa bình và tuyển muộn. Hiển thị trần sản lượng chưa là phân tích mọi nhóm chiến đấu/ngoại giao."
+        },
+        "file": "src/systems/heroes/heroContributions.ts"
+      },
+      {
+        "id": "H05",
+        "status": {
+          "en": "Route previews and tie ordering verified",
+          "vi": "Đã kiểm đường dự báo và thứ tự đồng thời"
+        },
+        "present": {
+          "en": "Protection shows the named refuge and route/ETA before commitment. Transfer confirmation includes destination training, actual output change and cost. A real Ascent settlement test proves occupation resolves before a same-season hero arrival.",
+          "vi": "Bảo vệ nêu nơi trú, đường và thời gian trước khi chốt. Xác nhận đi có nghề đích, thay đổi sản lượng thật và giá. Kiểm xử lý mùa Ascent thật chứng minh chiếm đóng xử lý trước anh hùng đến cùng mùa."
+        },
+        "remaining": {
+          "en": "Expand simultaneous-front and background/reload route cases on devices. The <=3-action evacuation path still needs unaided-player evidence.",
+          "vi": "Mở rộng ca nhiều mặt trận và đường đi khi xuống nền/tải lại trên thiết bị. Luồng sơ tán ≤3 thao tác vẫn cần bằng chứng người chơi tự làm."
+        },
+        "file": "src/scenes/conquest/screens/heroDepth.ts"
+      },
+      {
+        "id": "H06",
+        "status": {
+          "en": "V2 forecast protection implemented",
+          "vi": "Đã có bảo vệ theo dự báo V2"
+        },
+        "present": {
+          "en": "Default evacuation compares forecast loss with escape ETA + 1. It reads the shared invader forecast, occupation countdown or observed field attrition, without rolling enemies. Reinforcements, changed routes and worsening estimates revoke hold/consent and pause before settlement.",
+          "vi": "Sơ tán mặc định so thời điểm mất đất với thời gian thoát + 1. Đọc dự báo quân xâm lược chung, đếm chiếm đóng hoặc hao quân quan sát, không bốc kẻ địch. Viện quân, đổi đường và dự báo xấu hủy trụ/xác nhận, dừng trước xử lý mùa."
+        },
+        "remaining": {
+          "en": "Observed attrition is an estimate; insufficient observations produce an explicit unknown. Warning comprehension, simultaneous-front play and <=3-action evacuation remain human gates. No lethal activation.",
+          "vi": "Hao quân quan sát là ước tính; thiếu quan sát hiển thị chưa biết. Hiểu cảnh báo, chơi nhiều mặt trận và sơ tán ≤3 thao tác còn cần người thật. Không bật tử vong."
+        },
+        "file": "src/systems/heroes/HeroService.ts"
+      },
+      {
+        "id": "H07",
+        "status": {
+          "en": "Table sampled · lethal gate closed",
+          "vi": "Đã lấy mẫu bảng · vẫn khóa tử vong"
+        },
+        "present": {
+          "en": "10,000 seeded eligible draws for each of open, trapped/protected and test-only consented tiers use the production fate table, with 95% Wilson intervals. Resolver replay and failed-write recovery fixtures pass; no unconsented deaths in tested cases.",
+          "vi": "10.000 lần bốc đủ điều kiện có seed cho mỗi nhóm có đường, bị vây/bảo vệ và xác nhận chỉ để kiểm dùng bảng số phận thật, có khoảng Wilson 95%. Kiểm bộ xử lý lặp và phục hồi lỗi ghi đạt; không chết thiếu xác nhận trong ca đã thử."
+        },
+        "remaining": {
+          "en": "These are outcome-table draws, not 30,000 complete battles. Complete the remaining combined-loss/crash entrypoint matrix and human consent gates before any lethal activation.",
+          "vi": "Đây là mẫu bảng kết quả, không phải 30.000 trận đầy đủ. Cần đủ ma trận mất gộp/lỗi theo điểm vào và tiêu chí xác nhận người thật trước khi bật tử vong."
+        },
+        "file": "test_scripts/verify/verify-hero-v2.mjs"
+      },
+      {
+        "id": "H08",
+        "status": {
+          "en": "Scoped recovery verified · players pending",
+          "vi": "Đã kiểm phục hồi có phạm vi · chờ người chơi"
+        },
+        "present": {
+          "en": "UI ransom and concession commands now quote the recruited instance, exact captivity, turn, method and price. Same-price recapture or replacement rejects a stale confirmation; retry cannot pay twice. No-gold pacts retain resolved-wave expiry.",
+          "vi": "Lệnh UI chuộc/nhượng bộ báo cá thể tuyển, lần giam cụ thể, mùa, cách và giá. Bắt lại cùng giá hoặc thay người từ chối xác nhận cũ; lặp không trả hai lần. Hòa ước không vàng vẫn hết theo đợt đã kết thúc."
+        },
+        "remaining": {
+          "en": "Validate that players can discover and finish zero-gold recovery, and assess whether recovering a veteran is worth the cost.",
+          "vi": "Thử người chơi tìm và hoàn tất phục hồi không vàng, đánh giá cứu người kỳ cựu có đáng chi phí."
+        },
+        "file": "src/systems/heroes/HeroService.ts"
+      },
+      {
+        "id": "H09",
+        "status": {
+          "en": "Cancellation and identity guards verified",
+          "vi": "Đã kiểm hủy và định danh"
+        },
+        "present": {
+          "en": "Residency quotes/queued actions pin envoy identity and release-target captivity. Recall, host expulsion, lost charter, recaptured target and replaced envoy refund once without granting an effect. Action transitions are measured locally.",
+          "vi": "Báo giá/hành động thường trú khóa định danh sứ thần và lần giam đích cứu. Triệu hồi, trục xuất, mất thương ước, bắt lại và thay sứ hoàn một lần không tạo hiệu ứng. Chuyển trạng thái được đo cục bộ."
+        },
+        "remaining": {
+          "en": "Measure useful player choices among all three actions. Supply still supplements connected own-province production for three seasons; there is no new foreign economy.",
+          "vi": "Đo lựa chọn hữu ích của người chơi giữa cả ba hành động. Tiếp tế vẫn bổ sung sản xuất đất mình có kết nối trong ba mùa; không thêm kinh tế ngoại quốc."
+        },
+        "file": "src/systems/heroes/HeroService.ts"
+      },
+      {
+        "id": "H10",
+        "status": {
+          "en": "V2 commission guards verified",
+          "vi": "Đã kiểm ràng buộc ủy nhiệm V2"
+        },
+        "present": {
+          "en": "Frontier Commission requires an owned fortress and active governor, before the first combat beat/order. Leaving removes defense immediately but retains the production penalty through the next settlement. V1 keeps its original timing. Six policy effects and draft reservations remain.",
+          "vi": "Ủy nhiệm biên cương cần pháo đài của mình và quan đang làm, trước nhịp/lệnh chiến đấu đầu. Đi bỏ phòng thủ ngay nhưng giữ phạt sản lượng qua lần xử lý mùa kế. V1 giữ thời điểm cũ. Giữ sáu hiệu ứng và đặt chỗ lượt thẻ."
+        },
+        "remaining": {
+          "en": "Set B remains experimental opt-in content; its player-usage and residency/recovery validation gate is not closed by effect fixtures alone.",
+          "vi": "Bộ B vẫn là nội dung thử nghiệm chủ động bật; kiểm hiệu ứng chưa đủ đóng tiêu chí sử dụng bởi người chơi và thường trú/phục hồi."
+        },
+        "file": "src/systems/heroes/heroContributions.ts"
+      },
+      {
+        "id": "H11",
+        "status": {
+          "en": "Records and grouped aftermath implemented",
+          "vi": "Đã có bản ghi và tổng kết gộp"
+        },
+        "present": {
+          "en": "V2 memorials preserve former assignment, historical posting name and accepted-risk revision before cleanup. These fields display in the chronicle, including after departure. Duplicate memorial commands are inert. Roster opens one grouped aftermath; archive failure updates the existing reign-end message and controls, with retry, stay and explicit unsaved exit; no browser dialog.",
+          "vi": "Tưởng niệm V2 giữ vị trí trước đó, tên nơi làm việc lúc ấy và bản xác nhận rủi ro trước dọn. Sử hiển thị các trường này, cả sau khởi hành. Lệnh ghi công trùng không đổi gì. Danh sách mở một tổng kết gộp; lỗi lưu sử đổi thông báo và nút ngay trên màn kết thúc triều đại, có thử lại, ở lại và chủ động rời khi chưa lưu; không mở hộp trình duyệt."
+        },
+        "remaining": {
+          "en": "Complete persistent cross-reign crash coverage and physical restart checks. While all writes fail, unsaved history exists only in the current session.",
+          "vi": "Hoàn tất kiểm lỗi lưu qua triều đại và khởi động lại thiết bị. Khi mọi lần ghi đều lỗi, lịch sử chưa lưu chỉ còn trong phiên hiện tại."
+        },
+        "file": "src/systems/heroes/types.ts"
+      },
+      {
+        "id": "H12",
+        "status": {
+          "en": "Instrumentation implemented · release open",
+          "vi": "Đã có đo lường · còn phát hành"
+        },
+        "present": {
+          "en": "Bounded local transition events, deployment seasons by level, milestone timing, offer/choice counts and diagnostics are implemented. New hero-aware matched-seed and perk/card ablation harness verifies source hashes across each measurement.",
+          "vi": "Đã có sự kiện chuyển trạng thái cục bộ giới hạn, mùa làm việc theo cấp, thời điểm mốc, đếm mở/chọn và chẩn đoán. Bộ so seed có dùng anh hùng, tắt riêng đặc tính/thẻ kiểm hash mã qua từng phép đo."
+        },
+        "remaining": {
+          "en": "The v2 balance run is incomplete and later arms detected concurrent source changes; rerun on fixed source. Passing code checks is not proof of fun. The season denominator currently includes all living heroes, so availability-adjusted hoarding analysis remains open. Add a dedicated diplomacy-led strategy and late-recruit analysis. Actual screen readers, device performance, 6 mobile + 6 desktop players and >=10/12 unaided warning/evacuation remain gates. No Stable promotion.",
+          "vi": "Lượt cân bằng V2 chưa hoàn tất và các nhánh sau phát hiện mã đổi đồng thời; cần chạy lại trên mã cố định. Đạt kiểm mã không chứng minh vui. Mẫu số mùa hiện gồm mọi người còn sống, nên còn phân tích cất người có điều chỉnh theo khả năng làm việc. Cần chiến lược thiên ngoại giao và phân tích tuyển muộn. Trình đọc thật, hiệu năng thiết bị, 6 người điện thoại + 6 máy tính và ≥10/12 tự hiểu cảnh báo/sơ tán vẫn là tiêu chí. Không đưa lên Stable."
+        },
+        "file": "test_scripts/verify/verify-hero-balance-v2.mjs"
+      }
+    ]
+  },
+  "implementationStartRevision": "54f0b8da",
+  "approvedPlanBaseline": "e00a349e",
+  "designInspection": "8f8c6e75",
+  "workingTreeUncommitted": true,
+  "provenance": "Other host-rescue, recruitment and UI work was active in the same checkout. Balance is a development comparison on that working tree, not a frozen release candidate.",
+  "sourceSha256": {
+    "src/ui/HeroProgress.ts": "1cad5e570a7ef13c2e8a370c246d9d5ca87780cabcbd91c2315748f41bab26e4",
+    "src/scenes/conquest/lanes/frame.ts": "bb8f21b30b2c03172ba494bcb05adc170b3604f55e91872e04416e97bf6d5f5e",
+    "src/game/ascentRuleset.ts": "e06420104123637773f31d093bcc340e25225bb08c0db56d49086aa9d6c6a6b3",
+    "src/systems/heroes/HeroService.ts": "441dff48ba6f1055962aeecb138d4a547223ee1c7ae56208fb6a8ba824001747",
+    "src/systems/heroes/heroModel.ts": "c975b400e62804746357720e699064bb9a337f0b6b7d75777157f79393862162",
+    "src/systems/heroes/heroContributions.ts": "9e28b327c6a4a038f8edec549e574700d71e5c65d99ce167920cb09521443023",
+    "src/systems/heroes/heroSave.ts": "2d4274d6e5e76e66d0aac63f7e69349f04f974e656d612b5d3a79e6eb6182af6",
+    "src/scenes/conquest/screens/heroDepth.ts": "93c6c93af655ce021d3eff7776aae14b5d7d6435e2766cf00ca76badeddfa7e0",
+    "src/ui/HeroChronicleExit.ts": "22415986a33866136af5f997ae4721fd82c3bfede58fe8d42e83731104bf05b4",
+    "src/systems/ascent/BattleSystem.ts": "51ab900f355a693da7f49bf8150419e5b12c86da7696d72c57e463103466b6b7",
+    "src/systems/heroes/heroFate.ts": "0b6882f326cf3a47fee2f06a00d52740fdf3b9b9ef6f9b5d8bbe856e840986e8",
+    "src/systems/heroes/heroMeasurements.ts": "41d297817dd8921eefc9164698a6b567dad4dfc634ed0e1955397c51e91ee3f3",
+    "test_scripts/playtest/hero-strategy.mjs": "6a0b9405e1fd665e7c9062659b0e47c48791012af9c06b0c7c418ee57babaa88"
+  },
+  "enabledForNewBeta": [
+    "growth",
+    "specializations",
+    "travel",
+    "recovery",
+    "residency",
+    "cards"
+  ],
+  "lethalEnabled": false,
+  "automated": {
+    "document": {
+      "passed": 25,
+      "total": 25,
+      "errors": []
+    },
+    "hero": {
+      "passed": 159,
+      "total": 159,
+      "errors": [],
+      "command": "DEV_URL=http://127.0.0.1:5180 node test_scripts/verify/verify-hero-depth.mjs",
+      "checks": [
+        {
+          "name": "Stable has no hero fields",
+          "pass": true
+        },
+        {
+          "name": "Ongoing v1 Beta pins version and lethal stays off",
+          "pass": true
+        },
+        {
+          "name": "Old Beta save remains legacy",
+          "pass": true
+        },
+        {
+          "name": "Window 1: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 1: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Level 2 training",
+          "pass": true
+        },
+        {
+          "name": "Window 2: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 2: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Level 3 training",
+          "pass": true
+        },
+        {
+          "name": "Window 3: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 3: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Window 4: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 4: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Level 4 training",
+          "pass": true
+        },
+        {
+          "name": "Window 5: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 5: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Window 6: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 6: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Level 5 training",
+          "pass": true
+        },
+        {
+          "name": "Window 7: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 7: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Window 8: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 8: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Window 9: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 9: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Level 6 training",
+          "pass": true
+        },
+        {
+          "name": "Window 10: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 10: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Window 11: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 11: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Window 12: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 12: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Level 7 training",
+          "pass": true
+        },
+        {
+          "name": "Window 13: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 13: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Window 14: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 14: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Window 15: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 15: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Window 16: service 6 + deed 2",
+          "pass": true
+        },
+        {
+          "name": "Window 16: duplicate receipt inert",
+          "pass": true
+        },
+        {
+          "name": "Level 8 training",
+          "pass": true
+        },
+        {
+          "name": "Level 8 cap and base stats immutable",
+          "pass": true
+        },
+        {
+          "name": "Exact threshold 0 = L1",
+          "pass": true
+        },
+        {
+          "name": "Exact threshold 6 = L2",
+          "pass": true
+        },
+        {
+          "name": "Below L2",
+          "pass": true
+        },
+        {
+          "name": "Exact threshold 16 = L3",
+          "pass": true
+        },
+        {
+          "name": "Below L3",
+          "pass": true
+        },
+        {
+          "name": "Exact threshold 30 = L4",
+          "pass": true
+        },
+        {
+          "name": "Below L4",
+          "pass": true
+        },
+        {
+          "name": "Exact threshold 48 = L5",
+          "pass": true
+        },
+        {
+          "name": "Below L5",
+          "pass": true
+        },
+        {
+          "name": "Exact threshold 70 = L6",
+          "pass": true
+        },
+        {
+          "name": "Below L6",
+          "pass": true
+        },
+        {
+          "name": "Exact threshold 96 = L7",
+          "pass": true
+        },
+        {
+          "name": "Below L7",
+          "pass": true
+        },
+        {
+          "name": "Exact threshold 126 = L8",
+          "pass": true
+        },
+        {
+          "name": "Below L8",
+          "pass": true
+        },
+        {
+          "name": "XP, identity and rules survive save",
+          "pass": true
+        },
+        {
+          "name": "Late battle charges original window",
+          "pass": true
+        },
+        {
+          "name": "Productive governor receives peaceful service",
+          "pass": true
+        },
+        {
+          "name": "Provisioned commander receives service",
+          "pass": true
+        },
+        {
+          "name": "Season replay cannot farm XP",
+          "pass": true
+        },
+        {
+          "name": "Empty host earns no service",
+          "pass": true
+        },
+        {
+          "name": "Shared stat cap",
+          "pass": true
+        },
+        {
+          "name": "Modifier category cap",
+          "pass": true
+        },
+        {
+          "name": "Fate deterministic and independent",
+          "pass": true
+        },
+        {
+          "name": "Named route uses actual ownership",
+          "pass": true
+        },
+        {
+          "name": "Departure removes old job immediately",
+          "pass": true
+        },
+        {
+          "name": "Stale departure does not execute twice",
+          "pass": true
+        },
+        {
+          "name": "Arrival activates exactly one destination job",
+          "pass": true
+        },
+        {
+          "name": "Occupied destination is rejected",
+          "pass": true
+        },
+        {
+          "name": "Stale quote rejected before mutations",
+          "pass": true
+        },
+        {
+          "name": "Contested destination never activates a job",
+          "pass": true
+        },
+        {
+          "name": "Restored route resumes travel",
+          "pass": true
+        },
+        {
+          "name": "Level 3 offers actual first-tier perks",
+          "pass": true
+        },
+        {
+          "name": "First specialization commits discipline",
+          "pass": true
+        },
+        {
+          "name": "Duplicate / early specialization rejected",
+          "pass": true
+        },
+        {
+          "name": "Level 6 offers only chosen discipline",
+          "pass": true
+        },
+        {
+          "name": "Respec is once and disables service",
+          "pass": true
+        },
+        {
+          "name": "Respec returns to home without granting XP",
+          "pass": true
+        },
+        {
+          "name": "No-gold kingdom can negotiate release",
+          "pass": true
+        },
+        {
+          "name": "Release pact uses resolved-wave count",
+          "pass": true
+        },
+        {
+          "name": "Release takes two seasons",
+          "pass": true
+        },
+        {
+          "name": "Ransom quote commits once",
+          "pass": true
+        },
+        {
+          "name": "Captors release before faction replacement",
+          "pass": true
+        },
+        {
+          "name": "Explicit resident selection accepted",
+          "pass": true
+        },
+        {
+          "name": "Audience is separate from travel",
+          "pass": true
+        },
+        {
+          "name": "Audience activates residency",
+          "pass": true
+        },
+        {
+          "name": "Intelligence never creates a plan or draws RNG",
+          "pass": true
+        },
+        {
+          "name": "Intelligence starts only for committed information",
+          "pass": true
+        },
+        {
+          "name": "Resident action retry cannot duplicate payment",
+          "pass": true
+        },
+        {
+          "name": "Intelligence reveals actual committed plan",
+          "pass": true
+        },
+        {
+          "name": "Recall clears residency before travel",
+          "pass": true
+        },
+        {
+          "name": "Drafts keep at most one hero policy and two non-hero alternatives",
+          "pass": true
+        },
+        {
+          "name": "Mentorship validates useful participants",
+          "pass": true
+        },
+        {
+          "name": "Mentorship awards within deed allowance",
+          "pass": true
+        },
+        {
+          "name": "Policy cannot repeat in one window",
+          "pass": true
+        },
+        {
+          "name": "Mentorship requires uninterrupted mentor service",
+          "pass": true
+        },
+        {
+          "name": "Mentorship requires uninterrupted student service",
+          "pass": true
+        },
+        {
+          "name": "Rejoining the same post is not a full service season",
+          "pass": true
+        },
+        {
+          "name": "Granary applies to actual governed province",
+          "pass": true
+        },
+        {
+          "name": "Economic governor does not invent a defense penalty",
+          "pass": true
+        },
+        {
+          "name": "Failed recovery write preserves both existing slots",
+          "pass": true
+        },
+        {
+          "name": "Protected trapped outcome never kills",
+          "pass": true
+        },
+        {
+          "name": "Lethal capability alone cannot kill",
+          "pass": true
+        },
+        {
+          "name": "Stale hold consent is rejected",
+          "pass": true
+        },
+        {
+          "name": "Ordinary hold revokes earlier lethal consent",
+          "pass": true
+        },
+        {
+          "name": "Documented 5% branch requires scoped consent and resolves once",
+          "pass": true
+        },
+        {
+          "name": "Removed hero has no active assignment references",
+          "pass": true
+        },
+        {
+          "name": "No negotiating court converts capture to wounded escape",
+          "pass": true
+        },
+        {
+          "name": "Field Infirmary shortens first recovery",
+          "pass": true
+        },
+        {
+          "name": "Treatment cannot stack with infirmary",
+          "pass": true
+        },
+        {
+          "name": "Every participating commander earns losing XP exactly once",
+          "pass": true
+        },
+        {
+          "name": "Retreat perk restores only recorded withdrawal losses once",
+          "pass": true
+        },
+        {
+          "name": "Memorial archive is idempotent",
+          "pass": true
+        },
+        {
+          "name": "New reign inherits no hero XP",
+          "pass": true
+        },
+        {
+          "name": "Current hero save validates",
+          "pass": true
+        },
+        {
+          "name": "Unknown numerical version is rejected without migration",
+          "pass": true
+        },
+        {
+          "name": "Corrupt XP is rejected",
+          "pass": true
+        },
+        {
+          "name": "A field captive is not immediately rescued by unchanged battlefield ownership",
+          "pass": true
+        },
+        {
+          "name": "Relief Stores applies to the entire first column with one service receipt",
+          "pass": true
+        },
+        {
+          "name": "Second column has no first-column supplement",
+          "pass": true
+        },
+        {
+          "name": "Quartermaster reduces its own host upkeep",
+          "pass": true
+        },
+        {
+          "name": "Efficient March cannot discount an idle host",
+          "pass": true
+        },
+        {
+          "name": "Efficient March discounts an actual movement",
+          "pass": true
+        },
+        {
+          "name": "Prepared Line ends after opening round",
+          "pass": true
+        },
+        {
+          "name": "Rearguard only helps withdrawal",
+          "pass": true
+        },
+        {
+          "name": "Relief Column affects only the joining round",
+          "pass": true
+        },
+        {
+          "name": "Works affects supplies but not gold",
+          "pass": true
+        },
+        {
+          "name": "Provincial Depot needs a garrison province",
+          "pass": true
+        },
+        {
+          "name": "Depot cannot buff other focuses",
+          "pass": true
+        },
+        {
+          "name": "Relief ends at the loyalty threshold",
+          "pass": true
+        },
+        {
+          "name": "Stabilized provinces do not retain Relief",
+          "pass": true
+        },
+        {
+          "name": "Frontier Commission keeps a real contribution at an output cost",
+          "pass": true
+        },
+        {
+          "name": "Commission never implies lethal consent",
+          "pass": true
+        },
+        {
+          "name": "Commission ends its benefit and output penalty immediately on evacuation",
+          "pass": true
+        },
+        {
+          "name": "Letters skips audience but never travel",
+          "pass": true
+        },
+        {
+          "name": "Statecraft perks reduce action cost and duration",
+          "pass": true
+        },
+        {
+          "name": "Supply agreement supplements only a connected own province for three seasons",
+          "pass": true
+        },
+        {
+          "name": "Acting Council vacates its seat and halves only this officer",
+          "pass": true
+        },
+        {
+          "name": "Acting Council returns to its previous seat after two working seasons",
+          "pass": true
+        },
+        {
+          "name": "Risk-enabled Beta resumes into deliberate strategy pause",
+          "pass": true
+        },
+        {
+          "name": "Failed memorial write retains retryable records",
+          "pass": true
+        },
+        {
+          "name": "Memorial retry clears pending state",
+          "pass": true
+        },
+        {
+          "name": "Safe Passage shortens a real three-edge journey from two seasons to one",
+          "pass": true
+        },
+        {
+          "name": "Safe Passage retry does not charge twice",
+          "pass": true
+        },
+        {
+          "name": "Safe Passage still arrives before activating its job",
+          "pass": true
+        },
+        {
+          "name": "Claim envoy departs through owned adjacent ground",
+          "pass": true
+        },
+        {
+          "name": "Claim arrival preserves its order reference",
+          "pass": true
+        },
+        {
+          "name": "Failed persistence after ransom retains a single committed payment in memory",
+          "pass": true
+        },
+        {
+          "name": "Recovery write can retry the completed transaction",
+          "pass": true
+        },
+        {
+          "name": "Threatened capital quotes a named reachable refuge",
+          "pass": true
+        },
+        {
+          "name": "No safe refuge shelters without promising extraction",
+          "pass": true
+        },
+        {
+          "name": "Protection leaves threatened capital by actual travel",
+          "pass": true
+        },
+        {
+          "name": "Commander requests legal withdrawal on every participating front",
+          "pass": true
+        },
+        {
+          "name": "Delegated defense reads current earned commander skill",
+          "pass": true,
+          "detail": {
+            "martial": 100
+          }
+        },
+        {
+          "name": "Sheltering removes cached commander skill on the next combat beat",
+          "pass": true,
+          "detail": {
+            "life": "active",
+            "martial": 45
+          }
+        },
+        {
+          "name": "No browser exceptions",
+          "pass": true,
+          "detail": []
+        }
+      ]
+    },
+    "heroV2": {
+      "passed": 76,
+      "total": 76,
+      "checks": [
+        {
+          "name": "Fresh Beta snapshots v2 with death disabled",
+          "pass": true
+        },
+        {
+          "name": "New runs snapshot the approved +2 professional training",
+          "pass": true
+        },
+        {
+          "name": "V2 rules survive reload without registry migration",
+          "pass": true
+        },
+        {
+          "name": "Stable does not allocate measurements or hero fields",
+          "pass": true
+        },
+        {
+          "name": "Training ablation retains levels/XP without earned stat bonuses",
+          "pass": true
+        },
+        {
+          "name": "Saved ablation rules validate",
+          "pass": true
+        },
+        {
+          "name": "Corrupt measurement data is rejected before simulation resumes",
+          "pass": true
+        },
+        {
+          "name": "Two commanders: defeat earns participation once in originating window",
+          "pass": true
+        },
+        {
+          "name": "Two commanders: withdrawal earns deed once in originating window",
+          "pass": true
+        },
+        {
+          "name": "Partial requested column earns service but no completion deed",
+          "pass": true
+        },
+        {
+          "name": "Completed requested column earns deed once in dispatch window",
+          "pass": true
+        },
+        {
+          "name": "Destination comparison never mutates live state",
+          "pass": true
+        },
+        {
+          "name": "Destination training uses its real focus",
+          "pass": true
+        },
+        {
+          "name": "Home predicts no earned professional training",
+          "pass": true
+        },
+        {
+          "name": "First warning pauses before income and authoritative season advances",
+          "pass": true
+        },
+        {
+          "name": "Current encounter hold accepted",
+          "pass": true
+        },
+        {
+          "name": "Changed escape geometry revokes hold and pauses for reading",
+          "pass": true
+        },
+        {
+          "name": "Stale hold confirmation cannot accept revised risk",
+          "pass": true
+        },
+        {
+          "name": "Observed field ETA 1: protection follows escape ETA + 1",
+          "pass": true,
+          "detail": {
+            "source": "field",
+            "lossIn": 1,
+            "ratio": 100,
+            "observedTurn": 1,
+            "arrivalTurn": 2,
+            "destinationId": "district-01",
+            "route": [
+              "district-01"
+            ],
+            "enemyIds": [
+              "front-host"
+            ],
+            "signature": "[\"district-11\",\"district-01\",[\"district-01\"],[\"front-host\"],null,100]"
+          }
+        },
+        {
+          "name": "Observed field ETA 8: protection follows escape ETA + 1",
+          "pass": true,
+          "detail": {
+            "source": "field",
+            "lossIn": 4,
+            "ratio": 12.5,
+            "observedTurn": 1,
+            "arrivalTurn": 2,
+            "destinationId": "district-03",
+            "route": [
+              "district-03"
+            ],
+            "enemyIds": [
+              "front-host"
+            ],
+            "signature": "[\"district-06\",\"district-03\",[\"district-03\"],[\"front-host\"],null,12.5]"
+          }
+        },
+        {
+          "name": "Enemy reinforcement invalidates a previous hold",
+          "pass": true
+        },
+        {
+          "name": "Commission rejects non-fortress without spending its use",
+          "pass": true
+        },
+        {
+          "name": "Commission rejects locked combat orders",
+          "pass": true
+        },
+        {
+          "name": "Commission accepted before engagement on a fortress",
+          "pass": true
+        },
+        {
+          "name": "Commission retains actual defensive contribution and production cost",
+          "pass": true
+        },
+        {
+          "name": "Departure removes commission defense but keeps following settlement production cost",
+          "pass": true
+        },
+        {
+          "name": "Commission production cost expires after next settlement",
+          "pass": true
+        },
+        {
+          "name": "Same-price recapture invalidates ransom confirmation",
+          "pass": true
+        },
+        {
+          "name": "Replacement hero identity invalidates ransom confirmation",
+          "pass": true
+        },
+        {
+          "name": "Fresh ransom quote commits cost and release once",
+          "pass": true
+        },
+        {
+          "name": "Surviving chronicle records former posting",
+          "pass": true
+        },
+        {
+          "name": "Former posting keeps its name after departure and world replacement",
+          "pass": true
+        },
+        {
+          "name": "Real settlement resolves occupation before same-season hero arrival",
+          "pass": true,
+          "detail": {
+            "owner": "northern-rival",
+            "life": {
+              "kind": "transit",
+              "originId": "district-12",
+              "locationId": "district-12",
+              "destinationId": "district-10",
+              "path": [
+                "district-10"
+              ],
+              "startedTurn": 1,
+              "arrivalTurn": 3,
+              "intendedPost": {
+                "kind": "province",
+                "landId": "district-10"
+              },
+              "blocked": true
+            }
+          }
+        },
+        {
+          "name": "recall: resident action starts from a valid quote",
+          "pass": true
+        },
+        {
+          "name": "recall: cancel refunds once and cannot grant an effect",
+          "pass": true
+        },
+        {
+          "name": "host-expulsion: resident action starts from a valid quote",
+          "pass": true
+        },
+        {
+          "name": "host-expulsion: cancel refunds once and cannot grant an effect",
+          "pass": true
+        },
+        {
+          "name": "charter-lost: resident action starts from a valid quote",
+          "pass": true
+        },
+        {
+          "name": "charter-lost: cancel refunds once and cannot grant an effect",
+          "pass": true
+        },
+        {
+          "name": "recaptured-target: resident action starts from a valid quote",
+          "pass": true
+        },
+        {
+          "name": "recaptured-target: cancel refunds once and cannot grant an effect",
+          "pass": true
+        },
+        {
+          "name": "envoy-instance: resident action starts from a valid quote",
+          "pass": true
+        },
+        {
+          "name": "envoy-instance: cancel refunds once and cannot grant an effect",
+          "pass": true
+        },
+        {
+          "name": "departure: failed write keeps both old slots intact",
+          "pass": true
+        },
+        {
+          "name": "departure: retrying command does not duplicate committed state",
+          "pass": true
+        },
+        {
+          "name": "departure: successful retry restores whole transaction",
+          "pass": true
+        },
+        {
+          "name": "xp: failed write keeps both old slots intact",
+          "pass": true
+        },
+        {
+          "name": "xp: retrying command does not duplicate committed state",
+          "pass": true
+        },
+        {
+          "name": "xp: successful retry restores whole transaction",
+          "pass": true
+        },
+        {
+          "name": "fate: failed write keeps both old slots intact",
+          "pass": true
+        },
+        {
+          "name": "fate: retrying command does not duplicate committed state",
+          "pass": true
+        },
+        {
+          "name": "fate: successful retry restores whole transaction",
+          "pass": true
+        },
+        {
+          "name": "ransom: failed write keeps both old slots intact",
+          "pass": true
+        },
+        {
+          "name": "ransom: retrying command does not duplicate committed state",
+          "pass": true
+        },
+        {
+          "name": "ransom: successful retry restores whole transaction",
+          "pass": true
+        },
+        {
+          "name": "memorial: failed write keeps both old slots intact",
+          "pass": true
+        },
+        {
+          "name": "memorial: retrying command does not duplicate committed state",
+          "pass": true
+        },
+        {
+          "name": "memorial: successful retry restores whole transaction",
+          "pass": true
+        },
+        {
+          "name": "Measurements count authoritative credits once",
+          "pass": true
+        },
+        {
+          "name": "Level milestones include level 3 with original recruit turn",
+          "pass": true
+        },
+        {
+          "name": "Perk offer denominators exist before a choice",
+          "pass": true
+        },
+        {
+          "name": "Perk choice measurement records one selection",
+          "pass": true
+        },
+        {
+          "name": "Deployment time has one denominator season per hero",
+          "pass": true
+        },
+        {
+          "name": "Measurements contain IDs and transitions, no biography text",
+          "pass": true
+        },
+        {
+          "name": "open: safe within 2 percentage points over 10,000 losses",
+          "pass": true,
+          "detail": {
+            "n": 6967,
+            "confidence95": [
+              0.6876160775159137,
+              0.705632851975333
+            ]
+          }
+        },
+        {
+          "name": "open: wounded within 2 percentage points over 10,000 losses",
+          "pass": true,
+          "detail": {
+            "n": 3033,
+            "confidence95": [
+              0.294367148024667,
+              0.3123839224840863
+            ]
+          }
+        },
+        {
+          "name": "open: no death without capability and consent",
+          "pass": true
+        },
+        {
+          "name": "trapped-protected: wounded within 2 percentage points over 10,000 losses",
+          "pass": true,
+          "detail": {
+            "n": 3494,
+            "confidence95": [
+              0.3401145500521229,
+              0.35880111450618024
+            ]
+          }
+        },
+        {
+          "name": "trapped-protected: captured within 2 percentage points over 10,000 losses",
+          "pass": true,
+          "detail": {
+            "n": 6506,
+            "confidence95": [
+              0.6411988854938196,
+              0.6598854499478769
+            ]
+          }
+        },
+        {
+          "name": "trapped-protected: no death without capability and consent",
+          "pass": true
+        },
+        {
+          "name": "trapped-consented-capability-test-only: wounded within 2 percentage points over 10,000 losses",
+          "pass": true,
+          "detail": {
+            "n": 3494,
+            "confidence95": [
+              0.3401145500521229,
+              0.35880111450618024
+            ]
+          }
+        },
+        {
+          "name": "trapped-consented-capability-test-only: captured within 2 percentage points over 10,000 losses",
+          "pass": true,
+          "detail": {
+            "n": 5977,
+            "confidence95": [
+              0.5880531627241022,
+              0.6072718012377422
+            ]
+          }
+        },
+        {
+          "name": "trapped-consented-capability-test-only: dead within 2 percentage points over 10,000 losses",
+          "pass": true,
+          "detail": {
+            "n": 529,
+            "confidence95": [
+              0.048682032100011194,
+              0.057461351857607645
+            ]
+          }
+        },
+        {
+          "name": "Fate boundaries retain exact 5% conditional lethal band",
+          "pass": true
+        },
+        {
+          "name": "Fresh registry still has death disabled after all tests",
+          "pass": true
+        },
+        {
+          "name": "No browser exceptions",
+          "pass": true,
+          "detail": []
+        }
+      ],
+      "distributions": [
+        {
+          "tier": "open",
+          "n": 10000,
+          "counts": {
+            "safe": 6967,
+            "wounded": 3033,
+            "captured": 0,
+            "dead": 0
+          },
+          "confidence95": {
+            "safe": [
+              0.6876160775159137,
+              0.705632851975333
+            ],
+            "wounded": [
+              0.294367148024667,
+              0.3123839224840863
+            ],
+            "captured": [
+              0,
+              0.00038401247776654115
+            ],
+            "dead": [
+              0,
+              0.00038401247776654115
+            ]
+          }
+        },
+        {
+          "tier": "trapped-protected",
+          "n": 10000,
+          "counts": {
+            "safe": 0,
+            "wounded": 3494,
+            "captured": 6506,
+            "dead": 0
+          },
+          "confidence95": {
+            "safe": [
+              0,
+              0.00038401247776654115
+            ],
+            "wounded": [
+              0.3401145500521229,
+              0.35880111450618024
+            ],
+            "captured": [
+              0.6411988854938196,
+              0.6598854499478769
+            ],
+            "dead": [
+              0,
+              0.00038401247776654115
+            ]
+          }
+        },
+        {
+          "tier": "trapped-consented-capability-test-only",
+          "n": 10000,
+          "counts": {
+            "safe": 0,
+            "wounded": 3494,
+            "captured": 5977,
+            "dead": 529
+          },
+          "confidence95": {
+            "safe": [
+              0,
+              0.00038401247776654115
+            ],
+            "wounded": [
+              0.3401145500521229,
+              0.35880111450618024
+            ],
+            "captured": [
+              0.5880531627241022,
+              0.6072718012377422
+            ],
+            "dead": [
+              0.048682032100011194,
+              0.057461351857607645
+            ]
+          }
+        }
+      ],
+      "command": "DEV_URL=http://127.0.0.1:5180 node test_scripts/verify/verify-hero-v2.mjs",
+      "distributionScope": "10,000 seeded draws per tier through the production fate table; not 30,000 complete battles. Wilson 95% intervals reported. Lethal exercised only as an isolated table capability."
+    },
+    "interfaceV2": {
+      "passed": 43,
+      "total": 43,
+      "checks": [
+        {
+          "name": "en/320: hero roster uses game UI with no HTML overlays",
+          "pass": true
+        },
+        {
+          "name": "en/320: comparison action removed",
+          "pass": true
+        },
+        {
+          "name": "en/320: canvas action opens grouped hero aftermath",
+          "pass": true
+        },
+        {
+          "name": "en/320: chronicle displays saved former posting",
+          "pass": true
+        },
+        {
+          "name": "en/320: no untranslated hero UI keys",
+          "pass": true
+        },
+        {
+          "name": "en/320: canvas input stays enabled during reading",
+          "pass": true
+        },
+        {
+          "name": "en/320: chronicle adds no browser popup",
+          "pass": true
+        },
+        {
+          "name": "en/390: hero roster uses game UI with no HTML overlays",
+          "pass": true
+        },
+        {
+          "name": "en/390: comparison action removed",
+          "pass": true
+        },
+        {
+          "name": "en/390: canvas action opens grouped hero aftermath",
+          "pass": true
+        },
+        {
+          "name": "en/390: chronicle displays saved former posting",
+          "pass": true
+        },
+        {
+          "name": "en/390: no untranslated hero UI keys",
+          "pass": true
+        },
+        {
+          "name": "en/390: canvas input stays enabled during reading",
+          "pass": true
+        },
+        {
+          "name": "en/390: chronicle adds no browser popup",
+          "pass": true
+        },
+        {
+          "name": "en/1440: hero roster uses game UI with no HTML overlays",
+          "pass": true
+        },
+        {
+          "name": "en/1440: comparison action removed",
+          "pass": true
+        },
+        {
+          "name": "en/1440: canvas action opens grouped hero aftermath",
+          "pass": true
+        },
+        {
+          "name": "en/1440: chronicle displays saved former posting",
+          "pass": true
+        },
+        {
+          "name": "en/1440: no untranslated hero UI keys",
+          "pass": true
+        },
+        {
+          "name": "en/1440: canvas input stays enabled during reading",
+          "pass": true
+        },
+        {
+          "name": "en/1440: chronicle adds no browser popup",
+          "pass": true
+        },
+        {
+          "name": "vi/320: hero roster uses game UI with no HTML overlays",
+          "pass": true
+        },
+        {
+          "name": "vi/320: comparison action removed",
+          "pass": true
+        },
+        {
+          "name": "vi/320: canvas action opens grouped hero aftermath",
+          "pass": true
+        },
+        {
+          "name": "vi/320: chronicle displays saved former posting",
+          "pass": true
+        },
+        {
+          "name": "vi/320: no untranslated hero UI keys",
+          "pass": true
+        },
+        {
+          "name": "vi/320: canvas input stays enabled during reading",
+          "pass": true
+        },
+        {
+          "name": "vi/320: chronicle adds no browser popup",
+          "pass": true
+        },
+        {
+          "name": "vi/390: hero roster uses game UI with no HTML overlays",
+          "pass": true
+        },
+        {
+          "name": "vi/390: comparison action removed",
+          "pass": true
+        },
+        {
+          "name": "vi/390: canvas action opens grouped hero aftermath",
+          "pass": true
+        },
+        {
+          "name": "vi/390: chronicle displays saved former posting",
+          "pass": true
+        },
+        {
+          "name": "vi/390: no untranslated hero UI keys",
+          "pass": true
+        },
+        {
+          "name": "vi/390: canvas input stays enabled during reading",
+          "pass": true
+        },
+        {
+          "name": "vi/390: chronicle adds no browser popup",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: hero roster uses game UI with no HTML overlays",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: comparison action removed",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: canvas action opens grouped hero aftermath",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: chronicle displays saved former posting",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: no untranslated hero UI keys",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: canvas input stays enabled during reading",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: chronicle adds no browser popup",
+          "pass": true
+        },
+        {
+          "name": "No browser exceptions",
+          "pass": true,
+          "detail": []
+        }
+      ],
+      "timings": [
+        {
+          "lang": "en",
+          "width": 320,
+          "environment": "Desktop Chromium, fresh two-hero fixture; not physical-mobile performance",
+          "n": 30,
+          "p50": 1.6999999955296516,
+          "p95": 2.0999999940395355
+        },
+        {
+          "lang": "en",
+          "width": 390,
+          "environment": "Desktop Chromium, fresh two-hero fixture; not physical-mobile performance",
+          "n": 30,
+          "p50": 1.7999999970197678,
+          "p95": 2.6999999955296516
+        },
+        {
+          "lang": "en",
+          "width": 1440,
+          "environment": "Desktop Chromium, fresh two-hero fixture; not physical-mobile performance",
+          "n": 30,
+          "p50": 1.7000000029802322,
+          "p95": 2.7999999970197678
+        },
+        {
+          "lang": "vi",
+          "width": 320,
+          "environment": "Desktop Chromium, fresh two-hero fixture; not physical-mobile performance",
+          "n": 30,
+          "p50": 1.6999999955296516,
+          "p95": 2.1999999955296516
+        },
+        {
+          "lang": "vi",
+          "width": 390,
+          "environment": "Desktop Chromium, fresh two-hero fixture; not physical-mobile performance",
+          "n": 30,
+          "p50": 1.7000000029802322,
+          "p95": 2.1999999955296516
+        },
+        {
+          "lang": "vi",
+          "width": 1440,
+          "environment": "Desktop Chromium, fresh two-hero fixture; not physical-mobile performance",
+          "n": 30,
+          "p50": 1.6000000014901161,
+          "p95": 2.100000001490116
+        }
+      ],
+      "command": "DEV_URL=http://127.0.0.1:5180 node test_scripts/verify/verify-hero-interface-v2.mjs"
+    },
+    "consentAndArchive": {
+      "passed": 72,
+      "total": 72,
+      "errors": [],
+      "checks": [
+        {
+          "name": "en/320: new Beta offers no lethal action",
+          "pass": true
+        },
+        {
+          "name": "en/320: hero reading uses the existing game UI",
+          "pass": true
+        },
+        {
+          "name": "en/320: opening last-stand review does not consent",
+          "pass": true
+        },
+        {
+          "name": "en/320: explicit canvas confirmation records encounter consent",
+          "pass": true
+        },
+        {
+          "name": "en/320: ordinary hold clears lethal consent",
+          "pass": true
+        },
+        {
+          "name": "en/320: protective alternative leaves no lethal consent",
+          "pass": true
+        },
+        {
+          "name": "en/320: failed archive shows retry on reign-end page",
+          "pass": true
+        },
+        {
+          "name": "en/320: archive failure opens no browser dialog",
+          "pass": true
+        },
+        {
+          "name": "en/320: stay returns to normal reign-end controls",
+          "pass": true
+        },
+        {
+          "name": "en/320: retry failure preserves session and records",
+          "pass": true
+        },
+        {
+          "name": "en/320: successful retry archives before leaving",
+          "pass": true
+        },
+        {
+          "name": "en/320: game input remains usable",
+          "pass": true
+        },
+        {
+          "name": "en/390: new Beta offers no lethal action",
+          "pass": true
+        },
+        {
+          "name": "en/390: hero reading uses the existing game UI",
+          "pass": true
+        },
+        {
+          "name": "en/390: opening last-stand review does not consent",
+          "pass": true
+        },
+        {
+          "name": "en/390: explicit canvas confirmation records encounter consent",
+          "pass": true
+        },
+        {
+          "name": "en/390: ordinary hold clears lethal consent",
+          "pass": true
+        },
+        {
+          "name": "en/390: protective alternative leaves no lethal consent",
+          "pass": true
+        },
+        {
+          "name": "en/390: failed archive shows retry on reign-end page",
+          "pass": true
+        },
+        {
+          "name": "en/390: archive failure opens no browser dialog",
+          "pass": true
+        },
+        {
+          "name": "en/390: stay returns to normal reign-end controls",
+          "pass": true
+        },
+        {
+          "name": "en/390: retry failure preserves session and records",
+          "pass": true
+        },
+        {
+          "name": "en/390: successful retry archives before leaving",
+          "pass": true
+        },
+        {
+          "name": "en/390: game input remains usable",
+          "pass": true
+        },
+        {
+          "name": "en/1440: new Beta offers no lethal action",
+          "pass": true
+        },
+        {
+          "name": "en/1440: hero reading uses the existing game UI",
+          "pass": true
+        },
+        {
+          "name": "en/1440: opening last-stand review does not consent",
+          "pass": true
+        },
+        {
+          "name": "en/1440: explicit canvas confirmation records encounter consent",
+          "pass": true
+        },
+        {
+          "name": "en/1440: ordinary hold clears lethal consent",
+          "pass": true
+        },
+        {
+          "name": "en/1440: protective alternative leaves no lethal consent",
+          "pass": true
+        },
+        {
+          "name": "en/1440: failed archive shows retry on reign-end page",
+          "pass": true
+        },
+        {
+          "name": "en/1440: archive failure opens no browser dialog",
+          "pass": true
+        },
+        {
+          "name": "en/1440: stay returns to normal reign-end controls",
+          "pass": true
+        },
+        {
+          "name": "en/1440: retry failure preserves session and records",
+          "pass": true
+        },
+        {
+          "name": "en/1440: successful retry archives before leaving",
+          "pass": true
+        },
+        {
+          "name": "en/1440: game input remains usable",
+          "pass": true
+        },
+        {
+          "name": "vi/320: new Beta offers no lethal action",
+          "pass": true
+        },
+        {
+          "name": "vi/320: hero reading uses the existing game UI",
+          "pass": true
+        },
+        {
+          "name": "vi/320: opening last-stand review does not consent",
+          "pass": true
+        },
+        {
+          "name": "vi/320: explicit canvas confirmation records encounter consent",
+          "pass": true
+        },
+        {
+          "name": "vi/320: ordinary hold clears lethal consent",
+          "pass": true
+        },
+        {
+          "name": "vi/320: protective alternative leaves no lethal consent",
+          "pass": true
+        },
+        {
+          "name": "vi/320: failed archive shows retry on reign-end page",
+          "pass": true
+        },
+        {
+          "name": "vi/320: archive failure opens no browser dialog",
+          "pass": true
+        },
+        {
+          "name": "vi/320: stay returns to normal reign-end controls",
+          "pass": true
+        },
+        {
+          "name": "vi/320: retry failure preserves session and records",
+          "pass": true
+        },
+        {
+          "name": "vi/320: successful retry archives before leaving",
+          "pass": true
+        },
+        {
+          "name": "vi/320: game input remains usable",
+          "pass": true
+        },
+        {
+          "name": "vi/390: new Beta offers no lethal action",
+          "pass": true
+        },
+        {
+          "name": "vi/390: hero reading uses the existing game UI",
+          "pass": true
+        },
+        {
+          "name": "vi/390: opening last-stand review does not consent",
+          "pass": true
+        },
+        {
+          "name": "vi/390: explicit canvas confirmation records encounter consent",
+          "pass": true
+        },
+        {
+          "name": "vi/390: ordinary hold clears lethal consent",
+          "pass": true
+        },
+        {
+          "name": "vi/390: protective alternative leaves no lethal consent",
+          "pass": true
+        },
+        {
+          "name": "vi/390: failed archive shows retry on reign-end page",
+          "pass": true
+        },
+        {
+          "name": "vi/390: archive failure opens no browser dialog",
+          "pass": true
+        },
+        {
+          "name": "vi/390: stay returns to normal reign-end controls",
+          "pass": true
+        },
+        {
+          "name": "vi/390: retry failure preserves session and records",
+          "pass": true
+        },
+        {
+          "name": "vi/390: successful retry archives before leaving",
+          "pass": true
+        },
+        {
+          "name": "vi/390: game input remains usable",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: new Beta offers no lethal action",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: hero reading uses the existing game UI",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: opening last-stand review does not consent",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: explicit canvas confirmation records encounter consent",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: ordinary hold clears lethal consent",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: protective alternative leaves no lethal consent",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: failed archive shows retry on reign-end page",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: archive failure opens no browser dialog",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: stay returns to normal reign-end controls",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: retry failure preserves session and records",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: successful retry archives before leaving",
+          "pass": true
+        },
+        {
+          "name": "vi/1440: game input remains usable",
+          "pass": true
+        }
+      ],
+      "command": "DEV_URL=http://127.0.0.1:5180 node test_scripts/verify/verify-hero-consent.mjs"
+    },
+    "visual": {
+      "languages": [
+        "en",
+        "vi"
+      ],
+      "widths": [
+        320,
+        390,
+        1440
+      ],
+      "reducedMotion": true,
+      "textSizes": [
+        100
+      ],
+      "keyboard": "Not revalidated after removing DOM panels. Prior keyboard/200% DOM evidence is superseded; accessibility improvements must stay within existing game UI",
+      "uiDecision": "Comparison modal and floating HTML/Aa panels removed by user request. Archive failure uses the existing reign-end message and footer",
+      "errors": [],
+      "portraitCards": {
+        "date": "2026-09-14",
+        "result": "Card-framed avatars with bottom-right level badge; XP label and track inside roster/assignment/detail information panels. EN/VI at 320/390/1440; 18 scratch visual cases for empty, 40% and maximum XP plus compact recruitment badge fit. Desktop automation, not physical-device validation.",
+        "evidence": "output/hero-depth/cards/qa.json"
+      },
+      "serviceXp": [
+        {
+          "governor": 6,
+          "commander": 6
+        },
+        {
+          "governor": 6,
+          "commander": 6
+        },
+        {
+          "governor": 6,
+          "commander": 6
+        },
+        {
+          "governor": 6,
+          "commander": 6
+        },
+        {
+          "governor": 6,
+          "commander": 6
+        },
+        {
+          "governor": 6,
+          "commander": 6
+        }
+      ],
+      "command": "DEV_URL=http://127.0.0.1:5180 node test_scripts/shot/shot-hero-depth.mjs"
+    },
+    "playableClient": {
+      "script": "C:/Users/zerg/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js",
+      "fixture": "test_scripts/scratch/hero-play.html (ignored setup)",
+      "evidence": "output/hero-depth/client-card-fit",
+      "result": "Framed portrait, bottom-right level and in-panel XP visible during Protect All command on numerical v2: level-2 governor (6 XP) leaves job and enters one-season owned-route transit; screenshots and state inspected."
+    },
+    "regressions": {
+      "typeScript": "pass",
+      "productionBuild": "pass (existing chunk-size warnings)",
+      "ruleset": "20/20",
+      "resume": "31/31",
+      "legacyHeroRoster": "pass",
+      "legacyHeroActions": "pass",
+      "legacyHeroEvents": "pass",
+      "saveLifecycle": "pass",
+      "empireCampaignRival": "three 60-tick runs; no console errors",
+      "skirmishStores": "6/6",
+      "originalStable": "7/10 in shared tree, failures at seeds 22/66/88. Baseline read from 54f0b8da; not rewritten by this work.",
+      "isolatedStable": "10/10 with only concurrent holdForRescue disabled by an in-memory Vite transform; all eight original fingerprints match. Hero code remains loaded with capabilities off.",
+      "draftDepth": "11/13: drafting/evolution/held-card checks pass; two binder checks expect eager offscreen faces, while Cabinet uses lazy rows. Kept visible as an unrelated verifier limitation."
+    }
+  },
+  "balance": {
+    "command": "PLAYTEST_URL=http://127.0.0.1:5180 node test_scripts/verify/verify-hero-balance.mjs",
+    "measurementScope": "Development measurements before final mentorship, safe-refuge, and commander-cache corrections. Repeat on a frozen candidate with hero-aware strategies and device-performance profiling before closing H12.",
+    "method": "64 matched fresh-profile seeds (11 + 11i), four existing strategy drivers, 600-tick limit. Drivers retain the finite objective and choose rule-on to measure continued Endless play. Drivers do not intentionally select hero specializations or optimize resident/policy actions.",
+    "gates": {
+      "agency": 1.5,
+      "rawStrategySpread": 1.3,
+      "pairedShare": 0.6
+    },
+    "arms": {
+      "currentBeta": {
+        "seeds": 64,
+        "ticks": 600,
+        "override": {
+          "heroGrowth": false,
+          "heroSpecializations": false,
+          "heroTravel": false,
+          "heroRecovery": false,
+          "heroResidency": false,
+          "heroCards": false,
+          "heroLethal": false
+        },
+        "meanWaves": {
+          "bastion": 22.53125,
+          "frontier": 17.1875,
+          "warhost": 17.203125,
+          "declining": 11.59375
+        },
+        "rawStrategySpread": 1.3109090909090908,
+        "agency": 1.482479784366577,
+        "pairedShare": 0.6015625,
+        "goalsWon": {
+          "bastion": 49,
+          "frontier": 46,
+          "warhost": 46,
+          "declining": 14
+        },
+        "source": "output/hero-depth/balance/currentBeta.json"
+      },
+      "growthOnly": {
+        "seeds": 64,
+        "ticks": 600,
+        "override": {
+          "heroGrowth": true,
+          "heroSpecializations": false,
+          "heroTravel": false,
+          "heroRecovery": false,
+          "heroResidency": false,
+          "heroCards": false,
+          "heroLethal": false
+        },
+        "meanWaves": {
+          "bastion": 20.8125,
+          "frontier": 17.5,
+          "warhost": 17.609375,
+          "declining": 12.03125
+        },
+        "rawStrategySpread": 1.1892857142857143,
+        "agency": 1.4545454545454546,
+        "pairedShare": 0.65625,
+        "goalsWon": {
+          "bastion": 44,
+          "frontier": 40,
+          "warhost": 47,
+          "declining": 10
+        },
+        "source": "output/hero-depth/balance/growthOnly.json"
+      },
+      "recoverable": {
+        "seeds": 64,
+        "ticks": 600,
+        "override": {
+          "heroGrowth": true,
+          "heroSpecializations": true,
+          "heroTravel": true,
+          "heroRecovery": true,
+          "heroResidency": true,
+          "heroCards": true,
+          "heroLethal": false
+        },
+        "meanWaves": {
+          "bastion": 22.96875,
+          "frontier": 18.0625,
+          "warhost": 16.640625,
+          "declining": 12.203125
+        },
+        "rawStrategySpread": 1.380281690140845,
+        "agency": 1.3636363636363635,
+        "pairedShare": 0.7265625,
+        "goalsWon": {
+          "bastion": 51,
+          "frontier": 43,
+          "warhost": 42,
+          "declining": 15
+        },
+        "source": "output/hero-depth/balance/recoverable.json"
+      }
+    },
+    "interpretation": "Control already fails agency; growth also fails raw spread; recoverable restores spread but reduces agency. These are open balance findings, not proof of human fun or fairness. Do not tune XP solely to these hero-unaware plans."
+  },
+  "balanceV2": {
+    "command": "PLAYTEST_URL=http://127.0.0.1:5180 node test_scripts/verify/verify-hero-balance-v2.mjs",
+    "sourceAtStart": "ee1d22dc2691cfafd06c3899593a0fe9d331bd43a2abbe51afc0313d5e94fb32",
+    "sourceAtEnd": "0147326519d75d918da7f455a39788bc05e5e7258dfc2a02ff158f85e356e18a",
+    "sourceUnchanged": false,
+    "runs": [
+      {
+        "arm": "control",
+        "exit": 1,
+        "sourceBefore": "ee1d22dc2691cfafd06c3899593a0fe9d331bd43a2abbe51afc0313d5e94fb32",
+        "sourceAfter": "ee1d22dc2691cfafd06c3899593a0fe9d331bd43a2abbe51afc0313d5e94fb32",
+        "sourceUnchanged": true,
+        "seconds": 149.495,
+        "seeds": 64,
+        "meanWaves": {
+          "bastion": 22.53125,
+          "frontier": 17.1875,
+          "warhost": 17.203125,
+          "declining": 11.59375
+        },
+        "agency": 1.482479784366577,
+        "raw": 1.3109090909090908,
+        "paired": 0.6015625,
+        "goals": {
+          "bastion": 49,
+          "frontier": 46,
+          "warhost": 46,
+          "declining": 14
+        },
+        "progression": {
+          "bastion": {
+            "level3": {
+              "n": 0,
+              "median": null
+            },
+            "level6": {
+              "n": 0,
+              "median": null
+            }
+          },
+          "frontier": {
+            "level3": {
+              "n": 0,
+              "median": null
+            },
+            "level6": {
+              "n": 0,
+              "median": null
+            }
+          },
+          "warhost": {
+            "level3": {
+              "n": 0,
+              "median": null
+            },
+            "level6": {
+              "n": 0,
+              "median": null
+            }
+          },
+          "declining": {
+            "level3": {
+              "n": 0,
+              "median": null
+            },
+            "level6": {
+              "n": 0,
+              "median": null
+            }
+          }
+        }
+      },
+      {
+        "arm": "growthOnly",
+        "exit": 1,
+        "sourceBefore": "ee1d22dc2691cfafd06c3899593a0fe9d331bd43a2abbe51afc0313d5e94fb32",
+        "sourceAfter": "ee1d22dc2691cfafd06c3899593a0fe9d331bd43a2abbe51afc0313d5e94fb32",
+        "sourceUnchanged": true,
+        "seconds": 480.031,
+        "seeds": 64,
+        "meanWaves": {
+          "bastion": 21.921875,
+          "frontier": 17.234375,
+          "warhost": 19.15625,
+          "declining": 12.203125
+        },
+        "agency": 1.412291933418694,
+        "raw": 1.271985494106981,
+        "paired": 0.6328125,
+        "goals": {
+          "bastion": 43,
+          "frontier": 41,
+          "warhost": 52,
+          "declining": 9
+        },
+        "progression": {
+          "bastion": {
+            "level3": {
+              "n": 504,
+              "median": 28
+            },
+            "level6": {
+              "n": 280,
+              "median": 161
+            }
+          },
+          "frontier": {
+            "level3": {
+              "n": 423,
+              "median": 27
+            },
+            "level6": {
+              "n": 154,
+              "median": 146
+            }
+          },
+          "warhost": {
+            "level3": {
+              "n": 462,
+              "median": 26
+            },
+            "level6": {
+              "n": 219,
+              "median": 146
+            }
+          },
+          "declining": {
+            "level3": {
+              "n": 2,
+              "median": 55
+            },
+            "level6": {
+              "n": 0,
+              "median": null
+            }
+          }
+        }
+      },
+      {
+        "arm": "noPerks",
+        "exit": 1,
+        "sourceBefore": "ee1d22dc2691cfafd06c3899593a0fe9d331bd43a2abbe51afc0313d5e94fb32",
+        "sourceAfter": "0147326519d75d918da7f455a39788bc05e5e7258dfc2a02ff158f85e356e18a",
+        "sourceUnchanged": false,
+        "seconds": 554.501,
+        "seeds": 64,
+        "meanWaves": {
+          "bastion": 23.25,
+          "frontier": 17.203125,
+          "warhost": 17.328125,
+          "declining": 12.296875
+        },
+        "agency": 1.3989834815756035,
+        "raw": 1.3514986376021798,
+        "paired": 0.71875,
+        "goals": {
+          "bastion": 54,
+          "frontier": 41,
+          "warhost": 42,
+          "declining": 14
+        },
+        "progression": {
+          "bastion": {
+            "level3": {
+              "n": 594,
+              "median": 30
+            },
+            "level6": {
+              "n": 411,
+              "median": 159
+            }
+          },
+          "frontier": {
+            "level3": {
+              "n": 467,
+              "median": 28
+            },
+            "level6": {
+              "n": 225,
+              "median": 146
+            }
+          },
+          "warhost": {
+            "level3": {
+              "n": 457,
+              "median": 26
+            },
+            "level6": {
+              "n": 222,
+              "median": 142
+            }
+          },
+          "declining": {
+            "level3": {
+              "n": 1,
+              "median": 55
+            },
+            "level6": {
+              "n": 0,
+              "median": null
+            }
+          }
+        }
+      },
+      {
+        "arm": "recoverable",
+        "exit": 1,
+        "sourceBefore": "ee1d22dc2691cfafd06c3899593a0fe9d331bd43a2abbe51afc0313d5e94fb32",
+        "sourceAfter": "0147326519d75d918da7f455a39788bc05e5e7258dfc2a02ff158f85e356e18a",
+        "sourceUnchanged": false,
+        "seconds": 605.856,
+        "seeds": 64,
+        "meanWaves": {
+          "bastion": 23.578125,
+          "frontier": 15.546875,
+          "warhost": 17.8125,
+          "declining": 12.296875
+        },
+        "agency": 1.264294790343075,
+        "raw": 1.5165829145728644,
+        "paired": 0.7421875,
+        "goals": {
+          "bastion": 56,
+          "frontier": 37,
+          "warhost": 45,
+          "declining": 14
+        },
+        "progression": {
+          "bastion": {
+            "level3": {
+              "n": 595,
+              "median": 30
+            },
+            "level6": {
+              "n": 416,
+              "median": 162
+            }
+          },
+          "frontier": {
+            "level3": {
+              "n": 435,
+              "median": 28
+            },
+            "level6": {
+              "n": 173,
+              "median": 144
+            }
+          },
+          "warhost": {
+            "level3": {
+              "n": 463,
+              "median": 26
+            },
+            "level6": {
+              "n": 237,
+              "median": 142
+            }
+          },
+          "declining": {
+            "level3": {
+              "n": 1,
+              "median": 55
+            },
+            "level6": {
+              "n": 0,
+              "median": null
+            }
+          }
+        }
+      }
+    ],
+    "complete": false,
+    "status": "Incomplete: later arms detected source changes; run stopped for user UI correction. Rerun on fixed source before using results for acceptance.",
+    "method": "64 matched fresh-profile seeds per arm, four existing plans, 600-tick limit, finite objective followed by Rule on. Agents use shared assignment commands, available perks, ransom/concessions, resident actions and mentorship. Separate perk/card/training ablations. Content hashes checked before/after every arm; later arms detected source changes. No claim of a complete matched comparison.",
+    "measurementLimits": "The available-season counter currently means all living recruited hero-seasons, including transit/recovery/captivity. Productive share alone cannot distinguish hoarding from forced absence. Level-time medians include only heroes reaching the level and therefore have survivor bias. A dedicated diplomacy-led agent and availability-adjusted analysis remain open.",
+    "humanEvidence": false
+  },
+  "openGates": [
+    "Game-native keyboard, enlarged-text and screen-reader validation after DOM overlay removal",
+    "Complete fixed-source six-arm balance comparison",
+    "Full crash/reload entrypoint matrix and remaining modifier-category presentation",
+    "Availability-adjusted hoarding analysis, late-recruit/role timing and a dedicated diplomacy-led agent",
+    "Physical mobile-device validation and performance profiling",
+    "Six mobile and six desktop human players",
+    "At least 10/12 distinguish province-loss forecasts from conditional hero risk and evacuate unaided",
+    "Zero lethal outcomes without current encounter-specific consent",
+    "Investigate balance findings before promotion; Stable promotion is outside scope"
+  ],
+  "artifactScope": "Curated JSON and bilingual source are committed candidates. Raw browser logs/screenshots remain ignored under output/hero-depth. Earlier document-validation.json is historical artifact QA, not gameplay evidence."
+}

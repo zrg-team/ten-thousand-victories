@@ -1,3 +1,4 @@
+import { effectiveHeroStats } from '../../systems/heroes/heroModel';
 /**
  * The numbers and small pure helpers more than one area of the Dragon Ascent HUD needs — the battle
  * dock's bands, the lane and prompt footers, the rarity palette, the `BattleMarker` record.
@@ -306,7 +307,7 @@ export function promptSignature(prompt: AscentPrompt): string {
     case 'rival-demand': return `${prompt.demand}:${prompt.kingdomId}`;
     case 'empire-response': return `${prompt.wave}`;
     case 'wave-result': return `${prompt.wave}`;
-    case 'host-lost': return `hostLost:${prompt.armyName}:${prompt.reason}:${prompt.men}`;
+    case 'host-lost': return `hostLost:${prompt.armyName}:${prompt.reason}:${prompt.men}:${prompt.rescue?.armyId ?? ''}`;
     case 'story-beat': return `${prompt.storyId}:${prompt.fragmentId}`;
     case 'coronation': return 'coronation';
     // Constant, like the coronation's: the screen has no options and reads every number it prints
@@ -325,6 +326,6 @@ export function promptSignature(prompt: AscentPrompt): string {
 }
 
 export function heroStatLine(hero: Hero): string {
-  const stats = hero.stats;
+  const stats = effectiveHeroStats(hero);
   return `${t('stat.martial')} ${stats.martial} · ${t('stat.logistics')} ${stats.logistics} · ${t('stat.administration')} ${stats.administration}`;
 }

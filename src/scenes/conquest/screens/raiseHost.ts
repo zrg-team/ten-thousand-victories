@@ -1,3 +1,4 @@
+import { effectiveHeroStats } from '../../../systems/heroes/heroModel';
 /**
  * The muster form — the one page in the Army lane that edits a draft rather than the world.
  *
@@ -80,7 +81,7 @@ export function showRaiseHostForm(self: ConquestUIScene): void {
       {
         title: commander ? heroTitleLine(commander) : t('ascent.orders.commanderNone'),
         subtitle: commander
-          ? `${heroPostingLabel(state, commander)}\n${t('ascent.army.mulGeneral', { pct: Math.round((commander.stats.martial / 100) * 25) })}`
+          ? `${heroPostingLabel(state, commander)}\n${t('ascent.army.mulGeneral', { pct: Math.round((effectiveHeroStats(commander).martial / 100) * 25) })}`
           : t('ascent.raise.commanderBody'),
         border: commander ? INK_UI.gold : INK_UI.cinnabar,
         portrait: commander,

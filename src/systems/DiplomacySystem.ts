@@ -356,11 +356,13 @@ function expireTreaties(state: GameState, kingdom: Kingdom): void {
   if (!kingdom.treaties || kingdom.treaties.length === 0) {
     return;
   }
-  const lapsed = kingdom.treaties.filter((tr) => tr.expiresTurn <= state.turn);
+  const expired = (tr: NonNullable<Kingdom['treaties']>[number]) => tr.expiresResolvedWave !== undefined
+    ? (state.ascent?.wavesSurvived ?? 0) >= tr.expiresResolvedWave : tr.expiresTurn <= state.turn;
+  const lapsed = kingdom.treaties.filter(expired);
   if (lapsed.length === 0) {
     return;
   }
-  kingdom.treaties = kingdom.treaties.filter((tr) => tr.expiresTurn > state.turn);
+  kingdom.treaties = kingdom.treaties.filter(tr => !expired(tr));
   if (!hasPact(kingdom)) {
     removeOpinionModifier(kingdom, `pact-${kingdom.id}`);
     state.message = t('diplo.pactLapsed', { kingdom: kingdom.name });

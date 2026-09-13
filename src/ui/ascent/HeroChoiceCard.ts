@@ -1,5 +1,8 @@
+import { effectiveHeroStats } from '../../systems/heroes/heroModel';
 import Phaser from 'phaser';
-import type { Hero } from '../../state/types';
+import type { Hero, GameState } from '../../state/types';
+import { heroCapability } from '../../systems/heroes/heroModel';
+import { heroPortraitCard } from '../HeroProgress';
 import { heroBio, heroName, heroTypeLabel, rarityLabel, t } from '../../i18n';
 import { tierForHero } from '../../systems/ascent/SummonSystem';
 import { renderHeroFaceInBox } from '../FaceRenderer';
@@ -95,8 +98,11 @@ export function heroChoiceCard(scene: Phaser.Scene, hero: Hero, width: number, h
     inkPath(g, [{ x: cx - side * 11, y: cy + 18 }, { x: cx + side * 14, y: cy + 18 }], 81 + side,
       { colour: accent, alpha: .25, width: .7, wobble: .1 });
   }
-  card.add(renderHeroFaceInBox(scene, hero,
-    { x: faceX - faceWidth / 2, y: faceY, width: faceWidth, height: faceHeight }, 2));
+  const heroState = (scene as Phaser.Scene & { state?: GameState }).state;
+  const faceBox = { x: faceX - faceWidth / 2, y: faceY, width: faceWidth, height: faceHeight };
+  card.add(heroState && heroCapability(heroState, 'growth')
+    ? heroPortraitCard(scene, hero, faceBox, true)
+    : renderHeroFaceInBox(scene, hero, faceBox, 2));
   if (landscapePortrait) {
     name.x = pad + 76 + (textWidth - 76) / 2;
     name.y = faceY + Math.max(0, (faceHeight - name.height) / 2);
@@ -106,9 +112,9 @@ export function heroChoiceCard(scene: Phaser.Scene, hero: Hero, width: number, h
   g.fillStyle(PIGMENT.diepLo, .25);
   g.fillRect(pad, statY, textWidth, statHeight);
   const stats = [
-    { label: t('heroes.card.martial'), value: hero.stats.martial },
-    { label: t('heroes.card.logistics'), value: hero.stats.logistics },
-    { label: t('heroes.card.administration'), value: hero.stats.administration },
+    { label: t('heroes.card.martial'), value: effectiveHeroStats(hero).martial },
+    { label: t('heroes.card.logistics'), value: effectiveHeroStats(hero).logistics },
+    { label: t('heroes.card.administration'), value: effectiveHeroStats(hero).administration },
   ];
   const best = Math.max(...stats.map(s => s.value));
   stats.forEach((stat, i) => {

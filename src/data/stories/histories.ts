@@ -1,4 +1,5 @@
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
+import { assignHeroDuty } from '../../systems/heroes/HeroService';
 import { livingRivals, pick, playerLands } from '../../systems/story/StorySystem';
 import {
   announce,
@@ -251,7 +252,10 @@ export const rideTheWind: StoryTemplate = {
           apply: (ctx) => {
             const host = grantHost(ctx, 500);
             const hero = ctx.hero();
-            if (host && hero) host.generalHeroId = hero.id;
+            if (host && hero) {
+              if (hero.growth) assignHeroDuty(ctx.state, hero.id, { kind: 'host', armyId: host.id });
+              else host.generalHeroId = hero.id;
+            }
             ctx.remember('field', 1);
             ctx.remember('echoTurn', ctx.state.turn);
           },
@@ -764,7 +768,10 @@ export const slanderedGeneral: StoryTemplate = {
             ctx.remember('imprisoned', 1);
             ctx.state.court.stability = Math.min(100, ctx.state.court.stability + 14);
             const hero = ctx.hero();
-            if (hero) hero.assignedTo = undefined;
+            if (hero) {
+              if (hero.growth) assignHeroDuty(ctx.state, hero.id, { kind: 'home' });
+              else hero.assignedTo = undefined;
+            }
           },
         },
         {
@@ -962,7 +969,10 @@ export const trustedSubordinate: StoryTemplate = {
             const hero = ctx.hero();
             if (hero) {
               for (const army of ctx.state.armies) {
-                if (army.generalHeroId === hero.id) army.generalHeroId = undefined;
+                if (army.generalHeroId === hero.id) {
+                  if (hero.growth) assignHeroDuty(ctx.state, hero.id, { kind: 'home' });
+                  else army.generalHeroId = undefined;
+                }
               }
               hero.stats.loyalty = Math.max(0, hero.stats.loyalty - 18);
             }

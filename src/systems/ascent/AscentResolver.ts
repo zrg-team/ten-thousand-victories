@@ -1,4 +1,6 @@
 import { bankLegacy, computeRunScore, getLegacy } from '../../state/legacy';
+import { initializeRecruitedHero } from '../heroes/HeroService';
+import { archiveHeroChronicle } from '../../state/heroChronicle';
 import { addRunXp, chooseTrait, getDynasty, isCrowned, setDynastyFounder } from '../../state/dynasty';
 import { storyText } from '../../i18n/story';
 import { t } from '../../i18n';
@@ -26,6 +28,8 @@ import { resolveEnvoy } from './EnvoySystem';
 import { resolveProvinceOrder } from './ProvinceOrderSystem';
 import { resolveFamine } from './FamineSystem';
 import { resolveRestore } from './RestoreSystem';
+import { relieveHost } from './hostRescue';
+import { releaseHost } from '../WarSystem';
 import { raiseHostWithPlan } from './MusterSystem';
 import { CLAIM_DECLINE_TICKS, MUSTER_DECLINE_TICKS } from '../../game/ascentConfig';
 import { pushToast } from '../empire/notifications';
@@ -107,6 +111,7 @@ export function resolveAscentPrompt(state: GameState, choiceId: string): boolean
       if (hero) {
         state.heroDeck = state.heroDeck.filter((candidate) => candidate.id !== hero.id);
         state.heroes.push(hero);
+        initializeRecruitedHero(state, hero);
         fireHeroArrival(state, hero);
         unlockHero(hero.id);
         ascent.heroesSummoned += 1;
@@ -342,7 +347,23 @@ export function resolveAscentPrompt(state: GameState, choiceId: string): boolean
     }
 
     case 'host-lost': {
-      // Nothing to decide — the host is already gone. Acknowledging clears it.
+      // A told card: the host is already gone, and acknowledging clears it.
+      //
+      // An asking card (`prompt.rescue`): the host is held at its breaking point. `rescue` pays the
+      // live price; a price the stores can no longer bear says so and leaves the card up, so the
+      // other answer is still there. Anything else — including a blind driver's 'ok' — lets it go,
+      // which is exactly what happened before the card could ask.
+      const offer = prompt.rescue;
+      if (offer && choiceId === 'rescue') {
+        const result = relieveHost(state, offer.armyId);
+        if (!result.ok && result.reason) {
+          pushToast(state, result.reason, 'threat');
+          handled = false;
+          break;
+        }
+      } else if (offer) {
+        releaseHost(state, offer.armyId, prompt.reason);
+      }
       handled = true;
       break;
     }
@@ -499,6 +520,7 @@ export function endAscentRun(state: GameState, outcome: 'fallen' | 'victory' = '
   // Beta: a victory is only ever the player's answer to a won goal, never a way to end a reign early.
   const victory = outcome === 'victory' && ascent.goal?.status === 'won';
   if (outcome === 'victory' && !victory) return;
+  archiveHeroChronicle(state);
 
   state.legacyBanked = true;
   state.isDefeated = true;

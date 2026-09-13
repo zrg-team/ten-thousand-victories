@@ -60,7 +60,7 @@ function dependencies(value) {
   return bi(esc(value), esc(value.replace('Starts H01; final gate', 'Bắt đầu H01; tiêu chí cuối').replace('set B:', 'bộ B:').replace('if charter enabled', 'nếu bật chế độ mục tiêu')));
 }
 function renderTickets() {
-  return `<h3>${both(copy.ticketsTitle)}</h3><p>${both(copy.ticketsLead)}</p><div class="tickets">${tickets.map(ticket => `<article class="ticket" id="${ticket.id}"><div class="ticket-top"><a href="#${ticket.id}" class="ticket-id">${ticket.id}</a><span>${bi('Proposed', 'Đề xuất')} · ${ticket.size}</span></div><h4>${both(ticket.title)}</h4><p class="dependency"><strong>${both(copy.depends)}:</strong> ${dependencies(ticket.dependencies)}</p><p>${both(ticket.task)}</p><p class="gate"><strong>${both(copy.done)}:</strong> ${both(ticket.gate)}</p><details><summary>${both(copy.files)}</summary><ul class="file-list">${ticket.files.map(path => `<li><a href="../../../${esc(path)}">${esc(path)}</a></li>`).join('')}</ul></details></article>`).join('')}</div>`;
+  return `<h3>${both(copy.ticketsTitle)}</h3><p>${both(copy.ticketsLead)}</p><div class="tickets">${tickets.map(ticket => `<article class="ticket" id="${ticket.id}"><div class="ticket-top"><a href="#${ticket.id}" class="ticket-id">${ticket.id}</a><span>${both(ticket.status)} · ${ticket.size}</span></div><h4>${both(ticket.title)}</h4><p class="dependency"><strong>${both(copy.depends)}:</strong> ${dependencies(ticket.dependencies)}</p><p>${both(ticket.task)}</p><p class="gate"><strong>${both(copy.done)}:</strong> ${both(ticket.gate)}</p><details><summary>${both(copy.files)}</summary><ul class="file-list">${ticket.files.map(path => `<li><a href="../../../${esc(path)}">${esc(path)}</a></li>`).join('')}</ul></details></article>`).join('')}</div>`;
 }
 function renderSection(section) {
   return `<section id="${section.id}"><header class="section-header"><h2>${both(section.title)}</h2><p class="lead">${both(section.lead)}</p></header>
@@ -178,5 +178,6 @@ for (const match of html.matchAll(/href="([^"]+)"/g)) {
   if (!existsSync(resolve(here, path))) throw Error(`Broken local link: ${href}`);
   localLinks++;
 }
-writeFileSync(resolve(here, 'index.html'), html, 'utf8');
-console.log(JSON.stringify({ output: 'docs/phase-2/hero-depth/index.html', translationPairs, sections: sections.length, loops: loops.length, tickets: tickets.length, localLinks, bytes: Buffer.byteLength(html) }));
+const cleanHtml = html.replace(/[ \t]+$/gm, '');
+writeFileSync(resolve(here, 'index.html'), cleanHtml, 'utf8');
+console.log(JSON.stringify({ output: 'docs/phase-2/hero-depth/index.html', translationPairs, sections: sections.length, loops: loops.length, tickets: tickets.length, localLinks, bytes: Buffer.byteLength(cleanHtml) }));

@@ -14,3 +14,8 @@ declare const __BUILD_DATE__: string;
  * serves. Relative asset URLs, no service worker. See `src/platform/shell.ts`.
  */
 declare const __SHELL_BUILD__: boolean;
+/**
+ * The published site, absolute, ending in `/` (`package.json` `homepage`). A shell build reaches
+ * files it does not carry — the trailers — from here.
+ */
+declare const __SITE_URL__: string;

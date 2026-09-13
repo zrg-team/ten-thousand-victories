@@ -1,3 +1,4 @@
+import { effectiveHeroStats } from '../heroes/heroModel';
 import { NEUTRAL_OWNER_ID, PLAYER_KINGDOM_ID } from '../../game/constants';
 import {
   AUTOBUILD_GOLD_RESERVE,
@@ -290,7 +291,7 @@ function autoTrimPayroll(state: GameState): void {
 
   const candidate = state.heroes
     .filter((hero) => !hero.assignedTo && canDismissHero(state, hero))
-    .sort((a, b) => Math.max(...Object.values(a.stats)) - Math.max(...Object.values(b.stats)))[0];
+    .sort((a, b) => Math.max(...Object.values(effectiveHeroStats(a))) - Math.max(...Object.values(effectiveHeroStats(b))))[0];
   if (!candidate) return;
   if (dismissHero(state, candidate.id)) ascent.lastPayrollTrimTurn = state.turn;
 }
@@ -318,7 +319,7 @@ export function findFreeCommander(state: GameState): string | undefined {
     .filter((hero) => !hero.assignedTo)
     .filter((hero) => !state.armies.some((army) => army.generalHeroId === hero.id))
     .filter((hero) => !state.recruitmentOrders.some((order) => order.heroId === hero.id))
-    .sort((a, b) => b.stats.martial - a.stats.martial)[0]?.id;
+    .sort((a, b) => effectiveHeroStats(b).martial - effectiveHeroStats(a).martial)[0]?.id;
 }
 
 /**

@@ -25,7 +25,7 @@
  * Env: DEV_URL / PLAYTEST_URL for a dev server other than 127.0.0.1:5179.
  */
 import { chromium } from 'playwright';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -189,7 +189,10 @@ function firstDiff(a, b) {
   return -1;
 }
 
-const baseline = existsSync(BASELINE_PATH) ? JSON.parse(readFileSync(BASELINE_PATH, 'utf8')) : null;
+const baselineRef = argOf('--baseline-ref', undefined);
+const baseline = baselineRef ? JSON.parse(execFileSync('git', ['show', `${baselineRef}:test_scripts/verify/baselines/ascent-fingerprint.json`], { encoding: 'utf8' }))
+  : existsSync(BASELINE_PATH) ? JSON.parse(readFileSync(BASELINE_PATH, 'utf8')) : null;
+if (baselineRef && WRITE) throw new Error('--baseline-ref is read-only and cannot be combined with --write');
 
 if (WRITE) {
   const next = baseline && baseline.seeds === SEED_COUNT && baseline.ticks === TICKS

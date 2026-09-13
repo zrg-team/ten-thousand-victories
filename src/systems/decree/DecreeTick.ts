@@ -1,4 +1,5 @@
 import { generateHero } from '../../data/heroFactory';
+import { initializeRecruitedHero } from '../heroes/HeroService';
 import { getProject } from '../../data/edicts';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { unlockHero } from '../../state/codex';
@@ -67,6 +68,7 @@ function tickExaminations(state: GameState): void {
     const hero = generateHero((state.turn + 1) * 15013 + salt * 2654435761, { rarity });
     if (taken.has(hero.id)) continue;
     state.heroes.push(hero);
+    initializeRecruitedHero(state, hero);
     unlockHero(hero.id);
     pushToast(state, t('decree.exam.graduate', { hero: heroName(hero) }), 'milestone');
     return;

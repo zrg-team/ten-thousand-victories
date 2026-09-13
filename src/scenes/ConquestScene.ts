@@ -7,6 +7,7 @@ import { traceLandBoundaryLoops } from '../map/boundary';
 import { advanceAscentTick } from '../systems/ascent/AscentTick';
 import { rerollAscentDraft, resolveAscentPrompt } from '../systems/ascent/AscentResolver';
 import { drainAscentPrompts } from '../systems/ascent/AscentState';
+import { searchForTalent } from '../systems/ascent/ChampionSearch';
 import { advanceCeremony } from '../systems/ascent/Ceremony';
 import { offerConquestMethods } from '../systems/ascent/ConquestSystem';
 import { offerEnvoyTo } from '../systems/ascent/EnvoySystem';
@@ -616,6 +617,16 @@ export class ConquestScene extends MapScene {
     this.onUi('ui:ascent-law', () => {
       if (this.state.pendingAscentPrompt) return;
       if (offerLawChoice(this.state, true)) {
+        drainAscentPrompts(this.state);
+        this.refresh();
+        ui.events.emit('state-changed');
+      }
+    });
+
+    // The Heroes page's talent search: hear a waiting Favour draft, or pay for a search.
+    this.onUi('ui:ascent-search-talent', () => {
+      if (this.state.pendingAscentPrompt) return;
+      if (searchForTalent(this.state)) {
         drainAscentPrompts(this.state);
         this.refresh();
         ui.events.emit('state-changed');

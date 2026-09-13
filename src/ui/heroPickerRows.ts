@@ -1,3 +1,4 @@
+import { effectiveHeroStats, heroActive } from '../systems/heroes/heroModel';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
 import { BATTLE_RALLY_BASE } from '../game/ascentConfig';
 import { formatCourtPositionEffect, getCourtPositionLabel } from '../systems/CourtSystem';
@@ -75,7 +76,7 @@ function statWord(key: keyof HeroStats): string {
 
 /** Six stats on two lines, named — the appointment card used to show three as glyphs. */
 export function heroStatsLine(hero: Hero): string {
-  const s = hero.stats;
+  const s = effectiveHeroStats(hero);
   return `${statWord('martial')} ${s.martial} · ${statWord('logistics')} ${s.logistics} · ${statWord('administration')} ${s.administration}\n`
     + `${statWord('diplomacy')} ${s.diplomacy} · ${statWord('loyalty')} ${s.loyalty} · ${statWord('renown')} ${s.renown}`;
 }
@@ -90,6 +91,15 @@ export function heroTitleLine(hero: Hero): string {
  * (which used to leak a raw order id onto the roster) and an envoy's destination.
  */
 export function heroPostingLabel(state: GameState, hero: Hero): string {
+  if (hero.life?.kind === 'transit') {
+    const life = hero.life;
+    if (life.blocked) return t('hero.depth.journeyBlocked');
+    return t('hero.depth.transit', { n: Math.max(0, life.arrivalTurn - state.turn), target: state.lands.find(land => land.id === life.destinationId)?.name ?? state.kingdoms.find(kingdom => `embassy:${kingdom.id}` === life.destinationId)?.name ?? '' });
+  }
+  if (hero.life?.kind === 'recovering') return t('hero.depth.recovering', { n: Math.max(0, hero.life.readyTurn - state.turn) });
+  if (hero.life?.kind === 'captive') return t('hero.depth.captive', { kingdom: state.kingdoms.find(kingdom => kingdom.id === (hero.life as { captorId: string }).captorId)?.name ?? '' });
+  if (hero.life?.kind === 'dead') return t('hero.depth.dead');
+  if (hero.life?.kind === 'active' && hero.life.sheltering) return t('hero.depth.sheltering');
   if (!hero.assignedTo) return t('ascent.lane.unposted');
   if (hero.assignedTo.startsWith('court:')) {
     return getCourtPositionLabel(hero.assignedTo.slice('court:'.length) as CourtPositionId);
@@ -164,7 +174,7 @@ function envoySeasons(state: GameState, hero: Hero, landId: string): number {
   if (rulesOf(state).truthfulNumbers) return estimateDiplomacySeasons(state, land, hero) ?? 0;
   const trust = getLandTrust(land, PLAYER_KINGDOM_ID);
   const threshold = getDiplomacyThreshold(land);
-  const gain = Math.max(0.5, 1 + hero.stats.administration * 0.03);
+  const gain = Math.max(0.5, 1 + effectiveHeroStats(hero).administration * 0.03);
   return Math.max(1, Math.ceil((threshold - trust) / gain));
 }
 
@@ -176,15 +186,15 @@ export function buildHeroPickerRows(state: GameState, target: HeroPickerTarget):
     : undefined;
 
   const scored = state.heroes.map((hero) => {
-    const blocked = blockedLine(state, hero, target);
+    const blocked = !heroActive(hero) ? heroPostingLabel(state, hero) : blockedLine(state, hero, target);
     const unposted = !hero.assignedTo ? UNPOSTED_BONUS : 0;
     let score = 0;
     let effectLine = '';
     switch (target.kind) {
       case 'court': {
         const stat = seatPrimaryStat(target.seat);
-        score = hero.stats[stat] + unposted;
-        effectLine = formatCourtPositionEffect(target.seat, hero.stats);
+        score = effectiveHeroStats(hero)[stat] + unposted;
+        effectLine = formatCourtPositionEffect(target.seat, effectiveHeroStats(hero));
         break;
       }
       case 'governor': {
@@ -194,13 +204,13 @@ export function buildHeroPickerRows(state: GameState, target: HeroPickerTarget):
         break;
       }
       case 'commander': {
-        score = hero.stats.martial + unposted;
-        effectLine = `${t('ascent.army.mulGeneral', { pct: Math.round((hero.stats.martial / 100) * 25) })}  ·  ${
-          t('ascent.pick.rally', { n: Math.round(BATTLE_RALLY_BASE + hero.stats.martial * 0.25) })}`;
+        score = effectiveHeroStats(hero).martial + unposted;
+        effectLine = `${t('ascent.army.mulGeneral', { pct: Math.round((effectiveHeroStats(hero).martial / 100) * 25) })}  ·  ${
+          t('ascent.pick.rally', { n: Math.round(BATTLE_RALLY_BASE + effectiveHeroStats(hero).martial * 0.25) })}`;
         break;
       }
       case 'envoy': {
-        score = hero.stats.diplomacy + hero.stats.administration + unposted;
+        score = effectiveHeroStats(hero).diplomacy + effectiveHeroStats(hero).administration + unposted;
         effectLine = t('ascent.pick.envoyFx', { ticks: envoySeasons(state, hero, target.landId) });
         break;
       }

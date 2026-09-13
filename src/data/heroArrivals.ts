@@ -1,3 +1,4 @@
+import { commitHeroAssignment } from '../systems/heroes/HeroService';
 import {
   ARRIVAL_HOST_MIN,
   ARRIVAL_HOST_SHARE,
@@ -88,6 +89,7 @@ export const HERO_ARRIVALS: Record<HeroArrivalId, HeroArrival> = {
         autoDefend: true,
       });
       hero.assignedTo = `arrival-${hero.id}`;
+      if (hero.growth) commitHeroAssignment(state, hero, { kind: 'host', armyId: hero.assignedTo });
       return true;
     },
   },

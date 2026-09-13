@@ -149,6 +149,13 @@ export class AscentHud {
   /** Beta (`defenceBand`): the left figure is DEFENCE, the same unit THREAT is judged against. */
   private readonly defenceBand: boolean;
   private tickerFrom?: number;
+  /** The shorter forms the bar's title row falls back to when it runs out of room (`placeCompact`). */
+  private countdownShort?: string;
+  private ambitionShort = '';
+  /** What the title row was last fitted against, how many fallbacks that took, and what this render asks for. */
+  private titleFitKey = '';
+  private titleStage = 0;
+  private titleFitWant = '';
 
   constructor(private readonly scene: Phaser.Scene, opts: { compact?: boolean; width?: number; defenceBand?: boolean } = {}) {
     this.compact = opts.compact ?? false;
@@ -266,13 +273,28 @@ export class AscentHud {
     // halves of the lifecycle agree with each other.
     const live = ascent.waveInFlight;
     const bossNext = (ascent.wave + 1) % 4 === 0;
+    const heat = heatFor(ascent.ambition);
+    const countdownFull = live
+      ? t('ascent.hud.live', { wave: ascent.wave })
+      : bossNext
+        ? t('ascent.hud.bossIn', { ticks: Math.max(0, ascent.ticksToWave) })
+        : t('ascent.hud.waveIn', { ticks: Math.max(0, ascent.ticksToWave) });
+    const ambitionFull = heat > 1.001 ? t('ascent.hud.ambition', { mult: heat.toFixed(1) }) : '';
+    this.countdownShort = live ? t('ascent.hud.liveShort', { wave: ascent.wave }) : undefined;
+    this.ambitionShort = t('ascent.hud.ambitionShort', { mult: heat.toFixed(1) });
+    // Beta: while the reign's goal is open the wave reads against the Great Invasion that decides it.
+    const goalWave = ascent.goal?.status === 'open' ? ascent.goal.targetWave : undefined;
+    const levelText = t('ascent.hud.level', { level: ascent.level });
+    const waveText = goalWave
+      ? t('beta.hud.waveGoal', { wave: ascent.wave, goal: goalWave })
+      : t('ascent.hud.wave', { wave: ascent.wave });
+    // The bar's title row keeps the fit it last measured while nothing on it has changed, so a
+    // squeezed row is written once in its short form rather than full-then-short on every beat.
+    this.titleFitWant = `${this.width}|${levelText}|${waveText}|${countdownFull}|${ambitionFull}`;
+    const stage = this.compact && this.titleFitWant === this.titleFitKey ? this.titleStage : 0;
     write(
       parts.countdown,
-      live
-        ? t('ascent.hud.live', { wave: ascent.wave })
-        : bossNext
-          ? t('ascent.hud.bossIn', { ticks: Math.max(0, ascent.ticksToWave) })
-          : t('ascent.hud.waveIn', { ticks: Math.max(0, ascent.ticksToWave) }),
+      stage >= 1 && this.countdownShort ? this.countdownShort : countdownFull,
       live || bossNext ? '#a4402c' : '#5a4c39',
     );
     parts.countdown.setFontStyle(live || bossNext ? '700' : 'normal');
@@ -300,14 +322,13 @@ export class AscentHud {
     // ambition — but a number that moves for reasons the player cannot see is the exact
     // failure the ambition curve was built to end. This says *why* it moved, on the same
     // right-hand column, and warms from jade through gold to cinnabar as the realm gets bolder.
-    const heat = heatFor(ascent.ambition);
     if (heat > 1.001) {
       write(
         parts.ambition,
-        t('ascent.hud.ambition', { mult: heat.toFixed(1) }),
+        stage >= 2 ? this.ambitionShort : ambitionFull,
         heat < 1.4 ? '#4c6b46' : heat < 2 ? '#9a6b16' : '#a4402c',
       );
-      parts.ambition.setVisible(true);
+      parts.ambition.setVisible(stage < 3);
       if (!this.compact) {
         parts.ambition.setX(x);
         // The meters are bounded by whatever sits furthest left in the right-hand column, not by
@@ -323,12 +344,8 @@ export class AscentHud {
     // four digits instead of being overrun by it. Clamped at both ends: a very short figure would
     // otherwise start the frieze under the word POWER, and a very long one would squeeze it to a
     // stub against THREAT.
-    write(parts.level, t('ascent.hud.level', { level: ascent.level }));
-    // Beta: while the reign's goal is open the wave reads against the Great Invasion that decides it.
-    const goalWave = ascent.goal?.status === 'open' ? ascent.goal.targetWave : undefined;
-    write(parts.wave, goalWave
-      ? t('beta.hud.waveGoal', { wave: ascent.wave, goal: goalWave })
-      : t('ascent.hud.wave', { wave: ascent.wave }));
+    write(parts.level, levelText);
+    write(parts.wave, waveText);
 
     let barX: number;
     let barWidth: number;
@@ -451,6 +468,29 @@ export class AscentHud {
     parts.wave.setPosition(14 + parts.level.width + 7, title);
     parts.ambition.setPosition(parts.wave.x + parts.wave.width + 10, title + 3);
     parts.countdown.setPosition(right, title + 3);
+
+    // The title row is filled from both ends — level, wave and ambition from the left, the countdown
+    // pinned right — and nothing stopped the two meeting. In Vietnamese on a mid-width bar
+    // "×1.1 tham vọng" ran straight into "XÂM LƯỢC 5 · ĐANG DIỄN RA". Measured, then shed in the
+    // order that costs least: the live label's "· LIVE" (the pulse already says it), then the word
+    // after the multiplier, then the tag itself.
+    if (this.titleFitKey !== this.titleFitWant) {
+      // Measured from the full forms, which `render` wrote because the key moved.
+      const fits = (): boolean => !parts.ambition.visible
+        || parts.ambition.x + parts.ambition.width + 10 <= right - parts.countdown.width;
+      const steps = [
+        () => { if (this.countdownShort) parts.countdown.setText(this.countdownShort); },
+        () => { if (this.ambitionShort) parts.ambition.setText(this.ambitionShort); },
+        () => { parts.ambition.setVisible(false); },
+      ];
+      let stage = 0;
+      while (stage < steps.length && !fits()) {
+        steps[stage]();
+        stage += 1;
+      }
+      this.titleStage = stage;
+      this.titleFitKey = this.titleFitWant;
+    }
 
     const row = TOP + STRIP_ROW_Y;
     const [powerLabel, threatLabel] = parts.labels;

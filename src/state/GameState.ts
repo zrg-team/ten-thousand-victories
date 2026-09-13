@@ -13,6 +13,7 @@ import { recomputeOpinion } from '../systems/DiplomacySystem';
 import { createInitialMandate } from '../systems/empire/MandateSystem';
 import { initDirectives } from '../systems/empire/DirectiveSystem';
 import { createAscentState, enqueueAscentPrompt } from '../systems/ascent/AscentState';
+import { initializeHeroDepthRun } from '../systems/heroes/HeroService';
 import { openingGoal } from '../systems/ascent/Goal';
 import { carriesAnything, readCarriedOver } from '../systems/ascent/CarriedOver';
 import { rulesOf } from '../game/ascentRuleset';
@@ -702,6 +703,7 @@ export function createAscentGameState(config: CampaignConfig, options: RunCreati
   state.directiveDeckCursor = undefined;
 
   seedAscentOpening(state, options);
+  if (!options.sandbox) initializeHeroDepthRun(state);
   // The Cabinet's opening hand, before the mandate card: the seals the house slotted arrive at
   // one stack each and pre-pay the mode's own threat counter (+2 ambition per slot).
   applyOpeningHand(state, !options.sandbox);

@@ -10,6 +10,7 @@ import type {
 } from '../state/types';
 import { enAscent, viAscent } from './catalogs/ascent';
 import { enAscentBeta, viAscentBeta } from './catalogs/ascentBeta';
+import { enHeroDepth, viHeroDepth } from './catalogs/heroDepth';
 import { enCore, viCore } from './catalogs/core';
 import { enCoronation, viCoronation } from './catalogs/coronation';
 import { enEmpire, viEmpire } from './catalogs/empire';
@@ -36,6 +37,7 @@ const EN_SOURCES = {
   empire: enEmpire,
   ascent: enAscent,
   ascentBeta: enAscentBeta,
+  heroDepth: enHeroDepth,
   coronation: enCoronation,
   guide: enGuide,
   tips: enTips,
@@ -49,6 +51,7 @@ const en = {
   ...enEmpire,
   ...enAscent,
   ...enAscentBeta,
+  ...enHeroDepth,
   ...enCoronation,
   ...enGuide,
   ...enTips,
@@ -62,6 +65,7 @@ const vi = {
   ...viEmpire,
   ...viAscent,
   ...viAscentBeta,
+  ...viHeroDepth,
   ...viCoronation,
   ...viGuide,
   ...viTips,

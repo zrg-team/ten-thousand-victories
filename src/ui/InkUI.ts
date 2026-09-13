@@ -176,6 +176,12 @@ export interface InkButtonOptions {
    */
   icon?: CardIconId;
   /**
+   * A small jade pill printed right of the label, inside the button, as one centred group with it
+   * — a status the label wears ("BETA"), not words of the label itself. Jade, not cinnabar: the
+   * game keeps cinnabar for alarm and this is an invitation.
+   */
+  badge?: string;
+  /**
    * Drops the printed surface and leaves only what the caller puts inside it.
    *
    * For a control whose whole meaning is one glyph — Pause, the run menu. A frame around a mark
@@ -1230,6 +1236,32 @@ export class InkUI {
       text.setX(left + glyphWidth + GAP + text.width / 2);
     }
 
+    let badge: Phaser.GameObjects.Container | undefined;
+    if (opts.badge) {
+      const badgeText = this.scene.add.text(0, 0, opts.badge, {
+        fontFamily: UI_FONT,
+        fontSize: '9px',
+        fontStyle: '700',
+        color: '#fbf2df',
+      }).setOrigin(0.5);
+      badgeText.setLetterSpacing(1.2);
+      const pillW = Math.max(34, Math.ceil(badgeText.width) + 12);
+      const pillH = 15;
+      const pill = this.scene.add.graphics();
+      pill.fillStyle(INK_UI.jade, disabled ? 0.5 : 1);
+      pill.fillRoundedRect(-pillW / 2, -pillH / 2, pillW, pillH, pillH / 2);
+      badge = this.scene.add.container(0, 0, [pill, badgeText]);
+      // The label and the pill are centred as one group, the glyph (if any) staying at the head
+      // of it — the same rule the icon follows, so a badge never shoves the label off centre.
+      const GAP = 7;
+      const groupLeft = glyph ? glyph.x - (CARD_ICON_SIZE * 0.62) / 2 : text.x - text.width / 2;
+      const groupWidth = (text.x + text.width / 2 - groupLeft) + GAP + pillW;
+      const shift = (bounds.width / 2 - groupWidth / 2) - groupLeft;
+      glyph?.setX(glyph.x + shift);
+      text.setX(text.x + shift);
+      badge.setPosition(text.x + text.width / 2 + GAP + pillW / 2, text.y);
+    }
+
     const hitArea = this.scene.add
       .rectangle(
         bounds.width / 2,
@@ -1366,6 +1398,7 @@ export class InkUI {
     const parts: Phaser.GameObjects.GameObject[] = surface ? [surface] : [];
     if (glyph) parts.push(glyph);
     parts.push(text);
+    if (badge) parts.push(badge);
     if (sub) parts.push(sub);
     parts.push(hitArea);
     container.add(parts);

@@ -1,4 +1,5 @@
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
+import { heroActive } from '../heroes/heroModel';
 import type { GameState, Hero, Land } from '../../state/types';
 
 /**
@@ -38,12 +39,12 @@ export function defenceCommanderOf(state: GameState, land: Land | undefined): He
     && army.generalHeroId);
   if (led?.generalHeroId) {
     const general = state.heroes.find((hero) => hero.id === led.generalHeroId);
-    if (general) return general;
+    if (general && heroActive(general)) return general;
   }
 
   // 2. Failing that, whoever holds the province. `assignedTo` is a tagged string — `court:<seat>`,
   // an army id, an errand — and a bare land id is exactly the governorship (`assignHeroToLand`).
-  return state.heroes.find((hero) => hero.assignedTo === land.id);
+  return state.heroes.find((hero) => hero.assignedTo === land.id && heroActive(hero));
 }
 
 /** The same answer as a name, for the paths that only ever wanted one. */

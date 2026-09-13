@@ -1,3 +1,4 @@
+import { effectiveHeroStats } from '../heroes/heroModel';
 import { NEUTRAL_OWNER_ID, PLAYER_KINGDOM_ID } from '../../game/constants';
 import {
   CONQUEST_GARRISON_SHARE,
@@ -303,7 +304,7 @@ function diplomacyOption(state: GameState, land: Land): ConquestMethodOption {
   const hero = bestDiplomat(state);
   const trust = getLandTrust(land, PLAYER_KINGDOM_ID);
   const threshold = getDiplomacyThreshold(land);
-  const gain = Math.max(0.5, 1 + (hero?.stats.administration ?? 0) * 0.03);
+  const gain = Math.max(0.5, 1 + ((hero ? effectiveHeroStats(hero).administration : undefined) ?? 0) * 0.03);
 
   // Beta: the trust it actually is, the seasons the real gain takes, and a province that can
   // never be won by an envoy said to be exactly that.
@@ -777,7 +778,7 @@ function bestAdjacentOwnedArmy(state: GameState, land: Land): Army | undefined {
  * leaves an army leaderless in the middle of a war.
  */
 function bestDiplomat(state: GameState): Hero | undefined {
-  const rank = (hero: Hero): number => hero.stats.diplomacy + hero.stats.administration;
+  const rank = (hero: Hero): number => effectiveHeroStats(hero).diplomacy + effectiveHeroStats(hero).administration;
   const byRank = (a: Hero, b: Hero): number => rank(b) - rank(a);
 
   const unposted = state.heroes.filter((hero) => !hero.assignedTo).sort(byRank)[0];

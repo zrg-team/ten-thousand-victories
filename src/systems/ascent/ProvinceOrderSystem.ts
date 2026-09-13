@@ -1,3 +1,4 @@
+import { effectiveHeroStats } from '../heroes/heroModel';
 /**
  * What a province is *for*, and who holds it — asked when the realm is visibly short of something
  * or a province is standing open.
@@ -248,7 +249,7 @@ export function draftProvinceOrder(state: GameState): Draft | undefined {
       const effects = getLandGovernorEffects(state, land, hero);
       const worth = resource
         ? effects.outputMult
-        : 1 + hero.stats.martial * 0.004;
+        : 1 + effectiveHeroStats(hero).martial * 0.004;
       return { hero, effects, worth, fromSeat };
     })
     .sort((a, b) => b.worth - a.worth)[0];
@@ -262,7 +263,7 @@ export function draftProvinceOrder(state: GameState): Draft | undefined {
       keyStat: resource ? best.effects.keyStat : 'martial',
       effect: resource
         ? Math.round((best.effects.outputMult - 1) * 100)
-        : best.hero.stats.martial,
+        : effectiveHeroStats(best.hero).martial,
       affordable: true,
     });
   }
