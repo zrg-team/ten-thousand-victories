@@ -51,6 +51,8 @@ import { UI_FONT } from '../../ui/fonts';
 import { heroName, t, tickLabel } from '../../i18n';
 import { hostileClaimAt } from '../../systems/LandSystem';
 import { buildFocusRows } from '../../ui/focusPanel';
+import type { CostChip } from '../../ui/costChips';
+import { focusChip, resourceChip, statChip } from '../../ui/statChips';
 import { getLandSpecialization } from '../../systems/ResourceSystem';
 import { masonryPowerPerDefense, militiaPowerPerMan } from '../../systems/WarSystem';
 import { landSupply } from '../../systems/ascent/SupplySystem';
@@ -962,26 +964,19 @@ const INSPECT_FLOOR_GAP = 10;
 const INSPECT_FALLBACK_HEIGHT = 134;
 
 /**
- * The supply row: how far this province's goods travel, and how much survives the trip.
+ * The supply chip: how far this province's goods travel, and how much survives the trip.
  *
  * Reads the cache `refreshAllLandOutputs` wrote, so the percentage on the card is by construction
- * the same number that was multiplied into the three figures above it.
+ * the same number that was multiplied into the three store figures above it.
  */
-function supplyRow(state: GameState, land: Land): { label: string; value: string } {
+function supplyChip(state: GameState, land: Land): CostChip {
   const reading = landSupply(state, land.id);
-  if (reading.cutOff) {
-    return { label: t('ascent.supply.row'), value: t('ascent.supply.cut') };
-  }
-  if (reading.hops === 0) {
-    return { label: t('ascent.supply.row'), value: t('ascent.supply.seat') };
-  }
-  return {
-    label: t('ascent.supply.row'),
-    value: t('ascent.supply.hops', {
-      hops: String(reading.hops),
-      percent: String(Math.round(reading.factor * 100)),
-    }),
-  };
+  if (reading.cutOff) return statChip('haulage', t('ascent.supply.cut'), INK_UI.cinnabar);
+  if (reading.hops === 0) return statChip('haulage', t('ascent.supply.seat'));
+  return statChip('haulage', t('ascent.supply.hops', {
+    hops: String(reading.hops),
+    percent: String(Math.round(reading.factor * 100)),
+  }));
 }
 
 /** Everything of the reading the card prints, for the rebuild key. */
@@ -1006,7 +1001,7 @@ function renderInspect(self: ConquestUIScene): void {
   const key = !land || self.state.pendingAscentPrompt || self.openPromptKey !== ''
     ? ''
     : [land.id, land.ownerId, claim ? `${claim.progress}/${claim.required}` : '-',
-      Math.round(land.outputs.gold), Math.round(land.outputs.food),
+      Math.round(land.outputs.gold), Math.round(land.outputs.food), Math.round(land.outputs.supplies),
       Math.round(land.defense * masonryPowerPerDefense(self.state)
         + land.localSoldiers * militiaPowerPerMan(self.state)),
       // Both are printed now, so both have to be in the key or the card goes stale the moment the
@@ -1038,52 +1033,62 @@ function renderInspect(self: ConquestUIScene): void {
   // where the dock is zero.
   const dock = uiColumnX();
 
+  /**
+   * The figures, drawn rather than spelled.
+   *
+   * These were `label: value` rows — "lương thực: 24", "vật tư: 18", "vàng: 50" — the one card in
+   * the mode still printing its stores as words after every lane had moved to glyphs, and the
+   * card the player opens most. The header strip above draws the same three stores as the same
+   * three glyphs, in the same order, so a province's yield now reads against the running total
+   * without a word in between. Garrison leads: it is what decides whether the ground can be held
+   * or taken, and it was a muted subtitle.
+   *
+   * All three stores on every branch, not the two that happened to fit — a focus is chosen
+   * against what the province yields, and supplies was the one the card used to leave out.
+   */
+  const lossTone = falling ? INK_UI.cinnabar : undefined;
+  const figures: CostChip[] = [
+    statChip('garrison', Math.round(land.defense * masonryPowerPerDefense(self.state)
+      + land.localSoldiers * militiaPowerPerMan(self.state))),
+    resourceChip('food', land.outputs.food, lossTone),
+    resourceChip('supplies', land.outputs.supplies, lossTone),
+    resourceChip('gold', land.outputs.gold, lossTone),
+  ];
+  const focus = getLandSpecialization(land);
+  const standing: CostChip[] | undefined = falling
+    ? [
+        // What the player needs in order to decide whether to spend a host on it: how long there
+        // is, and that the figures above are what it still yields while the clock runs.
+        statChip('seasons', `${claimLeft} ${tickLabel(claimLeft)}`, INK_UI.cinnabar),
+        statChip('yieldCut', t('ascent.falling.reducedYieldValue'), INK_UI.cinnabar),
+      ]
+    : mine
+    ? [
+        // Who holds it. A governor is the one thing about a province of ours that is a
+        // *decision* rather than a number, and it was readable nowhere on the map.
+        governor
+          ? statChip('governor', heroName(governor))
+          : statChip('governor', t('gov.none'), INK_UI.cinnabar),
+        // Off `buildFocusRows`, so the card and the picker it opens can never disagree about
+        // what a focus is called; the glyph is the store it fills, as on the claim list.
+        focusChip(focus,
+          buildFocusRows(self.state, land).find((row) => row.isCurrent)?.title ?? '—',
+          t('focus.heading')),
+        // How much of what it makes actually reaches the treasury, and why. Without this the
+        // haulage toll is an unexplained shortfall: the figures above are the *delivered* ones,
+        // so a distant province simply looked poorer than it is.
+        supplyChip(self.state, land),
+      ]
+    : undefined;
+
   // Built at nought, measured, then moved — see the note on `INSPECT_GAP`.
   const card = self.ui.card(
     { x: 14 + dock, y: 0, width: GAME_WIDTH - 28, height: 0 },
     {
       title: land.name,
-      subtitle: `${t('ascent.march.garrison', {
-        value: Math.round(land.defense * masonryPowerPerDefense(self.state)
-          + land.localSoldiers * militiaPowerPerMan(self.state)),
-      })}`,
-      rows: falling
-        ? [
-            // What the player needs in order to decide whether to spend a host on it: how long
-            // there is, who is taking it, and what it is still worth while the clock runs.
-            { label: t('ascent.falling.seasons'), value: `${claimLeft} ${tickLabel(claimLeft)}` },
-            { label: t('ascent.falling.reducedYield'), value: t('ascent.falling.reducedYieldValue') },
-            { label: t('resource.gold'), value: String(Math.round(land.outputs.gold)) },
-            { label: t('resource.food'), value: String(Math.round(land.outputs.food)) },
-          ]
-        : mine
-        ? [
-            // All three stores, not the two that happened to fit. A focus is chosen against what
-            // the province currently yields, and supplies was the one the card left out.
-            { label: t('resource.food'), value: String(Math.round(land.outputs.food)) },
-            { label: t('resource.supplies'), value: String(Math.round(land.outputs.supplies)) },
-            { label: t('resource.gold'), value: String(Math.round(land.outputs.gold)) },
-            // Who holds it. A governor is the one thing about a province of ours that is a
-            // *decision* rather than a number, and it was readable nowhere on the map.
-            {
-              label: t('land.section.assignment'),
-              value: governor ? heroName(governor) : t('gov.none'),
-            },
-            {
-              label: t('focus.heading'),
-              // Off `buildFocusRows`, so the card and the picker it opens can never disagree
-              // about what a focus is called.
-              value: buildFocusRows(self.state, land).find((row) => row.isCurrent)?.title ?? '—',
-            },
-            // How much of what it makes actually reaches the treasury, and why. Without this row
-            // the haulage toll is an unexplained shortfall: the three numbers above are the
-            // *delivered* figures, so a distant province simply looked poorer than it is.
-            supplyRow(self.state, land),
-          ]
-        : [
-            { label: t('resource.gold'), value: String(Math.round(land.outputs.gold)) },
-            { label: t('resource.food'), value: String(Math.round(land.outputs.food)) },
-          ],
+      stats: figures,
+      statsSecond: standing,
+      statsSize: 'price',
       // Cinnabar for a province in trouble, either way it is in trouble: being taken, or still
       // ours and with no road home.
       border: falling || (mine && landSupply(self.state, land.id).cutOff)
