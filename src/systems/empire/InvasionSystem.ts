@@ -1,4 +1,6 @@
 import { isEndlessMode, PLAYER_KINGDOM_ID } from '../../game/constants';
+import { doctrineHostMix } from './hostDoctrine';
+export { doctrineHostMix } from './hostDoctrine';
 import { getLegTicks } from '../../game/movementConfig';
 import {
   CAMPAIGN_TICKS_BASE,
@@ -152,19 +154,6 @@ function expectedDefensibleStrength(turn: number): number {
  * opens in (`doctrineOpening`, BattleSystem). Each is *power-normalised* at the spawn, so the
  * doctrine changes what the host is made of and never how much of it there is.
  */
-export function doctrineHostMix(personality: KingdomPersonality | undefined): { spearmen: number; archers: number; heavy: number } {
-  switch (personality) {
-    // Comes on hard: a heavy core to break a line by weight.
-    case 'aggressive': return { spearmen: 0.50, archers: 0.15, heavy: 0.35 };
-    // Stands and shoots: bows behind a spear hedge, and little that charges.
-    case 'defensive': return { spearmen: 0.45, archers: 0.42, heavy: 0.13 };
-    // Spends other people's soldiers reluctantly: light, cheap, and mostly at range.
-    case 'economic':
-    case 'diplomatic': return { spearmen: 0.58, archers: 0.34, heavy: 0.08 };
-    // Takes ground with numbers: the reference profile, spears forward.
-    default: return { spearmen: 0.60, archers: 0.28, heavy: 0.12 };
-  }
-}
 
 /** Battle power per soldier of a mix, before morale, supply and level — see `armyPower`. */
 function mixPower(mix: { spearmen: number; archers: number; heavy: number }): number {
@@ -1525,6 +1514,10 @@ export function resolveBattleRecord(
   const record = state.invasions?.find((r) => r.armyId === pb.invaderArmyId);
   if (!army || !land || !record) return;
   if (decision === 'retreat') {
+    if (!reported) {
+      beginHeroEncounter(state, land.id, undefined, record.kingdomId);
+      completeHeroEncounter(state, land.id, false, true);
+    }
     // Pull the field army to safety; the district falls to whatever garrison remains.
     retreatDefenders(state, land);
     resolveInvaderBattle(state, army, record, land, 1, forced, reported);
@@ -1534,6 +1527,7 @@ export function resolveBattleRecord(
   resolveInvaderBattle(state, army, record, land, decision === 'attack' ? 1.22 : 1.06, forced, reported);
 }
 
+import { beginHeroEncounter, completeHeroEncounter } from '../heroes/HeroService';
 function resolveInvaderBattle(
   state: GameState,
   army: Army,
@@ -1567,7 +1561,9 @@ function resolveInvaderBattle(
     + Math.max(0, Math.round(land.ownerId === PLAYER_KINGDOM_ID ? land.localSoldiers : 0));
   const openingUs = headcount();
   const openingThem = totalUnits(army);
+  if (!reported) beginHeroEncounter(state, land.id, defenders, record.kingdomId);
   const filed = (outcome: AscentBattleRecord['outcome']): void => {
+    if (!reported) completeHeroEncounter(state, land.id, outcome === 'they-rout' || outcome === 'spent', outcome === 'retreat');
     if (reported || state.gameMode !== 'ascent' || !state.ascent) return;
     recordEngagement(state, {
       turn: state.turn,

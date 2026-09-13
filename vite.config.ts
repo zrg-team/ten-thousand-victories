@@ -1,5 +1,7 @@
 import packageJson from './package.json';
 import { execSync } from 'node:child_process';
+import { rmSync } from 'node:fs';
+import { join } from 'node:path';
 import { defineConfig } from 'vite';
 
 const homepagePath = (() => {
@@ -83,6 +85,7 @@ export default defineConfig(({ command, isPreview, mode }) => {
       __BUILD_NUMBER__: JSON.stringify(buildNumber),
       __BUILD_DATE__: JSON.stringify(buildDate),
       __SHELL_BUILD__: JSON.stringify(shell),
+      __SITE_URL__: JSON.stringify(siteUrl),
     },
     plugins: [
       {
@@ -92,6 +95,19 @@ export default defineConfig(({ command, isPreview, mode }) => {
         transformIndexHtml: {
           order: 'pre',
           handler: (html: string) => html.split('%SITE_URL%').join(siteUrl),
+        },
+      },
+      {
+        /**
+         * The trailers stay on the web. `public/` is copied whole, and a shell build is zipped into
+         * the phone app and copied into the desktop cabinet — seventy megabytes of film every install
+         * would carry for a button a player may never press. The shell streams the same files from
+         * the published site instead (`src/ui/trailerPlayer.ts`).
+         */
+        name: 'van-thang-shell-without-trailers',
+        apply: 'build',
+        closeBundle() {
+          if (shell) rmSync(join('dist-shell', 'trailers'), { recursive: true, force: true });
         },
       },
     ],

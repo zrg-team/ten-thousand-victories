@@ -138,6 +138,64 @@
   a.button small { display: block; font-weight: 400; font-size: .78rem; color: var(--muc-soft); }
   a.button svg { flex: none; width: 1.25rem; height: 1.25rem; fill: currentColor; }
 
+  /* The trailer: a quiet second door under the banner — outlined like the store buttons, with a
+     play mark, because it is how to see the game before committing an install or a click. */
+  button.trailer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    width: 100%;
+    max-width: 25rem;
+    margin: 1rem auto 0;
+    padding: .75rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--son);
+    background: transparent;
+    color: var(--son);
+    font: inherit;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  button.trailer:hover { background: #fff8e6; }
+  button.trailer svg { flex: none; width: 1.1rem; height: 1.1rem; fill: currentColor; }
+  button.trailer small { font-weight: 400; color: var(--muc-soft); }
+
+  /* The film, over the page. The ink of the page for the room around it rather than black, so
+     the woodblock film reads as the same sheet. Sized by its own cut: tall on a phone, wide on a
+     desktop, never larger than the window. */
+  dialog.film {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: 100vw;
+    max-height: 100dvh;
+    overflow: visible;
+  }
+  dialog.film::backdrop { background: rgba(33, 26, 18, .94); }
+  dialog.film video {
+    display: block;
+    background: #000;
+    border-radius: 6px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, .45);
+  }
+  dialog.film.tall video { height: min(88dvh, calc(92vw * 16 / 9)); width: auto; aspect-ratio: 9 / 16; }
+  dialog.film.wide video { width: min(92vw, calc(84dvh * 16 / 9)); height: auto; aspect-ratio: 16 / 9; }
+  dialog.film .close {
+    position: fixed;
+    top: .75rem;
+    right: .75rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 1.5px solid var(--paper);
+    background: rgba(33, 26, 18, .6);
+    color: var(--paper-hi);
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+
   .note { color: var(--muc-soft); font-size: .84rem; margin: 1.3rem 0 0; line-height: 1.5; }
 
   /* Who made it. A landing page asking for an install should say whose it is, and the honest form
@@ -246,6 +304,7 @@
     .wordmark { font-size: 4.2rem; }
     .pitch { font-size: 1.6rem; margin-top: 1.6rem; }
     .play img { margin-inline: 0; }
+    button.trailer { margin-inline: 0; justify-content: flex-start; }
     .stores { grid-template-columns: 1fr 1fr; }
     a.button { justify-content: flex-start; }
 
@@ -295,6 +354,12 @@
            data-vi-alt="Chơi trọn game — miễn phí, không quảng cáo, ngay trên trình duyệt"
            width="1410" height="267" data-vi-width="1470">
     </a>
+
+    <button class="trailer" type="button" id="trailer-open">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11.1-6.86a1 1 0 0 0 0-1.7L9.52 4.29A1 1 0 0 0 8 5.14z"/></svg>
+      <span data-en="Watch the trailer" data-vi="Xem trailer">Watch the trailer</span>
+      <small data-en="· 1 min" data-vi="· 1 phút">· 1 min</small>
+    </button>
 
     <div class="stores">
       <a class="button" href="https://play.google.com/store/apps/details?id=zrg.team.vanthang">
@@ -356,6 +421,11 @@
   </footer>
 </main>
 
+<dialog class="film" id="trailer" aria-label="Vạn Thắng trailer">
+  <video controls playsinline preload="none"></video>
+  <button class="close" type="button" aria-label="Close the trailer" data-vi-label="Đóng trailer">✕</button>
+</dialog>
+
 <script>
   // Vietnamese for a Vietnamese browser, English for everyone else. Both strings ship in the markup
   // so the page reads correctly with no script at all, and there is nothing to fetch.
@@ -373,7 +443,50 @@
       // English one's and the page nudges when it lands.
       if (img.hasAttribute('data-vi-width')) img.width = Number(img.getAttribute('data-vi-width'));
     }
+    for (const node of document.querySelectorAll('[data-vi-label]')) {
+      node.setAttribute('aria-label', node.getAttribute('data-vi-label'));
+    }
   }
+
+  // The trailer: the cut for this window's shape, lettered in the page's language. Nothing is
+  // fetched until the button is pressed — `preload="none"` and no `src` until then — so the page
+  // stays as light as it was for everyone who never opens the film.
+  (() => {
+    const dialog = document.getElementById('trailer');
+    const video = dialog.querySelector('video');
+    const open = document.getElementById('trailer-open');
+    if (typeof dialog.showModal !== 'function') {
+      // A browser with no <dialog> gets the file itself rather than a button that does nothing.
+      open.addEventListener('click', () => { location.href = pick().src; });
+    }
+    function pick() {
+      const wide = window.matchMedia('(min-aspect-ratio: 1/1)').matches;
+      const vi = document.documentElement.lang === 'vi';
+      return { wide, src: `../trailers/${wide ? 'Desktop' : 'Mobile'}${vi ? '-vi' : ''}.mp4` };
+    }
+    function close() {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+      if (dialog.open) dialog.close();
+    }
+    if (typeof dialog.showModal === 'function') {
+      open.addEventListener('click', () => {
+        const { wide, src } = pick();
+        dialog.classList.toggle('wide', wide);
+        dialog.classList.toggle('tall', !wide);
+        video.src = src;
+        dialog.showModal();
+        video.play().catch(() => {});
+      });
+    }
+    dialog.querySelector('.close').addEventListener('click', close);
+    // A press on the dark around the film closes it; a press on the film is the film's.
+    dialog.addEventListener('click', (event) => { if (event.target === dialog) close(); });
+    // Esc closes the dialog natively; make sure the film stops with it.
+    dialog.addEventListener('close', () => { if (video.getAttribute('src')) close(); });
+    video.addEventListener('ended', close);
+  })();
 </script>
 </body>
 </html>

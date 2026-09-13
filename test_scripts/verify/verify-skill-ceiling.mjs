@@ -60,6 +60,7 @@ const OVERRIDE = argOf('--override', undefined);
 // Exploration only: `ASCENT_TUNING` knobs for both rulesets, e.g. '{"shadowShareMult":0.9}'.
 const TUNING = argOf('--tuning', undefined);
 const JSON_OUT = argOf('--json', undefined);
+const HERO_AWARE = process.argv.includes('--hero-aware');
 const SPREAD_MIN = 1.3;
 const PAIRED_MIN = 0.6;
 const AGENCY_MIN = 1.5;
@@ -87,7 +88,8 @@ await page.waitForFunction(
 await page.evaluate(READ_OPTIONS);
 await page.evaluate(ENGINE_BOOT);
 
-const playPlan = (plan, ruleset) => page.evaluate(async ({ seeds, ticks, plan, ruleset }) => {
+const playPlan = (plan, ruleset) => page.evaluate(async ({ seeds, ticks, plan, ruleset, heroAware }) => {
+  const heroDriver = heroAware ? await import('/test_scripts/playtest/hero-strategy.mjs') : undefined;
   const { advanceAscentTick } = await import('/src/systems/ascent/AscentTick.ts');
   const { resolveAscentPrompt } = await import('/src/systems/ascent/AscentResolver.ts');
   const { drainAscentPrompts } = await import('/src/systems/ascent/AscentState.ts');
@@ -238,6 +240,7 @@ const playPlan = (plan, ruleset) => page.evaluate(async ({ seeds, ticks, plan, r
     const waveLog = [];
     let lastWave = state.ascent.wave;
     for (let tick = 0; tick < ticks && !state.isDefeated && !over; tick += 1) {
+      heroDriver?.heroStrategyTick(state, plan);
       const before = state.lands.filter((l) => l.ownerId === PLAYER).length;
       const goalBefore = state.ascent.goal ? `${state.ascent.goal.status}:${state.ascent.goal.targetWave}` : '';
       advanceAscentTick(state);
@@ -285,10 +288,11 @@ const playPlan = (plan, ruleset) => page.evaluate(async ({ seeds, ticks, plan, r
     }
     window.__ptRestoreRandom();
     out.push({ seed, waves: state.ascent.wavesSurvived, died: !!state.isDefeated, peakLands, conquests, misses, goal: state.ascent.goal?.status ?? null, goalChecks,
-      anatomy: { cause: state.ascent.endCause ?? null, shape: state.ascent.waveShape ?? null, claims, waveLog } });
+      anatomy: { cause: state.ascent.endCause ?? null, shape: state.ascent.waveShape ?? null, claims, waveLog },
+      ...(heroAware ? { heroMeasurements: state.ascent.heroDepth?.measurements ?? null, settledTurns: state.turn } : {}) });
   }
   return out;
-}, { seeds: SEEDS, ticks: TICKS, plan, ruleset });
+}, { seeds: SEEDS, ticks: TICKS, plan, ruleset, heroAware: HERO_AWARE });
 
 console.log(`\n  SKILL CEILING — ${SEED_COUNT} seeds × ${TICKS} ticks, fresh profile per run (${BASE_URL})${OVERRIDE ? `  beta override ${OVERRIDE}` : ''}${TUNING ? `  tuning ${TUNING}` : ''}\n`);
 const report = {};
@@ -347,7 +351,7 @@ await browser.close();
 check('no console errors', errors.length === 0, errors.slice(0, 2).join(' | ') || 'none', true);
 if (JSON_OUT) {
   mkdirSync(dirname(JSON_OUT), { recursive: true });
-  writeFileSync(JSON_OUT, JSON.stringify({ seeds: SEEDS, ticks: TICKS, override: OVERRIDE ? JSON.parse(OVERRIDE) : null, report }, null, 1));
+  writeFileSync(JSON_OUT, JSON.stringify({ seeds: SEEDS, ticks: TICKS, override: OVERRIDE ? JSON.parse(OVERRIDE) : null, ...(HERO_AWARE ? {heroAware:true} : {}), report }, null, 1));
 }
 const failed = checks.filter((c) => !c).length;
 console.log(`\n${checks.length - failed}/${checks.length} graded checks passed (gate: ${GATE})`);

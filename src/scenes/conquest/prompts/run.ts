@@ -42,6 +42,8 @@ import { goalCapitalAloneWave, goalFirstWave, goalProvincesPhrase, goalRule } fr
 import { rulesOf } from '../../../game/ascentRuleset';
 import { readCarriedOver } from '../../../systems/ascent/CarriedOver';
 import { PERK_MAX_LEVEL } from '../../../state/legacy';
+import { leaveWithHeroChronicle } from '../../../ui/HeroChronicleExit';
+import { clearLanePage } from '../layers';
 
 /**
  * The founding: the champion who raises the dynasty you rule, dealt as a hand you hold.
@@ -349,7 +351,7 @@ export function heroDeckPrompt(self: ConquestUIScene, opts: {
  * a snapshot photographs what is on the glass, so a page that scrolls is a page that saves half
  * of itself.
  */
-export function showRunOver(self: ConquestUIScene, prompt: Extract<AscentPrompt, { kind: 'run-over' }>): void {
+export function showRunOver(self: ConquestUIScene, prompt: Extract<AscentPrompt, { kind: 'run-over' }>, archiveExit?: () => void): void {
   const ascent = self.state.ascent;
   const score = self.state.campaignScore;
   const beatBest = prompt.score > prompt.previousBest;
@@ -369,7 +371,9 @@ export function showRunOver(self: ConquestUIScene, prompt: Extract<AscentPrompt,
   const kept = !victory && prompt.goalWave !== undefined
     ? `\n${t('beta.goal.kept', { wave: prompt.goalWave, bonus: prompt.goalBonus ?? 0 })}`
     : '';
-  const content = victory
+  const content = archiveExit
+    ? self.promptFrame(prompt.reign ?? t('ascent.over.title'), t('hero.depth.archiveExit'))
+    : victory
     ? self.promptFrame(t('beta.goal.reckoningTitle'),
       [prompt.reign, prompt.reignDetail, fall].filter(Boolean).join('\n'))
     : self.promptFrame(
@@ -607,6 +611,26 @@ ${fall}` : fall) + kept,
   }
 
   // ── Keep it, then go again ──────────────────────────────────────────────
+  const tryLeave = (leave: () => void): void => leaveWithHeroChronicle(self.state, leave, () => {
+    clearLanePage(self);
+    showRunOver(self, prompt, leave);
+  });
+  // A storage failure changes this page's message and footer; it never opens a second UI layer.
+  if (archiveExit) {
+    self.modalLayer.add(self.ui.button(
+      { x: content.x, y: buttonY, width: content.width, height: 40 },
+      t('hero.depth.archiveRetry'), () => tryLeave(archiveExit), { variant: 'primary', fontSize: '13px' },
+    ));
+    self.modalLayer.add(self.ui.button(
+      { x: content.x, y: buttonY + 48, width: content.width, height: 46 },
+      t('hero.depth.archiveStay'), () => { clearLanePage(self); showRunOver(self, prompt); }, { fontSize: '13px' },
+    ));
+    self.modalLayer.add(self.ui.button(
+      { x: content.x, y: buttonY + 102, width: content.width, height: 28 },
+      t('hero.depth.archiveLeave'), archiveExit, { variant: 'ghost', fontSize: '12px' },
+    ));
+    return;
+  }
   const keep = self.ui.button(
     { x: content.x, y: buttonY, width: content.width, height: 40 },
     t('ascent.over.keep'),
@@ -646,7 +670,7 @@ ${fall}` : fall) + kept,
   self.modalLayer.add(self.ui.button(
     { x: content.x, y: buttonY + 48, width: content.width, height: 46 },
     t('ascent.over.again'),
-    () => self.events.emit('ui:ascent-ceremony'),
+    () => tryLeave(() => self.events.emit('ui:ascent-ceremony')),
     { variant: 'primary', fontSize: '15px' },
   ));
   // The way out, said quietly. `ghost` rather than a second panelled button: leaving is not one of
@@ -654,7 +678,7 @@ ${fall}` : fall) + kept,
   self.modalLayer.add(self.ui.button(
     { x: content.x, y: buttonY + 102, width: content.width, height: 28 },
     t('ascent.over.return'),
-    () => self.events.emit('ui:exit-to-menu'),
+    () => tryLeave(() => self.events.emit('ui:exit-to-menu')),
     { variant: 'ghost', fontSize: '12px' },
   ));
 }

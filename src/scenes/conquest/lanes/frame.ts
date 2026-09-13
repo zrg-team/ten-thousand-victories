@@ -17,6 +17,7 @@ import { hudSheetHeight } from '../../../game/cameraLayout';
 import { laneIsDocked } from '../hudSheet';
 import { RectClip } from '../../../ui/ink/clipRect';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
+import { heroPortraitCard, heroProgressLine, heroXpTrack } from '../../../ui/HeroProgress';
 import { openingFor, takeOpening } from '../../../systems/story/StorySystem';
 import { contestedFronts } from '../../../systems/ascent/battleReport';
 import { storyText } from '../../../i18n/story';
@@ -269,7 +270,7 @@ export function laneList(self: ConquestUIScene,
 ): {
   content: UIBounds;
   addRow: (
-    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
+    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; statsSecond?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
     onTap?: () => void,
   ) => void;
   addHeading: (title: string, hint?: string) => void;
@@ -407,7 +408,7 @@ export function laneList(self: ConquestUIScene,
   let y = 0;
 
   const addRow = (
-    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
+    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; statsSecond?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
     onTap?: () => void,
   ) => {
     // A portrait sits in its own column beside the card, so a hero row is recognisable at a
@@ -417,18 +418,27 @@ export function laneList(self: ConquestUIScene,
     // that only tell you things. See `vacantFaceBox`.
     const face = opts.portrait ? 'hero' : opts.vacantFace ? 'vacant' : opts.icon ? 'icon' : 'none';
     const faceCol = face === 'hero' || face === 'vacant' ? LANE_PORTRAIT_COLUMN : face === 'icon' ? 40 : 0;
-    const measuredHeight = self.ui.measureCard(rowWidth - faceCol, 54, opts);
+    const progressHero = opts.portrait?.growth ? opts.portrait : undefined;
+    // Card text already reserves bottom padding; the XP footer needs only twelve extra points.
+    const measuredHeight = Math.max(self.ui.measureCard(rowWidth - faceCol, 54, opts) + (progressHero ? 12 : 0),
+      progressHero ? (faceCol - 6) * 1.4 + 4 : 0);
     const top = y;
     scroll.lazyRow(`${opts.portrait?.id ?? opts.title}`, top, measuredHeight + 8, () => {
     const y = top;
-    const row = self.ui.card({ x: faceCol, y, width: rowWidth - faceCol, height: 54 }, opts);
+    const row = self.ui.card({ x: faceCol, y, width: rowWidth - faceCol, height: measuredHeight }, opts);
     const height = (row.getData('cardHeight') as number) ?? 54;
+    if (progressHero) {
+      row.add(self.ui.label(10, height - 26, heroProgressLine(self.state, progressHero), 'caption', { fontSize: '10px' }));
+      row.add(heroXpTrack(self, self.state, progressHero, 10, height - 11, rowWidth - faceCol - 20));
+    }
     let holder: Phaser.GameObjects.Container = row;
     if (face !== 'none') {
       holder = self.add.container(0, y);
       row.setPosition(faceCol, 0);
       holder.add(row);
-      if (opts.portrait) holder.add(renderHeroFaceInBox(self, opts.portrait,
+      if (progressHero) holder.add(heroPortraitCard(self, progressHero,
+        { x: 0, y: 2, width: faceCol - 6, height: (faceCol - 6) * 1.4 }));
+      else if (opts.portrait) holder.add(renderHeroFaceInBox(self, opts.portrait,
         { x: 0, y: 2, width: faceCol - 6, height: Math.max(40, height - 4) }));
       else if (face === 'vacant') holder.add(vacantFaceBox(self,
         { x: 0, y: 2, width: faceCol - 6, height: Math.max(40, height - 4) }, opts.muted === true));

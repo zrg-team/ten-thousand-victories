@@ -1,3 +1,4 @@
+import { effectiveHeroStats } from '../systems/heroes/heroModel';
 /**
  * The province-governor picker, as data.
  *
@@ -76,7 +77,7 @@ function fitOf(score: number): GovernorFit {
  * everyone, and the screen should say so.
  */
 function scoreHero(state: GameState, land: Land, hero: Hero): number {
-  const stats = hero.stats;
+  const stats = effectiveHeroStats(hero);
   const keyStat = governorKeyStat(land);
   const focus = getLandSpecialization(land);
   // `balanced` has no ground to suit or fight, so it neither helps nor penalises the match.
@@ -113,7 +114,7 @@ export function buildGovernorRows(state: GameState, land: Land): GovernorRow[] {
     const effects = getLandGovernorEffects(state, land, hero);
     const fit = fitOf(score);
     const statName = t(STAT_KEY[effects.keyStat] as Parameters<typeof t>[0]);
-    const statValue = hero.stats[effects.keyStat];
+    const statValue = effectiveHeroStats(hero)[effects.keyStat];
 
     const parts = [t('court.fx.output', { v: `+${Math.round((effects.outputMult - 1) * 100)}` })];
     if (effects.defenseMult > 1) {

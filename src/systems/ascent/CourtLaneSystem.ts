@@ -1,3 +1,5 @@
+import { effectiveHeroStats, heroActive, heroCapability } from '../heroes/heroModel';
+import { assignHeroDuty, memorializeHero, previewHeroTransfer } from '../heroes/HeroService';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { targetArmyCount } from '../../game/ascentConfig';
 import { getProject, REALM_PROJECTS } from '../../data/edicts';
@@ -93,17 +95,17 @@ export function buildAppointmentOptions(state: GameState, hero: Hero): Appointme
     if (sittingId === hero.id) continue;
 
     const sitting = state.heroes.find((candidate) => candidate.id === sittingId);
-    const stat = hero.stats[SEAT_PRIMARY_STAT[seat]];
+    const stat = effectiveHeroStats(hero)[SEAT_PRIMARY_STAT[seat]];
     // Only propose displacing someone who is clearly worse at the job — a shuffle that trades
     // two points of martial costs 2 stability and gains nothing.
-    if (sitting && sitting.stats[SEAT_PRIMARY_STAT[seat]] >= stat - 8) continue;
+    if (sitting && effectiveHeroStats(sitting)[SEAT_PRIMARY_STAT[seat]] >= stat - 8) continue;
 
     scored.push({
       option: {
         id: `court:${seat}`,
         role: 'court',
         title: getCourtPositionLabel(seat),
-        effect: formatCourtPositionEffect(seat, hero.stats),
+        effect: formatCourtPositionEffect(seat, effectiveHeroStats(hero)),
         detail: sitting ? t('ascent.appoint.replaces', { hero: heroName(sitting) }) : undefined,
       },
       // A vacant ministry is a standing loss of realm-wide bonuses, so filling one outranks
@@ -123,11 +125,11 @@ export function buildAppointmentOptions(state: GameState, hero: Hero): Appointme
         id: `general:${leaderless.id}`,
         role: 'general',
         title: t('ascent.appoint.general'),
-        effect: t('ascent.appoint.generalFx', { power: Math.round(hero.stats.martial * 0.4) }),
+        effect: t('ascent.appoint.generalFx', { power: Math.round(effectiveHeroStats(hero).martial * 0.4) }),
         detail: leaderless.name,
       },
       // A host with no commander is a live handicap, so leading one outranks a desk.
-      score: hero.stats.martial + 14,
+      score: effectiveHeroStats(hero).martial + 14,
     });
   }
 
@@ -138,13 +140,13 @@ export function buildAppointmentOptions(state: GameState, hero: Hero): Appointme
         id: `governor:${province.id}`,
         role: 'governor',
         title: t('ascent.appoint.governor', { land: province.name }),
-        effect: formatGovernorEffect(state, hero.stats, province),
+        effect: formatGovernorEffect(state, effectiveHeroStats(hero), province),
         detail: t('ascent.appoint.governorDetail'),
       },
       // Bounded on purpose. Unbounded, a wide realm makes "governor" the top-scored posting
       // forever and every champion is sent to a province while the ministries sit empty —
       // which is exactly the opposite of what a sprawling realm needs.
-      score: hero.stats.administration + Math.min(GOVERNOR_NEED_CAP, ungovernedCount(state) * 2),
+      score: effectiveHeroStats(hero).administration + Math.min(GOVERNOR_NEED_CAP, ungovernedCount(state) * 2),
     });
   }
 
@@ -181,11 +183,24 @@ export function buildAppointmentOptions(state: GameState, hero: Hero): Appointme
       detail: t('ascent.appoint.dismissNote'),
     });
   }
-  return ordered;
+  if (!heroCapability(state, 'travel')) return ordered;
+  return ordered.filter(option => {
+    if (option.id === 'dismiss') return true;
+    const post = option.id === 'reserve' ? { kind: 'home' as const }
+      : option.id.startsWith('court:') ? { kind: 'court' as const, seat: option.id.slice(6) as CourtPositionId }
+      : option.id.startsWith('governor:') ? { kind: 'province' as const, landId: option.id.slice(9) }
+      : option.id.startsWith('general:') ? { kind: 'host' as const, armyId: option.id.slice(8) } : undefined;
+    if (!post) return false;
+    const quote = previewHeroTransfer(state, hero.id, post);
+    if (!quote.ok) return false;
+    option.detail = [option.detail, t('hero.depth.travelQuote', { n: quote.turns, cost: quote.supplies })].filter(Boolean).join(' · ');
+    return true;
+  });
 }
 
 /** Whether the realm may let this hero go: not the king, not the founder, not one away on a mission. */
 export function canDismissHero(state: GameState, hero: Hero): boolean {
+  if (hero.life && (hero.life.kind !== 'active' || hero.life.assignment.kind !== 'home')) return false;
   if (hero.id === 'king') return false;
   if (state.ascent?.founderHeroId === hero.id) return false;
   // Sắc phong công thần — a rank the throne granted is a rank it cannot quietly revoke. Also
@@ -208,6 +223,7 @@ export function dismissHero(state: GameState, heroId: string): boolean {
   releaseHeroAssignment(state, hero);
   if (wasGovernor) refreshAllLandOutputs(state);
   state.heroes = state.heroes.filter((candidate) => candidate.id !== heroId);
+  if (hero.growth) { memorializeHero(state, hero, 'dismissed'); delete hero.growth; delete hero.life; }
   if (!state.heroDeck.some((candidate) => candidate.id === heroId)) state.heroDeck.push(hero);
   state.court.stability = Math.max(0, state.court.stability - DISMISS_STABILITY_COST);
   if (state.ascent) {
@@ -265,6 +281,21 @@ export function applyAppointment(state: GameState, heroId: string, optionId: str
   if (!hero) return false;
 
   let ok = false;
+  if (hero.growth && optionId !== 'dismiss') {
+    const duty = optionId === 'reserve' ? { kind: 'home' as const }
+      : optionId.startsWith('court:') ? { kind: 'court' as const, seat: optionId.slice(6) as CourtPositionId }
+      : optionId.startsWith('governor:') ? { kind: 'province' as const, landId: optionId.slice(9) }
+      : optionId.startsWith('general:') ? { kind: 'host' as const, armyId: optionId.slice(8) } : undefined;
+    if (!duty) return false;
+    const result = assignHeroDuty(state, heroId, duty);
+    if (result.ok && ascent) {
+      ascent.reservedHeroIds = ascent.reservedHeroIds.filter(id => id !== heroId);
+      if (optionId === 'reserve') ascent.reservedHeroIds.push(heroId);
+      ascent.laneStats.appointments++;
+      refreshAllLandOutputs(state);
+    }
+    return result.ok;
+  }
   if (optionId === 'dismiss') {
     ok = dismissHero(state, heroId);
     return ok;
@@ -328,7 +359,7 @@ export function findHeroNeedingPosting(state: GameState): Hero | undefined {
   }
 
   return state.heroes
-    .filter((hero) => !hero.assignedTo && !ascent.reservedHeroIds.includes(hero.id))
+    .filter((hero) => !hero.assignedTo && heroActive(hero) && !ascent.reservedHeroIds.includes(hero.id))
     // A real posting on offer, not only the bench and the door.
     .find((hero) => buildAppointmentOptions(state, hero).some((option) => option.id !== 'reserve' && option.role !== 'dismiss'));
 }
@@ -600,7 +631,7 @@ export function seatedEffectSummary(state: GameState, seat: CourtPositionId): st
   const heroId = state.court.seats[seat];
   const hero = state.heroes.find((candidate) => candidate.id === heroId);
   if (!hero) return undefined;
-  return formatCourtPositionEffect(seat, hero.stats);
+  return formatCourtPositionEffect(seat, effectiveHeroStats(hero));
 }
 
 /** Re-exported so callers do not need a second import just to read a seat's raw delta. */

@@ -8,6 +8,9 @@ import {
   KIND_STABILITY_STEPS,
 } from '../game/ascentConfig';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
+import { effectiveHeroStats, heroCapability, heroActive } from './heroes/heroModel';
+import { beginHeroEncounter, completeHeroEncounter, commitHeroAssignment, returnDisbandedCommander, homeProvince } from './heroes/HeroService';
+import { heroHostFoodMultiplier, heroHostSuppliesMultiplier, heroProvinceModifiers } from './heroes/heroContributions';
 import { getLegTicks } from '../game/movementConfig';
 import {
   ARMY_LOW_RATION_TICKS,
@@ -52,7 +55,7 @@ import {
   isHomeSupplied,
   refreshAllLandOutputs,
 } from './ResourceSystem';
-import { getCourtBonuses } from './CourtSystem';
+import { getCourtBonuses, getLandGovernorEffects } from './CourtSystem';
 import { realmPriceScale, storePriceScale } from './ascent/priceScale';
 import { hasTrait, noteTraitUse } from '../state/dynasty';
 import { eraIndex } from './empire/MandateSystem';
@@ -96,6 +99,7 @@ import type {
 import { heroName, t, tickLabel } from '../i18n';
 import { pushToast } from './empire/notifications';
 import { enqueueAscentPrompt } from './ascent/AscentState';
+import { holdForRescue, hostRescueQuote, type HostLossReason } from './ascent/hostRescue';
 import { isEngagedHost } from './ascent/armyOrders';
 import { liveBattles } from './ascent/fronts';
 
@@ -130,7 +134,7 @@ export function armyPower(state: GameState, army: Army): number {
   const eliteMult = 1 + (army.elite ?? 0) * 0.18;
   // A capable general lifts the whole host — keeping veteran commanders alive matters.
   const general = army.generalHeroId ? state.heroes.find((h) => h.id === army.generalHeroId) : undefined;
-  const generalMult = general ? 1 + (general.stats.martial / 100) * 0.25 : 1;
+  const generalMult = general && heroActive(general) ? 1 + (effectiveHeroStats(general).martial / 100) * 0.25 : 1;
   // Ngụ binh ư nông's other half. A host that has been out in the fields does not come back to the
   // colours sharp: for one wave after it is recalled it fights at three-quarters. This is the
   // whole trade — an army that feeds the realm is an army that is not ready when you want it — and
@@ -158,6 +162,7 @@ function computeEliteTier(state: GameState, barracksLevel: number): number {
  * earn a trait. Makes commanders worth protecting and gives heroes a battle arc.
  */
 export function grantGeneralExperience(state: GameState, army: Army, victory: boolean): void {
+  if (heroCapability(state, 'growth')) return; // Hero service owns Beta rewards, including losses.
   if (!victory || army.kingdomId !== PLAYER_KINGDOM_ID || !army.generalHeroId) return;
   const general = state.heroes.find((h) => h.id === army.generalHeroId);
   if (!general) return;
@@ -302,7 +307,8 @@ export function garrisonPowerCountingMilitia(state: GameState, land: Land, milit
     * (1 - (land.garrisonExhaustion ?? 0))
     + land.localSoldiers * militiaPowerPerMan(state) * militiaShare)
     * terrainDefenseMultiplier(land)
-    * getFocusDefenseMult(state, land);
+    * getFocusDefenseMult(state, land)
+    * (state.ascent?.heroDepth ? getLandGovernorEffects(state, land).defenseMult * (1 + heroProvinceModifiers(state, land).defense) : 1);
 }
 
 /**
@@ -1096,7 +1102,7 @@ export function queueRecruitment(
   orders?: ArmyOrders,
 ): boolean {
   const hero = state.heroes.find((candidate) => candidate.id === heroId);
-  if (!hero || hero.assignedTo) {
+  if (!hero || hero.assignedTo || !heroActive(hero) || (heroCapability(state, 'travel') && hero.life?.kind === 'active' && hero.life.locationId !== homeProvince(state))) {
     state.message = t('msg.chooseCommander');
     return false;
   }
@@ -1171,6 +1177,7 @@ export function queueRecruitment(
     ...(orders ? { orders } : {}),
   });
   hero.assignedTo = id;
+  if (hero.growth) commitHeroAssignment(state, hero, { kind: 'muster', orderId: id });
   refreshAllLandOutputs(state);
   state.message = t('msg.recruitingArmy', { total, land: capital.name, ticks: required, tickLabel: tickLabel(required) });
   return true;
@@ -1301,6 +1308,7 @@ export function progressRecruitmentOrders(state: GameState): boolean {
     const hero = state.heroes.find((candidate) => candidate.id === order.heroId);
     if (hero) {
       hero.assignedTo = army.id;
+      if (hero.growth) commitHeroAssignment(state, hero, { kind: 'host', armyId: army.id });
     }
 
     state.selectedArmyId = army.id;
@@ -1395,8 +1403,8 @@ export function progressArmyLogistics(state: GameState): boolean {
     // warning below can fire on the crossing rather than every season after it.
     const moraleBefore = army.morale;
 
-    const rationUse = Math.max(1, Math.ceil(total / 100) * ARMY_RATION_USE_PER_100);
-    const provisionUse = Math.max(1, Math.ceil(total / 150) * ARMY_PROVISION_USE_PER_150);
+    const rationUse = Math.max(1, Math.ceil(total / 100) * ARMY_RATION_USE_PER_100) * heroHostFoodMultiplier(state, army);
+    const provisionUse = Math.max(1, Math.ceil(total / 150) * ARMY_PROVISION_USE_PER_150) * heroHostSuppliesMultiplier(state, army);
 
     // The supply line (Throne of Empires). A host on its own ground has its baggage topped back
     // up from the realm's stores before it eats — see `isHomeSupplied` for why this rule had to
@@ -1509,7 +1517,14 @@ export function progressArmyLogistics(state: GameState): boolean {
       pushToast(state, t('ascent.army.breaking', { army: army.name }), 'threat');
     }
     if ((remaining <= 0 || army.morale <= 0) && !(remaining > 0 && isEngagedHost(state, army.id))) {
-      disbanded.push(army);
+      // Asked first when the realm can pay to keep it (`hostRescue.ts`): a host with men still on
+      // their feet and a realm with full stores used to be dissolved all the same.
+      if (!(remaining > 0 && holdForRescue(state, army, (army.starvingTicks ?? 0) > 0 ? 'starved' : 'broken'))) {
+        disbanded.push(army);
+      }
+    } else if (army.morale > ARMY_MORALE_BREAKING && (army.unpaidTicks ?? 0) < 5) {
+      // Clear of the breaking line: the next crisis is a new one and may be offered again.
+      army.rescueOffered = undefined;
     }
   }
 
@@ -1529,7 +1544,8 @@ export function progressArmyLogistics(state: GameState): boolean {
     const going = arrearsRipe
       .filter((army) => !disbanded.includes(army))
       .sort((a, b) => totalUnits(a) - totalUnits(b))[0];
-    if (going) {
+    // A host held for its rescue card is this season's one; nobody else goes in its place.
+    if (going && !holdForRescue(state, going, 'unpaid')) {
       disbanded.push(going);
       unpaidDisbanded.add(going.id);
     }
@@ -1540,51 +1556,78 @@ export function progressArmyLogistics(state: GameState): boolean {
   }
 
   for (const army of disbanded) {
-    const returnedHumans = totalUnits(army);
-    if (returnedHumans > 0) {
-      applyResourceDelta(state, { humans: returnedHumans });
-    }
-
-    if (army.generalHeroId) {
-      const hero = state.heroes.find((candidate) => candidate.id === army.generalHeroId);
-      if (hero) {
-        hero.assignedTo = undefined;
-      }
-    }
-
-    if (state.selectedArmyId === army.id) {
-      state.selectedArmyId = undefined;
-    }
-
-    const said = unpaidDisbanded.has(army.id)
-      ? t('msg.unpaidDisbanded', { army: army.name, humans: returnedHumans })
-      : t('msg.starvedDisbanded', { army: army.name, humans: returnedHumans });
-    state.message = said;
-    // **And a card, not only a line.**
-    //
-    // A toast is the right weight for "this host is in trouble" and the wrong weight for "this
-    // host no longer exists" — a player can miss the strip entirely and spend the rest of the run
-    // wondering where their army went, which is the report this answers. The card stops the world
-    // once, names the host, says which bill went unpaid and how many men walked home. Raised only
-    // for a host that still had men: a remnant of nobody dissolving needs no ceremony.
-    if (state.gameMode === 'ascent' && returnedHumans > 0) {
-      enqueueAscentPrompt(state, {
-        kind: 'host-lost',
-        armyName: army.name,
-        reason: unpaidDisbanded.has(army.id) ? 'unpaid' : (army.starvingTicks ?? 0) > 0 ? 'starved' : 'broken',
-        men: returnedHumans,
-      });
-    }
-    // And on the strip, where it survives the rest of the tick. `state.message` is written a
-    // dozen more times before this tick ends — measured, the line on screen when a host dissolved
-    // read "the raiders withdrew across the border" — so the one event the player most needs
-    // explained was the one nothing explained.
-    pushToast(state, said, 'threat');
+    const reason: HostLossReason = unpaidDisbanded.has(army.id)
+      ? 'unpaid'
+      : (army.starvingTicks ?? 0) > 0 ? 'starved' : 'broken';
+    dissolveHost(state, army, reason, { card: true });
   }
 
   state.armies = state.armies.filter((army) => !disbanded.includes(army));
   refreshAllLandOutputs(state);
   return true;
+}
+
+/**
+ * The player let a held host go from its rescue card. Dissolves it the way the ledger would have,
+ * without raising a second card for a decision the player has just made.
+ */
+export function releaseHost(state: GameState, armyId: string, reason: HostLossReason): boolean {
+  const army = state.armies.find((candidate) => candidate.id === armyId && candidate.kingdomId === PLAYER_KINGDOM_ID);
+  if (!army) return false;
+  dissolveHost(state, army, reason, { card: false });
+  state.armies = state.armies.filter((candidate) => candidate !== army);
+  refreshAllLandOutputs(state);
+  return true;
+}
+
+/** Sends a host's men home and frees its general. The caller removes it from `state.armies`. */
+function dissolveHost(state: GameState, army: Army, reason: HostLossReason, opts: { card: boolean }): void {
+  const returnedHumans = totalUnits(army);
+  if (returnedHumans > 0) {
+    applyResourceDelta(state, { humans: returnedHumans });
+  }
+
+  if (army.generalHeroId) {
+    const hero = state.heroes.find((candidate) => candidate.id === army.generalHeroId);
+    if (hero) {
+      if (hero.growth) returnDisbandedCommander(state, hero);
+      else hero.assignedTo = undefined;
+    }
+  }
+
+  if (state.selectedArmyId === army.id) {
+    state.selectedArmyId = undefined;
+  }
+
+  const said = reason === 'unpaid'
+    ? t('msg.unpaidDisbanded', { army: army.name, humans: returnedHumans })
+    : t('msg.starvedDisbanded', { army: army.name, humans: returnedHumans });
+  state.message = said;
+  // **And a card, not only a line.**
+  //
+  // A toast is the right weight for "this host is in trouble" and the wrong weight for "this
+  // host no longer exists" — a player can miss the strip entirely and spend the rest of the run
+  // wondering where their army went, which is the report this answers. The card stops the world
+  // once, names the host, says which bill went unpaid and how many men walked home. Raised only
+  // for a host that still had men: a remnant of nobody dissolving needs no ceremony.
+  //
+  // A host that reaches here with men still standing was not offered a rescue, or the offer was
+  // dropped: the card says what keeping it would have cost, so "I had the stores" has an answer.
+  if (opts.card && state.gameMode === 'ascent' && returnedHumans > 0) {
+    const quote = hostRescueQuote(state, army);
+    enqueueAscentPrompt(state, {
+      kind: 'host-lost',
+      armyName: army.name,
+      reason,
+      men: returnedHumans,
+      ...(quote.affordable ? {} : { unaffordable: quote.cost }),
+    });
+  }
+  // And on the strip, where it survives the rest of the tick. `state.message` is written a
+  // dozen more times before this tick ends — measured, the line on screen when a host dissolved
+  // read "the raiders withdrew across the border" — so the one event the player most needs
+  // explained was the one nothing explained.
+  pushToast(state, said, 'threat');
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -1655,6 +1698,8 @@ export function applyAttackOutcome(
 ): boolean {
   const armyId = army.id;
   const targetLandId = targetLand.id;
+  beginHeroEncounter(state, targetLandId, [army.id], targetLand.ownerId);
+  completeHeroEncounter(state, targetLandId, victory);
   awardBattleExperience(state, army, preview.defenderPower, victory);
   grantGeneralExperience(state, army, victory);
 

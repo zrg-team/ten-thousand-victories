@@ -7,7 +7,8 @@
  * this file owns one area of the page. Cross-module calls go through the scene's forwarders.
  */
 import Phaser from 'phaser';
-import { GAME_WIDTH } from '../../game/constants';
+import { GAME_HEIGHT, GAME_WIDTH, surfaceWidth } from '../../game/constants';
+import { isDesktopLayout } from '../../platform/layout';
 import { getLegacy, LEGACY_PERKS, LOADOUT_MAX, nextPerkCost, perkLevel } from '../../state/legacy';
 import { DYNASTY_TRAITS_PENDING, findDynastyTrait } from '../../data/dynastyTraits';
 import {
@@ -115,7 +116,18 @@ export function renderDynastyTitleBar(self: MenuScene, title: string = t('dynast
 export function renderDynastySheet(self: MenuScene): void {
   const store = getDynasty();
   const legacy = getLegacy();
-  const PAD = 20;
+  // **The desktop reads it as a sheet, not a phone.** How to Play and History lay a page
+  // `min(860, sheet − 64)` wide on their own paper band; this page stayed the 390 column in the
+  // middle of a 16:9 window, with the traits a scroll away under the doors. Same width, same
+  // paper here, and the column splits in two under a full-width header: what to do and what the
+  // reigns did on the left, what the house holds on the right.
+  const desktop = isDesktopLayout();
+  const sheetW = desktop ? Math.min(860, surfaceWidth() - 64) : GAME_WIDTH;
+  const sheetLeft = (GAME_WIDTH - sheetW) / 2;
+  if (desktop) {
+    self.content.push(self.add.rectangle(sheetLeft - 12, 0, sheetW + 24, GAME_HEIGHT, INK_UI.parchmentShade).setOrigin(0));
+  }
+  const PAD = desktop ? (GAME_WIDTH - Math.min(560, sheetW)) / 2 : 20;
   const W = GAME_WIDTH - PAD * 2;
   const bodyTop = renderDynastyTitleBar(self, t('dynasty.title'), false);
 
@@ -183,14 +195,34 @@ export function renderDynastySheet(self: MenuScene): void {
 
   // The body scrolls; the way back does not. `addTo` order parents the swallow-zone before
   // the content, or the zone lands on top and eats every tap the rows were supposed to get.
+  // Four units of slack either side on the desktop so a panel's stroke at the column edge is not
+  // shaved by the list's clip.
   const viewport = pageFloor() - bodyTop;
-  const area = self.ui.scrollArea({ x: 0, y: bodyTop, width: GAME_WIDTH, height: viewport });
+  const area = desktop
+    ? self.ui.scrollArea({ x: sheetLeft - 4, y: bodyTop, width: sheetW + 8, height: viewport })
+    : self.ui.scrollArea({ x: 0, y: bodyTop, width: GAME_WIDTH, height: viewport });
   self.pageScroll = area;
   const layer = self.add.container(0, 0);
   area.addTo(layer);
   self.content.push(layer);
   const body = area.content;
   let y = 0;
+
+  if (desktop) {
+    const GAP = 22;
+    const colW = Math.floor((sheetW - GAP) / 2);
+    const leftX = 4;
+    const rightX = 4 + colW + GAP;
+    y = drawDynastyHeader(self, body, store, leftX, sheetW, y, measure);
+    let left = drawDynastyDoors(self, body, store, legacy, leftX, colW, y);
+    left = self.drawDynastyLineage(body, store, leftX, colW, left, measure, bodyTop);
+    left = drawDynastyCode(self, body, legacy, leftX, colW, left);
+    let right = drawDynastyTraits(self, body, store, rightX, colW, y, measure);
+    right = drawDynastyRespec(self, body, store, legacy, rightX, colW, right);
+    area.setContentHeight(Math.max(viewport, Math.max(left, right) + 8));
+    self.footBackBar();
+    return;
+  }
 
   // Verbs first. The doors used to close the page, under the lineage strip, the open reign's
   // epitaph and every trait row — six hundred units down, below the fold on every phone —
@@ -202,10 +234,26 @@ export function renderDynastySheet(self: MenuScene): void {
   y = self.drawDynastyLineage(body, store, PAD, W, y, measure, bodyTop);
   y = drawDynastyTraits(self, body, store, PAD, W, y, measure);
   y = drawDynastyCode(self, body, legacy, PAD, W, y);
+  y = drawDynastyRespec(self, body, store, legacy, PAD, W, y);
 
-  // ── The overflow row: the one way back ──────────────────────────────────
-  // Traits are a biography, not a loadout, so a respec is earned by ascending and never
-  // offered casually. Last on the page and quiet at rest; danger only once armed.
+  area.setContentHeight(Math.max(viewport, y + 8));
+  self.footBackBar();
+}
+
+/**
+ * The overflow row: the one way back.
+ *
+ * Traits are a biography, not a loadout, so a respec is earned by ascending and never offered
+ * casually. Last on the page and quiet at rest; danger only once armed.
+ */
+function drawDynastyRespec(self: MenuScene,
+  body: Phaser.GameObjects.Container,
+  store: ReturnType<typeof getDynasty>,
+  legacy: ReturnType<typeof getLegacy>,
+  PAD: number,
+  W: number,
+  y: number,
+): number {
   const respecs = respecsAvailable(legacy.ascensions);
   if (store.traits.length > 0) {
     const armed = self.respecArmed && respecs > 0;
@@ -227,7 +275,7 @@ export function renderDynastySheet(self: MenuScene): void {
     const note = armed
       ? t('dynasty.respecWarn', { n: store.traits.length })
       : respecs > 0 ? t('dynasty.respecLeft', { n: respecs }) : t('dynasty.respecNone');
-    const noteText = self.ui.label(GAME_WIDTH / 2, y, note, 'caption', {
+    const noteText = self.ui.label(PAD + W / 2, y, note, 'caption', {
       fontSize: '9.5px',
       align: 'center',
       wordWrap: { width: W },
@@ -243,9 +291,7 @@ export function renderDynastySheet(self: MenuScene): void {
     }
     y += noteText.height + 10;
   }
-
-  area.setContentHeight(Math.max(viewport, y + 8));
-  self.footBackBar();
+  return y;
 }
 
 /**

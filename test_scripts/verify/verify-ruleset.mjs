@@ -115,9 +115,13 @@ check('the stable menu draws no BETA mark', (await badgeCount()) === 0);
 
 await page.evaluate((key) => localStorage.setItem(key, 'on'), BETA_KEY);
 await openMenu();
-check('with the opt-in on, the play button carries the BETA mark', (await badgeCount()) === 2, `${await badgeCount()} badge objects`);
+// The mark is a pill printed inside the button beside its title, so the one tagged object is the
+// button, its title is still exactly the game's name, and the pill's own text is BETA.
+const betaLabel = await buttonAt('MenuScene', '^Dragon Ascent$') && await buttonAt('MenuScene', '^BETA$');
+check('with the opt-in on, the play button carries the BETA mark', (await badgeCount()) === 1 && Boolean(betaLabel),
+  `${await badgeCount()} badge objects, label ${betaLabel ? 'found' : 'missing'}`);
 
-const play = await buttonAt('MenuScene', '^Dragon Ascent$');
+const play = await buttonAt('MenuScene', '^Dragon Ascent');
 check('the play button is on the page', Boolean(play));
 if (play) {
   await page.mouse.click(play.x, play.y);

@@ -14,6 +14,7 @@
  * hands back a host that can take its next order in the same breath.
  */
 import { applyArmyUpgradeGain } from '../WarSystem';
+import { heroResupplyDelivery } from '../heroes/HeroService';
 import { pushToast } from '../empire/notifications';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { t } from '../../i18n';
@@ -39,8 +40,10 @@ export function tickArmyRefits(state: GameState): void {
       // the division lost.
       const food = Math.min(run.food, Math.ceil(run.food / Math.max(1, run.ticksLeft)));
       const supplies = Math.min(run.supplies, Math.ceil(run.supplies / Math.max(1, run.ticksLeft)));
-      army.rations += food;
-      army.provisions += supplies;
+      const completed = run.ticksLeft <= 1 || (food >= run.food && supplies >= run.supplies);
+      const delivered = run.heroReceipt ? heroResupplyDelivery(state, army.id, run.heroReceipt, food, supplies, completed) : { food, supplies };
+      army.rations += delivered.food;
+      army.provisions += delivered.supplies;
       run.food -= food;
       run.supplies -= supplies;
       run.ticksLeft -= 1;

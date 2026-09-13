@@ -1,3 +1,5 @@
+import { effectiveHeroStats, heroActive, heroCapability } from '../heroes/heroModel';
+import { heroBattleAttack, heroBattleDefense, restoreHeroWithdrawal, snapshotHeroBattle } from '../heroes/heroContributions';
 import { hasCapstone } from '../decree/SchoolSystem';
 import { proclamationInForce, tattooedArms, SAT_THAT_ROUT_FLOOR } from '../decree/rules';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
@@ -358,6 +360,7 @@ const GREAT_WATCH_MIN = 0.5;
 const ORDINARY_WATCH_WAVE_GAP = 1;
 
 
+import { beginHeroEncounter, completeHeroEncounter } from '../heroes/HeroService';
 export function beginBattle(state: GameState): boolean {
   const ascent = state.ascent;
   const pending = state.pendingBattle;
@@ -576,7 +579,7 @@ function raiseDefenceField(
   // posted to it. `fieldHosts` is kept as the first term so a relieving general still outranks the
   // resident, and `defenceCommanderOf` says the same thing to the header, the AI and the Reckoning.
   const general = defenceCommanderOf(state, land)
-    ?? state.heroes.find((hero) => hero.id === fieldHosts.find((host) => host.generalHeroId)?.generalHeroId);
+    ?? state.heroes.find((hero) => heroActive(hero) && hero.id === fieldHosts.find((host) => host.generalHeroId)?.generalHeroId);
 
   const opened: AscentBattle = {
     ...draft,
@@ -597,7 +600,7 @@ function raiseDefenceField(
     theirNow: theirsTotal,
     // Rally is the general's, so a host with nobody at its head simply does not get one.
     rallySpent: !general,
-    rallyPower: general ? Math.round(BATTLE_RALLY_BASE + general.stats.martial * 0.25) : 0,
+    rallyPower: general ? Math.round(BATTLE_RALLY_BASE + effectiveHeroStats(general).martial * 0.25) : 0,
     // The ground the defender is standing on. Already used by `defenderPower`; stated on the
     // screen here so intercepting on high ground becomes a decision back on the map.
     terrainEdge: land ? terrainDefenseMultiplier(land) : 1,
@@ -613,9 +616,9 @@ function raiseDefenceField(
     // Same resolver as the maths above, or the screen would credit a defence to nobody while the
     // rally and the general AI were quietly using the governor's martial.
     const officer = defenceCommanderOf(state, land)
-      ?? state.heroes.find((hero) => hero.id === ourHosts(state, opened).find((host) => host.generalHeroId)?.generalHeroId);
+      ?? state.heroes.find((hero) => heroActive(hero) && hero.id === ourHosts(state, opened).find((host) => host.generalHeroId)?.generalHeroId);
     opened.generalName = officer?.name;
-    opened.generalMartial = officer ? officer.stats.martial : 45;
+    opened.generalMartial = officer ? effectiveHeroStats(officer).martial : 45;
   }
   if (ascent.activeBattle && !ascent.activeBattle.over) {
     if (!addSideBattle(state, opened)) return false;
@@ -632,6 +635,7 @@ function raiseDefenceField(
   }
 
   // The engagement now owns its own record: `finishBattle` rebuilds what the invasion code needs
+  beginHeroEncounter(state, opened.landId, opened.ourArmyIds, opened.kingdomId);
   // from the battle itself. Leaving the pending record in place let the next tick "resolve" the
   // same fight a second time, underneath the one being watched.
   state.pendingBattle = undefined;
@@ -698,7 +702,7 @@ function beginAssault(state: GameState, pending: PendingBattle): boolean {
   const scale = Math.min(1, (theirsTotal + oursTotal) / 2400);
   const totalRounds = Math.round(BATTLE_BASE_ROUNDS + (BATTLE_MAX_ROUNDS - BATTLE_BASE_ROUNDS) * scale);
   const generalId = fieldHosts.find((host) => host.generalHeroId)?.generalHeroId;
-  const general = state.heroes.find((hero) => hero.id === generalId);
+  const general = state.heroes.find((hero) => heroActive(hero) && hero.id === generalId);
 
   // An assault is the player's own order, so it takes the focus and whatever defence they were
   // watching steps back to its general. Nobody marches on a city by accident.
@@ -718,7 +722,7 @@ function beginAssault(state: GameState, pending: PendingBattle): boolean {
     ourNow: oursTotal,
     theirNow: theirsTotal,
     rallySpent: !general,
-    rallyPower: general ? Math.round(BATTLE_RALLY_BASE + general.stats.martial * 0.25) : 0,
+    rallyPower: general ? Math.round(BATTLE_RALLY_BASE + effectiveHeroStats(general).martial * 0.25) : 0,
     // The ground is theirs this time: the edge goes to the walls, not to us.
     terrainEdge: terrainDefenseMultiplier(land),
   };
@@ -727,7 +731,7 @@ function beginAssault(state: GameState, pending: PendingBattle): boolean {
   if (ascent.activeBattle) {
     ascent.activeBattle.delegated = !ascent.arena && ascent.handToGenerals !== false;
     ascent.activeBattle.generalName = general?.name;
-    ascent.activeBattle.generalMartial = general ? general.stats.martial : 45;
+    ascent.activeBattle.generalMartial = general ? effectiveHeroStats(general).martial : 45;
   }
   if (standing && !standing.over) {
     standing.delegated = true;
@@ -736,6 +740,7 @@ function beginAssault(state: GameState, pending: PendingBattle): boolean {
   state.pendingBattle = undefined;
   state.isPaused = false;
   pushToast(state, t('ascent.battle.assaultBegins', { land: land.name }), 'threat');
+  beginHeroEncounter(state, land.id, ascent.activeBattle?.ourArmyIds, pending.kingdomId);
   return true;
 }
 
@@ -1359,14 +1364,14 @@ function raiseMoment(state: GameState, battle: AscentBattle, ours: Army[], their
   if (pool.length === 0) return;
 
   const chosen = pickMoment(pool, momentSeed(battle));
-  const general = state.heroes.find((hero) => hero.id === ours.find((host) => host.generalHeroId)?.generalHeroId);
+  const general = state.heroes.find((hero) => heroActive(hero) && hero.id === ours.find((host) => host.generalHeroId)?.generalHeroId);
 
   setMoment(battle, {
     id: chosen.id,
     raisedAtBeat: battle.round,
     ticksLeft: BATTLE_MOMENT_TICKS,
     generalName: general ? general.name : undefined,
-    generalMartial: general ? general.stats.martial : (battle.delegated ? battle.generalMartial ?? 45 : 0),
+    generalMartial: general ? effectiveHeroStats(general).martial : (battle.delegated ? battle.generalMartial ?? 45 : 0),
     hostId: chosen.hostId?.(context),
     subject: chosen.subject?.(context),
   });
@@ -1655,6 +1660,8 @@ export function fightRound(state: GameState): void {
   // `fightRound` directly, so a general placed one level up simply never played and every martial
   // value scored identically. A harness that cannot reach the code it is grading is not grading it.
   generalPlaysBeat(state, battle);
+  if (state.ascent?.heroDepth && (battle.ourArmyIds ?? []).some(id => state.heroes.some(hero => hero.growth?.withdrawal
+    && state.armies.some(army => army.id === id && army.generalHeroId === hero.id)))) battle.stancePending = 'withdraw';
 
   // The tempo dial ticks first, so a stance ordered last beat is in force for this one — which is
   // what the dock told the player would happen. The shape clocks tick at the *end*; see
@@ -1823,7 +1830,11 @@ export function fightRound(state: GameState): void {
   // was the only place in the game where they did not matter.
   const ourArms = battle.ourMatchup ?? 1;
   const theirArms = battle.theirMatchup ?? 1;
-  const ourPower = Math.max(1, sum(ours) * (offence ? 1 : battle.terrainEdge) * ourArms);
+  snapshotHeroBattle(state, battle, ours);
+  beginHeroEncounter(state, battle.landId, ours.map(host => host.id), battle.kingdomId);
+  const ourPower = Math.max(1, (battle.heroCombat
+    ? ours.reduce((total, host) => total + armyPower(state, host) * heroBattleAttack(state, battle, host), 0) : sum(ours))
+    * (offence ? 1 : battle.terrainEdge) * ourArms);
   const theirPower = Math.max(1, sum(theirs) * (offence ? battle.terrainEdge : 1) * theirArms);
   // Each side's losses are its own exposure times the other's aggression, so a cautious enemy
   // is genuinely a different fight from a reckless one rather than the same fight relabelled.
@@ -1849,7 +1860,16 @@ export function fightRound(state: GameState): void {
     * (1 + tilt) * momentDealt * fuzz();
 
   // Losses land across every host present, so relief shares the burden rather than watching.
-  const ourLoss = ours.reduce((total, host) => total + bleed(host, Math.min(0.9, ourShare)), 0);
+  const ourLoss = ours.reduce((total, host) => {
+    if (!battle.heroCombat) return total + bleed(host, Math.min(0.9, ourShare));
+    const before = { ...host.units };
+    const loss = bleed(host, Math.min(0.9, ourShare / heroBattleDefense(state, battle, host)));
+    if (battle.stance === 'withdraw') {
+      const ledger = battle.heroCombat[host.id];
+      for (const key of ['spearmen', 'archers', 'heavyInfantry'] as const) ledger.withdrawal[key] += before[key] - host.units[key];
+    }
+    return total + loss;
+  }, 0);
 
   // Spread across every host they have, always. Concentrating the line on one enemy column used to
   // be an order; it was a second cursor on a one-thumb screen, and it was very nearly always
@@ -2051,6 +2071,12 @@ function generalReadsBeat(battle: AscentBattle, martial: number, salt = 0): bool
 }
 
 function generalPlaysBeat(state: GameState, battle: AscentBattle): void {
+  if (heroCapability(state, 'growth')) {
+    const commander = defenceCommanderOf(state, state.lands.find(land => land.id === battle.landId))
+      ?? state.heroes.find(hero => heroActive(hero) && hero.id === ourHosts(state, battle).find(host => host.generalHeroId)?.generalHeroId);
+    battle.generalName = commander?.name;
+    battle.generalMartial = commander ? effectiveHeroStats(commander).martial : 45;
+  }
   const met = battle.ourAdvance + battle.theirAdvance >= 1;
   // The dials are the player's until they are handed over. The officer no longer covers an
   // unclaimed dial at any skill — a helper moving the player's own controls read as the game
@@ -2070,8 +2096,8 @@ function generalPlaysBeat(state: GameState, battle: AscentBattle): void {
   // commander at all means a middling one, the same figure `delegateBattle` falls back to.
   const martial = battle.generalMartial ?? (() => {
     const led = ourHosts(state, battle).find((host) => host.generalHeroId)?.generalHeroId;
-    const hero = led ? state.heroes.find((candidate) => candidate.id === led) : undefined;
-    return hero ? hero.stats.martial : 45;
+    const hero = led ? state.heroes.find((candidate) => heroActive(candidate) && candidate.id === led) : undefined;
+    return hero ? effectiveHeroStats(hero).martial : 45;
   })();
   // The approach is an archery decision, and the general makes it the way the invader's own
   // doctrine does: a bow-backed host stands off and shoots (Cố thủ holds its ground now — the
@@ -2165,10 +2191,10 @@ export function delegateBattle(state: GameState, delegated: boolean, standing = 
     return;
   }
   const general = state.heroes.find(
-    (hero) => hero.id === ourHosts(state, battle).find((host) => host.generalHeroId)?.generalHeroId,
+    (hero) => heroActive(hero) && hero.id === ourHosts(state, battle).find((host) => host.generalHeroId)?.generalHeroId,
   );
   battle.generalName = general?.name;
-  battle.generalMartial = general ? general.stats.martial : 45;
+  battle.generalMartial = general ? effectiveHeroStats(general).martial : 45;
   battle.log.push(general
     ? t('ascent.battle.handedTo', { name: general.name })
     : t('ascent.battle.handedToOfficers'));
@@ -2377,6 +2403,7 @@ export function finishBattle(state: GameState, decision: 'press' | 'hold' | 'ret
    * turnout comes back, on a clock, from the province rather than from thin air.
    */
   if (decision === 'retreat' && battle.outcome !== 'we-rout' && battle.outcome !== 'they-rout') {
+    restoreHeroWithdrawal(state, battle);
     const hosts = ourHosts(state, battle);
     const recovered = Math.round(battle.ourLostTotal * BATTLE_WITHDRAW_RECOVERY);
     if (hosts.length > 0 && recovered > 0) {
@@ -2531,11 +2558,12 @@ function finishAssault(state: GameState, battle: AscentBattle, decision: 'press'
   state.armies = state.armies.filter((army) => !(army.isLevy && army.kingdomId !== PLAYER_KINGDOM_ID && army.landId === battle.landId));
 
   const primary = attackers[0];
-  if (!primary || !land) return;
+  if (!primary || !land) { completeHeroEncounter(state, battle.landId, false); return; }
   if (decision === 'retreat' && battle.outcome !== 'we-rout' && battle.outcome !== 'they-rout') {
     // An orderly withdrawal: the host keeps its ground and its formation (recovery was applied
     // above), and its standing order settles into holding where it stands.
     state.message = t('msg.defeatAt', { land: land.name });
+    completeHeroEncounter(state, battle.landId, false, true);
     return;
   }
   const victory = battle.outcome === 'they-rout'
@@ -2548,6 +2576,7 @@ function finishAssault(state: GameState, battle: AscentBattle, decision: 'press'
     // Empty wilderness someone was camped on: the walk-in it would have been, once cleared.
     if (victory) occupyEmptyLand(state, primary.id, land.id);
     else state.message = t('msg.defeatAt', { land: land.name });
+    completeHeroEncounter(state, battle.landId, victory);
     return;
   }
   applyAttackOutcome(state, primary, land, preview, victory);
@@ -2711,5 +2740,3 @@ export function markFormationLanded(battle: AscentBattle): void {
 export function battleView(state: GameState): AscentBattle | undefined {
   return state.ascent?.activeBattle;
 }
-
-

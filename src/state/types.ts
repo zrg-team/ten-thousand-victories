@@ -3,6 +3,7 @@ import type { WaveShapeId } from '../game/ascentConfig';
 // Type-only both ways — `formations.ts` imports `ArmyComposition` from here — so the cycle is
 // erased at compile and there is no runtime edge in either direction.
 import type { BattleFormation } from '../data/ascent/formations';
+import type { HeroDepthState, HeroGrowth, HeroLife } from '../systems/heroes/types';
 
 export type ResourceKey = 'food' | 'supplies' | 'gold' | 'humans';
 
@@ -479,6 +480,8 @@ export interface Treaty {
   type: 'non-aggression';
   /** Turn the treaty lapses. */
   expiresTurn: number;
+  /** Hero-release pacts count settled waves instead of seasons. */
+  expiresResolvedWave?: number;
 }
 
 export interface Kingdom {
@@ -622,7 +625,13 @@ export interface Army {
    * remaining ticks rather than on the tap; the host acts freely while it comes. `food` and
    * `supplies` are what is still to deliver.
    */
-  resupplyRun?: { ticksLeft: number; food: number; supplies: number };
+  resupplyRun?: { ticksLeft: number; food: number; supplies: number; heroReceipt?: { id: string; window: number; instanceId?: string; boosted?: boolean; requested?: boolean } };
+  /**
+   * A rescue card has been raised for this host at its breaking point (Dragon Ascent,
+   * `hostRescue.ts`). One offer per crisis: cleared when the host is relieved or stands clear of
+   * the breaking line again, so a card the queue dropped is never re-raised every season.
+   */
+  rescueOffered?: boolean;
   /**
    * Full command delegated to this army's hero: the general autonomously marches to
    * intercept the nearest incoming invasion, so the player can let a trusted hero run the
@@ -773,6 +782,9 @@ export interface Hero {
   description: string;
   effect: string;
   stats: HeroStats;
+  /** Present only on recruited champions in a fresh hero-enabled Ascent reign. */
+  growth?: HeroGrowth;
+  life?: HeroLife;
   /** While seated in court, biases the politics card draw toward this card type. */
   cardBias?: PoliticsCard['type'];
   /** While seated in court, adds this card template to the active politics deck. */
@@ -1053,7 +1065,7 @@ export interface RecruitmentOrder {
   orders?: ArmyOrders;
   id: string;
   landId: string;
-  heroId: string;
+  heroId?: string;
   totalSoldiers: number;
   rations: number;
   provisions: number;
@@ -2085,6 +2097,14 @@ export type AscentPrompt =
       reason: 'unpaid' | 'starved' | 'broken';
       /** Men still on their feet when it dissolved — the same number that goes home. */
       men: number;
+      /**
+       * Set when the host has NOT dissolved yet: it is held at the breaking point and the card asks
+       * whether to relieve it for `cost` (priced at offer time; paid at the live price) or let it go
+       * (`hostRescue.ts`). Absent, the card only tells.
+       */
+      rescue?: { armyId: string; cost: Partial<ResourceBag> };
+      /** Already gone, and this is what keeping it would have cost — more than the stores held. */
+      unaffordable?: Partial<ResourceBag>;
     }
   | {
       kind: 'run-over';
@@ -2237,6 +2257,8 @@ export type FieldStance = 'withdraw' | 'defend' | 'balanced' | 'press';
 
 /** A field engagement in progress, exchange by exchange. */
 export interface AscentBattle {
+  /** Beta only: actual withdrawal-period casualties, recorded per participating host. */
+  heroCombat?: Record<string, { heroId?: string; instanceId?: string; window?: number; joinedRound: number; withdrawal: UnitCounts }>;
   landId: string;
   landName: string;
   invaderArmyId: string;
@@ -2750,6 +2772,8 @@ export interface AscentWaveCue {
 }
 
 export interface AscentState {
+  /** Rules and hero receipts are pinned at creation; missing means the old hero system. */
+  heroDepth?: HeroDepthState;
   /**
    * Skirmish only: the setup page's pin on the speech bubbles' linger, in ms. `-1` keeps them
    * forever, `0` silences them; absent, the fight follows the difficulty profile and the wave
@@ -2813,6 +2837,10 @@ export interface AscentState {
   /** Summons since the last gold-or-better result (soft pity). */
   summonPity: number;
   summonsDone: number;
+  /** `state.turn` when the Heroes page's paid talent search was last made; it rests from there. */
+  talentSearchTurn?: number;
+  /** Paid talent searches bought this reign; each one makes the next dearer (beta `talentPriceByFavor`). */
+  talentSearches?: number;
   /** Gold cost of the next reroll in the open draft; doubles per use, resets on resolve. */
   rerollCost: number;
   /** The province the autopilot is marching on. */

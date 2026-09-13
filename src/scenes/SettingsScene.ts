@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
+import { GAME_HEIGHT, GAME_WIDTH, surfaceWidth } from '../game/constants';
+import { LAYOUT_RESIZED } from '../game/desktopResize';
 import { applyRenderScale, applyPendingRenderScale, renderScale, requestRenderScale, GRAPHICS_MODES, getGraphicsMode, setGraphicsMode } from '../game/graphicsQuality';
 import { getLanguage, setLanguage, t, type LanguageCode } from '../i18n';
 import { isAscentBetaEnabled, setAscentBetaEnabled } from '../game/betaOptions';
@@ -28,6 +29,7 @@ import {
 import { MOTION_LEVELS, TRAFFIC_DENSITIES, getLifeSettings, setLifeSettings } from '../game/lifeSettings';
 import {
   desktopPinOverruled,
+  isDesktopLayout,
   layoutKind,
   layoutPreference,
   setLayoutPreference,
@@ -44,10 +46,8 @@ import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
 import { shellDisplayMode, shellDisplayModes, setShellDisplayMode, type DisplayMode } from '../platform/shell';
 
 const SIDE = 12;
-const LIST_WIDTH = GAME_WIDTH - SIDE * 2;
 /** Where the list starts: under the title and the subtitle. No tab strip on this page. */
 const LIST_TOP = 70;
-const CARD_WIDTH = LIST_WIDTH - 6;
 const CARD_GAP = 8;
 const CARD_PAD = 12;
 const ROW_HEIGHT = 30;
@@ -93,6 +93,14 @@ export class SettingsScene extends Phaser.Scene {
   /** Where the reader goes when they press Back. See `GuideScene.returnTo`. */
   private returnTo = 'MenuScene';
   private unsubscribeUpdates?: () => void;
+  /**
+   * The reading width and one card's width, set per render. The phone's column; on the desktop
+   * the sheet How to Play and History read at, `min(860, sheet − 64)`, with the cards two abreast.
+   */
+  private pageWidth = GAME_WIDTH - SIDE * 2;
+  private cardWidth = GAME_WIDTH - SIDE * 2 - 6;
+  private columns = 1;
+  private readonly resize = (): void => this.render(true);
 
   constructor() {
     super('SettingsScene');
@@ -113,7 +121,9 @@ export class SettingsScene extends Phaser.Scene {
     // A new build lands minutes after this page was drawn. Redrawing on the change is what lets
     // the build card grow its Reload button without the player leaving and coming back.
     this.unsubscribeUpdates = subscribeUpdateStatus(() => this.render(true));
+    this.game.events.on(LAYOUT_RESIZED, this.resize);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.game.events.off(LAYOUT_RESIZED, this.resize);
       this.unsubscribeUpdates?.();
       this.unsubscribeUpdates = undefined;
       this.clear();
@@ -139,6 +149,16 @@ export class SettingsScene extends Phaser.Scene {
   private render(keepScroll = false): void {
     const offset = keepScroll ? this.scroll?.offset ?? 0 : 0;
     this.clear();
+    const desktop = isDesktopLayout();
+    this.pageWidth = desktop ? Math.min(860, surfaceWidth() - 64) : GAME_WIDTH - SIDE * 2;
+    this.columns = desktop && this.pageWidth >= 600 ? 2 : 1;
+    this.cardWidth = this.columns === 2 ? Math.floor((this.pageWidth - CARD_GAP * 2) / 2) : this.pageWidth - 6;
+    if (desktop) {
+      // The sheet the other two pages lie on: the paper band under the whole reading width.
+      const left = (GAME_WIDTH - this.pageWidth) / 2;
+      this.content.push(this.add.rectangle(left - 12, 0, this.pageWidth + 24, GAME_HEIGHT, INK_UI.parchmentShade)
+        .setOrigin(0).setDepth(-1));
+    }
     this.renderHeader();
     this.renderPage(offset);
   }
@@ -166,7 +186,7 @@ export class SettingsScene extends Phaser.Scene {
       fontFamily: UI_FONT,
       fontSize: '11px',
       align: 'center',
-      wordWrap: { width: LIST_WIDTH - 20 },
+      wordWrap: { width: this.pageWidth - 20 },
     }).setOrigin(0.5, 0));
   }
 
@@ -376,7 +396,7 @@ export class SettingsScene extends Phaser.Scene {
 
   private renderPage(offset: number): void {
     const height = GAME_HEIGHT - LIST_TOP - 10 - BACK_BAR_BAND;
-    const scroll = this.ui.scrollArea({ x: SIDE, y: LIST_TOP, width: LIST_WIDTH, height });
+    const scroll = this.ui.scrollArea({ x: (GAME_WIDTH - this.pageWidth) / 2, y: LIST_TOP, width: this.pageWidth, height });
     this.scroll = scroll;
     // `addTo` is not a convenience: it parents the area's swallow-zone and its content in that
     // order, so the cards sit above the zone. See `GuideScene.renderPage`.
@@ -384,24 +404,57 @@ export class SettingsScene extends Phaser.Scene {
     scroll.addTo(layer);
     this.content.push(layer);
 
-    let cursor = 0;
+    // Two abreast on the desktop, each card dropped into whichever column is shorter so the pair
+    // ends level; in the order the phone reads them, so the picture still leads.
+    const columnX = this.columns === 2 ? [0, this.cardWidth + CARD_GAP * 2] : [0];
+    const tops = columnX.map(() => 0);
+    const place = (draw: (y: number) => number): void => {
+      const column = tops.indexOf(Math.min(...tops));
+      const before = scroll.content.length;
+      const used = draw(tops[column]);
+      if (used < 0) return;
+      for (const child of scroll.content.list.slice(before)) {
+        (child as Phaser.GameObjects.Container).x += columnX[column];
+      }
+      tops[column] += used + CARD_GAP;
+    };
     for (const section of this.sections()) {
       if (section.rows.length === 0) continue;
-      cursor += this.sectionCard(scroll, cursor, section) + CARD_GAP;
+      place((y) => this.sectionCard(scroll, y, section));
     }
-    cursor += this.buildCard(scroll, cursor) + CARD_GAP;
+    const settingsBottom = Math.max(...tops);
 
+    // ── The foot: which build this is, and whose music ────────────────────────────────────────
+    //
+    // Not settings, so not in the columns. On the desktop the masonry dropped the build card into
+    // whichever column was shorter and the credit under it, half-way up a page with a screen of
+    // air below — facts about the game read as one more row of choices. They are the page's
+    // colophon, so they stand full width at the foot: under the cards when the list is longer
+    // than the screen (every phone), at the bottom of the sheet when it is not. Drawn at the top
+    // first and moved, because the foot's height is only known once it has been laid out.
+    const footStart = scroll.content.length;
+    const cardWidth = this.cardWidth;
+    this.cardWidth = this.pageWidth - 6;
+    const buildUsed = this.buildCard(scroll, 0);
+    let footHeight = buildUsed < 0 ? 0 : buildUsed + CARD_GAP;
     // The credit the battle music is licensed on: CC-BY 4.0 is only satisfied while the credit
     // is *in the work a player uses*, and a line in the repo's LICENSE is invisible to somebody
     // who installed the game from a store. Printed small — an obligation, not a feature.
-    const credit = this.add.text(6, cursor + 2, t('menu.musicCredit'), {
+    const credit = this.add.text(6, footHeight + 2, t('menu.musicCredit'), {
       color: INK_UI_HEX.mutedText,
       fontFamily: UI_FONT,
       fontSize: '8.5px',
-      wordWrap: { width: CARD_WIDTH - 12 },
+      wordWrap: { width: this.cardWidth - 12 },
     });
     scroll.content.add(credit);
-    cursor += 2 + credit.height;
+    footHeight += 2 + credit.height;
+    this.cardWidth = cardWidth;
+
+    const footTop = Math.max(settingsBottom, height - footHeight - 8);
+    for (const child of scroll.content.list.slice(footStart)) {
+      (child as Phaser.GameObjects.Container).y += footTop;
+    }
+    const cursor = footTop + footHeight;
 
     // A tail of air, so the last card can be scrolled clear of the bottom edge.
     scroll.setContentHeight(Math.max(height, cursor + 24));
@@ -415,7 +468,7 @@ export class SettingsScene extends Phaser.Scene {
       fontFamily: TITLE_FONT,
       fontSize: '14px',
       fontStyle: '700',
-      wordWrap: { width: CARD_WIDTH - CARD_PAD * 2 },
+      wordWrap: { width: this.cardWidth - CARD_PAD * 2 },
     });
     holder.add(text);
     return text.y + text.height + 8;
@@ -424,9 +477,9 @@ export class SettingsScene extends Phaser.Scene {
   /** The card's skin, drawn last and sent to the back: the parchment, its edge, the son rule. */
   private cardSkin(holder: Phaser.GameObjects.Container, skin: Phaser.GameObjects.Graphics, height: number): void {
     skin.fillStyle(INK_UI.parchment, 0.9);
-    skin.fillRoundedRect(0, 0, CARD_WIDTH, height, 6);
+    skin.fillRoundedRect(0, 0, this.cardWidth, height, 6);
     skin.lineStyle(1, INK_UI.parchmentDark, 1);
-    skin.strokeRoundedRect(0, 0, CARD_WIDTH, height, 6);
+    skin.strokeRoundedRect(0, 0, this.cardWidth, height, 6);
     // A rule down the left edge in son, the mark the manual's entries and the history page's
     // open section carry. Three pages, one edge to run the eye down.
     skin.fillStyle(INK_UI.cinnabar, 0.5);
@@ -461,7 +514,7 @@ export class SettingsScene extends Phaser.Scene {
     const LABEL_WIDTH = 96;
     const GAP = 5;
     const x = CARD_PAD;
-    const width = CARD_WIDTH - CARD_PAD * 2;
+    const width = this.cardWidth - CARD_PAD * 2;
     const label = this.ui.label(x, y + ROW_HEIGHT / 2, row.name, 'caption', {
       color: INK_UI_HEX.mutedText,
       fontSize: '10px',
@@ -528,7 +581,7 @@ export class SettingsScene extends Phaser.Scene {
     holder.add(skin);
     let cursor = this.cardHeading(holder, t('menu.settings.section.build'));
     const x = CARD_PAD;
-    const width = CARD_WIDTH - CARD_PAD * 2;
+    const width = this.cardWidth - CARD_PAD * 2;
 
     const version = this.ui.label(x, cursor, buildStamp(), 'caption', {
       color: INK_UI_HEX.mutedText,

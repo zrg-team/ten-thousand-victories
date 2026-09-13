@@ -73,6 +73,8 @@ export const enAscentBeta = {
   "beta.cabinet.heroBody": "Draw one and it reveals a card for your Deck, kept for every reign. Three copies raise a card to Lv2, five more raise it to Lv3. Cards you slot ride into the next reign's opening hand — one slot to start, and a house trait opens more.",
   "beta.cabinet.step3": "Three copies raise a card to Lv2, five more to Lv3; slot cards into the next reign's hand.",
   "beta.advice.goalShort.body": "Great Invasion {goal} wins the reign if, when it breaks, you hold the capital and {provinces}, none of them being taken. Miss it and the goal waits for Great Invasion {late}, where the capital alone is enough. Take ground before it arrives, and keep a host where it can relieve it.",
+  "beta.talent.priceWhy": "The further off the next champion, the dearer the search — {pct}% of Favour still to fill.",
+  "beta.talent.priceRepeat": "Search number {n} this reign: the price is ×{mult}.",
 } as const;
 
 export const viAscentBeta: Record<keyof typeof enAscentBeta, string> = {
@@ -139,4 +141,6 @@ export const viAscentBeta: Record<keyof typeof enAscentBeta, string> = {
   "beta.cabinet.heroBody": "Mỗi lượt rút mở một lá cho Bộ Bài, giữ cho mọi đời. Ba bản đưa lá lên cấp 2, thêm năm bản lên cấp 3. Lá bạn gắn vào tay bài sẽ theo sang đời sau — lúc đầu một ô, lợi thế dòng họ mở thêm ô.",
   "beta.cabinet.step3": "Ba bản lên cấp 2, thêm năm bản lên cấp 3; gắn lá vào tay bài đời sau.",
   "beta.advice.goalShort.body": "Đại Xâm Lược {goal} tính là thắng nếu lúc phá xong bạn vẫn giữ kinh thành và {provinces}, không trấn nào đang bị chiếm dở. Lỡ thì mục tiêu chờ tới Đại Xâm Lược {late}, lúc ấy chỉ cần còn kinh thành. Lấy thêm đất trước khi nó tới, và giữ một đạo quân đủ gần để cứu viện.",
+  "beta.talent.priceWhy": "Anh tài kế tiếp càng xa thì tìm càng đắt — uy vọng còn thiếu {pct}%.",
+  "beta.talent.priceRepeat": "Lần tìm thứ {n} trong đời này: giá nhân ×{mult}.",
 };

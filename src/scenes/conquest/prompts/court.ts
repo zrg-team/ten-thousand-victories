@@ -89,11 +89,12 @@ export function showHeroChoice(self: ConquestUIScene, prompt: Extract<AscentProm
  * power`, `+18% output` — so the choice is read off numbers rather than guessed from a job
  * title. That is the difference between a court and a list of nouns.
  */
+import { heroProgressLine } from '../../../ui/HeroProgress';
 export function showAppointment(self: ConquestUIScene, prompt: Extract<AscentPrompt, { kind: 'court-appointment' }>): void {
   const hero = self.state.heroes.find((candidate) => candidate.id === prompt.heroId);
   const { body, bodyWidth, finish } = self.promptScrollBody(
     t('ascent.appoint.title', { hero: hero ? heroName(hero) : '' }),
-    hero ? `${heroTypeLabel(hero.type)}  ·  ${heroStatLine(hero)}` : '',
+    hero ? `${hero.growth ? heroProgressLine(self.state, hero) + '\n' : ''}${heroTypeLabel(hero.type)}  ·  ${heroStatLine(hero)}` : '',
     0,
   );
 

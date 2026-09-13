@@ -1,0 +1,78 @@
+import { chromium } from 'playwright';
+import fs from 'node:fs';
+import {heroCanvasText,clickHeroCanvas,heroDomOverlays} from '../playtest/hero-canvas.mjs';
+const browser = await chromium.launch(), checks = [], errors = [];
+const base = process.env.DEV_URL ?? 'http://127.0.0.1:5179';
+fs.mkdirSync('output/hero-depth', { recursive: true });
+try {
+  for (const language of ['en', 'vi']) for (const width of [320, 390, 1440]) {
+    const page = await browser.newPage({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
+    const check = (name, pass) => checks.push({ name: `${language}/${width}: ${name}`, pass: !!pass });
+    page.on('pageerror', error => errors.push(error.message));
+    await page.addInitScript(lang => localStorage.setItem('mandate:language:v1', lang), language);
+    await page.goto(`${base}/?capture=1`);
+    await page.waitForFunction(() => window.__startBenchGame && window.__phaserGame?.scene.isActive('MenuScene'));
+    await page.evaluate(() => window.__startBenchGame(20260913, 'ascent', 'beta'));
+    await page.waitForFunction(() => window.__phaserGame?.scene.isActive('ConquestUIScene'));
+    await page.waitForTimeout(500);
+    const labels = await page.evaluate(async () => {
+      const service = await import('/src/systems/heroes/HeroService.ts');
+      const { generateHero } = await import('/src/data/heroFactory.ts');
+      const { showHeroDepth } = await import('/src/scenes/conquest/screens/heroDepth.ts');
+      const { t } = await import('/src/i18n/index.ts');
+      const state = window.__mandateState, ui = window.__phaserGame.scene.getScene('ConquestUIScene');
+      state.pendingAscentPrompt = undefined; state.ascent.promptQueue = []; state.isPaused = false;
+      const hero = generateHero(404), land = { ...structuredClone(state.lands[0]), id: 'consent-island', neighbors: [], ownerId: 'dai-viet' };
+      state.lands.push(land); state.heroes.push(hero); service.initializeRecruitedHero(state, hero);
+      service.commitHeroAssignment(state, hero, { kind: 'province', landId: land.id });
+      const encounter = service.beginHeroEncounter(state, land.id);
+      window.__heroExposureId = `${encounter}:${hero.growth.instanceId}`;
+      window.__redrawConsentHero = () => ui.replaceLanePage(() => showHeroDepth(ui, hero.id));
+      ui.events.emit('state-changed'); ui.openLane('heroes'); window.__redrawConsentHero();
+      return Object.fromEntries(['lethalTitle', 'lethalAccept', 'hold', 'protect', 'archiveRetry', 'archiveStay', 'archiveLeave'].map(key => [key, t(`hero.depth.${key}`)]));
+    });
+    check('new Beta offers no lethal action',!(await heroCanvasText(page)).includes(labels.lethalTitle));
+    check('hero reading uses the existing game UI',await heroDomOverlays(page)===0&&await page.evaluate(()=>window.__phaserGame.input.enabled));
+    await page.evaluate(() => { window.__mandateState.ascent.heroDepth.rules.capabilities.lethal = true; window.__redrawConsentHero(); });
+    await clickHeroCanvas(page,labels.lethalTitle);
+    const consent = () => page.evaluate(() => window.__mandateState.ascent.heroDepth.exposures[window.__heroExposureId].deadlyConsentRevision);
+    check('opening last-stand review does not consent',await consent()===undefined);
+    await clickHeroCanvas(page,labels.lethalAccept);
+    check('explicit canvas confirmation records encounter consent',await consent()===1);
+    await clickHeroCanvas(page,labels.hold);
+    check('ordinary hold clears lethal consent',await consent()===undefined);
+    await clickHeroCanvas(page,labels.lethalTitle);
+    await clickHeroCanvas(page,labels.protect);
+    check('protective alternative leaves no lethal consent',await consent()===undefined);
+    const again=await page.evaluate(async()=>{
+      const {t}=await import('/src/i18n/index.ts');
+      const ui=window.__phaserGame.scene.getScene('ConquestUIScene'),s=window.__mandateState;
+      ui.closeLane();s.isPaused=true;
+      window.__chronicleWrite=Storage.prototype.setItem;
+      Storage.prototype.setItem=()=>{throw new Error('injected chronicle quota');};
+      s.ascent.heroDepth.chroniclePending=true;window.__chronicleLeft=false;
+      ui.events.removeAllListeners('ui:ascent-ceremony');
+      ui.events.on('ui:ascent-ceremony',()=>{window.__chronicleLeft=true;});
+      s.pendingAscentPrompt={kind:'run-over',cause:'capital',score:100,previousBest:0,legacyEarned:0};
+      ui.events.emit('state-changed');return t('ascent.over.again');
+    });
+    await clickHeroCanvas(page,again);
+    check('failed archive shows retry on reign-end page', (await heroCanvasText(page)).includes(labels.archiveRetry)&&!await page.evaluate(()=>window.__chronicleLeft));
+    check('archive failure opens no browser dialog',await heroDomOverlays(page)===0&&await page.locator('dialog[open]').count()===0);
+    if(language==='vi'&&width===390)await page.screenshot({path:'output/hero-depth/archive-inline-vi-390.png'});
+    await clickHeroCanvas(page,labels.archiveStay);
+    check('stay returns to normal reign-end controls',(await heroCanvasText(page)).includes(again)&&!await page.evaluate(()=>window.__chronicleLeft));
+    await clickHeroCanvas(page,again);
+    await clickHeroCanvas(page,labels.archiveRetry);
+    check('retry failure preserves session and records',!await page.evaluate(()=>window.__chronicleLeft)&&await page.evaluate(()=>window.__mandateState.ascent.heroDepth.chroniclePending));
+    await page.evaluate(()=>{Storage.prototype.setItem=window.__chronicleWrite;});
+    await clickHeroCanvas(page,labels.archiveRetry);
+    check('successful retry archives before leaving',await page.evaluate(()=>window.__chronicleLeft&&!window.__mandateState.ascent.heroDepth.chroniclePending));
+    check('game input remains usable',await page.evaluate(()=>window.__phaserGame.input.enabled));
+    await page.close();
+  }
+} finally { await browser.close(); }
+fs.writeFileSync('output/hero-depth/consent-verification.json', JSON.stringify({ checks, errors }, null, 2));
+for (const result of checks.filter(result => !result.pass)) console.log('FAIL', result.name);
+console.log(`${checks.filter(result => result.pass).length}/${checks.length} consent/archive UI checks passed`, errors);
+if (errors.length || checks.some(result => !result.pass)) process.exitCode = 1;

@@ -2540,6 +2540,40 @@ export const PITY_HARD_CAP = 8;
 /** Mandate era thresholds are the natural summon beats; also grant one every N waves. */
 export const SUMMON_EVERY_N_WAVES = 2;
 
+/**
+ * **Tìm nhân tài trong thiên hạ** — the Heroes page's paid search for a champion.
+ *
+ * Always dear, and dear in proportion to the purse: the price is the greater of a base that wears
+ * `realmPriceScale` and a share of the treasury in hand. A flat price was tens of coin against the
+ * late run's piles of thousands (see `priceScale`), which would have been a free champion every
+ * Court. The rest between searches is counted in seasons (about two wave cycles), so it cannot be
+ * bought again and again — and seasons, not waves, so the button can show the rest filling evenly.
+ *
+ * At the founding (~300 gold) a search is ~180; holding 5,000 it is 2,250.
+ */
+export const TALENT_SEARCH_BASE_GOLD = 180;
+export const TALENT_SEARCH_TREASURY_SHARE = 0.45;
+export const TALENT_SEARCH_REST_SEASONS = 28;
+/**
+ * Beta (`talentPriceByFavor`): the search is priced by what it skips.
+ *
+ * The share of the treasury runs from `_NEAR` with the Favour meter almost full — the free
+ * champion is a season or two away, so buying is only impatience — to `_FAR` with the meter just
+ * emptied, where the search would skip a whole cycle and costs more than the realm holds. The
+ * climb follows `remaining ^ _CURVE`, so the last few seasons stay near the shipped price and the
+ * wall rises steeply only when most of the cycle is being skipped. The base grows the same way, so
+ * a poor realm cannot sidestep the share by holding nothing. Every search already bought this
+ * reign multiplies the next by `_ESCALATION`.
+ *
+ * Holding 2,244 with the meter at 9/13 (31% left) a first search is ~985 — about the shipped
+ * 1,010; at 0/13 it is ~3,590, over the treasury; a third search at 9/13 is ~2,216.
+ */
+export const TALENT_SEARCH_SHARE_NEAR = 0.2;
+export const TALENT_SEARCH_SHARE_FAR = 1.6;
+export const TALENT_SEARCH_SHARE_CURVE = 1.5;
+export const TALENT_SEARCH_BASE_FAR_MULT = 4;
+export const TALENT_SEARCH_ESCALATION = 1.5;
+
 // ── Autopilot ───────────────────────────────────────────────────────────────
 /**
  * Target standing armies. Few and large beats many and small: hosts arrive and fight one at
@@ -2790,6 +2824,21 @@ export const SUPPLY_TICKS_HELD = 18;
 /** Realm stores kept back so feeding the army never starves the provinces. */
 export const SUPPLY_FOOD_RESERVE = 40;
 export const SUPPLY_STORE_RESERVE = 30;
+/**
+ * The relief a breaking host is offered before the ledger dissolves it (`hostRescue.ts`).
+ *
+ * Per head, a little above a fresh muster's gold (`MUSTER_GOLD_PER_SOLDIER` 0.16): the realm is
+ * buying back a host that keeps its rank, its drill and its general, which re-raising the same men
+ * from the provinces would not. The grain and goods are the relief column's own march on top of
+ * the baggage it carries out. Every figure then wears the realm's price scale (`scaledCost`), so a
+ * rich realm pays a rich realm's price for the same rescue.
+ */
+export const HOST_RESCUE_GOLD_PER_SOLDIER = 0.2;
+export const HOST_RESCUE_GOLD_FLOOR = 25;
+export const HOST_RESCUE_FOOD_PER_SOLDIER = 0.1;
+export const HOST_RESCUE_SUPPLIES_PER_SOLDIER = 0.05;
+/** Morale a relieved host stands at: well clear of the breaking line, so the next warning is seasons away. */
+export const HOST_RESCUE_MORALE = 40;
 /** When threat/power exceeds this, the autopilot prioritises walls and barracks over economy. */
 export const DEFENSIVE_POSTURE_RATIO = 0.8;
 /**

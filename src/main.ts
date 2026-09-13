@@ -7,6 +7,7 @@ import { scheduleCampaignEvents } from './systems/CampaignEventSystem';
 import type { AscentRulesetId, GameState } from './state/types';
 import { newAscentRun } from './state/ascentRun';
 import { rulesetIdOf } from './game/ascentRuleset';
+import { heroSummary } from './systems/heroes/HeroService';
 import { getLanguage, heroName, politicsTitle, seasonLabel, subscribeLanguageChange, t } from './i18n';
 import { cacheTipsForSplash } from './data/tips';
 import { noteShellUpdate, registerServiceWorker } from './pwa/updates';
@@ -315,6 +316,21 @@ window.render_game_to_text = () => {
     ascent: state.ascent
       ? {
           ruleset: rulesetIdOf(state),
+          ...(state.ascent.heroDepth ? { heroDepth: {
+            rules: state.ascent.heroDepth.rules,
+            heroes: state.heroes.filter(hero => hero.growth).map(hero => heroSummary(state, hero)),
+            warnings: Object.values(state.ascent.heroDepth.exposures).filter(exposure => !exposure.resolved),
+            notices: state.ascent.heroDepth.notices,
+            residents: state.ascent.heroDepth.residentActions,
+            policies: state.ascent.heroDepth.policies,
+            effects: state.ascent.heroDepth.effects,
+            memorials: state.ascent.heroDepth.memorials,
+            ...(state.ascent.heroDepth.measurements ? { measurements: {
+              counts: state.ascent.heroDepth.measurements.counts, seasons: state.ascent.heroDepth.measurements.seasons,
+              milestones: state.ascent.heroDepth.measurements.milestones, offers: state.ascent.heroDepth.measurements.offers,
+              choices: state.ascent.heroDepth.measurements.choices, recent: state.ascent.heroDepth.measurements.events.slice(-12),
+            } } : {}),
+          } } : {}),
           wave: state.ascent.wave,
           ticksToWave: state.ascent.ticksToWave,
           bossTelegraphed: state.ascent.bossTelegraphed,

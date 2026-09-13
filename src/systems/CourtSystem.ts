@@ -1,3 +1,6 @@
+import { effectiveHeroStats, heroActive, hasHeroPerk } from './heroes/heroModel';
+import { heroJobScale, heroProvinceModifiers } from './heroes/heroContributions';
+import { assignHeroDuty, commitHeroAssignment } from './heroes/HeroService';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
 import { heroTemplates } from '../data/heroes';
 import { politicsCardTemplates } from '../data/politicsCards';
@@ -266,13 +269,14 @@ export function getCourtBonuses(state: GameState): CourtBonuses {
       continue;
     }
     const hero = state.heroes.find((candidate) => candidate.id === heroId);
-    if (!hero) {
+    if (!hero || !heroActive(hero)) {
       continue;
     }
-    const effects = COURT_POSITION_EFFECTS[positionId as CourtPositionId](hero.stats);
+    const effects = COURT_POSITION_EFFECTS[positionId as CourtPositionId](effectiveHeroStats(hero));
     // Thái ấp's upside: a champion who holds land in their own name brings twice the weight to
     // their seat. The province pays for it — see `getLandGovernorOutputMult`.
-    const fiefMult = princelyFiefs(state) ? 2 : 1;
+    const fiefMult = (princelyFiefs(state) ? 2 : 1) * heroJobScale(state, hero)
+      * (['chancellor', 'spymaster'].includes(positionId) && hasHeroPerk(hero, 'court-secretary') ? 1.06 : 1);
     for (const [key, value] of Object.entries(effects)) {
       delta[key as NumericCourtBonusKey] += (value ?? 0) * fiefMult;
     }
@@ -440,6 +444,7 @@ export function refreshCourtSeats(state: GameState): void {
 
 /** Clears whatever duty (army command, court seat, governorship) a hero currently holds. */
 export function releaseHeroAssignment(state: GameState, hero: Hero): void {
+  if (hero.growth) { commitHeroAssignment(state, hero, { kind: 'home' }); return; }
   if (!hero.assignedTo) {
     return;
   }
@@ -472,6 +477,7 @@ export function assignHeroToPosition(state: GameState, heroId: string, positionI
   if (hero.assignedTo === `court:${positionId}`) {
     return false;
   }
+  if (hero.growth) return assignHeroDuty(state, heroId, { kind: 'court', seat: positionId }).ok;
 
   releaseHeroAssignment(state, hero);
 
@@ -498,6 +504,7 @@ export function removeHeroFromPosition(state: GameState, positionId: CourtPositi
 
   const hero = state.heroes.find((candidate) => candidate.id === heroId);
   if (hero) {
+    if (hero.growth) return assignHeroDuty(state, hero.id, { kind: 'home' }).ok;
     hero.assignedTo = undefined;
   }
   delete state.court.seats[positionId];
@@ -515,6 +522,7 @@ export function assignHeroToLand(state: GameState, heroId: string, landId: strin
   }
 
   const previousGovernor = state.heroes.find((candidate) => candidate.assignedTo === landId);
+  if (hero.growth) return assignHeroDuty(state, heroId, { kind: 'province', landId }).ok;
   if (previousGovernor) {
     previousGovernor.assignedTo = undefined;
   }
@@ -568,11 +576,11 @@ export function governorKeyStat(land: Land): keyof HeroStats {
 export function getLandGovernorEffects(state: GameState, land: Land, hero?: Hero): LandGovernorEffects {
   const governor = hero ?? state.heroes.find((candidate) => candidate.assignedTo === land.id);
   const keyStat = governorKeyStat(land);
-  if (!governor) {
+  if (!governor || !heroActive(governor)) {
     return { outputMult: 1, defenseMult: 1, loyaltyPerTick: 0, keyStat };
   }
 
-  const stats = governor.stats;
+  const stats = effectiveHeroStats(governor);
   // The original, untouched: every governor's administration lifts output.
   let outputMult = 1 + stats.administration * 0.004;
   // And then the match, which only exists in Ascent — the classic modes' economies must not move.
@@ -581,11 +589,11 @@ export function getLandGovernorEffects(state: GameState, land: Land, hero?: Hero
   }
 
   return {
-    outputMult,
+    outputMult: 1 + (outputMult - 1) * heroJobScale(state, governor),
     defenseMult: state.gameMode === 'ascent' && getLandSpecialization(land) === 'fortress'
-      ? 1 + stats.martial * 0.003
+      ? 1 + stats.martial * 0.003 * heroJobScale(state, governor)
       : 1,
-    loyaltyPerTick: stats.loyalty * 0.05,
+    loyaltyPerTick: stats.loyalty * 0.05 * heroJobScale(state, governor) * (1 + heroProvinceModifiers(state, land, governor).loyalty),
     keyStat,
   };
 }
@@ -663,7 +671,7 @@ export function progressCourt(state: GameState): void {
     const governor = state.heroes.find((candidate) => candidate.assignedTo === land.id);
     if (governor) {
       governedLandCount += 1;
-      land.loyalty = Math.min(100, land.loyalty + governor.stats.loyalty * 0.05);
+      land.loyalty = Math.min(100, land.loyalty + getLandGovernorEffects(state, land, governor).loyaltyPerTick);
     }
   }
 

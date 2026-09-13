@@ -61,6 +61,7 @@ import { scaledCost, treasuryGraftFrom } from './ascent/priceScale';
 import { eraIndex, eraLabel, getBuildingLevelCap } from './empire/MandateSystem';
 import { pushToast } from './empire/notifications';
 import { getCourtBonuses, getLandGovernorOutputMult } from './CourtSystem';
+import { heroProvinceModifiers, heroHostFoodMultiplier } from './heroes/heroContributions';
 import { estateStanding, ESTATE_CRISIS, landRealised, realmShare } from './DecreeSystem';
 import {
   dikeOffice,
@@ -1027,6 +1028,12 @@ export function refreshAllLandOutputs(state: GameState): void {
       outputs.food = Math.round(outputs.food * CLAIM_OUTPUT_SHARE);
       outputs.supplies = Math.round(outputs.supplies * CLAIM_OUTPUT_SHARE);
     }
+    if (state.ascent?.heroDepth) {
+      const hero = heroProvinceModifiers(state, land);
+      outputs.gold = Math.round(outputs.gold * (1 + hero.gold));
+      outputs.food = Math.round(outputs.food * (1 + hero.food));
+      outputs.supplies = Math.round(outputs.supplies * (1 + hero.supplies));
+    }
     land.outputs = outputs;
   }
 
@@ -1304,7 +1311,7 @@ export function ascentArmyUpkeep(state: GameState): { gold: number; food: number
     // starves it when they run out. Charging the realm for a host it cannot command would make
     // accepting help a tax.
     if (army.kingdomId !== PLAYER_KINGDOM_ID || army.isLevy || army.patron) continue;
-    const size = army.units.spearmen + army.units.archers + army.units.heavyInfantry;
+    const size = (army.units.spearmen + army.units.archers + army.units.heavyInfantry) * heroHostFoodMultiplier(state, army);
     const marching = state.movementOrders.some((order) => order.armyId === army.id);
     const abroad = state.lands.find((land) => land.id === army.landId)?.ownerId !== PLAYER_KINGDOM_ID;
     if (marching || abroad) campaignTroops += size;
@@ -1918,23 +1925,25 @@ function ascentShortfallEvents(state: GameState, foodShort: boolean, suppliesSho
  * gold drain in every measured run, and the one the player had no lever on.
  */
 export function heroPayroll(state: GameState): number {
+  return Math.round(state.heroes.reduce((sum, hero) => sum + heroWage(state, hero), 0));
+}
+
+/**
+ * One hero's share of `heroPayroll`, unrounded — the figure the Heroes page prints on each card.
+ * The payroll is the sum of these, so a card and the total can never disagree.
+ */
+export function heroWage(state: GameState, hero: GameState['heroes'][number]): number {
   // Two decrees move the payroll, and they pull in opposite directions on purpose. Sùng Phật
   // keeps the monastics for nothing — the Lý and Trần courts were staffed by monks who took no
   // wage — while Chiếu cầu hiền advertises for talent and gets talent that knows its price.
-  const monasticsFree = sanghaPatronage(state);
   const seeking = seekingTheWorthy(state) ? SEEKING_UPKEEP_MULT : 1;
-  const upkeepOf = (hero: GameState['heroes'][number]) =>
-    (monasticsFree && hero.monastic ? 0 : hero.upkeepGold * seeking);
+  const upkeep = sanghaPatronage(state) && hero.monastic ? 0 : hero.upkeepGold * seeking;
 
-  if (state.gameMode !== 'ascent') {
-    return Math.round(state.heroes.reduce((sum, hero) => sum + upkeepOf(hero), 0));
-  }
-  const total = state.heroes.reduce((sum, hero) => {
-    const kingMult = hero.id === 'king' ? ASCENT_KING_UPKEEP_MULT : 1;
-    const postingMult = hero.assignedTo ? 1 : HERO_RESERVE_UPKEEP_SHARE;
-    return sum + upkeepOf(hero) * kingMult * postingMult;
-  }, 0);
-  return Math.round(total);
+  if (state.gameMode !== 'ascent') return upkeep;
+  if (hero.life?.kind === 'captive' || hero.life?.kind === 'dead') return 0;
+  const kingMult = hero.id === 'king' ? ASCENT_KING_UPKEEP_MULT : 1;
+  const postingMult = hero.assignedTo || (hero.life && hero.life.kind !== 'active') ? 1 : HERO_RESERVE_UPKEEP_SHARE;
+  return upkeep * kingMult * postingMult;
 }
 
 export function getBuildOrder(state: GameState, landId: string): BuildOrder | undefined {

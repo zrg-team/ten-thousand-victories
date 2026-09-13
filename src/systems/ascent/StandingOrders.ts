@@ -212,6 +212,9 @@ export function resupplyHost(state: GameState, armyId: string): { ok: boolean; f
   // the host's freedom, which is what separates it from a refit.
   applyResourceDelta(state, { food: -preview.food, supplies: -preview.supplies });
   army.resupplyRun = { ticksLeft: ARMY_RESUPPLY_TICKS, food: preview.food, supplies: preview.supplies };
+  if (state.ascent?.heroDepth) army.resupplyRun.heroReceipt = { id: `supply:${++state.ascent.heroDepth.eventSequence}`, window: state.ascent.wavesSurvived + 1,
+    instanceId: state.heroes.find(hero => hero.id === army.generalHeroId)?.growth?.instanceId ?? '',
+    ...(state.ascent.heroDepth.rules.version === 2 ? { requested: preview.food > 0 || preview.supplies > 0 } : {}) };
   pushToast(state, t('ascent.orders.resupplySent', {
     army: army.name, food: preview.food, supplies: preview.supplies, n: ARMY_RESUPPLY_TICKS,
   }), 'info');

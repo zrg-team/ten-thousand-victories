@@ -4,9 +4,13 @@
 
 **Mục tiêu:** giúp game hiện tại thú vị, dễ theo dõi trên điện thoại và có chiều sâu chiến thuật thực chất cho người chơi máy tính.
 
-**Status, September 13, 2026:** implementation roadmap scoped into 18 work packages, with a detailed first batch and validation protocol. Gameplay implementation has not started under this plan. Conditional experiments remain subject to core playtest results.
+**Status, September 13, 2026:** implementation roadmap scoped into 18 work packages. Hero Depth now has playable Ascent Beta implementation and an evidence report. Remaining roadmap and release gates stay tracked separately; experiments remain subject to playtest results.
 
-**Trạng thái ngày 13/09/2026:** đã chia lộ trình thành 18 gói công việc, có danh sách đợt đầu và quy trình kiểm chứng. Chưa triển khai gameplay theo kế hoạch này. Thử nghiệm tùy chọn được quyết định theo kết quả chơi thử phần lõi.
+**Trạng thái ngày 13/09/2026:** lộ trình có 18 gói công việc. Chiều sâu anh hùng đã có bản chơi được trong Ascent Beta và báo cáo bằng chứng. Các gói và điều kiện phát hành còn lại được theo dõi riêng; thử nghiệm vẫn phụ thuộc kết quả chơi thử.
+
+**September 14 continuation:** new Hero Depth runs use numerical v2: corrected deed XP, forecast-based protection, scoped ransom, fortress commission guards, grouped aftermath and richer chronicle records. User correction: removed the comparison modal and floating HTML/Aa panels; hero actions use existing game screens. The [bilingual audit](hero-depth/index.html?lang=vi#completion-audit) keeps remaining code, balance and human/device gates explicit. Existing runs keep their pinned rules; death remains disabled.
+
+**Làm tiếp ngày 14/09:** lượt Chiều sâu anh hùng mới dùng luật số học V2: sửa KN công trạng, bảo vệ theo dự báo, phạm vi chuộc, điều kiện ủy nhiệm pháo đài, tổng kết gộp và sử phong phú hơn. Điều chỉnh theo người dùng: bỏ hộp so sánh và bảng HTML/Aa nổi; thao tác anh hùng dùng màn hình game hiện có. Bảng đối chiếu song ngữ vẫn ghi rõ mã, cân bằng và tiêu chí người/thiết bị còn lại. Lượt đang chơi giữ luật đã chốt; vẫn tắt tử vong.
 
 ## Read and work · Đọc và triển khai
 
@@ -25,7 +29,7 @@
 
 The review is a dated baseline of the build inspected on September 12. Its weighted grades are editorial assessments, not measured enjoyment or a claim about later builds. Recorded simulations establish specific balance observations; human playtests and physical-device checks remain necessary.
 
-**New scope, September 13:** [Hero depth](hero-depth/README.md) extends B23/R10. All H01–H12 packages are Proposed and sit outside the original roadmap estimate. Start with service growth; enable lethal outcomes only after readable warnings and recoverable losses pass their gates. / **Phạm vi mới ngày 13/09:** H01–H12 mở rộng B23/R10, đều là Đề xuất và nằm ngoài ước lượng cũ. Làm trưởng thành trước; chỉ mở tử trận sau khi cảnh báo và phục hồi đạt tiêu chí.
+**Hero Depth implementation, September 13:** [H01–H12 completion audit](hero-depth/index.html#completion-audit) distinguishes playable Beta systems from missing code/UX and unmet validation gates. Not every document item is implemented. Death stays disabled. This adds B23/R10 scope and does not promote anything to Stable. / **Triển khai chiều sâu anh hùng ngày 13/09:** Bảng đối chiếu H01–H12 phân biệt hệ thống Beta chơi được với mã/UX còn thiếu và tiêu chí chưa đạt. Chưa triển khai mọi mục trong tài liệu. Giữ tắt tử vong. Phần này mở rộng B23/R10, không đưa lên Stable.
 
 Bản đánh giá ghi nhận phiên bản đã khảo sát ngày 12/09. Điểm số là nhận định có trọng số, không phải phép đo mức độ vui của người chơi. Mô phỏng hỗ trợ phân tích cân bằng; vẫn cần chơi thử với người thật và kiểm tra trên thiết bị thật.
 

@@ -22,7 +22,9 @@ import { isDesktopPlatform } from '../../platform/layout';
 import { canQuitShell, quitShell } from '../../platform/shell';
 import { QUIT_ROW_HEIGHT, SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
 import { pageFloor, renderPageHead } from './helpers';
-import { betaSaveSuffix, drawBetaBadge } from './betaBadge';
+import { betaBadgeText, betaSaveSuffix } from './betaBadge';
+import { openTrailer } from '../../ui/trailerPlayer';
+import { isAscentBetaEnabled } from '../../game/betaOptions';
 import type { MenuScene } from '../MenuScene';
 
 /**
@@ -65,8 +67,7 @@ export function renderMain(self: MenuScene): void {
   self.tipAnchor = self.tourTargets.play;
   self.content.push(self.ui.button(self.tourTargets.play, t('ascent.menu.title'), () => {
     startAscentRun(self);
-  }, { variant: 'primary', fontSize: '17px' }).setData('menuPrimary', true));
-  drawBetaBadge(self, self.tourTargets.play);
+  }, { variant: 'primary', fontSize: '17px', badge: betaBadgeText() }).setData('menuPrimary', true).setData('menuBetaBadge', isAscentBetaEnabled()));
   cursor += playHeight + continueGap;
 
   // This resumes a classic save. Dragon Ascent remains the primary action, and a new
@@ -148,9 +149,8 @@ function renderDesktopMain(self: MenuScene): void {
   self.tourTargets.play = { x, y: cursor, width, height: playHeight };
   if (!saved) self.tipAnchor = self.tourTargets.play;
   self.content.push(self.ui.button(self.tourTargets.play, saved ? t('menu.newRun') : t('ascent.menu.title'),
-    () => startAscentRun(self), { variant: saved ? 'secondary' : 'primary', fontSize: saved ? '13px' : '18px' })
-    .setData('menuPrimary', !saved).setData('menuNewRun', true));
-  drawBetaBadge(self, self.tourTargets.play);
+    () => startAscentRun(self), { variant: saved ? 'secondary' : 'primary', fontSize: saved ? '13px' : '18px', badge: betaBadgeText() })
+    .setData('menuPrimary', !saved).setData('menuNewRun', true).setData('menuBetaBadge', isAscentBetaEnabled()));
   cursor += playHeight + 20;
   self.renderDynastyTablet(x, cursor, width, 64);
   cursor += 74;
@@ -402,6 +402,9 @@ function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
     { id: 'guide', label: t('guide.menu.button'), icon: 'scroll', onPress: () => self.scene.start('GuideScene') },
     { id: 'history', label: t('history.menu.button'), icon: 'book', onPress: () => self.scene.start('HistoryScene') },
     { id: 'settings', label: t('menu.settings'), icon: 'gear', onPress: () => self.scene.start('SettingsScene') },
+    // Last, and a door of the same tier: the film is reference material about the game, like the
+    // manual beside it. It plays over the menu and returns to it (`ui/trailerPlayer.ts`).
+    { id: 'trailer', label: t('menu.trailer.button'), icon: 'play', onPress: () => openTrailer() },
   ];
   // Measured, then divided, rather than three fixed cells.
   //

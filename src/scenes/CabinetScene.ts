@@ -1,6 +1,7 @@
 import { preloadStoryPrints } from '../ui/storyPrint';
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../game/constants';
+import { GAME_HEIGHT, GAME_WIDTH, surfaceWidth } from '../game/constants';
+import { isDesktopLayout } from '../platform/layout';
 import { sheetSpan } from '../game/cameraLayout';
 import { applyRenderScale, localPointer } from '../game/graphicsQuality';
 import { t } from '../i18n';
@@ -111,6 +112,9 @@ export class CabinetScene extends Phaser.Scene {
   private combining = false;
   /** Whether the "ways to earn more" list is open; unset means open only when nothing waits. */
   private faucetsOpen?: boolean;
+  /** The column the section helpers draw into: the phone's one, or the desktop's left or right. */
+  private sectionX = PAD;
+  private sectionW = GAME_WIDTH - PAD * 2;
 
   constructor() {
     super('CabinetScene');
@@ -195,8 +199,22 @@ export class CabinetScene extends Phaser.Scene {
     const backY = GAME_HEIGHT - BACK_BAR_HEIGHT - 10;
     this.chrome(this.ui.backBar(backY, () => this.scene.start('MenuScene', { mode: 'dynasty' })));
 
+    // **The desktop lays it out as a sheet, like How to Play and History.** The phone column in the
+    // middle of a 16:9 window put the binder a long scroll under the rubbing panel. On the
+    // desktop the page is `min(860, sheet − 64)` wide on its own paper band: the rubbing, the
+    // steps, the ways to earn and the hand stand in a phone-width column on the left, and the
+    // binder and the forge take the wider column on the right.
+    const desktop = isDesktopLayout();
+    const sheetW = desktop ? Math.min(860, surfaceWidth() - 64) : GAME_WIDTH;
+    const sheetLeft = (GAME_WIDTH - sheetW) / 2;
+    if (desktop) {
+      this.keep(this.add.rectangle(sheetLeft - 12, 0, sheetW + 24, GAME_HEIGHT, INK_UI.parchmentShade).setOrigin(0).setDepth(-1));
+    }
     const listTop = 80;
-    const scroll = this.ui.scrollArea({ x: 0, y: listTop, width: GAME_WIDTH, height: backY - listTop - 6 });
+    // Four units of slack either side on the desktop, so a panel stroke at a column's edge is not
+    // shaved by the list's clip.
+    const areaX = desktop ? sheetLeft - 4 : 0;
+    const scroll = this.ui.scrollArea({ x: areaX, y: listTop, width: desktop ? sheetW + 8 : GAME_WIDTH, height: backY - listTop - 6 });
     // `addTo` is not a convenience: it parents the hit zone *under* the list. Left unparented, the
     // zone — made after the content, so above it — took every tap on the page, and the report
     // was *I cannot click anything, does it really work?* Nothing inside the list had ever fired.
@@ -204,7 +222,12 @@ export class CabinetScene extends Phaser.Scene {
     scroll.addTo(layer);
     this.keep(layer);
     this.scroll = scroll;
-    const W = GAME_WIDTH - PAD * 2;
+    const GUTTER = 24;
+    const leftW = desktop ? Math.min(GAME_WIDTH - PAD * 2, Math.floor((sheetW - GUTTER) / 2)) : GAME_WIDTH - PAD * 2;
+    let X = desktop ? 4 : PAD;
+    let W = leftW;
+    this.sectionX = X;
+    this.sectionW = W;
     let y = 4;
 
     // ── What you have, and the one thing to do with it ─────────────────────
@@ -218,24 +241,24 @@ export class CabinetScene extends Phaser.Scene {
     const heroTitle = hero ? t('cabinet.hero.title', { n: store.rubbings }) : t('cabinet.hero.none');
     // Beta (menu pages follow the opt-in): the combine thresholds as they are — three copies to Lv2,
     // five more to Lv3 — and the hand's slots as the house has them, not "up to three".
-    const heroBody = this.ui.label(PAD + 12, 0, hero ? (isAscentBetaEnabled() ? t('beta.cabinet.heroBody') : t('cabinet.hero.body')) : t('cabinet.hero.noneBody'), 'caption',
+    const heroBody = this.ui.label(X + 12, 0, hero ? (isAscentBetaEnabled() ? t('beta.cabinet.heroBody') : t('cabinet.hero.body')) : t('cabinet.hero.noneBody'), 'caption',
       { fontSize: '10px', wordWrap: { width: W - 24 } });
     // Title, one sentence, the button, then the odds as a footnote under it — in that order.
     // The odds line used to sit between the sentence and the button with a ring floating at
     // the panel's edge, and the block read as three things fighting: *this looks messy*.
-    const pityLine = this.ui.label(PAD + 12 + 18, 0, store.rubbingPity >= PITY_HARD_CAP
+    const pityLine = this.ui.label(X + 12 + 18, 0, store.rubbingPity >= PITY_HARD_CAP
       ? t('cabinet.rub.pityDue')
       : t('cabinet.rub.pity', { n: store.rubbingPity, cap: PITY_HARD_CAP }), 'caption', { fontSize: '9px', color: '#8a7a60', wordWrap: { width: W - 24 - 18 } });
     const heroH = 12 + 20 + 4 + heroBody.height + (hero ? 10 + 44 : 0) + 8 + pityLine.height + 12;
-    scroll.content.add(this.ui.panel({ x: PAD, y, width: W, height: heroH },
+    scroll.content.add(this.ui.panel({ x: X, y, width: W, height: heroH },
       { border: hero ? INK_UI.cinnabar : INK_UI.softBrush, borderWidth: hero ? 1.6 : 1.2, fillAlpha: 0.9 }));
-    scroll.content.add(this.ui.label(PAD + 12, y + 12, heroTitle, 'label', { fontSize: '15px', ...(hero ? { color: '#a4402c' } : {}) }));
+    scroll.content.add(this.ui.label(X + 12, y + 12, heroTitle, 'label', { fontSize: '15px', ...(hero ? { color: '#a4402c' } : {}) }));
     heroBody.setY(y + 12 + 20 + 4);
     scroll.content.add(heroBody);
     let cursor = heroBody.y + heroBody.height;
     if (hero) {
       scroll.content.add(this.ui.button(
-        { x: PAD + 12, y: cursor + 10, width: W - 24, height: 44 },
+        { x: X + 12, y: cursor + 10, width: W - 24, height: 44 },
         t('cabinet.hero.rub', { n: store.rubbings }),
         () => {
           this.reveal = revealRubbing();
@@ -253,7 +276,7 @@ export class CabinetScene extends Phaser.Scene {
     // The pity ring is the line's own icon now, a small dial at its head: it fills toward the
     // hard guarantee of gold-or-better, and turns gold when it is one pull away.
     {
-      const cx = PAD + 12 + 7;
+      const cx = X + 12 + 7;
       const cy = pityLine.y + 6;
       const share = Math.min(1, store.rubbingPity / PITY_HARD_CAP);
       const ring = this.add.graphics();
@@ -274,7 +297,7 @@ export class CabinetScene extends Phaser.Scene {
     // copies climb a level and the hand carries the seals into the next reign.
     const stepW = Math.floor((W - 12) / 3);
     (['1', '2', '3'] as const).forEach((step, index) => {
-      const x = PAD + index * (stepW + 6);
+      const x = X + index * (stepW + 6);
       const text = this.ui.label(x + 6, y + 18, step === '3' && isAscentBetaEnabled() ? t('beta.cabinet.step3') : t(`cabinet.steps.${step}` as Parameters<typeof t>[0]), 'caption',
         { fontSize: '9px', wordWrap: { width: stepW - 12 } });
       const h = 18 + text.height + 8;
@@ -287,7 +310,7 @@ export class CabinetScene extends Phaser.Scene {
     // ── Ways to earn more, folded: open by tap, and open by default only when there is nothing to scratch ──
     const earnOpen = this.faucetsOpen ?? !hero;
     y = this.sectionHeader(scroll, y, `${t('cabinet.faucets')}  ${earnOpen ? '▾' : '▸'}`);
-    this.gridTap(scroll, PAD, y - 30, W, 28, () => {
+    this.gridTap(scroll, X, y - 30, W, 28, () => {
       this.faucetsOpen = !earnOpen;
       this.pendingScroll = this.scroll ? -this.scroll.content.y : 0;
       this.pendingAnchor = this.scroll?.snapshotAnchor();
@@ -307,16 +330,16 @@ export class CabinetScene extends Phaser.Scene {
       const packCost = rubbingPackPrice();
       const legacy = getLegacy();
       const packH = 46;
-      scroll.content.add(this.ui.panel({ x: PAD, y, width: W, height: packH },
+      scroll.content.add(this.ui.panel({ x: X, y, width: W, height: packH },
         { border: INK_UI.softBrush, fillAlpha: 0.45 }));
-      scroll.content.add(this.ui.label(PAD + 12, y + 7, t('cabinet.pack', { cost: packCost }), 'label',
+      scroll.content.add(this.ui.label(X + 12, y + 7, t('cabinet.pack', { cost: packCost }), 'label',
         { fontSize: '12px' }));
-      scroll.content.add(this.ui.label(PAD + 12, y + 26,
+      scroll.content.add(this.ui.label(X + 12, y + 26,
         legacy.points >= packCost ? t('cabinet.pack.note', { pct: PACK_GROWTH_PCT }) : t('cabinet.pack.poor', { have: legacy.points }),
         'caption', { fontSize: '9px' }));
       if (legacy.points >= packCost) {
         scroll.content.add(this.ui.button(
-          { x: PAD + W - 118, y: y + 6, width: 110, height: 32 },
+          { x: X + W - 118, y: y + 6, width: 110, height: 32 },
           t('cabinet.pack.buy'),
           () => {
             if (!spendLegacyPoints(rubbingPackPrice())) return;
@@ -334,7 +357,7 @@ export class CabinetScene extends Phaser.Scene {
 
     // ── The opening hand ────────────────────────────────────────────────────
     y = this.sectionHeader(scroll, y, t('cabinet.hand.title'));
-    const handNote = this.ui.label(PAD, y, t('cabinet.hand.sub'), 'caption',
+    const handNote = this.ui.label(X, y, t('cabinet.hand.sub'), 'caption',
       { fontSize: '9.5px', wordWrap: { width: W } });
     scroll.content.add(handNote);
     y += handNote.height + 8;
@@ -343,7 +366,7 @@ export class CabinetScene extends Phaser.Scene {
     const slotW = Math.floor((W - (3 - 1) * 8) / 3);
     const slotH = Math.round(slotW * (CARD_FACE_H / CARD_FACE_W));
     for (let i = 0; i < 3; i += 1) {
-      const x = PAD + i * (slotW + 8);
+      const x = X + i * (slotW + 8);
       const locked = i >= slots;
       const cardId = hand[i];
       if (cardId) {
@@ -370,7 +393,7 @@ export class CabinetScene extends Phaser.Scene {
       }
     }
     y += slotH + 8;
-    const price = this.ui.label(PAD, y,
+    const price = this.ui.label(X, y,
       hand.length > 0
         ? t('cabinet.hand.price', { n: hand.length * AMBITION_PER_POWER_CARD })
         : t('cabinet.hand.priceNone'),
@@ -378,20 +401,30 @@ export class CabinetScene extends Phaser.Scene {
     scroll.content.add(price);
     y += price.height + 16;
 
+    // The desktop turns the page here: the binder and the forge are the right-hand column.
+    const leftBottom = y;
+    if (desktop) {
+      X = 4 + leftW + GUTTER;
+      W = sheetW - leftW - GUTTER;
+      this.sectionX = X;
+      this.sectionW = W;
+      y = 4;
+    }
+
     // ── The binder ──────────────────────────────────────────────────────────
     //
     // Real faces for held seals, silhouettes for the unfound, sorted by rarity then level, with
     // four filters. A ready-to-combine seal is edged cinnabar. Tapping a held seal opens it at
     // full size with its ladder — the face is the object, the tile is its place.
     y = this.sectionHeader(scroll, y, t('cabinet.binder.title', { found: progress.found, total: progress.total }));
-    const hint = this.ui.label(PAD, y, t('cabinet.binder.hint'), 'caption',
+    const hint = this.ui.label(X, y, t('cabinet.binder.hint'), 'caption',
       { fontSize: '9px', wordWrap: { width: W } });
     scroll.content.add(hint);
     y += hint.height + 8;
 
     const tileW = Math.floor((W - 3 * 6) / 4);
     BINDER_FILTERS.forEach((id, index) => {
-      const x = PAD + index * (tileW + 6);
+      const x = X + index * (tileW + 6);
       const selected = id === this.filter;
       scroll.content.add(this.ui.crayonTile({ x, y, width: tileW, height: 28 }, { selected }));
       scroll.content.add(this.ui.label(x + tileW / 2, y + 14, t(`cabinet.filter.${id}` as Parameters<typeof t>[0]), 'button', {
@@ -422,21 +455,23 @@ export class CabinetScene extends Phaser.Scene {
         return true;
       });
 
-    const cellW = Math.floor((W - (GRID_COLS - 1) * 8) / GRID_COLS);
+    // Four faces a row where the column is wide enough to keep each one the size the phone draws.
+    const cols = W >= 440 ? 4 : GRID_COLS;
+    const cellW = Math.floor((W - (cols - 1) * 8) / cols);
     const cellH = Math.round(cellW * (CARD_FACE_H / CARD_FACE_W));
     if (shown.length === 0) {
-      scroll.content.add(this.ui.label(PAD, y, t('cabinet.filter.empty'), 'caption', { fontSize: '10px' }));
+      scroll.content.add(this.ui.label(X, y, t('cabinet.filter.empty'), 'caption', { fontSize: '10px' }));
       y += 24;
     }
-    for (let first = 0; first < shown.length; first += GRID_COLS) {
-      const rowCards = shown.slice(first, first + GRID_COLS);
-      const rowIndex = first / GRID_COLS;
+    for (let first = 0; first < shown.length; first += cols) {
+      const rowCards = shown.slice(first, first + cols);
+      const rowIndex = first / cols;
       const top = y + rowIndex * (cellH + 10);
       scroll.lazyRow(`binder:${rowCards.map(card => card.id).join(',')}`, top, cellH + 10, () => {
       rowCards.forEach((card, index) => {
-      const col = index % GRID_COLS;
-      const row = Math.floor(index / GRID_COLS);
-      const x = PAD + col * (cellW + 8);
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      const x = X + col * (cellW + 8);
       const cy = top;
       const held = store.cards[card.id];
       if (held) {
@@ -459,7 +494,7 @@ export class CabinetScene extends Phaser.Scene {
           ...(isAscentBetaEnabled() ? { scoped: true, owned: true } : {}),
         }));
         this.gridTap(scroll, x, cy, cellW, cellH, () => this.openCardView(card.id, {
-          x, y: listTop + cy + (this.scroll?.content.y ?? 0), width: cellW, height: cellH,
+          x: areaX + x, y: listTop + cy + (this.scroll?.content.y ?? 0), width: cellW, height: cellH,
         }));
       } else {
         // The visible hunt: a dashed silhouette wearing only its rarity — and every one of
@@ -478,7 +513,7 @@ ${t('cabinet.grid.unfound')}`,
       });
       });
     }
-    y += Math.ceil(shown.length / GRID_COLS) * (cellH + 10) + 8;
+    y += Math.ceil(shown.length / cols) * (cellH + 10) + 8;
 
 
     // ── The forge ───────────────────────────────────────────────────────────
@@ -499,11 +534,11 @@ ${t('cabinet.grid.unfound')}`,
       const top = y;
       scroll.lazyRow(`recipe:${recipe.result}`, top, rowH + 8, () => {
         const y = top;
-      scroll.content.add(this.ui.panel({ x: PAD, y, width: W, height: rowH },
+      scroll.content.add(this.ui.panel({ x: X, y, width: W, height: rowH },
         { border: learned ? INK_UI.jade : INK_UI.softBrush, fillAlpha: learned ? 0.55 : 0.32 }));
-      scroll.content.add(this.ui.label(PAD + 12, y + 7, line, 'label',
+      scroll.content.add(this.ui.label(X + 12, y + 7, line, 'label',
         { fontSize: '11px', wordWrap: { width: W - 24 } }));
-      scroll.content.add(this.ui.label(PAD + 12, y + 26,
+      scroll.content.add(this.ui.label(X + 12, y + 26,
         learned ? t('cabinet.forge.learned') : t('cabinet.forge.hint'), 'caption',
         { fontSize: '8.5px', wordWrap: { width: W - 24 } }));
       });
@@ -511,7 +546,7 @@ ${t('cabinet.grid.unfound')}`,
     }
     y += 14;
 
-    scroll.setContentHeight(y);
+    scroll.setContentHeight(desktop ? Math.max(leftBottom, y) : y);
     if (this.pendingAnchor) scroll.restoreAnchor(this.pendingAnchor); else scroll.setScroll(this.pendingScroll);
   }
 
@@ -521,19 +556,20 @@ ${t('cabinet.grid.unfound')}`,
    * so the page read as one column of grey. Title face, small caps, ink-dark, with the band under.
    */
   private sectionHeader(scroll: InkScrollArea, y: number, text: string): number {
-    const label = this.add.text(PAD, y, text.toLocaleUpperCase('vi'), {
+    const label = this.add.text(this.sectionX, y, text.toLocaleUpperCase('vi'), {
       color: '#2a2118', fontFamily: TITLE_FONT, fontSize: '13px', fontStyle: '700',
     }).setOrigin(0, 0);
     label.setLetterSpacing?.(1.2);
     scroll.content.add(label);
     const band = this.add.graphics();
-    sawtoothBand(band, PAD, y + 20, GAME_WIDTH - PAD * 2, 5, 0.5);
+    sawtoothBand(band, this.sectionX, y + 20, this.sectionW, 5, 0.5);
     scroll.content.add(band);
     return y + 30;
   }
 
   private faucetRow(scroll: InkScrollArea, y: number, label: string, status: string, accent: number): number {
-    const W = GAME_WIDTH - PAD * 2;
+    const W = this.sectionW;
+    const PAD = this.sectionX;
     const H = 30;
     scroll.content.add(this.ui.panel({ x: PAD, y, width: W, height: H },
       { border: INK_UI.softBrush, fillAlpha: 0.35 }));

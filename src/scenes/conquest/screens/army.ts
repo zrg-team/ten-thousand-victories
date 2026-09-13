@@ -1,3 +1,4 @@
+import { effectiveHeroStats } from '../../../systems/heroes/heroModel';
 /**
  * The Army lane: its front page, and the sheet for one host.
  *
@@ -519,7 +520,7 @@ export function showArmyDetail(self: ConquestUIScene, armyId: string): void {
   const multipliers = [
     t('ascent.army.mulLevel', { level: army.level, pct: Math.round(Math.max(0, army.level - 1) * 8) }),
     eliteTier > 0 ? t('ascent.army.mulElite', { tier: eliteTier, pct: Math.round(eliteTier * 18) }) : '',
-    general ? t('ascent.army.mulGeneral', { pct: Math.round((general.stats.martial / 100) * 25) }) : '',
+    general ? t('ascent.army.mulGeneral', { pct: Math.round((effectiveHeroStats(general).martial / 100) * 25) }) : '',
     bonuses.armyPowerMult !== 1
       ? t('ascent.army.mulDraft', { pct: Math.round((bonuses.armyPowerMult - 1) * 100) })
       : '',

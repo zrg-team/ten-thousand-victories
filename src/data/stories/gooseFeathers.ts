@@ -1,4 +1,5 @@
 import { applyResourceDelta } from '../../systems/ResourceSystem';
+import { assignHeroDuty } from '../../systems/heroes/HeroService';
 import { livingRivals, pick, playerLands } from '../../systems/story/StorySystem';
 import { pushToast } from '../../systems/empire/notifications';
 import { launchPunitiveHost } from '../../systems/ascent/EnemyCommandDirector';
@@ -136,7 +137,8 @@ export const gooseFeathers: StoryTemplate = {
             const land = ctx.land();
             const hero = ctx.hero();
             if (land && hero) {
-              hero.assignedTo = land.id;
+              if (hero.growth) assignHeroDuty(ctx.state, hero.id, { kind: 'province', landId: land.id });
+              else hero.assignedTo = land.id;
               // Real. It applies, it helps, and it is why the player stops thinking about this.
               land.defense += 18;
               ctx.remember('bonus', 18);
@@ -192,7 +194,8 @@ export const gooseFeathers: StoryTemplate = {
             const hero = ctx.hero();
             if (hero) {
               hero.stats.loyalty = 40;
-              hero.assignedTo = undefined;
+              if (hero.growth) assignHeroDuty(ctx.state, hero.id, { kind: 'home' });
+              else hero.assignedTo = undefined;
             }
             const rival = ctx.rival();
             if (rival) opinion(ctx, -40, rival.id);

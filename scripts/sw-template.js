@@ -127,6 +127,11 @@ self.addEventListener('fetch', (event) => {
   // Outside our own sub-path the worker has no business answering — on GitHub Pages the scope is
   // one project among many on the same origin.
   if (!url.pathname.startsWith(SCOPE)) return;
+  // The trailers go straight to the network, untouched. A video is fetched in `Range` pieces: the
+  // handler below would try to cache each `206` (the Cache API refuses them) or keep a whole film
+  // and answer every later seek from it with the full body, which a player cannot seek through.
+  // They are not precached either (`build-sw.mjs`), so there is nothing here to serve offline.
+  if (url.pathname.startsWith(`${SCOPE}trailers/`)) return;
 
   /**
    * Every navigation is the same page. The game is one HTML file and a canvas; there is no route

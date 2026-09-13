@@ -1,4 +1,5 @@
 import { bounty } from '../../systems/story/effects';
+import { assignHeroDuty } from '../../systems/heroes/HeroService';
 import { applyResourceDelta } from '../../systems/ResourceSystem';
 import { pick, playerLands } from '../../systems/story/StorySystem';
 import type { StoryTemplate } from '../../systems/story/types';
@@ -297,7 +298,8 @@ export const granaries: StoryTemplate = {
           apply: (ctx) => {
             const hero = ctx.hero();
             if (hero) {
-              hero.assignedTo = undefined;
+              if (hero.growth) assignHeroDuty(ctx.state, hero.id, { kind: 'home' });
+              else hero.assignedTo = undefined;
               for (const seat of Object.keys(ctx.state.court.seats)) {
                 const key = seat as keyof typeof ctx.state.court.seats;
                 if (ctx.state.court.seats[key] === hero.id) ctx.state.court.seats[key] = undefined;

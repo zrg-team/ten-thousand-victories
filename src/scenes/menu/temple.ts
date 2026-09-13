@@ -4,9 +4,12 @@
  * Every function here takes the scene as `self`; the scene owns the fields and the display list,
  * this file owns one area of the page. Cross-module calls go through the scene's forwarders.
  */
-import { GAME_WIDTH } from '../../game/constants';
+import Phaser from 'phaser';
+import { GAME_HEIGHT, GAME_WIDTH, surfaceWidth } from '../../game/constants';
+import { isDesktopLayout } from '../../platform/layout';
 import { getDynasty, setDynastyFounder } from '../../state/dynasty';
 import { CoronationSheet } from '../../ui/coronation/CoronationSheet';
+import { HERO_FACE_H } from '../../ui/FaceRenderer';
 import { INK_UI } from '../../ui/InkUI';
 import { pageFloor, renderPageHead } from './helpers';
 import type { MenuScene } from '../MenuScene';
@@ -51,6 +54,11 @@ export function renderTemple(self: MenuScene): void {
     },
   });
   self.templeSheet = sheet;
+
+  if (isDesktopLayout()) {
+    renderTempleDesktop(self, sheet);
+    return;
+  }
 
   const PAD = 20;
   const W = GAME_WIDTH - PAD * 2;
@@ -108,6 +116,84 @@ export function renderTemple(self: MenuScene): void {
   const rightX = PAD + Math.round(W * 0.46);
   self.content.push(self.ui.button(
     { x: rightX, y: footY, width: PAD + W - rightX, height: 38 },
+    foot.close.label, foot.close.onTap, { variant: 'primary', fontSize: '11.5px' },
+  ));
+  self.footBackBar();
+}
+
+/**
+ * The Temple on the desktop: the king on the left, the wardrobe on the right.
+ *
+ * The phone draws him at the top of the column and the steppers under him, so every nudge below
+ * the fold changed a face that had scrolled out of sight. On the desktop's sheet — the width How
+ * to Play and History read at — he stands in his own panel beside the controls and does not
+ * scroll, and only the controls do. Steps with no king to show (the banner, an option grid, the
+ * royal wardrobe) take one centred column as wide as they can use.
+ */
+function renderTempleDesktop(self: MenuScene, sheet: CoronationSheet): void {
+  const sheetW = Math.min(860, surfaceWidth() - 64);
+  const sheetLeft = (GAME_WIDTH - sheetW) / 2;
+  self.content.push(self.add.rectangle(sheetLeft - 12, 0, sheetW + 24, GAME_HEIGHT, INK_UI.parchmentShade).setOrigin(0));
+  const y = renderPageHead(self, sheet.title(), sheet.subtitle());
+
+  const GUTTER = 24;
+  const preview = sheet.hasPreview();
+  const previewW = preview ? 300 : 0;
+  // A step with no portrait reads better as a column than stretched across the whole sheet.
+  const controlsW = preview ? sheetW - previewW - GUTTER : Math.min(640, sheetW);
+  const controlsX = preview ? sheetLeft + previewW + GUTTER : (GAME_WIDTH - controlsW) / 2;
+
+  const FOOT_GAP = 18;
+  const footHeight = FOOT_GAP + 38 + 16;
+  const viewport = Math.max(120, pageFloor() - y - footHeight);
+
+  if (preview) {
+    const holder = self.add.container(sheetLeft, y);
+    const plate = self.ui.panel({ x: -6, y: -6, width: previewW + 12, height: viewport + 12 },
+      { border: INK_UI.softBrush, fillAlpha: 1 });
+    holder.add(plate);
+    // Half again the phone's portrait, and the frame sized to the drawing: the render stops at the
+    // scale it is given, so a frame sized to the panel stood a hand's width clear of a small king.
+    const PREVIEW_SCALE = 1.5;
+    const portraitH = Math.min(viewport - 60, Math.round(HERO_FACE_H * PREVIEW_SCALE) + 16);
+    const used = sheet.drawPreview(holder, previewW, portraitH, PREVIEW_SCALE);
+    holder.list.forEach((child) => {
+      if (child !== plate) (child as unknown as Phaser.GameObjects.Components.Transform).y += Math.max(0, (viewport - used) / 2);
+    });
+    self.content.push(holder);
+  }
+
+  const area = self.ui.scrollArea({ x: controlsX, y, width: controlsW, height: viewport });
+  self.pageScroll = area;
+  const layer = self.add.container(0, 0);
+  // `addTo` before the content is filled, for the same reason as the phone page.
+  area.addTo(layer);
+  self.content.push(layer);
+  const used = sheet.draw(area.content, controlsW - 6, { preview: false }) + 10;
+  area.setContentHeight(Math.max(viewport, used));
+
+  const plateH = preview ? viewport : sheet.bannerState() ? Math.min(viewport, used) : viewport;
+  const plate = self.ui.panel(
+    { x: controlsX - 6, y: y - 6, width: controlsW + 12, height: (preview ? viewport : Math.min(viewport, used)) + 12 },
+    { border: INK_UI.softBrush, fillAlpha: 1 },
+  );
+  self.children.moveBelow(plate, layer);
+  self.content.push(plate);
+
+  // The two doors under the controls they answer, at the phone's proportions.
+  const foot = sheet.foot();
+  const footY = y + plateH + FOOT_GAP;
+  const footW = preview ? controlsW : Math.min(controlsW, 520);
+  const footX = preview ? controlsX : (GAME_WIDTH - footW) / 2;
+  if (foot.back) {
+    self.content.push(self.ui.button({ x: footX, y: footY, width: Math.round(footW * 0.44), height: 38 },
+      foot.back.label, foot.back.onTap, { variant: 'ghost', fontSize: '11.5px' }));
+  }
+  // Alone (an option grid, the wardrobe), the one way on stands centred under its column.
+  const rightX = foot.back ? footX + Math.round(footW * 0.46) : footX + Math.round(footW * 0.27);
+  const rightW = foot.back ? footX + footW - rightX : Math.round(footW * 0.46);
+  self.content.push(self.ui.button(
+    { x: rightX, y: footY, width: rightW, height: 38 },
     foot.close.label, foot.close.onTap, { variant: 'primary', fontSize: '11.5px' },
   ));
   self.footBackBar();

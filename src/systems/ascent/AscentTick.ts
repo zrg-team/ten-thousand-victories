@@ -7,6 +7,7 @@ import { pushToast } from '../empire/notifications';
 import { progressAcquisitions } from '../AcquisitionSystem';
 import {
   collectPlayerIncome,
+  refreshAllLandOutputs,
   getFocusLoyaltyBonus,
   growProvincialMilitia,
   growProvincialPopulation,
@@ -32,6 +33,9 @@ import { reconcileFronts } from './BattleSystem';
 import { addMandate } from '../empire/MandateSystem';
 import { tickGreatPowersYear } from '../empire/GreatPowersSystem';
 import { ensureHeroDeck } from '../../data/heroFactory';
+import { beginHeroSeason, finishHeroSeason } from '../heroes/HeroService';
+import { heroRulesV2 } from '../heroes/heroModel';
+import { autosaveSnapshot } from '../../state/save';
 import { drainAscentPrompts } from './AscentState';
 import { tickAscentAutopilot } from './AutopilotSystem';
 import { tickStandingOrders } from './StandingOrders';
@@ -193,6 +197,13 @@ export function advanceAscentTick(state: GameState): void {
   raiseGoalChoice(state);
 
   const ownedBefore = ownedLandIds(state);
+  const heroPauseBefore = state.isStrategyPause;
+  const heroSeason = beginHeroSeason(state);
+  if (heroRulesV2(state) && !heroPauseBefore && state.isStrategyPause) {
+    delete state.ascent.heroDepth!.processingTurn;
+    autosaveSnapshot(state);
+    return; // Newly raised risk must be readable before income, combat or capture advances.
+  }
   const wavesBefore = state.ascent.wavesSurvived;
 
   // ── Reused verbatim from the classic tick ────────────────────────────────
@@ -331,6 +342,8 @@ export function advanceAscentTick(state: GameState): void {
   }
 
   settleOwnedLands(state);
+  finishHeroSeason(state, heroSeason);
+  if (heroSeason) refreshAllLandOutputs(state);
   // Ground that defends itself. Militia is raised from each province's own people rather than
   // from the national pool, so holding territory no longer competes with fielding an army — see
   // `growProvincialMilitia`. After `settleOwnedLands`, because the ceiling reads loyalty.
@@ -386,4 +399,5 @@ export function advanceAscentTick(state: GameState): void {
   refreshThreatReadout(state);
 
   refreshPlayerVisibility(state);
+  if (state.ascent.heroDepth) autosaveSnapshot(state);
 }

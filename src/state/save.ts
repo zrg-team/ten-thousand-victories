@@ -4,6 +4,7 @@ import { ensureAscentLaneState } from '../systems/ascent/ConquestSystem';
 import { clearLiveReign } from './dynasty';
 import { isAscentRulesetId } from '../game/ascentRuleset';
 import { restoreGoalChoice } from '../systems/ascent/Goal';
+import { validHeroSave } from '../systems/heroes/heroSave';
 
 export const SAVE_SNAPSHOT_VERSION = 1;
 export const SAVE_SNAPSHOT_KEY = 'mandate:snapshot:v1';
@@ -319,6 +320,6 @@ function isValidSnapshot(value: SaveSnapshot): value is SaveSnapshot {
     Boolean(value.state) &&
     Array.isArray(value.state.lands) &&
     Array.isArray(value.state.armies) &&
-    Array.isArray(value.state.hexTiles)
+    Array.isArray(value.state.hexTiles) && validHeroSave(value.state)
   );
 }
