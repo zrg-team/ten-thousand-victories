@@ -255,7 +255,27 @@ export function noteShellProgress(progress: number): void {
   setDownloadProgress(progress);
 }
 
+/**
+ * How long "Checking for updates…" may stand without the shell saying anything more.
+ *
+ * A check's answer is a separate message from its "checking", and a shell can lose it: the desktop
+ * cabinet up to build 594 dropped the answer to a tap that landed while its own automatic check was
+ * running, and the Settings button then read "Checking…", disabled, until the app was closed. The
+ * game cannot fix a shell already installed, but it can stop waiting: past this, the check is
+ * reported as failed, and the button is a button again. A real answer arriving later still wins.
+ */
+const SHELL_CHECK_WAIT_MS = 45 * 1000;
+let shellCheckTimer: number | undefined;
+
 export function noteShellCheck(news: string, version?: string): void {
+  window.clearTimeout(shellCheckTimer);
+  shellCheckTimer = undefined;
+  if (news === 'checking') {
+    shellCheckTimer = window.setTimeout(() => {
+      shellCheckTimer = undefined;
+      if (checkResult === 'checking') setCheckResult('failed');
+    }, SHELL_CHECK_WAIT_MS);
+  }
   if (news === 'installing') {
     if (typeof version === 'string' && version.length > 0) {
       incomingVersion = version;

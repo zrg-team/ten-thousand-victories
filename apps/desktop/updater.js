@@ -120,6 +120,12 @@ function createUpdater({ app, net, webDir, updateUrl, log }) {
   /** Downloaded this session and not yet running: what "tap to update" restarts into. */
   let pending = null;
   let busy = false;
+  /**
+   * A player asked while a check was already running — the automatic one, 15 s after the menu, is
+   * exactly when somebody opening Settings to look taps the button. They were told "checking"; the
+   * running check owes them its answer, or the Settings page says "checking" until the app is closed.
+   */
+  let answerOwed = false;
   let lastCheck = 0;
   let readyTimer = null;
   let tell = () => {};
@@ -330,23 +336,27 @@ function createUpdater({ app, net, webDir, updateUrl, log }) {
       return;
     }
     if (busy) {
-      if (manual) say.check('checking');
+      if (manual) {
+        answerOwed = true;
+        say.check('checking');
+      }
       return;
     }
     busy = true;
     lastCheck = Date.now();
     if (manual) say.check('checking');
     let downloading = false;
+    const asked = () => manual || answerOwed;
     try {
       const found = await readManifest();
       if (!found) {
-        if (manual) say.check('upToDate');
+        if (asked()) say.check('upToDate');
         return;
       }
       const { manifest, url } = found;
       const id = idOf({ version: manifest.version, build: manifest.build });
       if (buildOf(manifest) <= buildOf(active.info) || state.bad[id]) {
-        if (manual) say.check('upToDate');
+        if (asked()) say.check('upToDate');
         return;
       }
       downloading = true;
@@ -356,9 +366,10 @@ function createUpdater({ app, net, webDir, updateUrl, log }) {
       say.ready(pending.info.version);
     } catch (error) {
       log(`update check failed: ${error.message}`);
-      if (manual || downloading) say.check('failed');
+      if (asked() || downloading) say.check('failed');
     } finally {
       busy = false;
+      answerOwed = false;
       // After `busy` is down, so a download that failed half-way leaves no staging folder behind.
       void sweep();
     }

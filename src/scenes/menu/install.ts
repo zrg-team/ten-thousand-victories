@@ -171,14 +171,19 @@ export function renderInstallMark(self: MenuScene): void {
 function showInstallTip(self: MenuScene, box: UIBounds, rightLimit: number): void {
   // Measured first, then the sheet is cut to it — the same order `renderInstallModal` uses, and
   // for the same reason: the line is one length in English and another in Vietnamese.
+  const PAD_X = 10;
+  const PAD_Y = 6;
+  // Wrapped to the room between the sheet's left margin and `rightLimit`. Unwrapped, the Vietnamese
+  // line ("Chơi được ngoại tuyến, mở toàn màn hình. Không cần cửa hàng hay tài khoản.") measured 415
+  // units on a 390-wide phone and ran off the right edge for as long as it was up.
   const label = self.add.text(0, 0, t('menu.install.tip'), {
     color: INK_UI_HEX.inkText,
     fontFamily: UI_FONT,
     fontSize: '11px',
+    lineSpacing: 2,
+    wordWrap: { width: Math.max(120, rightLimit - 8 - PAD_X * 2), useAdvancedWrap: true },
   }).setOrigin(0, 0);
 
-  const PAD_X = 10;
-  const PAD_Y = 6;
   const width = Math.round(label.width + PAD_X * 2);
   const height = Math.round(label.height + PAD_Y * 2);
   // Above the mark and aligned to its left edge, unless that would push its tail past the end of

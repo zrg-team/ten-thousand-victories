@@ -6,6 +6,8 @@
  * it imports no sibling.
  */
 import { GAME_HEIGHT } from '../../game/constants';
+import { isDesktopLayout } from '../../platform/layout';
+import { allowsDonationLinks } from '../../platform/shell';
 import { CARD_ICON_SIZE } from '../../ui/CardIcons';
 
 export type MenuMode = 'main' | 'classic' | 'confirm-new' | 'legacy' | 'dynasty' | 'temple';
@@ -90,7 +92,28 @@ export const WIND_MARGIN = 26;
 export const INSTALL_MARK_SCALE = 0.62;
 export const INSTALL_MARK_SIZE = CARD_ICON_SIZE * INSTALL_MARK_SCALE;
 export const INSTALL_MARK_GAP = 6;
-export const SUPPORT_TOP = GAME_HEIGHT - VERSION_ROW_HEIGHT - SUPPORT_ROW_HEIGHT;
+/**
+ * The trailer link's own line, under the support pair — on the phone column, where there are three
+ * links.
+ *
+ * Three quiet phrases with their icons on one 390-wide line ("Mời mình ly cà phê · chung tay làm game ·
+ * xem trailer") ran edge to edge with no air between them, and read as a jumble rather than as three
+ * things to press. The two asks stay together as a pair; the trailer, which is about the game rather
+ * than a request, takes its own centred line above the colophon.
+ *
+ * Zero where the row is already two (a store build, which has no coffee) and on the desktop scroll,
+ * whose panel is laid out around one row.
+ *
+ * 48, because of what shares the foot with it. A link's touch band is 30 tall, so the trailer stands
+ * `TRAILER_UNDER_PAIR` (32) under the pair to keep its band off theirs; and wherever the browser
+ * offers "Install app", that mark's 44-unit touch target is centred 22 above the bottom edge and
+ * reaches 44 up it (`renderInstallMark`). At 28 the trailer's band ran 19 units into that target,
+ * which is drawn later and so on top: the lower half of "Xem trailer" opened the install sheet.
+ * 48 lifts the whole footer until the trailer's band ends just above it.
+ */
+export const TRAILER_ROW_HEIGHT = allowsDonationLinks() && !isDesktopLayout() ? 48 : 0;
+export const TRAILER_UNDER_PAIR = 32;
+export const SUPPORT_TOP = GAME_HEIGHT - VERSION_ROW_HEIGHT - TRAILER_ROW_HEIGHT - SUPPORT_ROW_HEIGHT;
 /** The language line under the utility buttons: two small flags, two labels, and thumb-sized hits. */
 /**
  * The Exit button's own row, above the support sentence.
