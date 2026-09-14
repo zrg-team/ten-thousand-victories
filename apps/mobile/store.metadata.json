@@ -37,42 +37,55 @@
     },
     "promotionalText": "Grand strategy of Vietnam. Play the history, meet the heroes, hold the land — and every province you take makes the next invasion worse."
   },
-  "//screenshots": "Cut from docs/readme/. `kicker` is the small red line above the headline; `caption` is the headline itself. Order is the order they appear in the stores.",
+  "//screenshots": "Frames of the gameplay trailer, kept in apps/mobile/store/gameplay/<lang>/<source>.jpg (see the README there). `caption` is the two-line headline per language, taken from the trailer's reviewed captions in scripts/trailer/film.mjs. `crop` is the two rows (of 2080) a frame may end at — the frame is cut at one or the other, never between, and both sit in a band of blank paper measured on both languages' frames, so a cut never slices a line of text. The last entry is the closing card: it has no frame of its own but `screens`, the sources fanned out under the wordmark (listed left to right; the middle one stands in front). Order is the order they appear in the stores.",
   "screenshots": [
     {
-      "source": "conquer.webp",
-      "caption": "Take the map one province at a time",
-      "kicker": "CONQUEST"
+      "source": "battle",
+      "crop": [1880, 2080],
+      "caption": {
+        "en": ["They showed me what they held.", "I answered with what breaks it."],
+        "vi": ["Chúng để lộ thế đang giữ;", "ta đáp bằng thế khắc nó."]
+      }
     },
     {
-      "source": "battle.webp",
-      "caption": "Formations answer formations",
-      "kicker": "THE FIELD"
+      "source": "invasion",
+      "crop": [1955, 2080],
+      "caption": {
+        "en": ["Then the north came down,", "the way it always does."],
+        "vi": ["Rồi phương Bắc kéo xuống,", "như xưa nay vẫn thế."]
+      }
     },
     {
-      "source": "ascent-map.webp",
-      "caption": "Hold the line, wave after wave",
-      "kicker": "DRAGON ASCENT"
+      "source": "draft",
+      "crop": [1902, 2080],
+      "caption": {
+        "en": ["The realm learned as it grew,", "and I chose what it learned."],
+        "vi": ["Giang sơn lớn đến đâu, học đến đó;", "học gì là do ta chọn."]
+      }
     },
     {
-      "source": "cabinet.webp",
-      "caption": "Fifty cards, each its own woodblock print",
-      "kicker": "THE DECK"
+      "source": "deck",
+      "crop": [1710, 1710],
+      "caption": {
+        "en": ["Fifty cards,", "each its own woodblock print."],
+        "vi": ["Năm mươi lá bài,", "mỗi lá một bản tranh khắc."]
+      }
     },
     {
-      "source": "founder.webp",
-      "caption": "Heroes drawn from real Vietnamese history",
-      "kicker": "YOUR COURT"
+      "source": "summon",
+      "crop": [1700, 2080],
+      "caption": {
+        "en": ["Three answered the call.", "The treasury could pay one."],
+        "vi": ["Ba người đến ứng mộ,", "ngân khố chỉ nuôi nổi một."]
+      }
     },
     {
-      "source": "build.webp",
-      "caption": "Every land is a want, and a decision",
-      "kicker": "THE REALM"
-    },
-    {
-      "source": "chronicle.webp",
-      "caption": "It remembers what you actually did",
-      "kicker": "THE CHRONICLE"
+      "source": "closer",
+      "screens": ["draft", "invasion", "battle", "deck", "summon"],
+      "caption": {
+        "en": ["There is no winning this —", "only how far I got."],
+        "vi": ["Không có chiến thắng cuối cùng —", "chỉ có đi được bao xa."]
+      }
     }
   ],
   "ios": {

@@ -69,6 +69,7 @@
     "desktop:start": "yarn desktop:sync && npm --prefix apps/desktop run start",
     "desktop:build": "yarn desktop:sync && npm --prefix apps/desktop run dist",
     "desktop:installers": "yarn desktop:sync && npm --prefix apps/desktop run dist:installers",
+    "desktop:update": "node apps/desktop/scripts/update.mjs",
     "desktop:steam": "yarn desktop:build && node apps/desktop/steam/stage.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "mobile:eas:update": "yarn mobile:sync && npm --prefix apps/mobile run eas:update",

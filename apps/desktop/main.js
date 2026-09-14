@@ -22,9 +22,27 @@ const path = require('node:path');
 const fs = require('node:fs');
 const { app, BrowserWindow, ipcMain, protocol, net, shell } = require('electron');
 
+const { createUpdater } = require('./updater');
+
 const ORIGIN_SCHEME = 'app';
 const ORIGIN_HOST = 'van-thang';
 const WEB_DIR = path.join(__dirname, 'web');
+
+// A harness runs the cabinet against a throwaway profile: its own saves, window state and
+// downloaded games, never the player's. Before anything below asks for `userData`.
+if (process.env.VAN_THANG_USER_DATA) app.setPath('userData', process.env.VAN_THANG_USER_DATA);
+
+/**
+ * The game this cabinet serves: the install's own `web/`, or a newer one it downloaded — see
+ * `updater.js`. The URL written into `package.json` by the sync is the published site's.
+ */
+const updater = createUpdater({
+  app,
+  net,
+  webDir: WEB_DIR,
+  updateUrl: require('./package.json').vanThang?.updateUrl,
+  log: (line) => console.log(`[cabinet] ${line}`),
+});
 
 /**
  * Steam, when it is there.
@@ -58,16 +76,40 @@ protocol.registerSchemesAsPrivileged([{
 }]);
 
 function serveWeb() {
-  protocol.handle(ORIGIN_SCHEME, (request) => {
+  protocol.handle(ORIGIN_SCHEME, async (request) => {
+    // Read per request, not once: "tap to update" switches the folder under a running cabinet.
+    const root = updater.activeDir();
     const url = new URL(request.url);
     // `normalize` then a prefix test: without it `app://van-thang/../..` walks out of `web/`.
-    let file = path.normalize(path.join(WEB_DIR, decodeURIComponent(url.pathname)));
-    if (!file.startsWith(WEB_DIR)) return new Response('not found', { status: 404 });
-    if (url.pathname === '/' || url.pathname === '') file = path.join(WEB_DIR, 'index.html');
+    let file = path.normalize(path.join(root, decodeURIComponent(url.pathname)));
+    if (!file.startsWith(root)) return new Response('not found', { status: 404 });
+    if (url.pathname === '/' || url.pathname === '') file = path.join(root, 'index.html');
     if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) return new Response('not found', { status: 404 });
-    return net.fetch(`file://${file}`);
+    const response = await net.fetch(`file://${file}`);
+    // Revalidate rather than reuse: after an update the same URL can name different bytes (an
+    // unhashed picture, `index.html` itself), and a memory-cached copy would mix two games.
+    const headers = new Headers(response.headers);
+    headers.set('Cache-Control', 'no-cache');
+    return new Response(response.body, { status: response.status, headers });
   });
 }
+
+/** Ask the window for the game — at launch, after "tap to update", and after a failed update. */
+function loadGame() {
+  if (!win || win.isDestroyed()) return;
+  updater.pageRequested();
+  win.loadURL(`${ORIGIN_SCHEME}://${ORIGIN_HOST}/`);
+}
+
+updater.connect({
+  tell: (script) => {
+    if (win && !win.isDestroyed()) win.webContents.executeJavaScript(script).catch(() => {});
+  },
+  reload: () => {
+    if (!win || win.isDestroyed()) return;
+    win.webContents.session.clearCache().catch(() => {}).finally(loadGame);
+  },
+});
 
 let win = null;
 
@@ -217,7 +259,19 @@ function createWindow() {
       shell.openExternal(url);
     }
   });
-  win.loadURL(`${ORIGIN_SCHEME}://${ORIGIN_HOST}/`);
+  // A downloaded game that cannot start is taken back to the one before it (`updater.failed`); the
+  // install's own game, or one that has reached the menu before, is left to the page's own recovery.
+  win.webContents.on('render-process-gone', (_event, details) => {
+    // Not a quit, and not a harness killing the process: only a renderer that died on its own.
+    if (['crashed', 'oom', 'launch-failed', 'integrity-failure', 'abnormal-exit'].includes(details.reason)) {
+      updater.failed(`renderer ${details.reason}`);
+    }
+  });
+  win.webContents.on('did-fail-load', (_event, code, description, _url, isMainFrame) => {
+    // -3 is a navigation replaced by another — the reload after an update does exactly that.
+    if (isMainFrame && code !== -3) updater.failed(`load failed: ${description}`);
+  });
+  loadGame();
   win.on('closed', () => { win = null; });
 }
 
@@ -234,6 +288,10 @@ ipcMain.on('shell:set-display-mode', (_event, mode) => {
   if (typeof mode === 'string') applyDisplayMode(mode);
 });
 ipcMain.on('shell:quit', () => app.quit());
+// The game's half of an update: the menu is up, "check for updates", "tap to update".
+ipcMain.on('shell:ready', () => updater.ready());
+ipcMain.on('shell:check-update', () => void updater.check(true));
+ipcMain.on('shell:apply-update', () => updater.apply());
 // Synchronous on purpose: the preload needs `os` and `version` before the page's first script,
 // and a promise would hand the bundle a descriptor with two holes in it.
 ipcMain.on('shell:describe-sync', (event) => {
@@ -243,6 +301,7 @@ ipcMain.on('shell:describe-sync', (event) => {
     steam: Boolean(steam),
     displayMode,
     displayModes: MODES,
+    canCheckForUpdate: updater.enabled,
   };
 });
 ipcMain.on('steam:unlock-achievement', (_event, id) => {

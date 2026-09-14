@@ -25,6 +25,11 @@ for itself.
    full type is `ShellDescriptor` in [`src/platform/shell.ts`](../../src/platform/shell.ts).
 3. **Holds the Steamworks client in its own process.** The game calls two functions on the bridge
    and never sees a session. See [`steam/README.md`](steam/README.md).
+4. **Updates the game.** `updater.js` reads the manifest the Pages deploy publishes for this
+   cabinet's version line, downloads only the files that changed into `userData/game-bundles/`, and
+   tells the game through the same hooks the phone uses. It falls back to the install's own game if
+   a download never reaches the menu. See
+   [Game updates](../../docs/development/desktop-builds.md#game-updates).
 
 With the descriptor present the game boots into the desktop layout — the world across the window,
 the 390-unit chrome column at the right edge — and starts new runs with the hands-on rule on. Both
@@ -78,7 +83,7 @@ rules and the gate are in
 
 - **No unpacking, no embedded server.** The mobile cabinet archives the build and serves it over
   loopback because Android cannot read files inside its own APK. Electron reads its own folder.
-- **No service worker.** The shell build never registers one, and every byte is already in the
-  install.
+- **No service worker.** The shell build never registers one: the install carries a whole game,
+  and `updater.js` fetches newer ones.
 - **No donation gate.** `allowsDonationLinks()` returns true for a desktop shell; if the Steam
   listing is paid, that is a one-line rule to revisit in `src/platform/shell.ts`.

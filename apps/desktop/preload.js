@@ -33,7 +33,19 @@ const descriptor = {
   displayModes: described.displayModes,
   setDisplayMode: (mode) => ipcRenderer.send('shell:set-display-mode', mode),
   quit: () => ipcRenderer.send('shell:quit'),
-  ready: () => { /* no native splash to lift — the window shows on `ready-to-show` */ },
+  /**
+   * The menu is on the glass. No native splash to lift — the window shows on `ready-to-show` — but
+   * the updater listens: it is how a newly downloaded game proves it starts (`updater.js`).
+   */
+  ready: () => ipcRenderer.send('shell:ready'),
+  /**
+   * Game updates, the phone's contract: the cabinet answers through `window.__gameUpdateCheck`,
+   * `__gameUpdateProgress` and `__gameUpdateReady`, and restarts into the new game on `applyUpdate`.
+   * `canCheckForUpdate` is false in a development checkout, which has no business updating itself.
+   */
+  canCheckForUpdate: described.canCheckForUpdate === true,
+  checkForUpdate: () => ipcRenderer.send('shell:check-update'),
+  applyUpdate: () => ipcRenderer.send('shell:apply-update'),
 };
 
 if (described.steam) {

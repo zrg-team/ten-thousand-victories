@@ -109,8 +109,12 @@ export function renderSupportRow(self: MenuScene): void {
   /**
    * These are sibling actions, not a sentence: keep them on one centred line in every language.
    * The scale guard keeps the one-line contract without allowing either edge to leave the sheet.
+   *
+   * On the desktop the sheet is the scroll, and its ruled border is the column's 44..346 band
+   * (the buttons above stand exactly on it). Measured against the phone's 358, the three links ran
+   * 372 wide and "xem trailer" hung off the paper's right edge.
    */
-  const maxWidth = GAME_WIDTH - 32;
+  const maxWidth = isDesktopSheet() ? 302 : GAME_WIDTH - 32;
   let cursor = -total / 2;
   links.forEach((item, index) => {
     item.x = cursor;
@@ -168,34 +172,32 @@ export function renderVersionLine(self: MenuScene): void {
     return;
   }
   /**
-   * Centred on the phone column, in the bottom **right** corner on the desktop page.
+   * Centred, on the phone column and the desktop scroll alike.
    *
-   * The desktop page grew a centred Exit button above this line, and a colophon centred directly
-   * under a centred button reads as a second line of that button rather than as the foot of the
-   * page. Asked for in those terms — *"exit in center of panel and right bottom version"*.
+   * For a round the desktop cornered it bottom-right: a colophon centred directly under the
+   * centred Exit button read as a second line of that button. The support row now stands between
+   * the two, and a cornered stamp under a centred row only read as misaligned with it — the stamp
+   * ran past the row's right end ("should version in center too?").
    *
-   * The phone column has no Exit button and never had this problem, so it keeps the centred stamp
-   * it has always had. The right edge is the column's, not the sheet's: the desktop page is a
-   * scroll with a ruled border inside it, and its footer band is 44..346.
-   *
-   * Either way the line is anchored to the sheet's bottom edge by its own baseline, so the air in
-   * the band is all above it and the line lands where the sheet ends.
+   * The line is anchored to the sheet's bottom edge by its own baseline, so the air in the band is
+   * all above it and the line lands where the sheet ends.
    */
-  const corner = isDesktopSheet();
   const line = self.ui.label(
-    corner ? 346 : GAME_WIDTH / 2, GAME_HEIGHT - VERSION_EDGE, text, 'caption', {
+    GAME_WIDTH / 2, GAME_HEIGHT - VERSION_EDGE, text, 'caption', {
       color: ready ? '#8a2a1b' : INK_UI_HEX.mutedText,
       fontSize: '9px',
       fontStyle: ready || installing ? '700' : '400',
     },
-  ).setOrigin(corner ? 1 : 0.5, 1).setData('menuVersionLine', true)
+  ).setOrigin(0.5, 1).setData('menuVersionLine', true)
     // Whether this is the plain build stamp rather than one of the two update sentences. Read by
     // `renderInstallMark`, which prints "Install app ·" ahead of a plain stamp and stays out of
     // the way of an update line that is already an instruction carrying its own icon.
     .setData('menuVersionPlain', !ready && !installing);
   // Both update states carry an icon at the line's left; the room is spent before the
   // shrink-to-fit so icon and glyphs scale as one thing.
-  const maxWidth = GAME_WIDTH - 32 - (ready || installing ? 18 : 0);
+  // The same band the support row fits: the column on the phone, the scroll's ruled border on the
+  // desktop, where the downloading sentence measured against the phone's 358 would leave the paper.
+  const maxWidth = (isDesktopSheet() ? 302 : GAME_WIDTH - 32) - (ready || installing ? 18 : 0);
   const fit = (): void => {
     line.setScale(1);
     if (line.width > maxWidth) {
@@ -212,8 +214,8 @@ export function renderVersionLine(self: MenuScene): void {
   fit();
   self.content.push(line);
 
-  // Left of the line either way: half its width off a centred stamp, all of it off a cornered one.
-  const iconX = line.x - line.displayWidth * (corner ? 1 : 0.5) - 11;
+  // Left of the line: half its width off the centred stamp.
+  const iconX = line.x - line.displayWidth / 2 - 11;
   const iconY = line.y - line.displayHeight / 2 - 1;
 
   if (installing) {
@@ -258,7 +260,7 @@ export function renderVersionLine(self: MenuScene): void {
     const place = (progress: number | undefined): void => {
       line.setText(withPercent(progress));
       fit();
-      const left = line.x - line.displayWidth * (corner ? 1 : 0.5);
+      const left = line.x - line.displayWidth / 2;
       tray.x = left - 11;
       arrow.x = left - 11;
       bar.clear();
@@ -275,7 +277,7 @@ export function renderVersionLine(self: MenuScene): void {
     const unsubscribe = subscribeDownloadProgress(place);
     bar.once('destroy', unsubscribe);
     self.content.push(bar);
-    // Drawn once the desktop page has moved the footer into its corner, so the first bar is not
+    // Drawn once the desktop page has moved the footer onto the scroll, so the first bar is not
     // left behind at the phone column's coordinates.
     self.time.delayedCall(0, () => { if (bar.active) place(getDownloadProgress()); });
   }
@@ -304,7 +306,7 @@ export function renderVersionLine(self: MenuScene): void {
     // 9px type on the very edge of the sheet; a finger needs more paper than the glyphs cover.
     const hit = self.add
       .rectangle(
-        line.x - line.displayWidth * (corner ? 0.5 : 0),
+        line.x,
         line.y - line.displayHeight / 2,
         Math.max(line.displayWidth + 44, 200),
         line.displayHeight + 12,
