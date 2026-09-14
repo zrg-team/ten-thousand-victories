@@ -204,6 +204,9 @@ export const enGuide = {
   "advice.edicts.body": "Edicts are permanent, they compound with everything else you take, and they are the cheapest power in the run. Banked points do nothing at all. Spend them in Court.",
   "advice.payroll.line": "Champion wages take {pct}% of the realm's gold.",
   "advice.payroll.body": "{payroll} gold a season goes out in wages before anything else is paid. A champion earns their keep while posted — a governor plainly, a general more — but a bench of them is a cost with no return. Post them or let them go.",
+  "advice.heroDanger.line": "{hero} is in danger at {land}.",
+  "advice.heroDanger.lineMany": "{n} champions are in danger — {hero} at {land} first.",
+  "advice.heroDanger.body": "An enemy is closing on where they serve. Open Heroes to protect them or have them hold. The world keeps running while you decide; if nobody answers, the court moves a hero out of harm's way when the danger arrives.",
   "advice.steady.line": "Wave {wave} in {ticks}. POWER {power}, THREAT {threat}.",
   "advice.steady.body": "Nothing needs answering. POWER is what your realm is worth in the field; THREAT is what the coming wave is worth. When the second passes the first this strip will say so, and name what to do about it.",
 
@@ -464,6 +467,9 @@ export const viGuide = {
   "advice.edicts.body": "Chiếu chỉ là vĩnh viễn, cộng dồn với mọi thứ khác ngươi lấy, và là sức mạnh rẻ nhất trong ván. Điểm để dành thì chẳng làm gì cả. Hãy tiêu ở Triều đình.",
   "advice.payroll.line": "Bổng lộc danh tướng ăn {pct}% vàng của cõi.",
   "advice.payroll.body": "Mỗi mùa {payroll} vàng ra đi làm bổng lộc trước khi trả bất cứ khoản nào khác. Một danh tướng có chức thì đáng đồng tiền — quan trấn thủ đã rõ, tướng cầm quân còn hơn — nhưng một hàng ghế ngồi không là khoản chi không lãi. Hãy giao việc, hoặc cho họ đi.",
+  "advice.heroDanger.line": "{hero} gặp nguy tại {land}.",
+  "advice.heroDanger.lineMany": "{n} anh hùng gặp nguy — trước hết {hero} tại {land}.",
+  "advice.heroDanger.body": "Giặc đang áp sát nơi họ nhậm chức. Mở Anh hùng để bảo vệ hoặc cho trụ lại. Thế cuộc vẫn chạy trong lúc ngài cân nhắc; nếu không ai quyết, triều đình sẽ đưa anh hùng tránh nạn khi hiểm nguy ập tới.",
   "advice.steady.line": "Đợt {wave} còn {ticks}. SỨC MẠNH {power}, HIỂM HỌA {threat}.",
   "advice.steady.body": "Chưa có gì phải trả lời. SỨC MẠNH là giá trị giang sơn ngươi ngoài trận; HIỂM HỌA là giá trị đợt giặc sắp tới. Khi cái sau vượt cái trước, dòng này sẽ nói, và nói luôn phải làm gì.",
 

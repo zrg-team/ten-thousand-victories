@@ -49,7 +49,7 @@ import { PIGMENT } from '../../ui/ink/palette';
 import { placeStamp, stampDesign } from '../../ui/ink/stamp';
 import { UI_FONT } from '../../ui/fonts';
 import { getLanguage, heroName, t, tickLabel } from '../../i18n';
-import { exposedHero, haltReason, pausedWithNothingToShow, resumeWorld } from '../../game/haltReason';
+import { haltReason, heroAtRisk, pausedWithNothingToShow, resumeWorld } from '../../game/haltReason';
 import { drainAscentPrompts } from '../../systems/ascent/AscentState';
 import { hostileClaimAt } from '../../systems/LandSystem';
 import { buildFocusRows } from '../../ui/focusPanel';
@@ -639,8 +639,7 @@ function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
   // Every hold the player can lift, and the one it is: a paused world that is not saying why is
   // the bug this badge exists to prevent (`haltReason`).
   const reason = hidden ? undefined : haltReason(self.state);
-  const exposed = reason === 'hero' ? exposedHero(self.state) : undefined;
-  const key = reason ? `paused:${reason}:${exposed?.heroId ?? ''}:${getLanguage()}` : '';
+  const key = reason ? `paused:${reason}:${getLanguage()}` : '';
   const anchor = chipTop ?? GAME_HEIGHT - ACTION_BAR_HEIGHT;
   if (key === self.pausedBadgeKey && (key === '') === (self.pausedBadge === undefined)) {
     // The chip coming or going moves the badge; it does not rebuild it — and not while a press on
@@ -666,12 +665,9 @@ function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
     return;
   }
 
-  const hero = exposed ? self.state.heroes.find((candidate) => candidate.id === exposed.heroId) : undefined;
-  const label = reason === 'hero' && hero
-    ? t('ascent.hud.pausedHero', { hero: heroName(hero) })
-    : reason === 'away' ? t('ascent.hud.pausedAway')
-      : reason === 'stranded' ? t('ascent.hud.pausedStranded')
-        : t('ascent.hud.paused');
+  const label = reason === 'away' ? t('ascent.hud.pausedAway')
+    : reason === 'stranded' ? t('ascent.hud.pausedStranded')
+      : t('ascent.hud.paused');
   const text = self.add.text(0, 0, label, {
     color: '#2a2118',
     fontFamily: UI_FONT,
@@ -719,15 +715,6 @@ function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
       // is torn down would otherwise pause a running world instead of resuming a halted one.
       const now = haltReason(self.state);
       if (!now) return;
-      if (now === 'hero') {
-        // The danger is on the Heroes page; the badge takes the player there, and marks this
-        // warning seen so the page's Back lands on a plain Paused the player can lift.
-        for (const exposure of Object.values(self.state.ascent?.heroDepth?.exposures ?? {})) {
-          if (!exposure.resolved && !exposure.acknowledged) exposure.seenRevision = exposure.revision;
-        }
-        self.openLane('heroes');
-        return;
-      }
       togglePause(self);
     }));
   self.pausedBadgeBounds = [tap];
@@ -911,6 +898,9 @@ function barStatusColor(self: ConquestUIScene, action: string): number | undefin
         : INK_UI.gold;
     }
     case 'heroes':
+      // A champion in danger outranks a champion without a post: it is the warning that used to
+      // stop the world, and this dot (with the advisor's bubble) is now how it is said.
+      if (heroAtRisk(state)) return INK_UI.cinnabar;
       return state.heroes.some((hero) => !hero.assignedTo) ? INK_UI.jade : undefined;
     case 'court':
       if (state.court.stability < 35) return INK_UI.cinnabar;

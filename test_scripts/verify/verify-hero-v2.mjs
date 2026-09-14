@@ -73,11 +73,19 @@ try {
       const encounter = service.beginHeroEncounter(s, land.id, []), exposure = s.ascent.heroDepth.exposures[`${encounter}:${h.growth.instanceId}`];
       const turn = s.turn, resources = JSON.stringify(s.resources);
       advanceAscentTick(s);
-      check('First warning pauses before income and authoritative season advances', s.turn === turn && JSON.stringify(s.resources) === resources && s.isStrategyPause && exposure.pauseIssued);
+      // A hero warning no longer stops the world (reported: the game halted over and over for "… gặp nguy").
+      void resources;
+      check('First warning does not stop the world: the season runs and its grace is marked', s.turn > turn && !s.isStrategyPause && exposure.pauseIssued);
+    }
+    {
+      // Hold and revision on an encounter the season has not yet played out: with the world no longer
+      // stopped for a warning, a full tick resolves this fixture's enemy-less encounter at once.
+      const { s, h, refuge, land } = fixture();
+      const encounter = service.beginHeroEncounter(s, land.id, []), exposure = s.ascent.heroDepth.exposures[`${encounter}:${h.growth.instanceId}`];
       const revision = exposure.revision;
       check('Current encounter hold accepted', service.holdHero(s, exposure.id, revision).ok);
       refuge.ownerId = 'neutral'; service.refreshHeroExposure(s, h, exposure);
-      check('Changed escape geometry revokes hold and pauses for reading', exposure.revision > revision && !exposure.hold && !exposure.acknowledged && s.isStrategyPause);
+      check('Changed escape geometry revokes hold and re-raises the warning without pausing', exposure.revision > revision && !exposure.hold && !exposure.acknowledged && !s.isStrategyPause);
       check('Stale hold confirmation cannot accept revised risk', !service.holdHero(s, exposure.id, revision).ok);
     }
     for (const lossIn of [1, 8]) {

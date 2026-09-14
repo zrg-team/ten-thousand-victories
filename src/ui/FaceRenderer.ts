@@ -11,7 +11,7 @@ import { registerGpuBake, unregisterGpuBake } from '../game/gpuBakes';
 import { ACTIVE_HERO_FACE_ART_PACK, heroFaceHeadwearSupported } from './faces/artPack';
 import donghoV2Defs from './faces/dongho-v2.defs.json';
 import { donghoWardrobeParts } from './faces/donghoWardrobe';
-import { donghoHead, fitDonghoPart } from './faces/donghoFit';
+import { donghoHairCap, donghoHead, fitDonghoPart } from './faces/donghoFit';
 import royalDefs from './faces/royal.defs.json';
 
 /**
@@ -343,7 +343,10 @@ function buildLookLayers(scene: Phaser.Scene, source: HeroLook): Phaser.GameObje
   const stack = look.parts
     .flatMap(wanted => {
       const def = PART_BY_KEY.get(wanted.key);
-      return def ? fitDonghoPart(def, FACE_ART_PACK.id === 'dongho-v2' || /^(beard-|royal-)/.test(def.key) ? fittedHead : undefined).map(fit => ({ wanted, def: fit })) : [];
+      if (!def) return [];
+      const fits = fitDonghoPart(def, FACE_ART_PACK.id === 'dongho-v2' || /^(beard-|royal-)/.test(def.key) ? fittedHead : undefined);
+      const cap = FACE_ART_PACK.id === 'dongho-v2' ? donghoHairCap(def, fittedHead) : undefined;
+      return (cap ? [cap, ...fits] : fits).map(fit => ({ wanted, def: fit }));
     })
     .sort((a, b) => a.def.layer - b.def.layer);
 

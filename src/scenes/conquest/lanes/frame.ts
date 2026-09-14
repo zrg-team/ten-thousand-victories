@@ -19,7 +19,6 @@ import { RectClip } from '../../../ui/ink/clipRect';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import { heroPortraitCard, heroProgressLine, heroXpTrack } from '../../../ui/HeroProgress';
 import { openingFor, takeOpening } from '../../../systems/story/StorySystem';
-import { contestedFronts } from '../../../systems/ascent/battleReport';
 import { storyText } from '../../../i18n/story';
 import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type InkCardOptions, type InkCardRow, type UIBounds } from '../../../ui/InkUI';
 import { type CostChip } from '../../../ui/costChips';
@@ -79,11 +78,9 @@ export function openLane(self: ConquestUIScene, lane: AscentLane): void {
   // 6–15 of the 20–96 engagements a run settles, so for most of a wave the one control with
   // anything to say about the war refused to open at all. `showBattle` picks between them.
   //
-  // The finished-fight ledger used to keep this door open on its own, and the board is not a
-  // ledger any more — the page is the war being fought, so with no fight and no front there is
-  // nothing behind the button but a heading.
-  if (lane === 'battle' && !self.state.ascent?.activeBattle
-    && contestedFronts(self.state).length === 0) return;
+  // It used to refuse to open with no fight and no front, because the board was only a list of
+  // fronts. The board now also carries the invasion's standing and the next one's clock, and the
+  // Battle button is on the bar at all times — so the door always opens.
 
   self.lanePauseBeforeOpen = self.state.isStrategyPause;
   // Every lane freezes the world so the player can read it — except the battle, which *is* the

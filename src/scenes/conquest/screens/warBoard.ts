@@ -25,14 +25,26 @@
 import { contestedFronts } from '../../../systems/ascent/battleReport';
 import { fieldCandidateAt, openFieldAt, summonAdjacentRelief } from '../../../systems/ascent/BattleSystem';
 import {
-  battleAt, focusBattle, hasRoomForAnotherFront, liveBattleCount,
+  battleAt, focusBattle, hasRoomForAnotherFront, liveBattleCount, liveBattles,
 } from '../../../systems/ascent/fronts';
+import { reinforcementCandidates, reinforcementsEnRoute } from '../../../systems/ascent/reinforcement';
+import { findFreeCommander } from '../../../systems/ascent/AutopilotSystem';
+import { isBossWave, liveInvaderPower } from '../../../systems/ascent/WaveDirector';
+import { landGarrisonPower } from '../../../systems/ascent/PowerSystem';
+import { forecastInvader } from '../../../systems/ascent/frontForecast';
+import { armyPower } from '../../../systems/WarSystem';
+import { dateOfTurn } from '../../../systems/seasonClock';
+import { rulesOf } from '../../../game/ascentRuleset';
 import { MAX_LIVE_BATTLES } from '../../../game/ascentConfig';
 import { PLAYER_KINGDOM_ID } from '../../../game/constants';
 import { INK_UI } from '../../../ui/InkUI';
 import { statChips } from '../../../ui/statChips';
-import { t } from '../../../i18n';
+import { drawCostChips } from '../../../ui/costChips';
+import { seasonLabel, t } from '../../../i18n';
+import { hostSize } from '../constants';
+import { showHunters } from './armyTargets';
 import type { AscentFront } from '../../../systems/ascent/battleReport';
+import type { Army, InvasionRecord } from '../../../state/types';
 import type { ConquestUIScene } from '../../ConquestUIScene';
 
 /** How the row reads at a glance: the odds said as a word, not as a ratio to do arithmetic on. */
@@ -105,9 +117,9 @@ function takeField(self: ConquestUIScene, landId: string): void {
 /**
  * What the board is a picture of — the shape of the war, not its arithmetic.
  *
- * `refresh` redraws the board when this changes and leaves it alone otherwise, so a fight ending
- * or a new province coming under attack reaches the screen, and a beat of casualties does not
- * destroy the row under the player's thumb.
+ * `refresh` redraws the board when this changes and leaves it alone otherwise, so a fight ending,
+ * a province coming under attack or a host landing reaches the screen, and a beat of casualties or
+ * an invader taking one more step does not destroy the row under the player's thumb.
  */
 export function warBoardSignature(self: ConquestUIScene): string {
   const state = self.state;
@@ -115,11 +127,102 @@ export function warBoardSignature(self: ConquestUIScene): string {
   // The claim's remaining seasons are part of the picture: on falling ground nothing else in this
   // signature moves for the 2-6 seasons the province takes to go, so the row's countdown would sit
   // frozen at whatever it read when the board opened.
-  return `${commanded}|${contestedFronts(state)
+  const invaders = (state.invasions ?? []).map((record) => `${record.armyId}${record.plan === 'withdrawing' ? '<' : ''}`).join(',');
+  return `${commanded}|${state.ascent?.pendingWave?.wave ?? ''}:${state.ascent?.pendingWave?.hosts ?? ''}|${invaders}|${contestedFronts(state)
     .map((front) => `${front.landId}${front.live ? '!' : ''}${front.besieged ? '#' : ''}${front.assaultTicks ?? ''}${front.falling ? `~${siegeLeft(self, front.landId) ?? ''}` : ''}`)
     .join(',')}`;
 }
 
+/** Player hosts already marching on a province. */
+function reliefColumnsTo(self: ConquestUIScene, landId: string): number {
+  const state = self.state;
+  return state.movementOrders.filter((order) => {
+    if (order.path[order.path.length - 1] !== landId) return false;
+    const army = state.armies.find((candidate) => candidate.id === order.armyId);
+    return army?.kingdomId === PLAYER_KINGDOM_ID;
+  }).length;
+}
+
+/**
+ * **What the war page asks of the player** — the bottom sheet's rows, most urgent first.
+ *
+ * Only decisions that change an outcome, each one a door to the page that makes it:
+ *
+ *  - a field being lost (their numbers well past ours) with hosts that could march and none
+ *    already on the road — *reinforce*, straight to the picker for that field;
+ *  - ground the enemy has carried and is claiming, while the claim still runs — *retake*;
+ *  - walls with an assault clock, outnumbered, and no column marching — *relieve* before they fall;
+ *  - an invasion on the map and not a single host of ours standing, with someone to lead one —
+ *    *raise a host*, on the Army lane where the muster form lives.
+ *
+ * Nothing that merely reports: the rows above the sheet already say how each field stands.
+ */
+function warActions(self: ConquestUIScene, fronts: AscentFront[]): Array<{ label: string; onPress: () => void }> {
+  const state = self.state;
+  const back = (): void => self.replaceLanePage(() => showWarBoard(self));
+  const actions: Array<{ label: string; onPress: () => void; urgency: number }> = [];
+
+  for (const fight of liveBattles(state)) {
+    const odds = fight.theirNow / Math.max(1, fight.ourNow);
+    if (odds < WAR_LOSING_ODDS) continue;
+    const sendable = reinforcementCandidates(state, fight).filter((row) => !row.blockedReason && !row.enRoute).length;
+    if (sendable === 0 || reinforcementsEnRoute(state, fight).hosts > 0) continue;
+    actions.push({
+      label: t('ascent.war.act.reinforce', { land: fight.landName, n: sendable }),
+      urgency: 300 + odds,
+      onPress: () => {
+        // The picker sends to the field under the player's hand, so that field is focused first.
+        if (state.ascent?.activeBattle?.landId !== fight.landId) focusBattle(state, fight.landId);
+        self.showReinforcePicker(back);
+      },
+    });
+  }
+
+  for (const front of fronts) {
+    if (front.live) continue;
+    const left = siegeLeft(self, front.landId);
+    const assault = assaultLeft(self, front.landId);
+    if (front.falling && left !== undefined) {
+      actions.push({
+        label: t('ascent.war.act.retake', { land: front.landName, n: left }),
+        urgency: 200 - left,
+        onPress: () => self.replaceLanePage(() => showFrontSheet(self, front.landId)),
+      });
+    } else if (assault !== undefined && front.theirMen > front.ourMen && reliefColumnsTo(self, front.landId) === 0) {
+      actions.push({
+        label: t('ascent.war.act.relieve', { land: front.landName, n: assault }),
+        urgency: 100 - assault,
+        onPress: () => self.replaceLanePage(() => showFrontSheet(self, front.landId)),
+      });
+    }
+  }
+
+  const invading = (state.invasions ?? []).some((record) => record.plan !== 'withdrawing');
+  const standing = state.armies.some((army) => army.kingdomId === PLAYER_KINGDOM_ID && !army.isLevy && !army.patron);
+  if (invading && !standing && state.recruitmentOrders.length === 0 && findFreeCommander(state)) {
+    actions.push({
+      label: t('ascent.lane.waitHost'),
+      urgency: 50,
+      onPress: () => {
+        self.closeLane();
+        self.openLane('army');
+        self.showRaiseHostForm();
+      },
+    });
+  }
+
+  return actions.sort((a, b) => b.urgency - a.urgency).map(({ label, onPress }) => ({ label, onPress }));
+}
+
+/**
+ * The war page: the invasion as a whole, then every fight, with what can be done in the sheet.
+ *
+ * Reported: *fight always show with information — the current invasion (total, armies, from when,
+ * the enemies' names), the list of fights, and a bottom sheet for the actions I can take*. The
+ * invasion used to be spread across the Army page (invader rows, the next-wave line) and this board
+ * (fronts only), so neither page said how the war as a whole stood. The invader rows moved here;
+ * the Army page is our own hosts now.
+ */
 export function showWarBoard(self: ConquestUIScene): void {
   /**
    * The board is a page over the world, so the world has to be under it.
@@ -134,6 +237,7 @@ export function showWarBoard(self: ConquestUIScene): void {
    */
   self.setMapVisible(true);
   const state = self.state;
+  const ascent = state.ascent;
   const fronts = contestedFronts(state);
   self.warBoardKey = warBoardSignature(self);
   const live = fronts.filter((front) => front.live);
@@ -151,9 +255,9 @@ export function showWarBoard(self: ConquestUIScene): void {
    * lane hands back whatever pause it opened under, and without this the player would close the
    * board onto a world that stays stopped with no control that says why.
    */
-  const alerted = state.ascent?.frontsOpened ?? 0;
-  if (state.ascent?.frontsOpened) {
-    state.ascent.frontsOpened = undefined;
+  const alerted = ascent?.frontsOpened ?? 0;
+  if (ascent?.frontsOpened) {
+    ascent.frontsOpened = undefined;
     self.lanePauseBeforeOpen = false;
     // Only the announcement holds the world, and only for as long as it is on the screen. Held
     // unconditionally — as it was for one round — the hold leaked out through the battle lane's
@@ -175,7 +279,11 @@ export function showWarBoard(self: ConquestUIScene): void {
     state.isStrategyPause = true;
   }
 
-  const { addRow, addHeading, addNote, finish } = self.laneList(
+  // Hosts on the map under invasion orders, whether or not they have reached our ground yet. The
+  // quiet subtitle ("no enemy host on our land") printed over a Great Invasion's summary while its
+  // columns were still two provinces out — true, and read as "there is no war".
+  const marching = (state.invasions ?? []).filter((record) => record.plan !== 'withdrawing').length;
+  const { addRow, addHeading, addNote, addWidget, finish } = self.laneList(
     alerted > 1 ? t('ascent.war.alertTitle') : t('ascent.war.title'),
     alerted > 1
       ? t('ascent.war.alertSubtitle', { n: alerted })
@@ -183,12 +291,23 @@ export function showWarBoard(self: ConquestUIScene): void {
         ? t('ascent.war.subtitleFighting', { n: live.length, all: fronts.length })
         : fronts.length > 0
           ? t('ascent.war.subtitle', { n: fronts.length })
-          : t('ascent.war.subtitleQuiet'),
-    {},
+          : marching > 0
+            ? t('ascent.war.subtitleMarching', { n: marching })
+            : t('ascent.war.subtitleQuiet'),
+    {
+      dock: {
+        items: warActions(self, fronts),
+        rebuild: () => showWarBoard(self),
+      },
+    },
   );
 
+  // ── The invasion ──────────────────────────────────────────────────────────
+  addInvasionSection(self, addHeading, addNote, addRow, addWidget);
+
+  // ── The fights ────────────────────────────────────────────────────────────
+  addHeading(t('ascent.war.fightsHeading'));
   if (live.length > 0) {
-    addHeading(t('ascent.war.liveHeading'), t('ascent.war.liveHint'));
     for (const front of live) {
       const fight = battleAt(state, front.landId);
       addRow(
@@ -214,57 +333,180 @@ export function showWarBoard(self: ConquestUIScene): void {
     }
   }
 
-  if (pressed.length > 0) {
-    addHeading(t('ascent.war.pressedHeading'), t('ascent.war.pressedHint'));
-    for (const front of pressed) {
-      const left = siegeLeft(self, front.landId);
-      const assault = assaultLeft(self, front.landId);
-      addRow(
-        {
-          title: front.landName,
-          stats: statChips([
-            ['threat', Math.round(front.theirMen), INK_UI.cinnabar],
-            ['defence', Math.round(front.ourMen)],
-          ]),
-          subtitle: t('ascent.war.frontLineShort', {
-            kingdom: front.kingdomName,
-            // The province already carried first — it is the worse news of the two — then the
-            // walls' own clock, then the plain standing.
-            standing: left !== undefined
-              ? t('ascent.war.standingSiege', { ticks: left })
-              : assault !== undefined
-                ? t('ascent.war.standingAssault', { ticks: assault })
-                : t(`ascent.war.standing.${standingOf(front)}` as Parameters<typeof t>[0]),
-          }),
-          border: frontInk(front),
-        },
-        /**
-         * A row about a fight opens the fight.
-         *
-         * It used to open a sheet, and the sheet's first row then opened the fight — two taps and a
-         * page in between to reach the one thing the row is named after. Reported verbatim: *click
-         * show list of fight, click a fight, show battle screen directly, no need a middle screen.*
-         *
-         * The sheet is not gone: it carries the relief order and the reasons a field cannot be
-         * stood up, and it is still what a row falls back to when `openFieldAt` refuses — no room
-         * under the front cap, or nobody actually standing on the province. So the tap always does
-         * the most it can, and only explains itself when it cannot do the main thing.
-         */
-        () => {
-          if (openFieldAt(state, front.landId)) {
-            takeField(self, front.landId);
-            return;
-          }
-          self.replaceLanePage(() => showFrontSheet(self, front.landId));
-        },
-      );
-    }
+  for (const front of pressed) {
+    const left = siegeLeft(self, front.landId);
+    const assault = assaultLeft(self, front.landId);
+    addRow(
+      {
+        title: front.landName,
+        stats: statChips([
+          ['threat', Math.round(front.theirMen), INK_UI.cinnabar],
+          ['defence', Math.round(front.ourMen)],
+        ]),
+        subtitle: t('ascent.war.frontLineShort', {
+          kingdom: front.kingdomName,
+          // The province already carried first — it is the worse news of the two — then the
+          // walls' own clock, then the plain standing.
+          standing: left !== undefined
+            ? t('ascent.war.standingSiege', { ticks: left })
+            : assault !== undefined
+              ? t('ascent.war.standingAssault', { ticks: assault })
+              : t(`ascent.war.standing.${standingOf(front)}` as Parameters<typeof t>[0]),
+        }),
+        border: frontInk(front),
+      },
+      /**
+       * A row about a fight opens the fight.
+       *
+       * It used to open a sheet, and the sheet's first row then opened the fight — two taps and a
+       * page in between to reach the one thing the row is named after. Reported verbatim: *click
+       * show list of fight, click a fight, show battle screen directly, no need a middle screen.*
+       *
+       * The sheet is not gone: it carries the relief order and the reasons a field cannot be
+       * stood up, and it is still what a row falls back to when `openFieldAt` refuses — no room
+       * under the front cap, or nobody actually standing on the province. So the tap always does
+       * the most it can, and only explains itself when it cannot do the main thing.
+       */
+      () => {
+        if (openFieldAt(state, front.landId)) {
+          takeField(self, front.landId);
+          return;
+        }
+        self.replaceLanePage(() => showFrontSheet(self, front.landId));
+      },
+    );
   }
 
-  if (fronts.length === 0) addNote(t('ascent.war.noFronts'));
+  if (fronts.length === 0) addNote(marching > 0 ? t('ascent.war.noFightsYet') : t('ascent.war.noFronts'));
 
   finish();
 }
+
+/** Odds (their men over ours) at which a live field counts as being lost and asks for relief. */
+const WAR_LOSING_ODDS = 1.3;
+
+/**
+ * **The invasion as a whole** — which wave, which crowns, since when, how many hosts landed and how
+ * many still stand, their weight against ours — then each invading host, then the next wave's clock.
+ *
+ * Every figure here was already in state and on no page together: `pendingWave` carries the wave,
+ * its landing turn and the hosts that landed; `invasionsRepelled` against its `repelledAt` is the
+ * hosts broken since; `state.invasions` is who is still marching and where.
+ */
+function addInvasionSection(
+  self: ConquestUIScene,
+  addHeading: (title: string, hint?: string) => void,
+  addNote: (text: string, tone?: number) => void,
+  addRow: ReturnType<ConquestUIScene['laneList']>['addRow'],
+  addWidget: ReturnType<ConquestUIScene['laneList']>['addWidget'],
+): void {
+  const state = self.state;
+  const ascent = state.ascent;
+  const wave = ascent?.pendingWave;
+  const records = (state.invasions ?? [])
+    .map((record) => ({ record, invader: state.armies.find((army) => army.id === record.armyId) }))
+    .filter((entry): entry is { record: InvasionRecord; invader: Army } => Boolean(entry.invader));
+
+  addHeading(t('ascent.war.invasionHeading'));
+
+  if (wave && (wave.hosts > 0 || records.length > 0)) {
+    const kingdoms = [...new Set(records
+      .map(({ record }) => state.kingdoms.find((kingdom) => kingdom.id === record.kingdomId)?.name)
+      .filter((name): name is string => Boolean(name)))];
+    const names = kingdoms.length ? kingdoms.join(', ') : wave.kingdomName ?? '—';
+    const when = dateOfTurn(wave.turn);
+    const broken = Math.max(0, (state.invasionsRepelled ?? 0) - wave.repelledAt);
+    const standing = records.filter(({ record }) => record.plan !== 'withdrawing').length;
+    addWidget(INVASION_SUMMARY_HEIGHT, (holder, width) => {
+      holder.add(self.ui.label(2, 0, t(wave.boss ? 'ascent.war.invasionTitleGreat' : 'ascent.war.invasionTitle', {
+        wave: wave.wave, kingdoms: names,
+      }), 'body', { fontSize: '13px', fontStyle: '700', wordWrap: { width: width - 4 } }));
+      holder.add(self.ui.label(2, 22, t('ascent.war.invasionSince', {
+        season: seasonLabel(when.season), year: when.year, n: Math.max(0, state.turn - wave.turn),
+      }), 'caption', { fontSize: '11px' }));
+      holder.add(drawCostChips(self, statChips([
+        ['hosts', t('ascent.war.invasionHosts', { standing, total: Math.max(wave.hosts, standing), broken })],
+        ['threat', Math.round(liveInvaderPower(state)), INK_UI.cinnabar],
+        ['defence', Math.round(ascent?.defensePower ?? 0)],
+      ]), { x: 2, y: 42, width: width - 4, size: 'stat' }));
+    });
+  } else {
+    addNote(t('ascent.war.invasionNone'));
+  }
+
+  const planLabel: Record<NonNullable<InvasionRecord['plan']>, string> = {
+    spearhead: t('ascent.war.planSpearhead'),
+    flanker: t('ascent.war.planFlanker'),
+    raider: t('ascent.war.planRaider'),
+    hunter: t('ascent.war.planHunter'),
+    withdrawing: t('ascent.war.planWithdrawing'),
+  };
+  const mine = state.armies.filter((army) => army.kingdomId === PLAYER_KINGDOM_ID);
+  const fields = liveBattles(state);
+  const commandedLand = ascent?.activeBattle?.landId;
+  let unseen = 0;
+  for (const { record, invader } of records) {
+    const at = state.lands.find((candidate) => candidate.id === invader.landId);
+    // A host standing in the dark stays a rumour — counted, not named.
+    if (!at?.isVisible) {
+      unseen += 1;
+      continue;
+    }
+    const kingdom = state.kingdoms.find((candidate) => candidate.id === record.kingdomId);
+    const target = state.lands.find((candidate) => candidate.id === record.targetLandId);
+    const holding = target
+      ? Math.round(landGarrisonPower(state, target)
+        + mine.filter((army) => army.landId === target.id).reduce((sum, army) => sum + armyPower(state, army), 0))
+      : 0;
+    const withdrawing = record.plan === 'withdrawing';
+    // Beta (`defenceBand`): what will be standing there when this host arrives, and when that is.
+    const forecast = rulesOf(state).defenceBand && !withdrawing ? forecastInvader(state, record) : undefined;
+    const fighting = fields.find((field) => field.landId === invader.landId);
+    addRow(
+      {
+        title: (record.great ? t('ascent.war.great') : '')
+          + t('ascent.war.invaderRow', { kingdom: kingdom?.name ?? '—', size: hostSize(invader) }),
+        stats: statChips([
+          ['threat', Math.round(armyPower(state, invader)), withdrawing ? undefined : INK_UI.cinnabar],
+          ['defence', forecast ? forecast.ready : holding],
+        ]),
+        subtitle: t('ascent.war.invaderWhere', {
+          plan: planLabel[record.plan ?? 'spearhead'],
+          target: target?.name ?? at.name,
+        }) + (forecast
+          ? ` · ${forecast.reachTicks !== undefined
+            ? t('beta.war.forecast', { ticks: forecast.reachTicks, assault: forecast.assaultTicks ?? forecast.reachTicks + 1, pct: forecast.holdPct })
+            : t('beta.war.forecastNoRoute', { pct: forecast.holdPct })}`
+          : ''),
+        border: withdrawing ? INK_UI.softBrush : INK_UI.cinnabar,
+        muted: withdrawing,
+      },
+      // A host already fighting opens its field; every other one asks who marches on it.
+      withdrawing ? undefined : fighting
+        ? () => {
+          if (fighting.landId !== commandedLand) focusBattle(state, fighting.landId);
+          takeField(self, fighting.landId);
+        }
+        : () => showHunters(self, invader.id),
+    );
+  }
+  if (unseen > 0) addNote(t('ascent.war.unseenCount', { n: unseen }));
+
+  const nextWave = (ascent?.wave ?? 0) + 1;
+  const waveTicks = Math.max(0, ascent?.ticksToWave ?? 0);
+  const loud = isBossWave(nextWave) || Boolean(ascent?.coalitionPending);
+  addNote(
+    [
+      isBossWave(nextWave)
+        ? t('ascent.war.nextWaveBoss', { ticks: waveTicks })
+        : t('ascent.war.nextWave', { wave: nextWave, ticks: waveTicks }),
+      ascent?.coalitionPending ? t('ascent.war.coalition') : '',
+    ].filter(Boolean).join('  ·  '),
+    loud ? INK_UI.cinnabar : undefined,
+  );
+}
+
+const INVASION_SUMMARY_HEIGHT = 62;
 
 /**
  * One province, and the orders that change what is happening on it.

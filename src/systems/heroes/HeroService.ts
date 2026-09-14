@@ -430,17 +430,20 @@ export function refreshHeroExposure(state: GameState, hero: Hero, exposure: impo
     || JSON.stringify(old.enemyIds) !== JSON.stringify(fresh.enemyIds)
     || (fresh.lossPct ?? 0) > (old.lossPct ?? 0) || (fresh.ratio ?? 0) > (old.ratio ?? 0) * 1.001
     || (fresh.lossIn !== undefined && (old.lossIn === undefined || state.turn + fresh.lossIn < old.observedTurn + old.lossIn)));
-  // Any worsening still invalidates the consent given against the old forecast (a new revision).
-  // Only a change in *kind* stops the world again: trapped or freed, another road, another enemy.
-  // A ratio creeping up by a tenth of a per cent re-paused every season an army came closer, and
-  // the only word of it was a toast this mode never draws — the world just stopped, again and again.
+  // Any worsening still invalidates the consent given against the old forecast (a new revision),
+  // and a change in *kind* — trapped or freed, another road, another enemy — raises the warning
+  // again. **Neither stops the world.** Both used to: first on every worsening, then on every change
+  // of kind, and a reign with a governor on a contested border froze every few seasons on a message
+  // the player had already read. Reported: *it stops the game frequently to show "… gặp nguy" —
+  // don't stop the game, show a bubble on the Heroes icon*. The advisor's `hero-danger` line and the
+  // bar's bubble and dot carry it now (`Advisor`, `barStatusColor`).
   const material = trapped !== exposure.trapped || Boolean(old && fresh && (JSON.stringify(old.route) !== JSON.stringify(fresh.route)
     || JSON.stringify(old.enemyIds) !== JSON.stringify(fresh.enemyIds)));
   if (material || worsened) {
     exposure.trapped = trapped; exposure.revision++; delete exposure.deadlyConsentRevision;
     if (heroRulesV2(state)) delete exposure.hold;
     exposure.acknowledged = false;
-    if (material) { exposure.pauseIssued = false; state.isStrategyPause = true; }
+    if (material) exposure.pauseIssued = false;
   }
   if (fresh) exposure.forecast = fresh;
 }
@@ -830,8 +833,12 @@ function prepareHeroProtection(state: GameState): void {
     const hero = state.heroes.find(person => person.growth?.instanceId === exposure.instanceId);
     if (!hero || hero.life?.kind !== 'active') continue;
     refreshHeroExposure(state, hero, exposure);
+    // The first season of a warning is still the player's to answer before the court protects the
+    // hero on its own — but it is announced, not enforced by stopping the world (see
+    // `refreshHeroExposure`). `pauseIssued` keeps its name for save compatibility; it now marks
+    // that this revision's grace season has been given.
     if (!exposure.acknowledged && (!heroRulesV2(state) || !exposure.pauseIssued)) {
-      state.isStrategyPause = true; exposure.pauseIssued = true;
+      exposure.pauseIssued = true;
       if (heroRulesV2(state)) continue;
     }
     if (exposure.hold || (heroRulesV2(state) ? state.turn < exposure.warnedTurn : state.turn <= exposure.warnedTurn)) continue;

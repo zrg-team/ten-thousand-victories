@@ -11,36 +11,32 @@ import type { GameState } from '../state/types';
  *
  * `undefined` when the world runs, or when a card is up (the card is the reason and says so).
  *
- *  - `hero` — a strategy pause raised for a champion in danger who has not been looked at yet.
- *  - `player` — any other strategy pause: the player's own, or a screen's hold.
+ *  - `player` — any strategy pause: the player's own, or a screen's hold. There used to be a `hero`
+ *    reason for a pause raised over a champion in danger, but hero danger no longer stops the world
+ *    — and while an exposure stood, *any* hold (the invasion banner's, a lane's) was labelled
+ *    "… gặp nguy, open Heroes", which read as the hero system stopping the game when it had not.
  *  - `away` — the away pause outlived the return (a window that never got its focus back).
  *  - `stranded` — `isPaused` with no card pending, nothing queued and no run ending: a hard stop
  *    nothing on the screen can lift. Never correct; surfaced so a tap can clear it.
  *
  * A leaf: type-only imports, read by the scene, the chrome and the bar.
  */
-export type HaltReason = 'hero' | 'player' | 'away' | 'stranded';
+export type HaltReason = 'player' | 'away' | 'stranded';
 
 export function haltReason(state: GameState): HaltReason | undefined {
   if (state.isDefeated) return undefined;
   const ascent = state.gameMode === 'ascent' ? state.ascent : undefined;
   if (ascent && state.pendingAscentPrompt) return undefined;
-  if (state.isStrategyPause) return exposedHero(state) ? 'hero' : 'player';
+  if (state.isStrategyPause) return 'player';
   if (state.isAwayPause) return 'away';
   if (ascent && state.isPaused && pausedWithNothingToShow(state)) return 'stranded';
   return undefined;
 }
 
-/** The first champion in danger nobody has acknowledged yet — the one the pause is for. */
-export function exposedHero(state: GameState): { heroId: string; landId: string } | undefined {
-  const exposures = state.ascent?.heroDepth?.exposures;
-  if (!exposures) return undefined;
-  const open = Object.values(exposures).find((exposure) => !exposure.resolved && !exposure.acknowledged
-    && exposure.seenRevision !== exposure.revision);
-  return open ? { heroId: open.heroId, landId: open.landId } : undefined;
-}
-
-/** Any champion in danger the player has not decided about — seen or not. What makes a reign risky. */
+/**
+ * Any champion in danger the player has not decided about — seen or not. What makes a reign risky,
+ * and what lights the Heroes dot (`barStatusColor`) and raises the advisor's `hero-danger` line.
+ */
 export function heroAtRisk(state: GameState): boolean {
   return Object.values(state.ascent?.heroDepth?.exposures ?? {}).some((exposure) => !exposure.resolved && !exposure.acknowledged);
 }

@@ -296,8 +296,10 @@ export function buildKingLook(choice: KingChoice, rank: number, preview?: string
   } else {
     parts.push({ key: at(kingHairPool(choice, hat) as string[], choice.hair), tint: 'hair' });
     if (hat === '' || hat.startsWith('hat-khanvan') || hat === 'hat-khandong' || hat === 'hat-khanvuong') {
-      parts.push({ key: pickFace(manKnotFor(choice.era)), tint: 'hair' });
-      if (choice.era === 'dinh') parts.push({ key: 'hairpin', tint: 'none' });
+      const knot = pickFace(manKnotFor(choice.era));
+      parts.push({ key: knot, tint: 'hair' });
+      // The pin goes through a crown knot. A nape knot has nothing up there to hold it.
+      if (choice.era === 'dinh' && knot !== 'knot-nape') parts.push({ key: 'hairpin', tint: 'none' });
     }
   }
   if (hat && hat !== 'scalp' && hat !== 'scalp-shaven') parts.push({ key: hat, tint: 'none' });

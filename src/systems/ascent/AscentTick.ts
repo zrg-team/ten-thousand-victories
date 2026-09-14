@@ -34,7 +34,6 @@ import { addMandate } from '../empire/MandateSystem';
 import { tickGreatPowersYear } from '../empire/GreatPowersSystem';
 import { ensureHeroDeck } from '../../data/heroFactory';
 import { beginHeroSeason, finishHeroSeason } from '../heroes/HeroService';
-import { heroRulesV2 } from '../heroes/heroModel';
 import { autosaveSnapshot } from '../../state/save';
 import { drainAscentPrompts } from './AscentState';
 import { tickAscentAutopilot } from './AutopilotSystem';
@@ -197,13 +196,11 @@ export function advanceAscentTick(state: GameState): void {
   raiseGoalChoice(state);
 
   const ownedBefore = ownedLandIds(state);
-  const heroPauseBefore = state.isStrategyPause;
+  // A newly raised hero risk used to stop the season here, before income, so it could be read. It
+  // no longer stops anything (reported as the game halting over and over for "… gặp nguy"); the
+  // warning's first season is still a grace season before the court protects the hero itself —
+  // see `pauseIssued` in `applyHeroDepartureEffects`.
   const heroSeason = beginHeroSeason(state);
-  if (heroRulesV2(state) && !heroPauseBefore && state.isStrategyPause) {
-    delete state.ascent.heroDepth!.processingTurn;
-    autosaveSnapshot(state);
-    return; // Newly raised risk must be readable before income, combat or capture advances.
-  }
   const wavesBefore = state.ascent.wavesSurvived;
 
   // ── Reused verbatim from the classic tick ────────────────────────────────

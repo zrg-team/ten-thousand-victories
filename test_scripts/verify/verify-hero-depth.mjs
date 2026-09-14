@@ -301,7 +301,7 @@ try {
     const riskHero=recruit(pauseState,305);
     pauseState.ascent.heroDepth.exposures['risk:test']={id:'risk:test',heroId:riskHero.id,instanceId:riskHero.growth.instanceId,landId:pauseState.ascent.capitalLandId,window:0,warnedTurn:pauseState.turn,revision:1,trapped:false};
     away=installAwayPause(pauseState);window.dispatchEvent(new Event('blur'));window.dispatchEvent(new Event('focus'));
-    check('Risk-enabled Beta with a champion at risk resumes into deliberate strategy pause',!pauseState.isAwayPause&&pauseState.isStrategyPause);away.dispose();
+    check('Risk-enabled Beta with a champion at risk resumes running (the danger is a bubble, not a stop)',!pauseState.isAwayPause&&!pauseState.isStrategyPause);away.dispose();
     const archiveState=active();recruit(archiveState,305);Storage.prototype.setItem=()=>{throw new Error('memorial quota');};
     const archiveFailed=archiveHeroChronicle(archiveState);Storage.prototype.setItem=write;
     check('Failed memorial write retains retryable records',!archiveFailed&&archiveState.ascent.heroDepth.chroniclePending&&archiveState.ascent.heroDepth.memorials.length>0);

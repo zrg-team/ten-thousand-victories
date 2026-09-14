@@ -18,14 +18,15 @@ try{
       const heroes=[generateHero(700),generateHero(701)];s.heroes.push(...heroes);heroes.forEach(h=>service.initializeRecruitedHero(s,h));
       const land=s.lands.find(l=>l.id===s.ascent.capitalLandId);service.commitHeroAssignment(s,heroes[0],{kind:'province',landId:land.id});
       service.creditHeroService(s,heroes[0],{id:'ui-v2-credit',window:1,stat:'administration',service:6});
-      s.pendingAscentPrompt=undefined;s.ascent.promptQueue=[];s.isPaused=true;ui.events.emit('state-changed');ui.openLane('heroes');
+      s.pendingAscentPrompt=undefined;s.ascent.promptQueue=[];s.isPaused=true;ui.events.emit('state-changed');ui.dockExpanded=true;ui.openLane('heroes');
       window.__heroInterface={hero:heroes[0].id,other:heroes[1].id,land:land.id};
-      return {compare:t('hero.depth.compare'),aftermath:t('hero.depth.aftermath'),chronicle:t('hero.depth.chronicle'),hero:heroes[0].name};
+      // The aftermath is a row in the Heroes page's bottom sheet now (opened above), labelled with its count.
+      return {aftermathRow:`${t('hero.depth.aftermath')} · ${s.ascent.heroDepth.notices.length}`,compare:t('hero.depth.compare'),aftermath:t('hero.depth.aftermath'),chronicle:t('hero.depth.chronicle'),hero:heroes[0].name};
     });
     const check=(name,pass,detail)=>checks.push({name:`${lang}/${width}: ${name}`,pass:!!pass,detail});
     check('hero roster uses game UI with no HTML overlays',await heroDomOverlays(page)===0);
     check('comparison action removed',!(await heroCanvasText(page)).includes(data.compare));
-    await clickHeroCanvas(page,data.aftermath);
+    await clickHeroCanvas(page,data.aftermathRow);
     const aftermath=await heroCanvasText(page);
     check('canvas action opens grouped hero aftermath',aftermath.includes(data.aftermath)&&aftermath.includes(data.hero));
     await page.evaluate(async()=>{
