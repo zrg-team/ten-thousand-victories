@@ -264,7 +264,7 @@ export const reedBanner: StoryTemplate = {
       weight: 8,
       terminal: true,
       effect: (ctx) => {
-        bounty(ctx, { humans: 60 });
+        bounty(ctx, { humans: 60 }, 'people');
         ctx.state.court.stability = Math.max(0, ctx.state.court.stability - 4);
         ctx.note('stability', -4);
       },
@@ -827,7 +827,7 @@ export const reedBanner: StoryTemplate = {
               hero.stats.renown = Math.min(100, hero.stats.renown + 12);
               hero.traits = [...(hero.traits ?? []), 'Unifier'];
             }
-            bounty(ctx, { gold: 220, humans: 400 });
+            bounty(ctx, { gold: 220, humans: 400 }, 'people');
           },
         },
       ],

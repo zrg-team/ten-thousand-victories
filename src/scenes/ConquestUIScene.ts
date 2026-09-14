@@ -127,6 +127,10 @@ export class ConquestUIScene extends Phaser.Scene {
 
   /** Whether the paused badge is up, so it is not destroyed and redrawn by every refresh. */
   pausedBadgeKey = '';
+  /** The edge the badge was built above, so a moving chip can move it — see `renderPausedBadge`. */
+  pausedBadgeAnchor = 0;
+  /** A press on the badge is down; the badge holds still until it is released. */
+  pausedBadgePressed = false;
 
   /** What the map-control stack was drawn for (`hidden:floor:mode`). */
   mapControlsKey = '';
@@ -260,6 +264,8 @@ export class ConquestUIScene extends Phaser.Scene {
 
   /** The clock's state before a coach card stopped it, restored when the card closes. */
   tourPauseBefore = false;
+  /** The screen open when the tour's hold began — see `releaseWorldHold`. */
+  tourHoldKey = '';
 
   /** Prompts answered so far, which is how the `decision` stage knows it has something to explain. */
   promptsAnswered = 0;
@@ -318,6 +324,10 @@ export class ConquestUIScene extends Phaser.Scene {
 
   /** The clock's state before a result banner stopped it, restored when the plate leaves. */
   wavePauseBefore = false;
+  /** The screen open when the wave plate's hold began — see `releaseWorldHold`. */
+  waveHoldKey = '';
+  /** A card that drew nothing once, tried again before it is dropped — see `recoverEmptyPrompt`. */
+  emptyPromptKey = '';
 
   lastWaveCueId = 0;
 
@@ -916,7 +926,7 @@ export class ConquestUIScene extends Phaser.Scene {
 
   /* ------------------------------- the prompt card, and the answer coming back */
 
-  promptFrame(title: string, subtitle: string, opts?: { coverReadout?: boolean; titleIcon?: CardIconId }): UIBounds {
+  promptFrame(title: string, subtitle: string, opts?: { coverReadout?: boolean; titleIcon?: CardIconId; opaque?: boolean }): UIBounds {
     return promptsFrame.promptFrame(this, title, subtitle, opts);
   }
 

@@ -58,10 +58,8 @@ export function showFounder(self: ConquestUIScene, prompt: Extract<AscentPrompt,
   const heroes = prompt.options
     .map((id) => self.state.heroDeck.find((candidate) => candidate.id === id))
     .filter((hero): hero is Hero => Boolean(hero));
-  if (heroes.length === 0) {
-    self.promptFrame(t('ascent.founder.title'), t('ascent.founder.subtitle'));
-    return;
-  }
+  // A title with no heroes under it is a card with no way out; see `recoverEmptyPrompt`.
+  if (heroes.length === 0) return;
 
   heroDeckPrompt(self, {
     title: t('ascent.founder.title'),

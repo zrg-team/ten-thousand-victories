@@ -256,6 +256,7 @@ export const theBoyWithTheOrange: StoryTemplate = {
           // muster reserve, so it is almost never the greyed-out option — the point is to make
           // "yes, and more story please" into a decision, not to close the door.
           cost: { humans: 180 },
+          costBasis: 'people',
           historicity: 'divergent',
           to: 'vao-hoi',
           apply: (ctx) => {
@@ -332,7 +333,7 @@ export const theBoyWithTheOrange: StoryTemplate = {
         raisePatronHost(ctx, { soldiers: 1000, name: 'Cờ Riêng', at: home, rations: 260 });
         // A thousand of his household are a thousand off your muster roll, and the roll is what
         // binds a levy. The banner costs you before it is worth anything.
-        bounty(ctx, { humans: -300 });
+        bounty(ctx, { humans: -300 }, 'people');
         ctx.note('humans', -300);
         ctx.remember('banner', 1);
         // A name from an earlier run, planted here so the whisper at Hàm Tử can use it —
@@ -450,6 +451,7 @@ export const theBoyWithTheOrange: StoryTemplate = {
           // Off the books, so it comes out of the country rather than the treasury — and men are
           // what a levy is actually short of.
           cost: { food: 120, humans: 90 },
+          costBasis: 'people',
           historicity: 'annal',
           to: 'co-rieng',
           apply: (ctx) => {
@@ -695,7 +697,9 @@ export const theBoyWithTheOrange: StoryTemplate = {
             if (host) {
               const men = headcount(host);
               ctx.state.armies = ctx.state.armies.filter((army) => army.id !== host.id);
-              windfall(ctx, { humans: men, food: 80 });
+              // The men are counted off the host; the grain sent home with them is a one-time gift.
+              windfall(ctx, { humans: men });
+              bounty(ctx, { food: 80 });
             }
             ctx.state.court.stability = Math.min(100, ctx.state.court.stability + 6);
             ctx.note('stability', 6);
@@ -799,6 +803,7 @@ export const theBoyWithTheOrange: StoryTemplate = {
         {
           id: 'cap-them-nguoi',
           cost: { humans: 150, gold: 50 },
+          costBasis: 'people',
           historicity: 'divergent',
           to: 'giao-quan',
           apply: (ctx) => {

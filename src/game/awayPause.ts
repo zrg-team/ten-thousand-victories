@@ -1,6 +1,7 @@
 import { autosaveSnapshot, canAutosave, clearAutosave } from '../state/save';
 import { noteLiveReign } from '../systems/ascent/Inheritance';
 import type { GameState } from '../state/types';
+import { heroAtRisk } from './haltReason';
 
 /**
  * The run stops when the player leaves, and is written down before the device can take it.
@@ -43,8 +44,8 @@ function pageIsHidden(): boolean {
 /**
  * Halts `state` while the player is away and writes it down on the way out.
  *
- * `onChange` is called when the pause is lifted, so the screen can repaint the moment the player
- * is back rather than on whatever the next tick happens to be.
+ * `onChange` is called when the pause is set and when it is lifted, so the screen can say so the
+ * moment it happens: a held world runs no tick, and nothing else would repaint it.
  */
 export function installAwayPause(state: GameState, onChange?: () => void): AwayPauseHandle {
   let saves = 0;
@@ -63,10 +64,14 @@ export function installAwayPause(state: GameState, onChange?: () => void): AwayP
   };
 
   const leave = (): void => {
+    const wasAway = state.isAwayPause;
     state.isAwayPause = true;
-    // A risky Beta reign resumes only after the player's deliberate Continue, never on focus.
-    if (state.ascent?.heroDepth?.rules.capabilities.recovery) state.isStrategyPause = true;
+    // A risky Beta reign resumes only after the player's deliberate Continue, never on focus — but
+    // only while something is actually at risk. Held on every departure, every Beta reign came back
+    // from a glance at a notification frozen, with nothing on the screen to say why.
+    if (state.ascent?.heroDepth?.rules.capabilities.recovery && heroAtRisk(state)) state.isStrategyPause = true;
     store();
+    if (!wasAway) onChange?.();
   };
 
   /**
@@ -96,6 +101,10 @@ export function installAwayPause(state: GameState, onChange?: () => void): AwayP
   };
 
   const onVisibility = (): void => (pageIsHidden() ? leave() : arrive());
+  // A press on the page is the player, back, whatever the window manager says. Focus is not always
+  // returned to a page that lost it — an embedded view, a devtools pane, a phone's app switcher —
+  // and without this the only signal that could lift the pause never came.
+  const onPress = (): void => { if (state.isAwayPause) arrive(); };
   // The last line the page is guaranteed to run. Deliberately not `unload`, which no longer
   // fires reliably and disqualifies the page from the back/forward cache.
   const onPageHide = (): void => { pageLeaving = true; leave(); };
@@ -106,6 +115,7 @@ export function installAwayPause(state: GameState, onChange?: () => void): AwayP
   window.addEventListener('pageshow', onPageShow);
   window.addEventListener('blur', leave);
   window.addEventListener('focus', arrive);
+  window.addEventListener('pointerdown', onPress, true);
 
   return {
     get saves() { return saves; },
@@ -117,6 +127,7 @@ export function installAwayPause(state: GameState, onChange?: () => void): AwayP
       window.removeEventListener('pageshow', onPageShow);
       window.removeEventListener('blur', leave);
       window.removeEventListener('focus', arrive);
+      window.removeEventListener('pointerdown', onPress, true);
       // A scene handing the run over to another screen must not leave the world halted behind it.
       state.isAwayPause = false;
     },

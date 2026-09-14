@@ -768,6 +768,7 @@ export const theSickness: StoryTemplate = {
         {
           id: 'send-physicians',
           cost: { gold: 200, supplies: 80 },
+          costBasis: 'people',
           apply: (ctx) => {
             ctx.remember('treated', 1);
             // Two hundred gold and eighty of stores, and the card said nothing back. The
@@ -896,6 +897,7 @@ export const mountainAndWater: StoryTemplate = {
         {
           id: 'dap-cao-hon-nam-ngoai',
           cost: { humans: 90 },
+          costBasis: 'people',
           to: 'de-giu',
           historicity: 'annal',
           apply: (ctx) => {
@@ -936,6 +938,7 @@ export const mountainAndWater: StoryTemplate = {
         {
           id: 'gat-som-di',
           cost: { humans: 60 },
+          costBasis: 'people',
           to: 'duoc-mua',
           historicity: 'divergent',
           apply: (ctx) => { ctx.remember('gat-som', 1); },
@@ -992,6 +995,7 @@ export const mountainAndWater: StoryTemplate = {
           to: 'dap-de',
           historicity: 'annal',
           cost: { supplies: 160, humans: 200 },
+          costBasis: 'people',
           apply: (ctx) => {
             ctx.remember('dyke', 1);
             ctx.remember('echoTurn', ctx.state.turn);
@@ -1274,6 +1278,7 @@ export const thirteenthWarlord: StoryTemplate = {
         {
           id: 'send-a-garrison',
           cost: { humans: 400, gold: 140 },
+          costBasis: 'people',
           apply: (ctx) => {
             const land = ctx.land();
             if (land) land.defense += 14;

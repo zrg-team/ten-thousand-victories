@@ -67,6 +67,8 @@ export interface HeroExposure {
   hold?: boolean; deadlyConsentRevision?: number; resolved?: 'safe' | 'wounded' | 'captured' | 'dead';
   acknowledged?: boolean;
   pauseIssued?: boolean;
+  /** The revision the player opened Heroes over from the paused badge. Seen is not decided. */
+  seenRevision?: number;
   forecast?: HeroRiskForecast;
 }
 export interface HeroRiskForecast {

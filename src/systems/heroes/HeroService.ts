@@ -430,10 +430,17 @@ export function refreshHeroExposure(state: GameState, hero: Hero, exposure: impo
     || JSON.stringify(old.enemyIds) !== JSON.stringify(fresh.enemyIds)
     || (fresh.lossPct ?? 0) > (old.lossPct ?? 0) || (fresh.ratio ?? 0) > (old.ratio ?? 0) * 1.001
     || (fresh.lossIn !== undefined && (old.lossIn === undefined || state.turn + fresh.lossIn < old.observedTurn + old.lossIn)));
-  if (trapped !== exposure.trapped || worsened) {
+  // Any worsening still invalidates the consent given against the old forecast (a new revision).
+  // Only a change in *kind* stops the world again: trapped or freed, another road, another enemy.
+  // A ratio creeping up by a tenth of a per cent re-paused every season an army came closer, and
+  // the only word of it was a toast this mode never draws — the world just stopped, again and again.
+  const material = trapped !== exposure.trapped || Boolean(old && fresh && (JSON.stringify(old.route) !== JSON.stringify(fresh.route)
+    || JSON.stringify(old.enemyIds) !== JSON.stringify(fresh.enemyIds)));
+  if (material || worsened) {
     exposure.trapped = trapped; exposure.revision++; delete exposure.deadlyConsentRevision;
     if (heroRulesV2(state)) delete exposure.hold;
-    exposure.acknowledged = false; exposure.pauseIssued = false; state.isStrategyPause = true;
+    exposure.acknowledged = false;
+    if (material) { exposure.pauseIssued = false; state.isStrategyPause = true; }
   }
   if (fresh) exposure.forecast = fresh;
 }

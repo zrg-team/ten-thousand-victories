@@ -3,6 +3,7 @@ import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { initializeRecruitedHero } from '../heroes/HeroService';
 import { applyResourceDelta, canSpend } from '../ResourceSystem';
 import { scaledCost } from '../ascent/priceScale';
+import { storyCost } from '../ascent/storyValue';
 import { pushToast } from '../empire/notifications';
 import { enqueueAscentPrompt } from '../ascent/AscentState';
 import { storyTemplate, storyTemplates } from '../../data/stories';
@@ -1031,7 +1032,8 @@ function noteTurn(ctx: StoryCtx, story: ActiveStory, from: string, to: string): 
  * scaled and two are not is a card that quotes one number and takes another.
  */
 function storyOptionCost(state: GameState, option: StoryOption): Partial<ResourceBag> | undefined {
-  return option.cost ? scaledCost(state, option.cost) : undefined;
+  // The purse on a stable reign; on a Beta reign, raised to what the option is about (`storyValue`).
+  return option.cost ? storyCost(state, option.cost, option.costBasis) : undefined;
 }
 
 function noteCost(ctx: StoryCtx, cost: Partial<ResourceBag>): void {

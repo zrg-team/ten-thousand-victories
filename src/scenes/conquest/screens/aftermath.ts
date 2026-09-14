@@ -13,6 +13,13 @@
 import { addStoryIllustration } from '../../../ui/storyIllustration';
 import { storyText, storyTitle } from '../../../i18n/story';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
+import { seal } from '../../../ui/ink/devices';
+import {
+  ROYAL_COMMENDATION_TEXTURE,
+  commendationKeys,
+  ensureRoyalCommendation,
+  gradeFight,
+} from '../../../ui/ascent/royalCommendation';
 import { INK_UI, INK_UI_HEX } from '../../../ui/InkUI';
 import { TITLE_FONT, UI_FONT } from '../../../ui/fonts';
 import { t } from '../../../i18n';
@@ -203,6 +210,49 @@ function showAftermathScreen(self: ConquestUIScene): void {
     parent.add(verdict);
     parent.add(under);
     return verdict.height + 4 + under.height;
+  });
+
+  /**
+   * The court's answer to the fight — the same commendation the Skirmish report prints.
+   *
+   * The drawn dragon and a named honour existed only on the arena's sheet, so every battle inside a
+   * run ended on a page with no seal on it at all: the mock looked ceremonial, the game did not.
+   * Drawn left with the words beside it, as on the arena sheet, but at this page's scale.
+   *
+   * The print is fetched the first time a run needs it (`ensureRoyalCommendation`); until it lands
+   * the plain seal stands in its place, and the page redraws itself when it arrives.
+   */
+  const { stars } = gradeFight(record);
+  const drew = record.outcome === 'spent' && !held;
+  const words = commendationKeys(held, drew, stars);
+  const printed = ensureRoyalCommendation(self, import.meta.env.BASE_URL, () => {
+    if (self.openPromptKey === 'lane:aftermath') self.replaceLanePage(() => showAftermathScreen(self));
+  });
+  addWidget(84, (parent, width) => {
+    const PRINT = 78;
+    if (printed) {
+      parent.add(self.add.image(PRINT / 2, PRINT / 2, ROYAL_COMMENDATION_TEXTURE).setDisplaySize(PRINT, PRINT));
+    } else {
+      const fallback = self.add.graphics();
+      seal(fallback, PRINT / 2, PRINT / 2, 26, 'lotus');
+      parent.add(fallback);
+    }
+    const left = PRINT + 14;
+    const issuer = self.ui.label(left, 6, t(words.issuer), 'caption',
+      { fontSize: '9px', fontStyle: '700', wordWrap: { width: width - left } });
+    const honour = self.add.text(left, issuer.y + issuer.height + 2,
+      t(words.title as Parameters<typeof t>[0]), {
+        color: held ? INK_UI_HEX.cinnabarDeep : INK_UI_HEX.mutedText,
+        fontFamily: TITLE_FONT,
+        fontSize: '18px',
+        fontStyle: '700',
+        wordWrap: { width: width - left },
+      });
+    const rank = self.ui.label(left, honour.y + honour.height + 4,
+      t('arena.report.royal.rank', { n: words.rank }), 'caption',
+      { fontSize: '9px', wordWrap: { width: width - left } });
+    parent.add([issuer, honour, rank]);
+    return Math.max(PRINT, rank.y + rank.height);
   });
 
   // Who held it, with their face on. `generalHeroId` is stamped at the moment the record is

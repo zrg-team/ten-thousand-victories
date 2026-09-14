@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, AppState, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { WebView, type WebViewNavigation } from 'react-native-webview';
@@ -40,6 +40,8 @@ const PORT = 39217;
  */
 const INK = '#201a12';
 const PAPER = '#e9dfc2';
+/** The ship the native splash shows (`app.json` → expo-splash-screen), so a reload looks like a launch. */
+const SPLASH_SEAL = require('./assets/splash.png');
 
 /**
  * How long the page gets to report a painted frame, counted from the moment it is asked for.
@@ -659,15 +661,18 @@ function Shell() {
     >
       {/* Dark glyphs: the bar is transparent and what shows through is paper now. */}
       <StatusBar style="dark" />
-      {/* What the shell is doing while the page is not yet painted — on a cold start the native
-          splash covers this; after a reload into an update there is no splash, and this is what
-          stands where a blank page did. */}
+      {/* The wait while the page is not yet painted — on a cold start the native splash covers
+          this; after a reload into an update there is no splash, and this is what stands where a
+          blank page did. The native splash's own ship, the name, one line and a dial: a player is
+          told the game is being prepared, not which archive is unpacking or which server started.
+          Those steps still go to the diary, which the diagnostic shows if the boot fails. */}
       {!ready ? (
         <View style={styles.progress} pointerEvents="none">
-          <ActivityIndicator color="#8a5f1c" />
-          <Text style={styles.progressTitle}>Đang chuẩn bị ván chơi…</Text>
-          <Text style={styles.progressSub}>Setting up the game</Text>
-          <Text style={styles.progressLine}>{diary[diary.length - 1] ?? ''}</Text>
+          <Image source={SPLASH_SEAL} style={styles.progressSeal} resizeMode="contain" accessibilityIgnoresInvertColors />
+          <Text style={styles.progressName}>Vạn Thắng</Text>
+          <ActivityIndicator color="#8a5f1c" style={styles.progressDial} />
+          <Text style={styles.progressTitle}>Đang chuẩn bị trò chơi…</Text>
+          <Text style={styles.progressSub}>Preparing your game</Text>
         </View>
       ) : null}
     {origin ? (
@@ -772,10 +777,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10, paddingHorizontal: 18,
   },
   retryText: { color: PAPER, fontSize: 14, fontWeight: '700' },
-  // The wait, on the game's own paper: a dial, one line of Vietnamese, one of English, and the
-  // shell's latest step underneath in the diary's own type.
+  // The wait, on the game's own paper: the splash's ship at the splash's width, the name, a dial,
+  // then one line of Vietnamese and one of English.
   progress: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: PAPER, padding: 28 },
-  progressTitle: { color: '#2a2118', fontSize: 16, fontWeight: '700', marginTop: 14 },
-  progressSub: { color: '#8a7a60', fontSize: 12, marginTop: 2 },
-  progressLine: { color: '#8a5f1c', fontSize: 11, marginTop: 18, fontFamily: 'monospace', textAlign: 'center' },
+  progressSeal: { width: 220, height: 220, maxWidth: '70%' },
+  progressName: {
+    color: '#2a2118', fontSize: 30, fontWeight: '700', marginTop: 6,
+    // Android's serif is Noto Serif, which stacks "ắ" correctly. Not Georgia on iOS: its Vietnamese
+    // is patchy and set the accent beside the letter in a test render — the system face is safe.
+    fontFamily: Platform.select({ android: 'serif', default: undefined }),
+  },
+  progressDial: { marginTop: 22 },
+  progressTitle: { color: '#2a2118', fontSize: 16, fontWeight: '600', marginTop: 12 },
+  progressSub: { color: '#8a7a60', fontSize: 13, marginTop: 3 },
 });

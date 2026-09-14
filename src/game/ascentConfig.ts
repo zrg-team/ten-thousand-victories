@@ -2574,6 +2574,25 @@ export const TALENT_SEARCH_SHARE_CURVE = 1.5;
 export const TALENT_SEARCH_BASE_FAR_MULT = 4;
 export const TALENT_SEARCH_ESCALATION = 1.5;
 
+/**
+ * Beta (`scaledStories`, `systems/ascent/storyValue.ts`): what a story's or a court petition's
+ * one-time sum is measured against, beyond the scaled purse.
+ *
+ * **The round.** `1 + PER_WAVE × wave`, capped: a choice raised at wave 20 weighs twice what it did
+ * at the founding, and no more than two and a half times however long the run goes. Gentle on
+ * purpose — the purse's income and hoard factors already move prices several times over; the round
+ * is the part of difficulty they do not see.
+ *
+ * **The people.** `(humans / BASE) ^ EXPONENT`, never below 1, capped — for costs and gains that are
+ * about the population (relief, a garrison of the realm's own men, a district's levy). BASE is the
+ * founding's own people, so the opening pays exactly what was written.
+ */
+export const STORY_ROUND_SCALE_PER_WAVE = 0.05;
+export const STORY_ROUND_SCALE_MAX = 2.5;
+export const STORY_PEOPLE_BASE = 600;
+export const STORY_PEOPLE_EXPONENT = 0.6;
+export const STORY_PEOPLE_MAX = 5;
+
 // ── Autopilot ───────────────────────────────────────────────────────────────
 /**
  * Target standing armies. Few and large beats many and small: hosts arrive and fight one at

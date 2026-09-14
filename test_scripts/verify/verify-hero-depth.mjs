@@ -294,8 +294,14 @@ try {
     acting.turn+=2;service.tickHeroLifecycle(acting);
     check('Acting Council returns to its previous seat after two working seasons',acting.court.seats.marshal===actingOfficer.id&&heroJobScale(acting,actingOfficer)===1);
     const pauseState=active(); const { installAwayPause }=await import('/src/game/awayPause.ts');
-    const away=installAwayPause(pauseState);window.dispatchEvent(new Event('blur'));window.dispatchEvent(new Event('focus'));
-    check('Risk-enabled Beta resumes into deliberate strategy pause',!pauseState.isAwayPause&&pauseState.isStrategyPause);away.dispose();
+    // Held for a deliberate Continue only while a champion is actually at risk: holding every Beta
+    // reign on every return froze runs with nothing on the screen to say why.
+    let away=installAwayPause(pauseState);window.dispatchEvent(new Event('blur'));window.dispatchEvent(new Event('focus'));
+    check('Risk-enabled Beta with nothing at risk resumes on return',!pauseState.isAwayPause&&!pauseState.isStrategyPause);away.dispose();
+    const riskHero=recruit(pauseState,305);
+    pauseState.ascent.heroDepth.exposures['risk:test']={id:'risk:test',heroId:riskHero.id,instanceId:riskHero.growth.instanceId,landId:pauseState.ascent.capitalLandId,window:0,warnedTurn:pauseState.turn,revision:1,trapped:false};
+    away=installAwayPause(pauseState);window.dispatchEvent(new Event('blur'));window.dispatchEvent(new Event('focus'));
+    check('Risk-enabled Beta with a champion at risk resumes into deliberate strategy pause',!pauseState.isAwayPause&&pauseState.isStrategyPause);away.dispose();
     const archiveState=active();recruit(archiveState,305);Storage.prototype.setItem=()=>{throw new Error('memorial quota');};
     const archiveFailed=archiveHeroChronicle(archiveState);Storage.prototype.setItem=write;
     check('Failed memorial write retains retryable records',!archiveFailed&&archiveState.ascent.heroDepth.chroniclePending&&archiveState.ascent.heroDepth.memorials.length>0);

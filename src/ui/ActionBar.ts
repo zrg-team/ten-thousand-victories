@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { ACTION_BAR_HEIGHT, GAME_HEIGHT, GAME_WIDTH, HEADER_HEIGHT, isCampaignMode, uiColumnX } from '../game/constants';
 import type { GameState } from '../state/types';
+import { haltReason } from '../game/haltReason';
 import {
   markControlBorn, noteControlFired, pressIsEchoOnto, releaseNotOwnedBy, setContainerInputEnabled,
 } from './inputGeneration';
@@ -402,7 +403,7 @@ export class ActionBar extends Phaser.GameObjects.Container {
     // The bar was cleared and rebuilt — five to nine buttons, each a Graphics surface, a Text
     // and listeners — on every state-changed emit, which is every tick and every battle beat.
     // Everything it prints is in this key; a quiet refresh is now a string compare.
-    const paused = this.gameState.isStrategyPause;
+    const paused = this.worldHeld();
     const slots = actionBarSlots(this.gameMode, this.context(), this.barWidth, this.layout);
     const key = [
       paused ? 1 : 0,
@@ -498,8 +499,14 @@ export class ActionBar extends Phaser.GameObjects.Container {
     return { size: chosen, scale: LANE_ICON_SCALE_WRAPPED };
   }
 
+  /** Whether Pause reads as ▶ — any hold a press on it lifts (`haltReason`), in the mode that has them. */
+  private worldHeld(): boolean {
+    return this.gameState.isStrategyPause
+      || (this.gameState.gameMode === 'ascent' && haltReason(this.gameState) !== undefined);
+  }
+
   private buildButtons(): void {
-    const paused = this.gameState.isStrategyPause;
+    const paused = this.worldHeld();
     const top = ACTION_BUTTON_Y - ACTION_BUTTON_HEIGHT / 2;
     const slots = actionBarSlots(this.gameMode, this.context(), this.barWidth, this.layout);
     const laneWidth = slots.find((slot) => !slot.system)?.width ?? 0;

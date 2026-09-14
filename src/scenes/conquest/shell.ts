@@ -48,7 +48,9 @@ import { sawtoothBand } from '../../ui/ink/devices';
 import { PIGMENT } from '../../ui/ink/palette';
 import { placeStamp, stampDesign } from '../../ui/ink/stamp';
 import { UI_FONT } from '../../ui/fonts';
-import { heroName, t, tickLabel } from '../../i18n';
+import { getLanguage, heroName, t, tickLabel } from '../../i18n';
+import { exposedHero, haltReason, pausedWithNothingToShow, resumeWorld } from '../../game/haltReason';
+import { drainAscentPrompts } from '../../systems/ascent/AscentState';
 import { hostileClaimAt } from '../../systems/LandSystem';
 import { buildFocusRows } from '../../ui/focusPanel';
 import type { CostChip } from '../../ui/costChips';
@@ -407,7 +409,20 @@ export function refresh(self: ConquestUIScene): void {
     // happened, and a counter kept at the single place the key changes cannot drift from it.
     if (self.openPromptKey !== '' && key === '') self.promptsAnswered += 1;
     beginOverlay(self, key);
-    if (prompt) self.renderPrompt(prompt);
+    if (prompt) {
+      try {
+        self.renderPrompt(prompt);
+      } catch (error) {
+        // A renderer that throws must not leave the run held behind a card that never drew.
+        console.error(`[prompt] ${prompt.kind} failed to draw`, error);
+        self.modalLayer.removeAll(true);
+      }
+      if (self.modalLayer.length === 0) {
+        recoverEmptyPrompt(self, key);
+        return;
+      }
+    }
+    self.emptyPromptKey = '';
   }
 
   // A fight that has just begun brings its own screen up. After the prompt key is reconciled,
@@ -515,12 +530,13 @@ function playPendingWaveCue(self: ConquestUIScene): void {
   const holdsWorld = cue.phase === 'end';
   if (holdsWorld) {
     self.wavePauseBefore = self.state.isStrategyPause;
+    self.waveHoldKey = self.openPromptKey;
     self.state.isStrategyPause = true;
   }
 
   self.waveBanner = playWaveBanner(self, cue, () => {
     self.waveBanner = undefined;
-    if (holdsWorld) self.state.isStrategyPause = self.wavePauseBefore;
+    if (holdsWorld) releaseWorldHold(self, self.wavePauseBefore, self.waveHoldKey);
     // Straight into the next one. A wave the realm plainly holds is met without a card, so a
     // result and the next landing are raised on the same tick and read as one sentence: this
     // invasion ended, that one is beginning.
@@ -620,8 +636,26 @@ function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
   // The badge is centred, and the chip's plate reaches x=266 from the left — so when the chip is
   // up the badge stands above it rather than printing through its headline.
   const chipTop = self.inheritance.visible() ? self.inheritance.top() : undefined;
-  const key = hidden || !self.state.isStrategyPause ? '' : `paused:${chipTop ?? '-'}`;
-  if (key === self.pausedBadgeKey && (key === '') === (self.pausedBadge === undefined)) return;
+  // Every hold the player can lift, and the one it is: a paused world that is not saying why is
+  // the bug this badge exists to prevent (`haltReason`).
+  const reason = hidden ? undefined : haltReason(self.state);
+  const exposed = reason === 'hero' ? exposedHero(self.state) : undefined;
+  const key = reason ? `paused:${reason}:${exposed?.heroId ?? ''}:${getLanguage()}` : '';
+  const anchor = chipTop ?? GAME_HEIGHT - ACTION_BAR_HEIGHT;
+  if (key === self.pausedBadgeKey && (key === '') === (self.pausedBadge === undefined)) {
+    // The chip coming or going moves the badge; it does not rebuild it — and not while a press on
+    // the badge is down. A redraw between a press and its release (a press can be what lays the
+    // chip out) rebuilt or moved the badge out from under the finger, and the release landed on
+    // nothing: the badge read "open Heroes" and did nothing. The move waits for the release.
+    if (self.pausedBadge && anchor !== self.pausedBadgeAnchor && !self.pausedBadgePressed) {
+      const dy = anchor - self.pausedBadgeAnchor;
+      self.pausedBadge.y += dy;
+      self.pausedBadgeAnchor = anchor;
+      self.pausedBadgeBounds = self.pausedBadgeBounds.map((bounds) => ({ ...bounds, y: bounds.y + dy }));
+      refreshHudTapBounds(self);
+    }
+    return;
+  }
   self.pausedBadgeKey = key;
   self.pausedBadge?.destroy();
   self.pausedBadge = undefined;
@@ -632,24 +666,38 @@ function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
     return;
   }
 
-  const width = 128;
+  const hero = exposed ? self.state.heroes.find((candidate) => candidate.id === exposed.heroId) : undefined;
+  const label = reason === 'hero' && hero
+    ? t('ascent.hud.pausedHero', { hero: heroName(hero) })
+    : reason === 'away' ? t('ascent.hud.pausedAway')
+      : reason === 'stranded' ? t('ascent.hud.pausedStranded')
+        : t('ascent.hud.paused');
+  const text = self.add.text(0, 0, label, {
+    color: '#2a2118',
+    fontFamily: UI_FONT,
+    fontSize: '11px',
+    fontStyle: '700',
+  }).setOrigin(0.5);
+  // Clear of the map controls at the right edge (and the same margin on the left, so it stays
+  // centred): a long hero name shrinks the type rather than running under the zoom buttons.
+  const maxWidth = surfaceWidth() - 2 * 64;
+  for (let size = 11; size > 8 && text.width + 28 > maxWidth; size -= 0.5) text.setFontSize(`${size - 0.5}px`);
+  const width = Math.min(maxWidth, Math.max(128, Math.ceil(text.width) + 28));
   const height = 24;
   const x = (surfaceWidth() - width) / 2;
-  const y = (chipTop ?? GAME_HEIGHT - ACTION_BAR_HEIGHT) - height - 10;
+  const y = anchor - height - 10;
+  self.pausedBadgeAnchor = anchor;
 
   const badge = self.add.container(0, 0).setDepth(430);
   badge.add(self.ui.panel({ x, y, width, height }, {
+    // Opaque: the map's place names printed through a translucent badge, into its words.
+    fillAlpha: 1,
     fill: INK_UI.backgroundInk,
     fillShade: INK_UI.brush,
     border: INK_UI.gold,
     radius: 12,
   }));
-  badge.add(self.add.text(surfaceWidth() / 2, y + height / 2, t('ascent.hud.paused'), {
-    color: '#2a2118',
-    fontFamily: UI_FONT,
-    fontSize: '11px',
-    fontStyle: '700',
-  }).setOrigin(0.5));
+  badge.add(text.setPosition(surfaceWidth() / 2, y + height / 2));
 
   // The press target, not the plate: the badge reads at 128x24, which is well under a
   // thumb, so the zone is grown to a comfortable height around the same centre while the
@@ -658,10 +706,29 @@ function renderPausedBadge(self: ConquestUIScene, hidden: boolean): void {
   const tap = { x: x - 8, y: y + height / 2 - TAP_HEIGHT / 2, width: width + 16, height: TAP_HEIGHT };
   badge.add(self.add.zone(tap.x, tap.y, tap.width, tap.height).setOrigin(0, 0)
     .setInteractive({ useHandCursor: true })
+    .on('pointerdown', () => {
+      self.pausedBadgePressed = true;
+      self.input.once('pointerup', () => {
+        self.pausedBadgePressed = false;
+        // Whatever the press held back — a chip that came up under it — lands now.
+        self.time.delayedCall(0, () => renderActionBar(self));
+      });
+    })
     .on('pointerup', () => {
       // Only while it is still the paused badge: a press that lands in the frame the badge
       // is torn down would otherwise pause a running world instead of resuming a halted one.
-      if (self.state.isStrategyPause) togglePause(self);
+      const now = haltReason(self.state);
+      if (!now) return;
+      if (now === 'hero') {
+        // The danger is on the Heroes page; the badge takes the player there, and marks this
+        // warning seen so the page's Back lands on a plain Paused the player can lift.
+        for (const exposure of Object.values(self.state.ascent?.heroDepth?.exposures ?? {})) {
+          if (!exposure.resolved && !exposure.acknowledged) exposure.seenRevision = exposure.revision;
+        }
+        self.openLane('heroes');
+        return;
+      }
+      togglePause(self);
     }));
   self.pausedBadgeBounds = [tap];
   refreshHudTapBounds(self);
@@ -776,8 +843,49 @@ export function handleBarAction(self: ConquestUIScene, action: string): void {
  * different buttons — this one, and the ☰ beside it.
  */
 function togglePause(self: ConquestUIScene): void {
-  self.state.isStrategyPause = !self.state.isStrategyPause;
+  // Resume lifts every hold the player may lift, not only the one this button used to know about:
+  // a world held by the away pause, or by a hard stop no card is holding, read as running here and
+  // the press only ever paused it harder.
+  if (haltReason(self.state)) resumeWorld(self.state);
+  else self.state.isStrategyPause = true;
   refresh(self);
+}
+
+/**
+ * A card was raised and drew nothing — its data gone, or its renderer threw.
+ *
+ * The prompt key was already taken, so nothing would ever draw it again: the world held, the bar
+ * hidden and the map dimmed behind an empty screen, for good. Tried once more on the next frame
+ * (a card whose data was a frame late draws then); a second empty draw drops the card and moves
+ * the queue on, because a question the screen cannot ask is not one the run can wait for.
+ */
+function recoverEmptyPrompt(self: ConquestUIScene, key: string): void {
+  self.openPromptKey = '';
+  if (self.emptyPromptKey !== key) {
+    self.emptyPromptKey = key;
+    self.time.delayedCall(0, () => refresh(self));
+    return;
+  }
+  self.emptyPromptKey = '';
+  console.error(`[prompt] ${key} drew nothing twice; dropped so the run is not held behind an empty screen`);
+  self.state.pendingAscentPrompt = undefined;
+  drainAscentPrompts(self.state);
+  if (!self.state.pendingAscentPrompt && pausedWithNothingToShow(self.state)) self.state.isPaused = false;
+  self.time.delayedCall(0, () => refresh(self));
+}
+
+/**
+ * Lift a hold that captured the pause before it, or hand that value down to the page that opened
+ * on top of it. A page (lane, menu, story outcome) opened while the hold stood took the hold as its
+ * own "before", and restoring the clock underneath it now would leave that page to restore a stale
+ * pause when it closes — a map coming back paused with nothing having asked for it.
+ */
+export function releaseWorldHold(self: ConquestUIScene, before: boolean, keyAtHold: string): void {
+  if (self.openPromptKey !== '' && self.openPromptKey !== keyAtHold) {
+    self.lanePauseBeforeOpen = before;
+    return;
+  }
+  self.state.isStrategyPause = before;
 }
 
 /**

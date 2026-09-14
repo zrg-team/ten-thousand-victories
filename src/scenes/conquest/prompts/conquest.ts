@@ -10,8 +10,10 @@
  * method card and the picker's confirmation, so a way in cannot be priced two ways on two sheets.
  */
 import Phaser from 'phaser';
-import { GAME_HEIGHT, PLAYER_KINGDOM_ID } from '../../../game/constants';
+import { GAME_HEIGHT, GAME_WIDTH, PLAYER_KINGDOM_ID } from '../../../game/constants';
 import { cardStack, powerCardView, skipRefundAmount } from '../../../systems/ascent/PowerDraftSystem';
+import { stampCardFace } from '../../../ui/cardFace';
+import { soundDirector } from '../../../ui/sound/SoundDirector';
 import { findPowerCard } from '../../../data/ascentCards';
 import { cabinetCard, cabinetLevel, combineCost, openingHand } from '../../../state/cabinet';
 import { getClaimFailures } from '../../../systems/AcquisitionSystem';
@@ -55,9 +57,13 @@ import type { ConquestUIScene } from '../../ConquestUIScene';
 export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentPrompt, { kind: 'power-draft' }>): void {
   // Beta (`scopeLabels`): a card's stack lasts this reign; its level and copies are the Deck's.
   const scoped = rulesOf(self.state).scopeLabels;
+  // Checked before the frame: a titled sheet with no cards under it is a card with no way out,
+  // and an empty modal layer is what `recoverEmptyPrompt` knows how to clear.
+  if (!prompt.cards.some((cardId) => powerCardView(self.state, cardId))) return;
   const content = self.promptFrame(
     t('ascent.draft.title', { level: prompt.level }),
     scoped ? t('beta.draft.subtitle') : t('ascent.draft.subtitle'),
+    { opaque: true },
   );
 
   const views = prompt.cards
@@ -234,7 +240,9 @@ export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentProm
     initial,
     onRaise: describe,
     onMerge: (index) => describe(index, true),
-    onTake: (index) => self.choose(views[index].id),
+    // Shown before it is chosen: the choice closes the sheet, and a card that vanished the moment
+    // it was flicked left the player unsure which one they had taken.
+    onTake: (index) => revealTakenCard(self, prompt, views[index], () => self.choose(views[index].id)),
     takeLabel: t('ascent.fan.take'),
     deal: true,
   });
@@ -258,6 +266,119 @@ export function showPowerDraft(self: ConquestUIScene, prompt: Extract<AscentProm
     () => self.choose('skip'),
     { variant: 'ghost', fontSize: '12px' },
   ));
+}
+
+/**
+ * The card just taken, shown whole before the draft closes: its face at reading size, its name,
+ * what it does and what it adds. It holds long enough to read and then closes on its own — or at
+ * a tap, once the tap that took it has had time to lift, so a double-tap cannot skip it unseen.
+ *
+ * Its paper is a direct child of the modal layer, not a child of the reveal's container: Phaser
+ * ranks a nested object's hit under the sheet's own top-level dim, so a scrim inside the container
+ * let the dim take every press — and the draft's footer with it. On top, it answers every press and
+ * nothing under it can be pressed while it stands. The choice is made only when it goes (the world
+ * is paused for the card until then), and only if this draft is still the card on the screen.
+ */
+function revealTakenCard(self: ConquestUIScene,
+  prompt: AscentPrompt,
+  view: NonNullable<ReturnType<typeof powerCardView>>,
+  choose: () => void,
+): void {
+  // A held card reaches here only after its merge plays, and Skip or Reroll can be pressed in
+  // that time: then this draft is gone and the card was not taken, so there is nothing to show.
+  if (self.modalLayer.getByName('draft-reveal') || self.state.pendingAscentPrompt !== prompt) return;
+  const sheetH = GAME_HEIGHT;
+  // Opaque: at 0.97 the draft beneath still printed through, lines under lines.
+  const scrim = self.add.rectangle(0, 0, GAME_WIDTH, sheetH, INK_UI.overlay, 1)
+    .setOrigin(0, 0).setInteractive().setName('draft-reveal-scrim');
+  self.modalLayer.add(scrim);
+  const reveal = self.add.container(0, 0).setName('draft-reveal');
+
+  const width = Math.min(GAME_WIDTH - 48, 340);
+  const cardW = Math.min(168, Math.round(sheetH * 0.24));
+  const cardH = Math.round(cardW * 1.4);
+  const parts: Phaser.GameObjects.GameObject[] = [];
+
+  const heading = self.add.text(GAME_WIDTH / 2, 0, t('ascent.draft.chosen'), {
+    color: '#8a5f1c', fontFamily: UI_FONT, fontSize: '12px', fontStyle: '700', align: 'center',
+  }).setOrigin(0.5, 0);
+  const face = stampCardFace(self, view.id, { x: GAME_WIDTH / 2 - cardW / 2, y: 0, width: cardW, height: cardH },
+    cabinetLevel(view.id));
+  const name = self.add.text(GAME_WIDTH / 2, 0, view.name, {
+    color: '#2a2118', fontFamily: TITLE_FONT, fontSize: '20px', fontStyle: '700', align: 'center',
+    wordWrap: { width },
+  }).setOrigin(0.5, 0);
+  const rarity = self.add.text(GAME_WIDTH / 2, 0,
+    `${t(`ascent.rarity.${view.rarity}` as Parameters<typeof t>[0])}  ·  ${view.stackLabel}`, {
+      color: '#6a5a44', fontFamily: UI_FONT, fontSize: '11px', align: 'center', wordWrap: { width },
+    }).setOrigin(0.5, 0);
+  const body = self.add.text(GAME_WIDTH / 2, 0, view.description, {
+    color: '#3a2c1c', fontFamily: TITLE_FONT, fontSize: '14px', align: 'center', lineSpacing: 3,
+    wordWrap: { width },
+  }).setOrigin(0.5, 0);
+  const effect = view.evolutionReady
+    ? t('ascent.draft.evoReady')
+    : view.powerGainPct > 0 ? t('ascent.draft.powerPreview', { pct: view.powerGainPct }) : '';
+  const effectText = effect ? self.add.text(GAME_WIDTH / 2, 0, effect, {
+    color: '#8a5f1c', fontFamily: UI_FONT, fontSize: '13px', fontStyle: '700', align: 'center', wordWrap: { width },
+  }).setOrigin(0.5, 0) : undefined;
+  const more = self.add.text(GAME_WIDTH / 2, 0, t('ascent.draft.continue'), {
+    color: '#8b7a5e', fontFamily: UI_FONT, fontSize: '11px', align: 'center',
+  }).setOrigin(0.5, 0).setAlpha(0);
+
+  // Stacked and centred on the sheet as one block, so a two-line name or a long effect moves the
+  // whole group rather than printing into the next line.
+  const stack: Array<[Phaser.GameObjects.Text | Phaser.GameObjects.Image | undefined, number]> = [
+    [heading, 10], [face, 14], [name, 4], [rarity, 12], [body, 10], [effectText, 18], [more, 0],
+  ];
+  const heightOf = (object: Phaser.GameObjects.Text | Phaser.GameObjects.Image) => (object === face ? cardH : object.height);
+  const total = stack.reduce((sum, [object, gap]) => sum + (object ? heightOf(object) + gap : 0), 0);
+  let cursor = Math.max(24, (sheetH - total) / 2);
+  for (const [object, gap] of stack) {
+    if (!object) continue;
+    // The face is an image centred on its own position; the text is anchored at its top.
+    object.y = object === face ? cursor + cardH / 2 : cursor;
+    cursor += heightOf(object) + gap;
+    parts.push(object);
+  }
+  reveal.add(parts);
+  self.modalLayer.add(reveal);
+  soundDirector.card();
+
+  // In: the face rises a little and settles, the words after it.
+  scrim.setAlpha(0);
+  reveal.setAlpha(0);
+  self.tweens.add({ targets: [scrim, reveal], alpha: 1, duration: motionMs(160), ease: 'Sine.easeOut' });
+  if (face) {
+    const scale = face.scale;
+    face.setScale(scale * 0.86);
+    self.tweens.add({ targets: face, scale, duration: motionMs(260), ease: 'Back.easeOut' });
+  }
+
+  let done = false;
+  const close = () => {
+    if (done) return;
+    done = true;
+    const fade = motionMs(160);
+    self.tweens.add({ targets: [scrim, reveal], alpha: 0, duration: fade, ease: 'Sine.easeIn' });
+    // The choice rides a timer, not the tween's callback: a tween that is stopped or never runs
+    // would leave the card pending and its sheet gone.
+    self.time.delayedCall(fade, () => {
+      reveal.destroy();
+      scrim.destroy();
+      if (self.state.pendingAscentPrompt === prompt) choose();
+    });
+  };
+  // Long enough to read a two-line effect; the tap to continue arrives once the taking tap is over.
+  const hold = self.time.delayedCall(2600, close);
+  self.time.delayedCall(450, () => {
+    if (done) return;
+    self.tweens.add({ targets: more, alpha: 1, duration: motionMs(200) });
+    scrim.once('pointerup', () => {
+      hold.remove(false);
+      close();
+    });
+  });
 }
 
 /** One province row, shared by the Conquer prompt and the Conquer lane browser. */

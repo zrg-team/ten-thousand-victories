@@ -7,6 +7,7 @@ import { traceLandBoundaryLoops } from '../map/boundary';
 import { advanceAscentTick } from '../systems/ascent/AscentTick';
 import { rerollAscentDraft, resolveAscentPrompt } from '../systems/ascent/AscentResolver';
 import { drainAscentPrompts } from '../systems/ascent/AscentState';
+import { haltReason, pausedWithNothingToShow } from '../game/haltReason';
 import { searchForTalent } from '../systems/ascent/ChampionSearch';
 import { advanceCeremony } from '../systems/ascent/Ceremony';
 import { offerConquestMethods } from '../systems/ascent/ConquestSystem';
@@ -92,6 +93,35 @@ export class ConquestScene extends MapScene {
 
   }
 
+  /** What the halt looked like when last checked — see `watchHalt`. */
+  private haltSignature = '';
+  private haltCheckedAt = 0;
+
+  /**
+   * The safety net under every pause: a held world runs no tick, so nothing else would notice a
+   * hold changing or a hold with nothing behind it.
+   *
+   * Twice a second while halted. When the flags or the card change, the chrome is told to redraw —
+   * a flag flipped outside a redraw (the away pause, a system on its way out) otherwise left a
+   * frozen map saying nothing. And a hard stop with no card, none queued and no ceremony — a card
+   * dropped without releasing it — is moved on: the queue is drained, and if nothing is in it the
+   * world runs again. Reported as *sometimes the game pauses for no reason, no popup, nothing*.
+   */
+  private watchHalt(time: number): void {
+    if (time - this.haltCheckedAt < 500) return;
+    this.haltCheckedAt = time;
+    const state = this.state;
+    if (state.isPaused && pausedWithNothingToShow(state)) {
+      drainAscentPrompts(state);
+      if (!state.pendingAscentPrompt && pausedWithNothingToShow(state)) state.isPaused = false;
+    }
+    const signature = [state.isPaused, state.isStrategyPause, Boolean(state.isAwayPause), state.isDefeated,
+      state.pendingAscentPrompt?.kind ?? '', haltReason(state) ?? ''].join('|');
+    if (signature === this.haltSignature) return;
+    this.haltSignature = signature;
+    this.scene.get(this.uiSceneKey()).events.emit('state-changed');
+  }
+
   /** This mode ends in defeat rather than victory; otherwise the clock stops for the same reasons. */
   protected isWorldHalted(): boolean {
     return this.state.isDefeated || this.state.isPaused || this.state.isStrategyPause
@@ -107,8 +137,10 @@ export class ConquestScene extends MapScene {
     // replaces outright. Only the ambient-motion sync is shared.
     this.syncWorldMotion();
     if (this.isWorldHalted()) {
+      this.watchHalt(time);
       return;
     }
+    this.haltSignature = '';
     // Shared for the same reason: the seasonal weather drifts on the frame clock, not the tick,
     // and this mode turns the year fastest of all.
     this.seasons.update(time, delta);

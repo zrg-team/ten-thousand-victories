@@ -21,6 +21,7 @@ import { bucketFor, faceStampedFigure, figureStamp } from '../ui/ink/figureStamp
 import { placeStamp } from '../ui/ink/stamp';
 import { royalScroll } from '../ui/ink/royalScroll';
 import { seal } from '../ui/ink/devices';
+import { ROYAL_COMMENDATION_TEXTURE as ROYAL_COMMENDATION, gradeFight, preloadRoyalCommendation } from '../ui/ascent/royalCommendation';
 import { PIGMENT } from '../ui/ink/palette';
 import { BATTLE_HOST_SCALE } from '../game/ascentConfig';
 import type { FigureArm } from '../ui/ink/devices';
@@ -64,7 +65,6 @@ import {
  * clear of a 28-point row of tiles and well over any touch floor at this width.
  */
 const FIGHT_BUTTON = 32;
-const ROYAL_COMMENDATION = 'battle-royal-commendation-v1';
 
 /** A step on one of the arena's dials. `value` is what the state gets; `label` is what you tap. */
 interface Choice<T> {
@@ -149,9 +149,7 @@ export class BattleArenaScene extends Phaser.Scene {
   preload(): void {
     showPageLoading(this);
     preloadConquestMapArt(this, import.meta.env.BASE_URL);
-    if (!this.textures.exists(ROYAL_COMMENDATION)) {
-      this.load.image(ROYAL_COMMENDATION, `${import.meta.env.BASE_URL}art/battle-royal-commendation-v1.webp`);
-    }
+    preloadRoyalCommendation(this, import.meta.env.BASE_URL);
   }
 
   create(): void {
@@ -176,46 +174,6 @@ export class BattleArenaScene extends Phaser.Scene {
   // ── the after-action report ───────────────────────────────────────────────
 
   /**
-   * How well it was fought, from one to five.
-   *
-   * Winning is most of it but deliberately not all of it: a victory that spends the whole host to
-   * buy a field is not the same as one that walks off it. The other three terms are the ones a
-   * player can actually feel — how many came back, how the exchange went, and whether the odds
-   * were against you when it started.
-   *
-   * Losing floors at one star rather than zero. A defeat is already the feedback; a zero on top of
-   * it is a scolding, and the screen exists to make people fight again.
-   */
-  private gradeFight(record: AscentBattleRecord): { stars: number; score: number } {
-    const ourLost = Math.max(0, record.ourStart - record.ourEnd);
-    const theirLost = Math.max(0, record.theirStart - record.theirEnd);
-
-    let score = record.outcome === 'they-rout' ? 50
-      : record.outcome === 'spent' ? 22
-        : record.outcome === 'retreat' ? 16 : 0;
-
-    // Survivors: the whole of the difference between a win and a good win.
-    const kept = record.ourStart > 0 ? record.ourEnd / record.ourStart : 0;
-    score += Math.round(Math.max(0, Math.min(1, kept)) * 25);
-
-    // The exchange, capped at three to one — past that it is the enemy's mistake, not your skill.
-    const exchange = theirLost / Math.max(1, ourLost);
-    score += Math.round(Math.max(0, Math.min(3, exchange)) / 3 * 15);
-
-    // And what you were up against. Beating a bigger host is worth more than beating a smaller one.
-    const odds = record.ourStart > 0 ? record.theirStart / record.ourStart : 1;
-    score += Math.round(Math.max(0, Math.min(2, odds - 0.75)) / 2 * 10);
-
-    // And a ceiling set by what you brought. Survivors and the exchange alone will happily award
-    // five stars for walking four thousand men onto nine hundred — measured, exactly that scored
-    // 82 — and the top grade's own words are "longer odds, fewer graves", which would be a lie.
-    // You cannot buy a famous day with numbers.
-    const ceiling = odds >= 0.9 ? 5 : odds >= 0.6 ? 4 : 3;
-    const stars = Math.max(1, Math.min(ceiling, Math.ceil(score / 20)));
-    return { stars, score: Math.min(100, score) };
-  }
-
-  /**
    * The report itself: what happened, how it went, and the two things to do next.
    *
    * Modal on purpose. The player has just watched a battle and the one question in their head is
@@ -230,7 +188,7 @@ export class BattleArenaScene extends Phaser.Scene {
 
     const won = record.outcome === 'they-rout';
     const drew = record.outcome === 'spent' || record.outcome === 'retreat';
-    const { stars } = this.gradeFight(record);
+    const { stars } = gradeFight(record);
     const ourLost = Math.max(0, record.ourStart - record.ourEnd);
     const theirLost = Math.max(0, record.theirStart - record.theirEnd);
 

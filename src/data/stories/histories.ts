@@ -1,4 +1,5 @@
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
+import { storyFigure } from '../../systems/ascent/storyValue';
 import { assignHeroDuty } from '../../systems/heroes/HeroService';
 import { livingRivals, pick, playerLands } from '../../systems/story/StorySystem';
 import {
@@ -121,7 +122,7 @@ export const sixtyFiveCitadels: StoryTemplate = {
           cost: { food: 220 },
           apply: (ctx) => {
             // Help without owning it. Smaller, and nobody comes looking for you afterwards.
-            bounty(ctx, { humans: 300 });
+            bounty(ctx, { humans: 300 }, 'people');
             standing(ctx, 6);
             ctx.remember('quiet', 1);
           },
@@ -1277,7 +1278,8 @@ export const riceRiot: StoryTemplate = {
   seedWeight: 2,
   minTurn: 28,
   seed: (state) => {
-    if (state.resources.gold < 500) return undefined;
+    // A treasury worth rioting over, in this reign's coin (`storyFigure`).
+    if (state.resources.gold < storyFigure(state, 'gold', 500)) return undefined;
     const capital = state.lands.find((land) => land.id === state.ascent?.capitalLandId);
     return capital ? { landId: capital.id } : undefined;
   },
@@ -1304,7 +1306,7 @@ export const riceRiot: StoryTemplate = {
       volume: 'whisper',
       weight: 5,
       quiet: 2,
-      when: (ctx) => ctx.state.resources.gold >= 450,
+      when: (ctx) => ctx.state.resources.gold >= storyFigure(ctx.state, 'gold', 450),
       heat: 2.5,
       tone: 'info',
     },
@@ -1330,6 +1332,7 @@ export const riceRiot: StoryTemplate = {
         {
           id: 'give-it-away',
           cost: { gold: 260, food: 180 },
+          costBasis: 'people',
           apply: (ctx) => {
             loyaltyFloor(ctx, 68);
             ctx.heat(-12);
@@ -1692,6 +1695,9 @@ export const unpaidHost: StoryTemplate = {
         {
           id: 'pay-them',
           cost: { gold: 220 },
+          // Four seasons of back pay is four seasons of what the hosts are paid, not a number
+          // written for a founding's two companies.
+          costBasis: { wages: 4 },
           apply: (ctx) => {
             // Nothing. The best outcome in the game is often nothing.
             for (const army of ourHosts(ctx)) {
