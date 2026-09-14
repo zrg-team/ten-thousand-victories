@@ -131,4 +131,6 @@ export interface HeroTransferPreview {
   ok: boolean; reason?: string; heroId: string; instanceId: string; from: string; destination: string;
   path: string[]; turns: number; assignment: HeroAssignment; revision: string; supplies: number;
   lostStats?: HeroStats;
+  /** The hero sitting in the post now, who is relieved when this one arrives. */
+  displaces?: string;
 }

@@ -991,6 +991,16 @@ export interface SiegeOrder {
    * which restores the old, looser behaviour for that one run rather than crashing it.
    */
   presentAtClaim?: string[];
+  /**
+   * Every hostile host enrolled on this claim, in the order they joined — the one that laid it
+   * first, then each column that walked on to wait with it (`joinsStandingSiege`).
+   *
+   * The claim is handed down this list when its bearer falls (`handOffClaim`). Without it a claim
+   * was one host's property: kill that host and the whole coalition standing on the ground
+   * forgot the province was theirs, marched off, and the next wave had to fight the capital
+   * again. Optional; an old save reads as empty and falls back to "same crown, on the land".
+   */
+  claimants?: string[];
   /** Turn the claim was laid, for the clock the province card and the war board print. */
   openedTurn?: number;
 }

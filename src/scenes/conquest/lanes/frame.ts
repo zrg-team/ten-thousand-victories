@@ -249,6 +249,17 @@ export function laneList(self: ConquestUIScene,
      * standing setting on a page that has more than two answers.
      */
     footerPicker?: { label: string; options: string[]; note: string; selected: number; onPick: (index: number) => void };
+    /**
+     * A fixed block above the tabs that does not scroll — a subject's summary the tabs are about.
+     *
+     * The hero page is the case: portrait, level and stats are what every tab is *about*, so they
+     * stay put while the tabs below change shelves. Keep it short; every point of it is taken off
+     * the scrolling body on a 620-high phone.
+     */
+    pinned?: {
+      height: number;
+      build: (parent: Phaser.GameObjects.Container, width: number) => void;
+    };
     /** A fixed tab strip for long screens that are easier to scan as separate shelves. */
     tabs?: {
       items: Array<{ label: string; count?: number }>;
@@ -281,7 +292,7 @@ export function laneList(self: ConquestUIScene,
 ): {
   content: UIBounds;
   addRow: (
-    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; statsSecond?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
+    opts: { title: string; subtitle: string; border: number; key?: string; muted?: boolean; portrait?: Hero; hideProgress?: boolean; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; statsSecond?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
     onTap?: () => void,
   ) => void;
   addHeading: (title: string, hint?: string) => void;
@@ -356,13 +367,20 @@ export function laneList(self: ConquestUIScene,
       ? sheetLayoutHeight
       : (laneOpts.footerToggle ? LANE_TOGGLE_HEIGHT + 8 : 0)
         + (laneOpts.footerPicker ? LANE_PICKER_HEIGHT + 8 : 0));
-  const tabsExtra = laneOpts.tabs ? LANE_TABS_HEIGHT + LANE_TABS_GAP : 0;
+  const pinnedExtra = laneOpts.pinned ? laneOpts.pinned.height + LANE_TABS_GAP : 0;
+  const tabsTop = content.y + pinnedExtra;
+  const tabsExtra = (laneOpts.tabs ? LANE_TABS_HEIGHT + LANE_TABS_GAP : 0) + pinnedExtra;
   const scroll = self.ui.scrollArea({
     x: content.x,
     y: content.y + tabsExtra,
     width: content.width,
     height: content.height - LANE_FOOTER_HEIGHT - footerExtra - tabsExtra,
   });
+  if (laneOpts.pinned) {
+    const holder = self.add.container(content.x, content.y);
+    laneOpts.pinned.build(holder, content.width - 6);
+    self.modalLayer.add(holder);
+  }
   scroll.addTo(self.modalLayer);
   self.activeScrollAreas.push(scroll);
 
@@ -373,7 +391,7 @@ export function laneList(self: ConquestUIScene,
     cfg.items.forEach((item, index) => {
       const selected = index === cfg.active;
       const x = content.x + index * (width + gap);
-      self.modalLayer.add(self.ui.panel({ x, y: content.y, width, height: LANE_TABS_HEIGHT }, selected
+      self.modalLayer.add(self.ui.panel({ x, y: tabsTop, width, height: LANE_TABS_HEIGHT }, selected
         ? {
             fill: INK_UI.goldLight,
             fillShade: INK_UI.gold,
@@ -389,7 +407,7 @@ export function laneList(self: ConquestUIScene,
           }));
       const count = item.count ?? 0;
       const label = count > 0 ? `${item.label} ${count}` : item.label;
-      self.modalLayer.add(self.add.text(x + width / 2, content.y + LANE_TABS_HEIGHT / 2, label, {
+      self.modalLayer.add(self.add.text(x + width / 2, tabsTop + LANE_TABS_HEIGHT / 2, label, {
         color: selected ? cssHex(INK_UI.cinnabarDark) : INK_UI_HEX.mutedText,
         fontFamily: UI_FONT,
         fontSize: '9px',
@@ -398,7 +416,7 @@ export function laneList(self: ConquestUIScene,
         wordWrap: { width: width - 6 },
       }).setOrigin(0.5));
       if (!selected) {
-        const hit = self.add.rectangle(x, content.y, width, LANE_TABS_HEIGHT, INK_UI.brush, 0.001)
+        const hit = self.add.rectangle(x, tabsTop, width, LANE_TABS_HEIGHT, INK_UI.brush, 0.001)
           .setOrigin(0, 0)
           .setInteractive({ useHandCursor: true });
         hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
@@ -417,9 +435,24 @@ export function laneList(self: ConquestUIScene,
   scroll.onDispose(() => self.data.set(anchorKey, scroll.snapshotAnchor()));
   const rowWidth = content.width - 6;
   let y = 0;
+  /**
+   * A row's key, unique on this page.
+   *
+   * Rows were keyed by portrait id or title, which is unique on most pages and not on the ones
+   * that list one hero several times — the resident posting page draws the same envoy once per
+   * court. Keys only drive the scroll anchor, so the collision was quiet: coming back to the page
+   * jumped to the first of the four rows. The first occurrence keeps its old key, so every page
+   * that never collided (and every harness reading `virtualKey`) is unchanged.
+   */
+  const seenKeys = new Map<string, number>();
+  const uniqueKey = (base: string): string => {
+    const n = (seenKeys.get(base) ?? 0) + 1;
+    seenKeys.set(base, n);
+    return n === 1 ? base : `${base}#${n}`;
+  };
 
   const addRow = (
-    opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; statsSecond?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
+    opts: { title: string; subtitle: string; border: number; key?: string; muted?: boolean; portrait?: Hero; hideProgress?: boolean; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; statsSecond?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
     onTap?: () => void,
   ) => {
     // A portrait sits in its own column beside the card, so a hero row is recognisable at a
@@ -429,12 +462,12 @@ export function laneList(self: ConquestUIScene,
     // that only tell you things. See `vacantFaceBox`.
     const face = opts.portrait ? 'hero' : opts.vacantFace ? 'vacant' : opts.icon ? 'icon' : 'none';
     const faceCol = face === 'hero' || face === 'vacant' ? LANE_PORTRAIT_COLUMN : face === 'icon' ? 40 : 0;
-    const progressHero = opts.portrait?.growth ? opts.portrait : undefined;
+    const progressHero = opts.portrait?.growth && !opts.hideProgress ? opts.portrait : undefined;
     // Card text already reserves bottom padding; the XP footer needs only twelve extra points.
     const measuredHeight = Math.max(self.ui.measureCard(rowWidth - faceCol, 54, opts) + (progressHero ? 12 : 0),
       progressHero ? (faceCol - 6) * 1.4 + 4 : 0);
     const top = y;
-    scroll.lazyRow(`${opts.portrait?.id ?? opts.title}`, top, measuredHeight + 8, () => {
+    scroll.lazyRow(uniqueKey(opts.key ?? `${opts.portrait?.id ?? opts.title}`), top, measuredHeight + 8, () => {
     const y = top;
     const row = self.ui.card({ x: faceCol, y, width: rowWidth - faceCol, height: measuredHeight }, opts);
     const height = (row.getData('cardHeight') as number) ?? 54;
@@ -488,7 +521,7 @@ export function laneList(self: ConquestUIScene,
     const top = y;
     const hintStyle = { color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '10px', wordWrap: { width: rowWidth - 4 } };
     const height = 20 + (hint ? measureInkText(self, hint, hintStyle) + 4 : 0);
-    scroll.lazyRow(`heading:${headingTitle}`, top, height, () => {
+    scroll.lazyRow(uniqueKey(`heading:${headingTitle}`), top, height, () => {
       const label = self.add.text(2, top, headingTitle.toLocaleUpperCase(), { color: INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '10px', fontStyle: '700' }).setOrigin(0);
       label.setLetterSpacing?.(1.6); scroll.content.add(label);
       const rule = self.add.graphics(); rule.lineStyle(1, INK_UI.brush, .22); rule.lineBetween(label.width + 10, top + 6, rowWidth, top + 6); scroll.content.add(rule);
@@ -509,7 +542,7 @@ export function laneList(self: ConquestUIScene,
     const top = y;
     const style = { color: tone ? cssHex(tone) : INK_UI_HEX.mutedText, fontFamily: UI_FONT, fontSize: '11px', lineSpacing: 1, wordWrap: { width: rowWidth - 4 } };
     const height = measureInkText(self, text, style) + 8;
-    scroll.lazyRow(`note:${text}`, top, height, () => scroll.content.add(self.add.text(2, top, text, style).setOrigin(0)));
+    scroll.lazyRow(uniqueKey(`note:${text}`), top, height, () => scroll.content.add(self.add.text(2, top, text, style).setOrigin(0)));
     y += height;
   };
 

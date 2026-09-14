@@ -7,6 +7,7 @@ import { scaledCost } from '../ascent/priceScale';
 import { committedWavePlan } from '../ascent/wavePlanView';
 import { forecastInvader } from '../ascent/frontForecast';
 import { battleBeatsPerTick } from '../../game/battleOptions';
+import { liveBattles } from '../ascent/fronts';
 import { BATTLE_ROUT_MORALE, HERO_RANSOM_BASE_MULT, HERO_RANSOM_INCOME_SEASONS, HERO_RANSOM_PER_LEVEL, HERO_RANSOM_SHARE } from '../../game/ascentConfig';
 import { heroMeasurements, measureHero, measureHeroMilestone, measureHeroSeason } from './heroMeasurements';
 import { heroFate } from './heroFate';
@@ -40,6 +41,30 @@ export function homeProvince(state: GameState): string {
     && !state.siegeOrders.some(order => order.landId === land.id && order.attackerKingdomId !== PLAYER_KINGDOM_ID));
   return safe.find(land => land.id === state.ascent?.capitalLandId)?.id ?? safe[0]?.id
     ?? state.lands.find(land => land.ownerId === PLAYER_KINGDOM_ID)?.id ?? '';
+}
+/**
+ * Why this hero is not free to be sent somewhere, or undefined when they are.
+ *
+ * **Free means free wherever they stand.** The gates used to ask for home duty *and* standing in
+ * `homeProvince()` this season, and the second half was invisible: a governor relieved in the
+ * province they governed, a traveller whose post was taken on arrival, a refuge arrival, and every
+ * hero at the seat the moment the capital was besieged (which moves `homeProvince`) all failed it,
+ * and nothing ever walked any of them back. Reported with the page reading *Chờ bổ nhiệm* and every
+ * resident row beneath it reading *Cần sẵn sàng ở nhà*. The one thing location still decides is
+ * whether an owned road joins them to the seat — a hero cut off in a pocket really cannot go.
+ */
+export function heroFreeReason(state: GameState, hero: Hero): string | undefined {
+  const life = hero.life;
+  if (!hero.growth || !life) return 'unavailable';
+  if (life.kind === 'transit') return 'transit';
+  if (life.kind === 'recovering') return 'recovering';
+  if (life.kind === 'captive') return 'held';
+  if (life.kind !== 'active') return 'unavailable';
+  if (life.sheltering) return 'sheltering';
+  if (life.assignment.kind !== 'home') return 'unavailable';
+  const home = homeProvince(state);
+  if (!home || heroOwnedRoute(state, life.locationId, home) === undefined) return 'route';
+  return undefined;
 }
 export function assignmentFromLegacy(state: GameState, hero: Hero): HeroAssignment {
   const at = hero.assignedTo;
@@ -274,11 +299,12 @@ export function chooseHeroPerk(state: GameState, heroId: string, perkId: HeroPer
 export function respecializeHero(state: GameState, heroId: string): HeroCommandResult {
   const hero = state.heroes.find(candidate => candidate.id === heroId);
   if (!hero?.growth || !heroCapability(state, 'specializations') || hero.growth.respecUsed
-    || hero.life?.kind !== 'active' || hero.life.assignment.kind !== 'home'
-    || hero.life.locationId !== homeProvince(state) || hero.growth.perks.length === 0) return { ok: false, reason: 'unavailable' };
+    || hero.life?.kind !== 'active' || heroFreeReason(state, hero) !== undefined || hero.growth.perks.length === 0) return { ok: false, reason: 'unavailable' };
+  const where = hero.life.locationId;
   hero.growth.respecUsed = true; hero.growth.perks = []; delete hero.growth.discipline;
   measurePerkOffers(state, hero);
-  hero.life = { kind: 'recovering', locationId: homeProvince(state), readyTurn: state.turn + 2, respec: true };
+  // Where they stand: retraining is study, not a journey.
+  hero.life = { kind: 'recovering', locationId: where, readyTurn: state.turn + 2, respec: true };
   return { ok: true };
 }
 
@@ -324,10 +350,20 @@ function heroRefuge(state: GameState, landId: string): string | undefined {
 function heroIsTrapped(state: GameState, landId: string): boolean {
   return heroRefuge(state, landId) === undefined;
 }
-function occupiedHeroPost(state: GameState, post: HeroAssignment, except: string): boolean {
-  return state.heroes.some(hero => hero.id !== except && (hero.life?.kind === 'active'
-    ? JSON.stringify(hero.life.assignment) === JSON.stringify(post) && post.kind !== 'home'
-    : hero.life?.kind === 'transit' && JSON.stringify(hero.life.intendedPost) === JSON.stringify(post) && post.kind !== 'home'));
+/**
+ * Who holds a posting now, and who is already on the road to it.
+ *
+ * Kept apart because they mean different things. Somebody on the road has *reserved* the post —
+ * sending a second hero after them is a race nobody asked for. Somebody *sitting* in it is only
+ * the current holder, and choosing a successor is the most ordinary thing a court does; treating
+ * the two alike is what made every "replace the Treasurer" tap in Beta fail with `occupied`.
+ */
+export function postHolder(state: GameState, post: HeroAssignment, except?: string): { holder?: Hero; traveller?: Hero } {
+  if (post.kind === 'home') return {};
+  const key = JSON.stringify(post);
+  const holder = state.heroes.find(hero => hero.id !== except && hero.life?.kind === 'active' && JSON.stringify(hero.life.assignment) === key);
+  const traveller = state.heroes.find(hero => hero.id !== except && hero.life?.kind === 'transit' && JSON.stringify(hero.life.intendedPost) === key);
+  return { holder, traveller };
 }
 export function previewHeroTransfer(state: GameState, heroId: string, assignment: HeroAssignment, safePassage = false): HeroTransferPreview {
   const hero = state.heroes.find(candidate => candidate.id === heroId);
@@ -342,23 +378,27 @@ export function previewHeroTransfer(state: GameState, heroId: string, assignment
   const usePassage = safePassage && depth?.policies.includes('hero-safe-passage')
     && depth.policyUses['hero-safe-passage'] !== heroWindow(state);
   const supplies = usePassage ? scaledCost(state, { supplies: 10 }).supplies! : 0;
+  const holders = postHolder(state, assignment, heroId);
   let reason: string | undefined;
   if (!heroCapability(state, 'travel') || !hero?.growth || hero.life?.kind !== 'active') reason = 'unavailable';
   else if (assignment.kind === 'embassy' || assignment.kind === 'claim' || assignment.kind === 'muster') reason = 'unavailable';
   else if (path === undefined) reason = 'route';
   else if (state.siegeOrders.some(order => order.landId === destination && order.attackerKingdomId !== PLAYER_KINGDOM_ID)) reason = 'contested';
-  else if (occupiedHeroPost(state, assignment, heroId)) reason = 'occupied';
+  else if (holders.traveller) reason = 'occupied';
+  // A general cannot be relieved in the middle of the fight they are leading.
+  else if (assignment.kind === 'host' && holders.holder && liveBattles(state).some(front => front.ourArmyIds?.includes(assignment.armyId))) reason = 'battle';
   else if (assignment.kind === 'court' && !state.court.unlockedSeats.includes(assignment.seat)) reason = 'unavailable';
   else if (assignment.kind === 'host' && !state.armies.some(army => army.id === assignment.armyId && army.kingdomId === PLAYER_KINGDOM_ID && !army.isLevy && !army.patron)) reason = 'unavailable';
   else if (supplies > state.resources.supplies) reason = 'supplies';
   else if (safePassage && !usePassage) reason = 'unavailable';
   const turns = path?.length ? Math.max(1, Math.ceil(path.length / 2) - (usePassage ? 1 : 0)) : 0;
   // Pricing, ownership, posting and front state are part of the quote: a stale confirmation is inert.
-  const revision = JSON.stringify([state.turn, hero?.life, hero?.growth?.training, hero?.growth?.perks, assignment, path, supplies,
+  const revision = JSON.stringify([state.turn, hero?.life, hero?.growth?.training, hero?.growth?.perks, assignment, path, supplies, holders.holder?.id,
     state.armies.map(army => [army.id, army.landId, army.generalHeroId]),
     [state.ascent?.activeBattle, ...(state.ascent?.sideBattles ?? [])].filter(Boolean).map(front => [front!.key, front!.round])]);
   return { ok: !reason, reason, heroId, instanceId: hero?.growth?.instanceId ?? '', from, destination,
-    path: path ?? [], turns, supplies, assignment, revision, lostStats: hero ? effectiveHeroStats(hero) : undefined };
+    path: path ?? [], turns, supplies, assignment, revision, lostStats: hero ? effectiveHeroStats(hero) : undefined,
+    displaces: holders.holder?.id };
 }
 export function transferHero(state: GameState, quote: HeroTransferPreview): HeroCommandResult {
   const current = previewHeroTransfer(state, quote.heroId, quote.assignment, quote.supplies > 0);
@@ -736,9 +776,15 @@ export function tickHeroLifecycle(state: GameState): void {
         const infirmary = depth.policies.includes('hero-field-infirmary') && depth.policyUses['hero-field-infirmary'] !== heroWindow(state);
         if (infirmary) depth.policyUses['hero-field-infirmary'] = heroWindow(state);
         hero.life = { kind: 'recovering', locationId: home, readyTurn: state.turn + Math.max(1, life.recovery - (infirmary ? 1 : 0)), treatmentUsed: infirmary };
-      } else if (occupiedHeroPost(state, life.intendedPost, hero.id)) {
+      } else if (postHolder(state, life.intendedPost, hero.id).traveller) {
         commitHeroAssignment(state, hero, { kind: 'home' }, life.locationId);
-      } else commitHeroAssignment(state, hero, life.intendedPost, life.destinationId);
+      } else {
+        // The holder served until the successor arrived, and is relieved now — sent home by
+        // `commitHeroAssignment`, which has always displaced whoever it found in the post.
+        const relieved = postHolder(state, life.intendedPost, hero.id).holder;
+        commitHeroAssignment(state, hero, life.intendedPost, life.destinationId);
+        if (relieved) pushToast(state, t('hero.post.relieved', { hero: heroName(hero), holder: heroName(relieved) }), 'info');
+      }
       depth.notices.push({ heroId: hero.id, kind: 'arrived' });
       if (life.intendedPost.kind === 'home') recordHeroDeed(state, hero, 'returned');
     } else if (life.kind === 'active') {
@@ -756,6 +802,15 @@ export function tickHeroLifecycle(state: GameState): void {
         const prior = Object.values(depth.exposures).find(item => item.instanceId === hero.growth!.instanceId && item.landId === life.locationId && !item.resolved);
         const encounter = prior ? prior.id.slice(0, -(hero.growth.instanceId.length + 1)) : beginHeroEncounter(state, life.locationId);
         if (encounter) { exposeHero(state, hero, encounter, life.locationId, state.lands.find(land => land.id === life.locationId)?.ownerId); resolveHeroExposure(state, hero, encounter); }
+      }
+      // A hero on home duty left standing on ground that is no longer ours has nowhere to be
+      // posted from and no road home of their own. Taken home under protection, the same journey a
+      // released captive makes. Not while an exposure is open: that has its own consent flow.
+      if (hero.life?.kind === 'active' && hero.life.assignment.kind === 'home' && !hero.life.sheltering
+        && !state.lands.some(land => land.id === (hero.life as { locationId: string }).locationId && land.ownerId === PLAYER_KINGDOM_ID)
+        && !Object.values(depth.exposures).some(exposure => exposure.instanceId === hero.growth!.instanceId && !exposure.resolved)) {
+        returnTransport(state, hero);
+        continue;
       }
       if (hero.growth.withdrawal && hero.life?.kind === 'active') {
         const fronts = [state.ascent?.activeBattle, ...(state.ascent?.sideBattles ?? [])];
@@ -945,23 +1000,51 @@ function hostileCourt(state: GameState, kingdomId: string): boolean {
 }
 export function residentEntryReason(state: GameState, hero: Hero, kingdomId: string): string | undefined {
   const kingdom = state.kingdoms.find(crown => crown.id === kingdomId && crown.id !== PLAYER_KINGDOM_ID && !crown.isDefeated);
-  if (!heroCapability(state, 'residency') || !hero.growth || !heroActive(hero) || hero.life?.kind !== 'active'
-    || hero.life.assignment.kind !== 'home' || hero.life.locationId !== homeProvince(state)) return 'home';
+  if (!heroCapability(state, 'residency') || !hero.growth || hero.id === 'king') return 'unavailable';
+  const life = hero.life;
+  // A minister or a governor can be sent abroad; they give up that post when they leave, the same
+  // way any transfer does. A general cannot walk away from the host they lead — the envoy rule the
+  // hero picker already keeps — and a hero on a claim, a muster or another embassy is committed.
+  if (life?.kind === 'active' && !life.sheltering && life.assignment.kind === 'host') return 'commands';
+  if (life?.kind === 'active' && !life.sheltering && (life.assignment.kind === 'embassy' || life.assignment.kind === 'claim' || life.assignment.kind === 'muster')) return 'unavailable';
+  const standing = life?.kind === 'active' && !life.sheltering && (life.assignment.kind === 'court' || life.assignment.kind === 'province')
+    ? { ...hero, life: { ...life, assignment: { kind: 'home' as const } } } as Hero : hero;
+  const free = heroFreeReason(state, standing);
+  if (free) return free;
   if (!kingdom || (kingdom.relations ?? 50) < 40 || hostileCourt(state, kingdomId)) return 'acceptance';
   if (kingdom.ambassadorHeroId || state.heroes.some(person => person.life?.kind === 'transit'
     && person.life.intendedPost.kind === 'embassy' && person.life.intendedPost.kingdomId === kingdomId)) return 'occupied';
 }
+/**
+ * What sending this hero to that court would take, from where they stand.
+ *
+ * Two seasons to cross the frontier, as before, plus the road through our own land to reach the
+ * seat first — so a hero already at the capital is quoted exactly what the old rule charged, and a
+ * hero three provinces out is not pretended to be standing in the throne room.
+ */
+export function residentQuote(state: GameState, heroId: string, kingdomId: string): {
+  ok: boolean; reason?: string; heroId: string; kingdomId: string; from: string; turns: number; audience: number; vacates?: HeroAssignment;
+} {
+  const hero = state.heroes.find(person => person.id === heroId);
+  const reason = hero ? residentEntryReason(state, hero, kingdomId) : 'unavailable';
+  const from = hero?.life?.kind === 'active' ? hero.life.locationId : homeProvince(state);
+  const road = heroOwnedRoute(state, from, homeProvince(state)) ?? [];
+  const depth = state.ascent?.heroDepth;
+  const letters = Boolean(depth?.policies.includes('hero-letters-of-credence') && depth.policyUses['hero-letters-of-credence'] !== heroWindow(state));
+  const vacates = hero?.life?.kind === 'active' && hero.life.assignment.kind !== 'home' ? hero.life.assignment : undefined;
+  return { ok: !reason, reason, heroId, kingdomId, from, turns: 2 + Math.ceil(road.length / 2), audience: letters ? 0 : 1, vacates };
+}
 export function postResident(state: GameState, heroId: string, kingdomId: string): HeroCommandResult {
   const hero = state.heroes.find(person => person.id === heroId);
   if (!hero) return { ok: false, reason: 'unavailable' };
-  const reason = residentEntryReason(state, hero, kingdomId);
-  if (reason) return { ok: false, reason };
+  const quote = residentQuote(state, heroId, kingdomId);
+  if (!quote.ok) return { ok: false, reason: quote.reason };
   const depth = state.ascent!.heroDepth!, window = heroWindow(state);
-  const letters = depth.policies.includes('hero-letters-of-credence') && depth.policyUses['hero-letters-of-credence'] !== window;
-  if (letters) depth.policyUses['hero-letters-of-credence'] = window;
+  if (quote.audience === 0) depth.policyUses['hero-letters-of-credence'] = window;
+  applyHeroDepartureEffects(state, hero);
   unlinkHeroDuty(state, hero);
-  hero.life = { kind: 'transit', originId: homeProvince(state), locationId: homeProvince(state), destinationId: `embassy:${kingdomId}`,
-    path: [], startedTurn: state.turn, arrivalTurn: state.turn + 2, intendedPost: { kind: 'embassy', kingdomId }, protected: true, audience: letters ? 0 : 1 };
+  hero.life = { kind: 'transit', originId: quote.from, locationId: quote.from, destinationId: `embassy:${kingdomId}`,
+    path: [], startedTurn: state.turn, arrivalTurn: state.turn + quote.turns, intendedPost: { kind: 'embassy', kingdomId }, protected: true, audience: quote.audience };
   return { ok: true };
 }
 export function recallResident(state: GameState, heroId: string): HeroCommandResult {

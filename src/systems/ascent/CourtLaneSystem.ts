@@ -276,9 +276,20 @@ export function offerAppointment(state: GameState, heroId: string, requested = f
 
 /** Applies a posting through the existing court APIs. `reserve` releases whatever duty the hero holds. */
 export function applyAppointment(state: GameState, heroId: string, optionId: string): boolean {
+  return applyAppointmentResult(state, heroId, optionId).ok;
+}
+
+/**
+ * The same, with the reason a Beta posting was refused.
+ *
+ * The scene threw the boolean away, so a refused appointment looked exactly like an accepted one:
+ * the picker closed, the seat stayed as it was, and nothing said why. The reason is the hero
+ * service's own code (`hero.depth.reason.*`); stable postings report a plain failure.
+ */
+export function applyAppointmentResult(state: GameState, heroId: string, optionId: string): { ok: boolean; reason?: string } {
   const ascent = state.ascent;
   const hero = state.heroes.find((candidate) => candidate.id === heroId);
-  if (!hero) return false;
+  if (!hero) return { ok: false, reason: 'unavailable' };
 
   let ok = false;
   if (hero.growth && optionId !== 'dismiss') {
@@ -286,7 +297,7 @@ export function applyAppointment(state: GameState, heroId: string, optionId: str
       : optionId.startsWith('court:') ? { kind: 'court' as const, seat: optionId.slice(6) as CourtPositionId }
       : optionId.startsWith('governor:') ? { kind: 'province' as const, landId: optionId.slice(9) }
       : optionId.startsWith('general:') ? { kind: 'host' as const, armyId: optionId.slice(8) } : undefined;
-    if (!duty) return false;
+    if (!duty) return { ok: false, reason: 'unavailable' };
     const result = assignHeroDuty(state, heroId, duty);
     if (result.ok && ascent) {
       ascent.reservedHeroIds = ascent.reservedHeroIds.filter(id => id !== heroId);
@@ -294,11 +305,11 @@ export function applyAppointment(state: GameState, heroId: string, optionId: str
       ascent.laneStats.appointments++;
       refreshAllLandOutputs(state);
     }
-    return result.ok;
+    return { ok: result.ok, reason: result.ok ? undefined : result.reason ?? 'unavailable' };
   }
   if (optionId === 'dismiss') {
     ok = dismissHero(state, heroId);
-    return ok;
+    return { ok };
   }
   if (optionId === 'reserve') {
     // "Await a command" has to actually free the hero, or its own promise — "stays free to
@@ -338,7 +349,7 @@ export function applyAppointment(state: GameState, heroId: string, optionId: str
     ascent.laneStats.appointments += 1;
     ascent.laneState.lastDecisionTurn.court = state.turn;
   }
-  return ok;
+  return { ok };
 }
 
 /**

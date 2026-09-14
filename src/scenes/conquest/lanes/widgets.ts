@@ -19,7 +19,8 @@ import { MARCH_MIN_WIN_CHANCE } from '../../../game/ascentConfig';
 import { renderHeroFaceInBox } from '../../../ui/FaceRenderer';
 import { INK_UI, INK_UI_HEX, scrollGestureConsumedTap } from '../../../ui/InkUI';
 import { UI_FONT } from '../../../ui/fonts';
-import { t } from '../../../i18n';
+import { heroName, heroTypeLabel, rarityLabel, t } from '../../../i18n';
+import { statChip } from '../../../ui/statChips';
 import type { Hero } from '../../../state/types';
 import { cssHex } from '../constants';
 import type { ConquestUIScene } from '../../ConquestUIScene';
@@ -221,9 +222,16 @@ export function showHeroPicker(self: ConquestUIScene, opts: {
   extra?: { title: string; subtitle: string; onTap: () => void };
 }): void {
   self.replaceLanePage(() => {
-    const { addRow, finish } = self.laneList(opts.title, opts.subtitle ?? t('ascent.pick.subtitle'), { back: opts.onBack });
+    const { addRow, addHeading, finish } = self.laneList(opts.title, opts.subtitle ?? t('ascent.pick.subtitle'), { back: opts.onBack });
     if (opts.rows.length === 0) {
       addRow({ title: t('ascent.pick.nobody'), subtitle: '', border: INK_UI.softBrush, muted: true });
+    }
+    // Beta rows carry their figures as chips (`addPostingValues`) and are listed under headings.
+    if (opts.rows.some((row) => row.chips)) {
+      drawGroupedHeroPicker(self, opts, addRow, addHeading);
+      if (opts.extra) addRow({ title: opts.extra.title, subtitle: opts.extra.subtitle, border: INK_UI.softBrush }, opts.extra.onTap);
+      finish();
+      return;
     }
     for (const row of opts.rows) {
       const tags = [
@@ -273,6 +281,75 @@ export function showHeroPicker(self: ConquestUIScene, opts: {
     }
     finish();
   });
+}
+
+/**
+ * **Beta's picker: free heroes first, under headings, with what each would bring as chips.**
+ *
+ * Reported off the Spymaster picker: *"need to order free heroes and the best for the position on
+ * top"* — two busy ministers led the list, one marked the best fit, and the free general was the
+ * last card on a long scroll of stat sentences. The rows now answer the question in the order it
+ * is asked: who holds it now, who is free (best fit marked), who could be pulled off another post,
+ * who cannot come at all. Each card is the hero, the effect as the rules' own chips, the road, and
+ * how they compare with the holder; the six-stat sentence and the flavour moved to the confirm page.
+ */
+function drawGroupedHeroPicker(
+  self: ConquestUIScene,
+  opts: Parameters<typeof showHeroPicker>[1],
+  addRow: ReturnType<ConquestUIScene['laneList']>['addRow'],
+  addHeading: ReturnType<ConquestUIScene['laneList']>['addHeading'],
+): void {
+  const groups: Array<HeroPickerRow['group']> = ['current', 'free', 'busy', 'blocked'];
+  for (const group of groups) {
+    const rows = opts.rows.filter((row) => row.group === group);
+    if (rows.length === 0) continue;
+    addHeading(t(`hero.pick.group.${group}`, { n: rows.length }));
+    for (const row of rows) {
+      const blocked = group === 'blocked';
+      const busy = group === 'busy';
+      // The tag is the title's second line, not the corner status: the corner belongs to the
+      // badge, and the two drawn together printed one over the other.
+      const tag = row.isBest ? t('ascent.pick.recommended') : row.strongestBusy ? t('hero.pick.strongestBusy') : undefined;
+      addRow({
+        title: tag ? `${heroName(row.hero)}\n${tag}` : heroName(row.hero),
+        subtitle: [
+          `${rarityLabel(row.hero.rarity)} · ${heroTypeLabel(row.hero.type)}`,
+          blocked ? row.blockedReason : row.postingLine,
+          busy ? row.vacates ?? '' : '',
+        ].filter(Boolean).join('\n'),
+        hideProgress: true,
+        border: row.isCurrent ? INK_UI.gold : blocked ? INK_UI.softBrush : row.isBest ? INK_UI.jade : busy ? INK_UI.cinnabar : INK_UI.brush,
+        muted: blocked,
+        portrait: row.hero,
+        stats: row.chips,
+        statsSecond: row.travelTurns ? [statChip('seasons', row.travelTurns)] : undefined,
+        ...(row.gainOverHolder !== undefined && !blocked ? {
+          badge: {
+            caption: t('hero.post.gainCaption'),
+            value: `${row.gainOverHolder >= 0 ? '+' : '−'}${Math.abs(row.gainOverHolder)}`,
+            tone: row.gainOverHolder >= 0 ? INK_UI.jade : INK_UI.cinnabar,
+          },
+        } : {}),
+      }, blocked || row.isCurrent ? undefined : () => {
+        const { title, lines } = opts.confirm(row);
+        showConfirmPage(self, {
+          title,
+          subtitle: heroTitleLine(row.hero),
+          portrait: row.hero,
+          lines: [
+            ...lines,
+            row.travelTurns !== undefined ? t('hero.pick.travel', { n: row.travelTurns }) : '',
+            row.vacates ?? '',
+            row.statsLine,
+          ].filter(Boolean),
+          confirmLabel: t('ascent.pick.confirm'),
+          danger: Boolean(row.vacates),
+          onConfirm: () => opts.onPick(row.hero.id),
+          onBack: () => showHeroPicker(self, opts),
+        });
+      });
+    }
+  }
 }
 
 /** The hosts a military method (or a follow order) could commit — the same shape, for armies. */

@@ -772,77 +772,12 @@ export class ConquestUIScene extends Phaser.Scene {
 
   openLane(lane: AscentLane, options?: lanesFrame.OpenLaneOptions): void { lanesFrame.openLane(this, lane, options); }
 
+  /** See `lanes/frame.laneList` for every option; the facade only forwards, so the two cannot drift. */
   laneList(
     title: string,
     subtitle: string,
-    laneOpts: {
-      titleIcon?: CardIconId;
-      /** A primary action in the close button's slot, in place of Close. */
-      footer?: {
-        label: string;
-        onTap: () => void;
-        disabled?: boolean;
-        /**
-         * This button *is* the way out — do not pair a close beside it.
-         *
-         * Only true where closing the lane any other way would leave state behind: the aftermath
-         * report clears `pendingAftermath` as it dismisses, so a plain close there would put the
-         * same screen straight back on the player.
-         */
-        soleAction?: boolean;
-      };
-      /** A free-form control the bottom sheet carries — the court's tax dial. */
-      footerWidget?: {
-        height: number;
-        build: (parent: Phaser.GameObjects.Container, width: number) => void;
-      };
-      /**
-       * A checkbox pinned just above the footer button, in the same thumb reach.
-       *
-       * A setting the player toggles while reading belongs at the foot for the same reason
-       * the battle exits were moved there: the top of a phone is where a one-handed grip
-       * cannot go without shifting, and a control nobody can reach is a control nobody uses.
-       * The whole row is the hit area, label included.
-       */
-      footerToggle?: { label: string; hint?: string; checked: boolean; onToggle: () => void };
-      /**
-       * A segmented choice pinned above the footer button, in the toggle's slot — for the one
-       * standing setting on a page that has more than two answers.
-       */
-      footerPicker?: { label: string; options: string[]; note: string; selected: number; onPick: (index: number) => void };
-      /** A compact, fixed tab strip above the scrolling body. */
-      tabs?: {
-        items: Array<{ label: string; count?: number }>;
-        active: number;
-        onSelect: (index: number) => void;
-      };
-      /**
-       * What this lane is waiting on, listed at the foot in the thumb's own band. See the full
-       * note on `laneOpts.dock` in `lanes/frame` for why it is at the bottom rather than the top.
-       */
-      dock?: {
-        label?: (shown: number) => string;
-        items: Array<{ label: string; hint?: string; onPress: () => void }>;
-        /** Redraws this page, so the dock can open and close without the lane knowing how. */
-        rebuild?: () => void;
-      };
-      /** A ghost "back" above the footer button, for pages one step inside a lane. */
-      back?: () => void;
-    } = {},
-  ): {
-    content: UIBounds;
-    addRow: (
-      opts: { title: string; subtitle: string; border: number; muted?: boolean; portrait?: Hero; vacantFace?: boolean; icon?: CardIconId; status?: string; statusColor?: number; rows?: InkCardRow[]; costs?: CostChip[]; costsLabel?: string; stats?: CostChip[]; statsSecond?: CostChip[]; chipSize?: InkCardOptions['chipSize']; badge?: InkCardOptions['badge'] },
-      onTap?: () => void,
-    ) => void;
-    addHeading: (title: string, hint?: string) => void;
-    addNote: (text: string, tone?: number) => void;
-    addWidget: (
-      height: number,
-      build: (parent: Phaser.GameObjects.Container, width: number) => number | void,
-    ) => void;
-    finish: () => void;
-  } {
+    laneOpts: Parameters<typeof lanesFrame.laneList>[3] = {},
+  ): ReturnType<typeof lanesFrame.laneList> {
     return lanesFrame.laneList(this, title, subtitle, laneOpts);
   }
 
