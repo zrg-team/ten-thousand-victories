@@ -27,6 +27,7 @@ import {
   type SupportChannel,
 } from '../../data/support';
 import { allowsDonationLinks } from '../../platform/shell';
+import { openTrailer } from '../../ui/trailerPlayer';
 import { copyToClipboard, openExternalLink } from '../../utils/browser';
 import { encodeQr, type QrMatrix } from '../../utils/qr';
 import { SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
@@ -84,50 +85,42 @@ export function renderSupportRow(self: MenuScene): void {
    * float everything above it.
    */
   const alone = !allowsDonationLinks();
-  const improve = self.ui.textLink(
-    0,
-    0,
-    t(alone ? 'menu.support.improveAlone' : 'menu.support.improve'),
-    () => openExternalLink(SUPPORT.github),
-    { icon: 'hammer', fontSize: '10px' },
-  ).setData('menuSupportLink', 'improve');
-  const improveWidth = improve.getData('linkWidth') as number;
-
-  if (alone) {
-    improve.x = -improveWidth / 2;
-    row.add(improve);
-    self.content.push(row);
-    return;
-  }
-
-  const coffee = self.ui.textLink(
-    0,
-    0,
-    t('menu.support.coffee'),
-    () => renderSupportModal(self),
-    { icon: 'cup', fontSize: '10px' },
-  ).setData('menuSupportLink', 'coffee');
+  const link = (id: string, label: string, onClick: () => void, icon: 'cup' | 'hammer' | 'play') => self.ui
+    .textLink(0, 0, label, onClick, { icon, fontSize: '10px' })
+    .setData('menuSupportLink', id);
+  const links = [
+    ...(alone ? [] : [link('coffee', t('menu.support.coffee'), () => renderSupportModal(self), 'cup')]),
+    link('improve', t(alone ? 'menu.support.improveAlone' : 'menu.support.improve'), () => openExternalLink(SUPPORT.github), 'hammer'),
+    /**
+     * The trailer, last: about the game rather than a place in it, so it sits with the asides and
+     * not with How to Play / History / Settings. Lowercase beside a lowercase neighbour, capitalised
+     * when it leads the line's second half on its own. Plays over the menu (`ui/trailerPlayer.ts`).
+     */
+    link('trailer', t(alone ? 'menu.trailer.linkAlone' : 'menu.trailer.link'), () => openTrailer(), 'play'),
+  ];
 
   // `textLink` grows its invisible hit area seven units beyond each visual edge. Eighteen visual
-  // units therefore leave four real units between the two touch rectangles: close enough to read
-  // as one row, but never one merged target.
+  // units therefore leave four real units between neighbouring touch rectangles: close enough to
+  // read as one row, but never one merged target.
   const gap = 18;
-  const coffeeWidth = coffee.getData('linkWidth') as number;
-  const total = coffeeWidth + gap + improveWidth;
+  const widths = links.map((item) => item.getData('linkWidth') as number);
+  const total = widths.reduce((sum, width) => sum + width, 0) + gap * (links.length - 1);
 
   /**
    * These are sibling actions, not a sentence: keep them on one centred line in every language.
-   * The scale guard is only for a future translation longer than today's English or Vietnamese;
-   * it preserves the one-line contract without allowing either edge to leave the sheet.
+   * The scale guard keeps the one-line contract without allowing either edge to leave the sheet.
    */
-  const maxWidth = GAME_WIDTH - 64;
-  coffee.x = -total / 2;
-  improve.x = coffee.x + coffeeWidth + gap;
+  const maxWidth = GAME_WIDTH - 32;
+  let cursor = -total / 2;
+  links.forEach((item, index) => {
+    item.x = cursor;
+    cursor += widths[index] + gap;
+  });
   if (total > maxWidth) {
     row.setScale(maxWidth / total);
   }
 
-  row.add([coffee, improve]);
+  row.add(links);
   self.content.push(row);
 }
 
