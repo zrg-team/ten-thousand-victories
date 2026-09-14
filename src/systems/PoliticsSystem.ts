@@ -1,12 +1,13 @@
 import { writtenCodeSeverity } from './decree/rules';
 import { applyResourceDelta, canSpend, progressBuildOrders, refreshAllLandOutputs } from './ResourceSystem';
 import { scaledGain } from './ascent/priceScale';
+import { storiesScaled, storyCost, storyGain } from './ascent/storyValue';
 import { createHeroDraft } from './HeroSystem';
 import { getBuildingLevelCap } from './empire/MandateSystem';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
 import { addCourtModifier, getCourtBonuses } from './CourtSystem';
 import { addOpinionModifier } from './DiplomacySystem';
-import type { CourtEffect, GameState, HeroType, Land, LandBuildingType, ResourceBag } from '../state/types';
+import type { CourtEffect, GameState, HeroType, Land, LandBuildingType, ResourceBag, PoliticsChoice } from '../state/types';
 import { buildingLabel, formatResourceList, politicsChoiceDescription, politicsChoiceLabel, politicsTitle, t } from '../i18n';
 
 function clamp(value: number, min: number, max: number): number {
@@ -119,7 +120,7 @@ export function applyCourtEffect(state: GameState, label: string, effect: CourtE
     //
     // `scaledGain` passes a mixed-sign bag straight through, so a card that trades one store for
     // another keeps the exchange rate its author wrote.
-    applyResourceDelta(state, scaledGain(state, effect.resourceDelta));
+    applyResourceDelta(state, courtResourceDelta(state, effect));
   }
 
   const modifier = createModifier(label, effect);
@@ -194,10 +195,44 @@ export function applyCourtEffect(state: GameState, label: string, effect: CourtE
   refreshAllLandOutputs(state);
 }
 
-/** What a choice asks for, as it will actually be charged — see `applyCourtEffect`. */
+/**
+ * A choice's one-time resources as they will actually land: `scaledGain` on a stable reign, and on a
+ * Beta reign the costs weighed against their basis and the gains against the round (`storyValue`).
+ * A mixed-sign bag — a trade — lands exactly as written on both.
+ */
+export function courtResourceDelta(state: GameState, effect: CourtEffect): Partial<ResourceBag> {
+  const delta = effect.resourceDelta ?? {};
+  if (!storiesScaled(state)) return scaledGain(state, delta);
+  const values = Object.values(delta).filter((value): value is number => typeof value === 'number');
+  if (values.some((value) => value > 0) && values.some((value) => value < 0)) return delta;
+  if (values.every((value) => value <= 0)) {
+    const cost: Partial<ResourceBag> = {};
+    for (const [key, value] of Object.entries(delta) as [keyof ResourceBag, number | undefined][]) {
+      if (value) cost[key] = -value;
+    }
+    const charged = storyCost(state, cost, effect.resourceBasis);
+    const out: Partial<ResourceBag> = {};
+    for (const [key, value] of Object.entries(charged) as [keyof ResourceBag, number | undefined][]) {
+      if (value) out[key] = -value;
+    }
+    return out;
+  }
+  return storyGain(state, delta, effect.resourceBasis);
+}
+
+/**
+ * What a choice asks for, as it will actually be charged — the one figure the court card quotes,
+ * checks and takes. The card used to print the authored `resourceDelta` while the charge wore the
+ * realm's scale: *35 gold* on the card, over a hundred taken, and an option shown as affordable that
+ * the charge then refused with no word on the screen.
+ */
+export function politicsChoiceCost(state: GameState, choice: PoliticsChoice): Partial<ResourceBag> {
+  return getChoiceResourceCost(state, choice.effects);
+}
+
 function getChoiceResourceCost(state: GameState, effect: CourtEffect): Partial<ResourceBag> {
   const cost: Partial<ResourceBag> = {};
-  for (const [key, value] of Object.entries(scaledGain(state, effect.resourceDelta ?? {}))) {
+  for (const [key, value] of Object.entries(courtResourceDelta(state, effect))) {
     if ((value ?? 0) < 0) {
       cost[key as keyof ResourceBag] = Math.abs(value ?? 0);
     }

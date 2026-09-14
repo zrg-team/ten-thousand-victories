@@ -5,6 +5,7 @@ import { addOpinionModifier } from '../DiplomacySystem';
 import { t } from '../../i18n';
 import { applyResourceDelta } from '../ResourceSystem';
 import { scaledGain } from '../ascent/priceScale';
+import { storyGain } from '../ascent/storyValue';
 import { pushToast } from '../empire/notifications';
 import { launchPunitiveHost } from '../ascent/EnemyCommandDirector';
 import { findPowerCard } from '../../data/ascentCards';
@@ -13,8 +14,7 @@ import { generateHero } from '../../data/heroFactory';
 import { recordEcho } from './echoes';
 import type { StoryCtx } from './types';
 import type {
-  Army, AscentRarity, Hero, Kingdom, Land, LandBuildingType, ResourceBag,
-} from '../../state/types';
+  Army, AscentRarity, Hero, Kingdom, Land, LandBuildingType, ResourceBag, ValueBasis } from '../../state/types';
 
 /**
  * The outcome vocabulary.
@@ -510,8 +510,9 @@ export function windfall(ctx: StoryCtx, bag: Partial<ResourceBag>): void {
  * What lands is what the Chronicle records — `ctx.note` sees the scaled figure, so the outcome
  * sheet never quotes a number the treasury did not move by.
  */
-export function bounty(ctx: StoryCtx, bag: Partial<ResourceBag>): void {
-  windfall(ctx, scaledGain(ctx.state, bag));
+export function bounty(ctx: StoryCtx, bag: Partial<ResourceBag>, basis?: ValueBasis): void {
+  // `scaledGain` on a stable reign; on a Beta reign, the round too, and people by the people (`storyValue`).
+  windfall(ctx, storyGain(ctx.state, bag, basis));
 }
 
 /** The treasury is seized. All of it, which is the only version of this worth writing. */

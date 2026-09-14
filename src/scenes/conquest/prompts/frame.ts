@@ -47,6 +47,12 @@ export function promptFrame(
      * opaquely while the page is up, and lit again the moment it closes.
      */
     coverReadout?: boolean;
+    /**
+     * Paper all the way, not the 0.93 dim. At 0.93 the map's place names still print through as
+     * dark ghosts, and a sheet whose own copy is read word by word (the power draft's readout and
+     * its gesture hint) had them landing in the middle of its lines.
+     */
+    opaque?: boolean;
   } = {},
 ): UIBounds {
   const top = opts.coverReadout ? HEADER_HEIGHT : HEADER_HEIGHT + ASCENT_HUD_HEIGHT;
@@ -61,7 +67,7 @@ export function promptFrame(
   }
   const dimTop = opts.coverReadout ? top + ASCENT_HUD_HEIGHT : top;
   const dim = self.add
-    .rectangle(0, dimTop, GAME_WIDTH, hudSheetHeight() - dimTop, INK_UI.overlay, 0.93)
+    .rectangle(0, dimTop, GAME_WIDTH, hudSheetHeight() - dimTop, INK_UI.overlay, opts.opaque ? 1 : 0.93)
     .setOrigin(0, 0)
     .setInteractive();
   self.modalLayer.add(dim);

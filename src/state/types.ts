@@ -55,6 +55,12 @@ export type KingdomPersonality =
   | 'diplomatic'
   | 'expansionist';
 
+/**
+ * What a story's or a court petition's one-time sum is measured against — see
+ * `systems/ascent/storyValue.ts`. Omitted is `'realm'`.
+ */
+export type ValueBasis = 'realm' | 'people' | { wages: number };
+
 export interface ResourceBag {
   food: number;
   supplies: number;
@@ -903,6 +909,8 @@ export interface CourtModifier {
 
 export interface CourtEffect extends Partial<Omit<CourtModifier, 'id' | 'label' | 'remainingTicks'>> {
   resourceDelta?: Partial<ResourceBag>;
+  /** What `resourceDelta` is measured against on a Beta reign (`storyValue.ts`). Omitted: the realm. */
+  resourceBasis?: ValueBasis;
   durationTicks?: number;
   permanent?: boolean;
   freeBuilding?: LandBuildingType;

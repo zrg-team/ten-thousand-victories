@@ -15,6 +15,7 @@ import { Copilot, type CopilotStep } from '../../ui/Copilot';
 import type { UIBounds } from '../../ui/InkUI';
 import { drawFormationCounters } from '../../ui/ascent/formationCounters';
 import { markRunTourSeen } from '../../state/tour';
+import { releaseWorldHold } from './shell';
 import { ACTION_BUTTON_HEIGHT, ACTION_BUTTON_Y, actionBarSlots } from '../../ui/ActionBar';
 import type { ConquestUIScene } from '../ConquestUIScene';
 import { realmUnderAttack } from '../../systems/ascent/battleReport';
@@ -66,6 +67,7 @@ export function maybeRunTour(self: ConquestUIScene, hidden: boolean): void {
    * because a player who had deliberately stopped the clock must not find it running again.
    */
   self.tourPauseBefore = self.state.isStrategyPause;
+  self.tourHoldKey = self.openPromptKey;
   self.state.isStrategyPause = true;
   self.runTour = new Copilot(self, {
     steps: stage.steps(),
@@ -73,7 +75,7 @@ export function maybeRunTour(self: ConquestUIScene, hidden: boolean): void {
     // card in the walkthrough is read in the middle of a run that is already going.
     finishLabel: stage.id === 'opening' ? undefined : 'copilot.gotIt',
     onClose: () => {
-      self.state.isStrategyPause = self.tourPauseBefore;
+      releaseWorldHold(self, self.tourPauseBefore, self.tourHoldKey);
       // Marked on the first stage, not the last. A player who leaves after two cards has still
       // had the introduction offered, and a walkthrough that restarts from the throne every time
       // a run is abandoned is the most irritating thing this could possibly do. The rest of the

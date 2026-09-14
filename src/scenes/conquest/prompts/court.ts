@@ -10,6 +10,7 @@
  * sheet and returns — no card, no button.
  */
 import Phaser from 'phaser';
+import { politicsChoiceCost } from '../../../systems/PoliticsSystem';
 import { storyPrintHeader } from '../../../ui/storyPrint';
 import { GAME_HEIGHT } from '../../../game/constants';
 import { isHeroUnlocked } from '../../../state/codex';
@@ -57,10 +58,8 @@ export function showHeroChoice(self: ConquestUIScene, prompt: Extract<AscentProm
   const heroes = prompt.heroIds
     .map((heroId) => self.state.heroDeck.find((candidate) => candidate.id === heroId))
     .filter((hero): hero is Hero => Boolean(hero));
-  if (heroes.length === 0) {
-    self.promptFrame(title, subtitle);
-    return;
-  }
+  // A title with no heroes under it is a card with no way out; see `recoverEmptyPrompt`.
+  if (heroes.length === 0) return;
 
   self.heroDeckPrompt({
     title,
@@ -344,10 +343,10 @@ export function showDoctrine(self: ConquestUIScene, prompt: Extract<AscentPrompt
 /** The court speaks. Two choices, both real, drawn from the shared politics deck. */
 export function showParliament(self: ConquestUIScene, prompt: Extract<AscentPrompt, { kind: 'parliament' }>): void {
   const card = self.state.politicsDeck.find((candidate) => candidate.id === prompt.cardId);
-  if (!card) {
-    self.choose('');
-    return;
-  }
+  // Nothing drawn, and no answer given from inside the render: the resolver refuses `''` and put
+  // the card straight back, under a key already taken, and nothing ever drew it again. An empty
+  // modal layer is picked up by `recoverEmptyPrompt`, which drops a card it cannot draw.
+  if (!card) return;
 
   const { content, body, bodyWidth, finish } = self.promptScrollBody(
     politicsTitle(card),
@@ -359,9 +358,10 @@ export function showParliament(self: ConquestUIScene, prompt: Extract<AscentProm
   const cards: Phaser.GameObjects.Container[] = [];
   let used = 0;
   card.choices.forEach((choice) => {
-    const cost = Object.entries(choice.effects.resourceDelta ?? {})
-      .filter(([, value]) => (value ?? 0) < 0)
-      .map(([key, value]) => [key, Math.abs(value ?? 0)] as const);
+    // The figure the charge will take, not the one the card was written with (`politicsChoiceCost`).
+    const cost = Object.entries(politicsChoiceCost(self.state, choice))
+      .filter(([, value]) => (value ?? 0) > 0)
+      .map(([key, value]) => [key, value ?? 0] as const);
     const costBag = Object.fromEntries(cost);
     const affordable = cost.every(([key, value]) => (self.state.resources[key as keyof typeof self.state.resources] ?? 0) >= value);
 

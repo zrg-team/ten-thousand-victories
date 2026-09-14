@@ -101,9 +101,16 @@ const NO_SUPPRESSED_DETAIL: CullKind[] = [];
 const SUPPRESSED_TRAFFIC: CullKind[] = ['traffic'];
 const SUPPRESSED_TRAFFIC_AND_LABELS: CullKind[] = ['traffic', 'label'];
 
-const MIN_CAMERA_ZOOM = 0.72;
-const MAX_CAMERA_ZOOM = 1.65;
-const CAMERA_ZOOM_STEP = 0.16;
+/**
+ * The zoom stops, as a ladder rather than a step added to wherever the zoom happens to be.
+ *
+ * A fixed step clamped at both ends drifted: out from 100% it stopped at 84% and 72% (the floor),
+ * and back in from 72% it went 88%, 104% — never 100% again. The ladder keeps every old stop the
+ * buttons reached from the opening zoom and adds one further out, 56%. The scroll clamps already
+ * hold a view wider than the world (`clampScrollX`), and below 0.85 the low and medium tiers draw
+ * their LOD, so the extra ground on screen is the cheap drawing.
+ */
+const CAMERA_ZOOM_LEVELS = [0.56, 0.72, 0.84, 1, 1.16, 1.32, 1.48, 1.65];
 /** Over every band the map draws (labels reach 78) and under the paper sheet at 10,000. */
 const WORLD_DIM_DEPTH = 5000;
 const WORLD_PADDING = 300;
@@ -648,7 +655,10 @@ export class MapScene extends Phaser.Scene {
     this.game.canvas.addEventListener('mousemove', this.domMouseMove);
     this.game.canvas.addEventListener('mouseup', this.domMouseUp);
     this.game.canvas.addEventListener('webglcontextrestored', this.onContextRestored);
-    this.awayPause = installAwayPause(this.state, () => this.events.emit('state-changed'));
+    // On the chrome scene's emitter, where `state-changed` is heard. It was emitted on this scene's
+    // own, which nothing listens to — and a held world runs no tick to redraw with — so a return from
+    // the window left the frozen map under a bar still showing ❚❚ and no badge at all.
+    this.awayPause = installAwayPause(this.state, () => this.scene.get(this.uiSceneKey()).events.emit('state-changed'));
     // The desktop sheet changed width under a live map: re-clamp, re-cover, re-cull.
     if (isDesktopLayout()) this.game.events.on(LAYOUT_RESIZED, this.onLayoutResized);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
@@ -3242,8 +3252,12 @@ export class MapScene extends Phaser.Scene {
   private zoomMapAt(direction: number, focusX: number, focusY: number): void {
     const camera = this.cameras.main;
     const oldZoom = this.mapZoom;
-    const nextZoom = Phaser.Math.Clamp(oldZoom + direction * CAMERA_ZOOM_STEP, MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM);
-    if (nextZoom === oldZoom) {
+    // The next stop past the current zoom in that direction. A zoom between stops (a render-scale
+    // change, an old save's camera) goes to the nearest stop on its way rather than a step past it.
+    const nextZoom = direction > 0
+      ? CAMERA_ZOOM_LEVELS.find((level) => level > oldZoom + 0.005)
+      : [...CAMERA_ZOOM_LEVELS].reverse().find((level) => level < oldZoom - 0.005);
+    if (nextZoom === undefined) {
       return;
     }
 

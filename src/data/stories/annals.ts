@@ -1,4 +1,5 @@
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
+import { storyFigure } from '../../systems/ascent/storyValue';
 import { livingRivals, pick, playerLands } from '../../systems/story/StorySystem';
 import { brokenKey, keptKey, swearCharge } from '../../systems/story/charges';
 import {
@@ -969,7 +970,7 @@ export const binhTrong: StoryTemplate = {
         {
           id: 'ransom-him',
           apply: (ctx) => {
-            const cost = Math.min(Math.floor(ctx.state.resources.gold * 0.5), 900);
+            const cost = Math.min(Math.floor(ctx.state.resources.gold * 0.5), storyFigure(ctx.state, 'gold', 900));
             windfall(ctx, { gold: -cost });
             const hero = ctx.hero();
             if (hero) hero.traits = (hero.traits ?? []).filter((trait) => trait !== 'Captive');
@@ -1225,7 +1226,7 @@ export const cheBongNga: StoryTemplate = {
           id: 'buy-the-deserter',
           apply: (ctx) => {
             // He was killed because a defector pointed out which boat he was on.
-            const cost = Math.min(Math.floor(ctx.state.resources.gold * 0.4), 700);
+            const cost = Math.min(Math.floor(ctx.state.resources.gold * 0.4), storyFigure(ctx.state, 'gold', 700));
             windfall(ctx, { gold: -cost });
             ctx.remember('bought', 1);
           },

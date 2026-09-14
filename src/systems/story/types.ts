@@ -11,6 +11,7 @@ import type {
   StoryBand,
   StoryCast,
   StoryVolume,
+  ValueBasis,
 } from '../../state/types';
 
 export type { Historicity, StoryOutcome };
@@ -191,6 +192,11 @@ export interface StoryOption {
   id: string;
   /** Resources spent when taken. Shown exactly; an unaffordable option is closed, not hidden. */
   cost?: Partial<ResourceBag>;
+  /**
+   * What `cost` is measured against on a Beta reign — the army's wages, the people, or (omitted)
+   * the realm. See `systems/ascent/storyValue.ts`.
+   */
+  costBasis?: ValueBasis;
   /** Extra gate beyond affordability — e.g. "needs a hero of martial 55 in that province". */
   enabled?: (ctx: StoryCtx) => boolean;
   /** Text key suffix explaining why it is closed. Rendered under the option. */

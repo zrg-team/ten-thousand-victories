@@ -107,6 +107,12 @@ export interface AscentRuleset {
    */
   readonly strikeSizing: number;
   /**
+   * Story options, story rewards and court petitions weigh against what they are about — the army
+   * for wages, the people for relief, and the round for all of them — over the scaled purse
+   * (`systems/ascent/storyValue.ts`). Off is the purse alone, the shipped price.
+   */
+  readonly scaledStories: boolean;
+  /**
    * The paid talent search (`ChampionSearch.talentSearchPrice`) is priced by how far the court's
    * Favour meter still has to go — dearer than the whole treasury right after a free champion,
    * cheapest just before the next one — and climbs with every search already bought this reign.
@@ -146,6 +152,7 @@ const STABLE: AscentRuleset = {
   threatRefresh: false,
   scopeLabels: false,
   strikeSizing: 0,
+  scaledStories: false,
   talentPriceByFavor: false,
 };
 
@@ -154,6 +161,7 @@ const BETA: AscentRuleset = {
   ...STABLE,
   id: 'beta',
   talentPriceByFavor: true,
+  scaledStories: true,
   heroGrowth: true,
   heroRulesVersion: 2,
   heroSpecializations: true,

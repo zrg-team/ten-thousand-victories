@@ -163,7 +163,7 @@ export const politicsCardTemplates: PoliticsCard[] = [
     description: 'Cold weather strains stores, roads, and household food reserves.',
     choices: [
       { id: 'ration-through-winter', label: 'Ration Stores', description: 'Food and human growth fall briefly.', effects: { resourceRateModifier: { food: -4, humans: -2 }, durationTicks: 4 } },
-      { id: 'winter-relief', label: 'Winter Relief', description: 'Spend food and gold to protect stability.', effects: { resourceDelta: { food: -45, gold: -25 }, stabilityDelta: 5, favorDelta: 4 } },
+      { id: 'winter-relief', label: 'Winter Relief', description: 'Spend food and gold to protect stability.', effects: { resourceDelta: { food: -45, gold: -25 }, resourceBasis: 'people', stabilityDelta: 5, favorDelta: 4 } },
     ],
   },
   {
@@ -215,7 +215,7 @@ export const politicsCardTemplates: PoliticsCard[] = [
     description: 'Captains warn that delayed pay will spread through the camps.',
     choices: [
       { id: 'promise-backpay', label: 'Promise Backpay', description: 'Army gold upkeep rises briefly.', effects: { armyGoldUpkeepModifier: 0.25, durationTicks: 3 } },
-      { id: 'pay-arrears', label: 'Pay Arrears', description: 'Spend gold to restore army readiness.', effects: { resourceDelta: { gold: -35 }, restoreArmyReadiness: true } },
+      { id: 'pay-arrears', label: 'Pay Arrears', description: 'Spend gold to restore army readiness.', effects: { resourceDelta: { gold: -35 }, resourceBasis: { wages: 2 }, restoreArmyReadiness: true } },
     ],
   },
   {
@@ -225,7 +225,7 @@ export const politicsCardTemplates: PoliticsCard[] = [
     seasons: ['Spring', 'Autumn'],
     description: 'Communal Halls can host a public feast if the stores can support it.',
     choices: [
-      { id: 'hold-festival', label: 'Hold Festival', description: 'Spend food for stability, favor, and growth.', effects: { resourceDelta: { food: -35 }, stabilityDelta: 5, favorDelta: 5, resourceRateModifier: { humans: 2 }, durationTicks: 3 } },
+      { id: 'hold-festival', label: 'Hold Festival', description: 'Spend food for stability, favor, and growth.', effects: { resourceDelta: { food: -35 }, resourceBasis: 'people', stabilityDelta: 5, favorDelta: 5, resourceRateModifier: { humans: 2 }, durationTicks: 3 } },
       { id: 'modest-gathering', label: 'Modest Gathering', description: 'Gain a small favor boost without spending stores.', effects: { favorDelta: 2 } },
     ],
   },
@@ -427,7 +427,7 @@ export const politicsCardTemplates: PoliticsCard[] = [
     seasons: ['Spring', 'Autumn'],
     description: 'The court proposes hosting the nobility. A grand feast costs dearly but wins hearts.',
     choices: [
-      { id: 'grand-banquet', label: 'Grand Banquet', description: 'Spend food and gold for lasting stability and influence.', effects: { resourceDelta: { food: -55, gold: -40 }, stabilityDelta: 10, influenceDelta: 8, favorDelta: 6 } },
+      { id: 'grand-banquet', label: 'Grand Banquet', description: 'Spend food and gold for lasting stability and influence.', effects: { resourceDelta: { food: -55, gold: -40 }, resourceBasis: 'people', stabilityDelta: 10, influenceDelta: 8, favorDelta: 6 } },
       { id: 'modest-reception', label: 'Modest Reception', description: 'Spend a little gold for a small favor boost.', effects: { resourceDelta: { gold: -15 }, favorDelta: 3, stabilityDelta: 2 } },
     ],
   },
@@ -457,7 +457,7 @@ export const politicsCardTemplates: PoliticsCard[] = [
     type: 'crisis',
     description: 'A regiment refuses orders over unpaid wages and harsh conditions.',
     choices: [
-      { id: 'pay-soldiers', label: 'Pay Immediately', description: 'Spend gold to restore army readiness and morale.', effects: { resourceDelta: { gold: -55 }, restoreArmyReadiness: true, stabilityDelta: 3 } },
+      { id: 'pay-soldiers', label: 'Pay Immediately', description: 'Spend gold to restore army readiness and morale.', effects: { resourceDelta: { gold: -55 }, resourceBasis: { wages: 2 }, restoreArmyReadiness: true, stabilityDelta: 3 } },
       { id: 'crush-mutiny', label: 'Crush the Mutiny', description: 'Suppress without pay — stability and favor fall, but no gold cost.', effects: { stabilityDelta: -12, favorDelta: -7 } },
     ],
   },
@@ -569,8 +569,8 @@ export const politicsCardTemplates: PoliticsCard[] = [
     type: 'problem',
     description: 'Veteran soldiers have quietly left service, taking weapons and training with them.',
     choices: [
-      { id: 'recall-veterans', label: 'Recall Veterans', description: 'Spend gold and supplies to lure them back — army readiness restored.', effects: { resourceDelta: { gold: -40, supplies: -18 }, restoreArmyReadiness: true, favorDelta: -2 } },
-      { id: 'recruit-fresh', label: 'Recruit Replacements', description: 'Spend gold and humans to fill the ranks faster.', effects: { resourceDelta: { gold: -25, humans: -60 }, recruitSpeedModifier: 0.35, durationTicks: 5 } },
+      { id: 'recall-veterans', label: 'Recall Veterans', description: 'Spend gold and supplies to lure them back — army readiness restored.', effects: { resourceDelta: { gold: -40, supplies: -18 }, resourceBasis: { wages: 2 }, restoreArmyReadiness: true, favorDelta: -2 } },
+      { id: 'recruit-fresh', label: 'Recruit Replacements', description: 'Spend gold and humans to fill the ranks faster.', effects: { resourceDelta: { gold: -25, humans: -60 }, resourceBasis: 'people', recruitSpeedModifier: 0.35, durationTicks: 5 } },
     ],
   },
   {

@@ -674,7 +674,7 @@ export const thanhGiong: StoryTemplate = {
       tone: 'reward',
       effect: (ctx) => {
         loyaltyFloor(ctx, 62, ctx.land());
-        bounty(ctx, { humans: 260 });
+        bounty(ctx, { humans: 260 }, 'people');
       },
     },
     {
