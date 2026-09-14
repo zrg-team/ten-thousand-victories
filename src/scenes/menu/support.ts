@@ -30,7 +30,7 @@ import { allowsDonationLinks } from '../../platform/shell';
 import { openTrailer } from '../../ui/trailerPlayer';
 import { copyToClipboard, openExternalLink } from '../../utils/browser';
 import { encodeQr, type QrMatrix } from '../../utils/qr';
-import { SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
+import { SUPPORT_ROW_HEIGHT, SUPPORT_TOP, TRAILER_ROW_HEIGHT, TRAILER_UNDER_PAIR, VERSION_EDGE } from './constants';
 import type { MenuScene } from '../MenuScene';
 
 /**
@@ -85,6 +85,8 @@ export function renderSupportRow(self: MenuScene): void {
    * float everything above it.
    */
   const alone = !allowsDonationLinks();
+  // The phone column with three links gives the trailer its own line (`TRAILER_ROW_HEIGHT`).
+  const trailerApart = TRAILER_ROW_HEIGHT > 0;
   const link = (id: string, label: string, onClick: () => void, icon: 'cup' | 'hammer' | 'play') => self.ui
     .textLink(0, 0, label, onClick, { icon, fontSize: '10px' })
     .setData('menuSupportLink', id);
@@ -94,15 +96,19 @@ export function renderSupportRow(self: MenuScene): void {
     /**
      * The trailer, last: about the game rather than a place in it, so it sits with the asides and
      * not with How to Play / History / Settings. Lowercase beside a lowercase neighbour, capitalised
-     * when it leads the line's second half on its own. Plays over the menu (`ui/trailerPlayer.ts`).
+     * when it leads the line's second half on its own — or its own line on the phone. Plays over the
+     * menu (`ui/trailerPlayer.ts`).
      */
-    link('trailer', t(alone ? 'menu.trailer.linkAlone' : 'menu.trailer.link'), () => openTrailer(), 'play'),
+    link('trailer', t(alone || trailerApart ? 'menu.trailer.linkAlone' : 'menu.trailer.link'), () => openTrailer(), 'play'),
   ];
+  const trailer = trailerApart ? links.pop() : undefined;
 
   // `textLink` grows its invisible hit area seven units beyond each visual edge. Eighteen visual
   // units therefore leave four real units between neighbouring touch rectangles: close enough to
   // read as one row, but never one merged target.
-  const gap = 18;
+  // A pair gets more air than a row of three: with two there is room, and the air is what says "two
+  // separate things" rather than one long phrase.
+  const gap = links.length === 2 ? 30 : 18;
   const widths = links.map((item) => item.getData('linkWidth') as number);
   const total = widths.reduce((sum, width) => sum + width, 0) + gap * (links.length - 1);
 
@@ -126,6 +132,16 @@ export function renderSupportRow(self: MenuScene): void {
 
   row.add(links);
   self.content.push(row);
+
+  if (trailer) {
+    // Under the pair, close enough to read with it; the rest of the band is the install mark's target.
+    const line = self.add.container(GAME_WIDTH / 2, SUPPORT_TOP + SUPPORT_ROW_HEIGHT / 2 + TRAILER_UNDER_PAIR)
+      .setData('menuSupportTrailerRow', true);
+    const width = trailer.getData('linkWidth') as number;
+    trailer.x = -width / 2;
+    line.add(trailer);
+    self.content.push(line);
+  }
 }
 
 /**

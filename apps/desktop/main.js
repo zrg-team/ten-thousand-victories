@@ -33,6 +33,26 @@ const WEB_DIR = path.join(__dirname, 'web');
 if (process.env.VAN_THANG_USER_DATA) app.setPath('userData', process.env.VAN_THANG_USER_DATA);
 
 /**
+ * The cabinet's log, also on disk: a packaged app has no console anybody reads, and "check for
+ * updates took forever" is a report that needs the lines behind it. `userData/cabinet.log`, rolled
+ * to `cabinet.old.log` past 512 KB so it never grows without bound.
+ */
+const LOG_FILE = path.join(app.getPath('userData'), 'cabinet.log');
+function log(line) {
+  const text = `[cabinet] ${line}`;
+  console.log(text);
+  try {
+    if (fs.existsSync(LOG_FILE) && fs.statSync(LOG_FILE).size > 512 * 1024) {
+      fs.renameSync(LOG_FILE, path.join(path.dirname(LOG_FILE), 'cabinet.old.log'));
+    }
+    fs.mkdirSync(path.dirname(LOG_FILE), { recursive: true });
+    fs.appendFileSync(LOG_FILE, `${new Date().toISOString()} ${text}\n`);
+  } catch {
+    // A read-only profile costs the file, never the game.
+  }
+}
+
+/**
  * The game this cabinet serves: the install's own `web/`, or a newer one it downloaded — see
  * `updater.js`. The URL written into `package.json` by the sync is the published site's.
  */
@@ -41,7 +61,7 @@ const updater = createUpdater({
   net,
   webDir: WEB_DIR,
   updateUrl: require('./package.json').vanThang?.updateUrl,
-  log: (line) => console.log(`[cabinet] ${line}`),
+  log,
 });
 
 /**
@@ -59,9 +79,9 @@ function initSteam() {
     const steamworks = require('steamworks.js');
     const client = steamworks.init();
     steam = { client, steamworks };
-    console.log(`[cabinet] steam: ${client.localplayer.getName()}`);
+    log(`steam: ${client.localplayer.getName()}`);
   } catch (error) {
-    console.log(`[cabinet] steam: not running (${error.message.split('\n')[0]})`);
+    log(`steam: not running (${error.message.split('\n')[0]})`);
   }
 }
 
@@ -309,7 +329,7 @@ ipcMain.on('steam:unlock-achievement', (_event, id) => {
   try {
     steam.client.achievement.activate(id);
   } catch (error) {
-    console.log(`[cabinet] achievement ${id}: ${error.message}`);
+    log(`achievement ${id}: ${error.message}`);
   }
 });
 ipcMain.on('steam:set-rich-presence', (_event, key, value) => {
@@ -317,7 +337,7 @@ ipcMain.on('steam:set-rich-presence', (_event, key, value) => {
   try {
     steam.client.localplayer.setRichPresence(key, typeof value === 'string' ? value : null);
   } catch (error) {
-    console.log(`[cabinet] rich presence ${key}: ${error.message}`);
+    log(`rich presence ${key}: ${error.message}`);
   }
 });
 
@@ -328,7 +348,7 @@ if (steam) {
   try {
     steam.steamworks.electronEnableSteamOverlay();
   } catch (error) {
-    console.log(`[cabinet] overlay: ${error.message}`);
+    log(`overlay: ${error.message}`);
   }
 }
 

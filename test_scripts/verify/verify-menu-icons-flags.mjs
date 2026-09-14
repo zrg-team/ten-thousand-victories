@@ -42,24 +42,30 @@ const supportLayout = (page) => page.evaluate(() => {
   const scene = window.__phaserGame.scene.getScene('MenuScene');
   const row = scene.children.list.find((child) => child.getData?.('menuSupportRow') === true);
   if (!row) return null;
-  const links = row.list
+  // The trailer stands on its own line under the pair on the phone column (`TRAILER_ROW_HEIGHT`).
+  const trailerRow = scene.children.list.find((child) => child.getData?.('menuSupportTrailerRow') === true);
+  const links = [row, trailerRow].filter(Boolean).flatMap((holder) => holder.list
     .filter((child) => child.getData?.('menuSupportLink'))
     .map((link) => {
       const hit = link.list.find((part) => part.type === 'Rectangle');
       return {
         id: link.getData('menuSupportLink'),
-        x: link.x,
-        y: link.y,
+        x: holder.x + link.x,
+        y: holder.y + link.y,
+        centre: holder.x + (link.x + hit.x) * holder.scaleX,
+        hitTop: holder.y + (link.y + hit.y - hit.height / 2) * holder.scaleY,
+        hitBottom: holder.y + (link.y + hit.y + hit.height / 2) * holder.scaleY,
         hitLeft: link.x + hit.x - hit.width / 2,
         hitRight: link.x + hit.x + hit.width / 2,
       };
-    });
+    }));
   const text = [];
   const walk = (items) => items.forEach((item) => {
     if (typeof item?.text === 'string') text.push(item.text);
     if (item?.list) walk(item.list);
   });
   walk(row.list);
+  if (trailerRow) walk(trailerRow.list);
   return { scale: row.scaleX, links, text };
 });
 
@@ -69,12 +75,12 @@ const checkSupportLayout = (layout, language) => {
   const trailer = layout?.links.find((link) => link.id === 'trailer');
   check(Boolean(layout)
       && layout.links.length === 3
-      && coffee.y === improve.y && improve.y === trailer.y
-      && coffee.x < improve.x && improve.x < trailer.x
+      && coffee.y === improve.y && coffee.x < improve.x
       && improve.hitLeft - coffee.hitRight >= 3
-      && trailer.hitLeft - improve.hitRight >= 3
+      && trailer.y > improve.y && trailer.hitTop - Math.max(coffee.hitBottom, improve.hitBottom) >= 2
+      && Math.abs(trailer.centre - 195) < 1.5
       && !layout.text.some((line) => /or even better|hay hơn nữa/i.test(line)),
-    `${language} support actions share one line without the connective phrase`, JSON.stringify(layout));
+    `${language} support pair shares one line, the trailer stands centred under it, no connective phrase`, JSON.stringify(layout));
 };
 
 // A fresh install has no stored preference: Vietnamese is the product default, not a test setup.
