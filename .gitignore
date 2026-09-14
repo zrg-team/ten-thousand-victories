@@ -4,6 +4,8 @@ dist/
 # The shell build — `yarn build:shell`. Same status as dist/: a build artifact, and the one every
 # cabinet in apps/ serves.
 dist-shell/
+# `node scripts/desktop-web-manifest.mjs` without --out — a local copy of the desktop update feed.
+dist-desktop/
 output/
 .vite/
 *.log

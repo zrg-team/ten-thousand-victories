@@ -104,6 +104,26 @@ export default defineConfig(({ command, isPreview, mode }) => {
          * would carry for a button a player may never press. The shell streams the same files from
          * the published site instead (`src/ui/trailerPlayer.ts`).
          */
+        /**
+         * Which game a shell build is, readable without running it.
+         *
+         * The desktop cabinet updates the game it serves by downloading a newer shell build
+         * (`apps/desktop/updater.js`), and it has to compare the build it holds against the one
+         * published before it can say "newer". The numbers are the bundle's own — the same three
+         * `define` bakes in above — so the file and the version line can never disagree.
+         */
+        name: 'van-thang-shell-version',
+        apply: 'build',
+        generateBundle() {
+          if (!shell) return;
+          this.emitFile({
+            type: 'asset',
+            fileName: 'version.json',
+            source: `${JSON.stringify({ version: packageJson.version, build: buildNumber, date: buildDate }, null, 2)}\n`,
+          });
+        },
+      },
+      {
         name: 'van-thang-shell-without-trailers',
         apply: 'build',
         closeBundle() {

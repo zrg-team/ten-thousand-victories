@@ -42,6 +42,24 @@ jobs:
       - name: Build
         run: yarn build
 
+      # The desktop app's game updates: the shell build's manifest under `dist/desktop/<line>/`,
+      # with only the files the web build does not already publish copied beside it. After
+      # `yarn build` on purpose — `dist/sw.js` is written by then, so no web player's service
+      # worker ever precaches these. See scripts/desktop-web-manifest.mjs and apps/desktop/updater.js.
+      #
+      # Only when the cabinet side still matches the record for this line (the check
+      # `yarn desktop:update` makes locally): a game for a cabinet that changed without a minor bump
+      # must not reach the old cabinets. A mismatch skips the desktop publish — cabinets keep the
+      # game they have — and never fails the web deploy.
+      - name: Publish the desktop game update
+        run: |
+          if node apps/desktop/scripts/update.mjs --check; then
+            yarn build:shell
+            node scripts/desktop-web-manifest.mjs --web dist --out dist/desktop
+          else
+            echo "::warning title=Desktop update skipped::The desktop cabinet changed without a minor version bump (see above). The web deploy continues; desktop cabinets keep their current game."
+          fi
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 

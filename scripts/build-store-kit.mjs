@@ -69,6 +69,13 @@ const PIG = {
   mucFaint: '#8c7e67',
   son: '#b33a26',
   shell: '#fbf2df',
+  // The screenshot ground. "Vàng cái" is what the palette calls điệp stirred with hòe water; the
+  // cards use the full-strength sheet (`hoePale`), grained toward `hoe` and `diepWarm`, so the store
+  // paper is the same yellow as the gold card borders it frames rather than a yellow of its own.
+  hoe: '#c08a2e',
+  hoePale: '#dcbe7e',
+  diepWarm: '#e5d5ae',
+  nauDark: '#5c3f26',
 };
 
 const dir = (...p) => {
@@ -135,7 +142,7 @@ await page.setContent(
 );
 await page.evaluate(async () => {
   await Promise.all([
-    document.fonts.load('700 40px Serif'), document.fonts.load('600 40px Serif'),
+    document.fonts.load('700 40px "Serif"'), document.fonts.load('600 40px "Serif"'),
     document.fonts.load('700 40px BVP'), document.fonts.load('600 40px BVP'),
   ]);
   await document.fonts.ready;
@@ -370,10 +377,13 @@ note(feature, '1024x500, opaque — from `yarn share`');
  * Only the largest device in each family is required; both consoles scale those down themselves.
  * The iPad set is not optional here because `app.json` declares `supportsTablet: true`.
  *
- * The sources are the project's own README shots at 780x1688 — a 2x phone screen. That aspect
- * (2.16:1) is *taller* than Play's 2:1 ceiling and than every canvas below, so none of them can be
- * scaled to fill. They are fitted onto paper instead, which is why each frame carries a caption and
- * a contour: the letterboxing has to read as a decision rather than as an accident.
+ * The sources are frames of the gameplay trailer — a real run photographed at the high tier, 1170
+ * wide — kept in `store/gameplay/<lang>/`. The previous kit cut the README shots, fitted them small
+ * onto the game's own paper and framed them in paper again: in a store grid that was seven cream
+ * rectangles of the same cream, with the game at three quarters of the width. Now the game runs
+ * nearly edge to edge on hoè-yellow giấy điệp — the shell-coated paper Đông Hồ prints are pulled
+ * on, tinted, so the cream screens stand off it — with a headline large enough to read at
+ * thumbnail size.
  */
 const SHOTS = [
   ['ios', 'iphone-6.9', 1320, 2868, 'Required. 3-10 images.'],
@@ -385,237 +395,406 @@ const SHOTS = [
   ['android', 'tablet-10', 1920, 1080, 'Required. 16:9, each side 1080-7680 px.'],
 ];
 
-const shotSource = join(root, 'docs', 'readme');
+const shotSource = join(root, 'apps', 'mobile', 'store', 'gameplay');
 
 /**
- * One frame, carrying one *or more* shots side by side.
- *
- * A single 780x1688 shot on a landscape tablet canvas is a narrow strip adrift in a field of
- * paper — technically a valid screenshot and a poor one. How many fit is arithmetic rather than
- * taste: the canvas aspect divided by the shot's, so a 6.9" phone takes one, a 13" iPad two, and
- * a 10" tablet three.
+ * English fills the console's default listing; Vietnamese is its own locale, added by hand in both
+ * consoles, so its screenshots sit in a `-vi` twin of every folder rather than mixed into it.
  */
+const LANGS = [
+  ['en', ''],
+  ['vi', '-vi'],
+];
+
 /**
- * One card: a sheet of diep, a plate mark, a head, the prints, and a seal.
+ * The sheet every card is drawn on, and the headline under which it states its one idea — defined
+ * once on the page so the gameplay cards and the closing card share them exactly.
  *
- * The order is the order a Dong Ho print is actually pulled - ground, then colour blocks, then the
- * soot contour last and never quite in register. `washFill`'s registration offset is the
- * fingerprint of the medium, so each print gets a colour block laid down a hair off its own
- * outline rather than a drop shadow, which would be depth the medium does not have.
+ * Giấy điệp nhuộm hoè: dó paper brushed with crushed-shell and rice paste, the paste tinted with
+ * hoè-flower yellow the way Đông Hồ printers tint it. What makes it điệp and not a flat yellow is
+ * drawn in the order the sheet is made: dye mottling, the long parallel "ganh" a pine-needle broom
+ * leaves along its stroke, bark fibres, then the shell catching the light. Seeded, so the same card
+ * comes out byte-identical on every run; scaled to the canvas so a 1280x720 tablet card carries the
+ * same grain as a 2868-tall phone card.
  */
-const frame = async (shots, w, h, file, seed) => {
-  await page.setViewportSize({ width: w, height: h });
-  await page.evaluate(
-    async ({ srcs, kicker, caption, w, h, P, seed }) => {
-      const imgs = await Promise.all(
-        srcs.map(async (src) => {
-          const img = new Image();
-          img.src = src;
-          await img.decode();
-          return img;
-        }),
+await page.evaluate(() => {
+  window.paintSheet = (x, w, h, P) => {
+    let seed = 20260914;
+    const rand = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+    const k = Math.min(w, h) / 1080;
+    x.fillStyle = P.hoePale;
+    x.fillRect(0, 0, w, h);
+    for (let i = 0; i < 90; i++) {
+      const cx = rand() * w, cy = rand() * h, r = (120 + rand() * 420) * k * 1.4;
+      const tone = rand() < 0.5 ? P.hoe : P.diepWarm;
+      const g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+      g.addColorStop(0, tone + '33');
+      g.addColorStop(1, tone + '00');
+      x.fillStyle = g;
+      x.fillRect(cx - r, cy - r, 2 * r, 2 * r);
+    }
+    for (let band = 0; band < 26; band++) {
+      const y0 = rand() * h, strokes = 6 + ((rand() * 10) | 0);
+      for (let s = 0; s < strokes; s++) {
+        const yy = y0 + s * (2 + rand() * 3) * k;
+        x.beginPath();
+        x.moveTo(-20, yy);
+        for (let xx = 0; xx <= w + 40; xx += 60 * k) {
+          x.lineTo(xx, yy + Math.sin(xx / (170 * k) + band) * 6 * k - xx * 0.05);
+        }
+        x.strokeStyle = (rand() < 0.5 ? P.hoe : P.diepWarm) + (rand() < 0.5 ? '30' : '22');
+        x.lineWidth = (0.8 + rand() * 1.4) * k;
+        x.stroke();
+      }
+    }
+    const fibres = Math.round((2600 * (w * h)) / (1080 * 1920));
+    for (let i = 0; i < fibres; i++) {
+      const fx = rand() * w, fy = rand() * h, len = (14 + rand() * 90) * k, a = rand() * Math.PI * 2;
+      x.beginPath();
+      x.moveTo(fx, fy);
+      x.quadraticCurveTo(
+        fx + Math.cos(a + 0.6) * len * 0.5, fy + Math.sin(a + 0.6) * len * 0.5,
+        fx + Math.cos(a) * len, fy + Math.sin(a) * len,
       );
+      x.strokeStyle = (rand() < 0.55 ? P.hoe : P.diepWarm) + (rand() < 0.7 ? '40' : '70');
+      x.lineWidth = (0.5 + rand() * 1.2) * k;
+      x.stroke();
+    }
+    const flecks = Math.round((3200 * (w * h)) / (1080 * 1920));
+    for (let i = 0; i < flecks; i++) {
+      const size = (rand() < 0.9 ? 1 + rand() : 2 + rand() * 2) * k;
+      x.fillStyle = `rgba(255,252,240,${0.25 + rand() * 0.6})`;
+      x.fillRect(rand() * w, rand() * h, size, size);
+    }
+  };
 
+  /**
+   * Two lines centred on `cy`: mực, then nâu, then a son rule with a lozenge on it — the card's one
+   * spend of sỏi son. Returns the largest size that fits `maxWidth` and `room`, capped at `cap`;
+   * draws only when `draw` is set, so the same call measures.
+   */
+  window.headline = (x, lines, cx, cy, maxWidth, room, cap, P, draw) => {
+    let size = Math.round(Math.min(maxWidth * 0.0727, room / 4.2));
+    for (const line of lines) {
+      x.font = `700 ${size}px "Serif"`;
+      const width = x.measureText(line).width;
+      if (width > maxWidth) size = Math.floor((size * maxWidth) / width);
+    }
+    const fit = size;
+    size = Math.min(size, cap);
+    if (!draw) return fit;
+    const lead = size * 1.22;
+    const rule = size * 0.9;
+    const y = cy - (lead * 2 + rule) / 2 + size;
+    x.textAlign = 'center';
+    x.textBaseline = 'alphabetic';
+    x.font = `700 ${size}px "Serif"`;
+    x.fillStyle = P.muc;
+    x.fillText(lines[0], cx, y);
+    x.fillStyle = P.nauDark;
+    x.fillText(lines[1], cx, y + lead);
+    const ry = y + lead + rule * 0.55;
+    const thick = Math.max(4, size * 0.07);
+    x.fillStyle = P.son;
+    x.fillRect(cx - size * 1.6, ry, size * 3.2, thick);
+    x.save();
+    x.translate(cx, ry + thick / 2);
+    x.rotate(Math.PI / 4);
+    const d = size * 0.16;
+    x.fillRect(-d, -d, 2 * d, 2 * d);
+    x.restore();
+    return fit;
+  };
+
+  /**
+   * One game screen as a framed print: the top of the screen down to `rows`, then — when the set's
+   * frames are taller than this screen's cut — the cut's own blank row stretched to the set's
+   * height, so the page simply continues rather than the frame coming out shorter than its
+   * neighbours.
+   */
+  window.screenPrint = (x, img, rows, setRows, fx, fy, fw, P, edge, shadow) => {
+    const s = fw / img.width;
+    const fh = setRows * s;
+    x.save();
+    x.shadowColor = 'rgba(40,20,10,0.45)';
+    x.shadowBlur = shadow;
+    x.shadowOffsetY = shadow * 0.27;
+    x.fillStyle = P.muc;
+    x.fillRect(fx - edge, fy - edge, fw + 2 * edge, fh + 2 * edge);
+    x.restore();
+    x.drawImage(img, 0, 0, img.width, rows, fx, fy, fw, rows * s);
+    if (setRows > rows) {
+      x.drawImage(img, 0, rows - 2, img.width, 1, fx, fy + rows * s - 1, fw, (setRows - rows) * s + 1);
+    }
+    return fh;
+  };
+
+  window.loadImages = (srcs) =>
+    Promise.all(
+      srcs.map(async (src) => {
+        const img = new Image();
+        img.src = src;
+        await img.decode();
+        return img;
+      }),
+    );
+});
+
+/**
+ * One gameplay card: the sheet, a two-line headline, and one *or more* game screens standing on it.
+ *
+ * A screen is cut at one of the two rows in its `crop`: the lower when the canvas is too squat for
+ * the whole screen, the upper when it has room. Both rows sit in a band of blank paper measured on
+ * the frames themselves — the first version let the cut land anywhere between them and put it
+ * through the title menu's "How to Play" row.
+ *
+ * Every frame in the set is the same size (`layout.rows`, the tallest cut in the set) and every
+ * headline sits in the same band — the first version sized each frame by its own cut, so the deck
+ * came out a tenth shorter than the battle beside it and its headline floated lower.
+ */
+const frame = async (shots, lang, w, h, file, layout = {}) => {
+  await page.setViewportSize({ width: w, height: h });
+  const result = await page.evaluate(
+    async ({ srcs, crops, lines, w, h, P, layout }) => {
+      await document.fonts.load('700 80px "Serif"', lines.join(' '));
+      const imgs = await window.loadImages(srcs);
       const c = document.createElement('canvas');
       c.width = w;
       c.height = h;
       const x = c.getContext('2d');
-      const unit = Math.min(w, h);
+      window.paintSheet(x, w, h, P);
 
-      paper(x, w, h, P, seed);
+      const m = Math.round(Math.min(w, h) * 0.045);
+      const gap = Math.round(m * 0.8);
+      const minBand = Math.round(Math.min(w * 0.3, h * 0.23));
+      const n = imgs.length;
+      const boxW = (w - 2 * m - (n - 1) * gap) / n;
+      const boxH = h - minBand - m;
 
-      // ── the plate mark ────────────────────────────────────────────────────────────────────
-      // The impression the block leaves in the sheet. Hand-pulled, so it wobbles; everything else
-      // on the card lives inside it, which is the bug the first cut of this had - a sawtooth band
-      // ran the full width and crossed straight over the border.
-      const m = Math.round(unit * 0.055);
-      inkPath(
-        x,
-        [{ x: m, y: m }, { x: w - m, y: m }, { x: w - m, y: h - m }, { x: m, y: h - m }],
-        seed * 13 + 5,
-        { width: Math.max(1.6, unit / 640), colour: P.muc, amp: unit * 0.0018, step: unit * 0.085, closed: true },
-      );
-
-      const pad = Math.round(unit * 0.082);
-      const boxW = w - pad * 2;
-      let y = m + Math.round(unit * 0.042);
-
-      x.textAlign = 'center';
-      x.textBaseline = 'alphabetic';
-
-      // ── kicker ────────────────────────────────────────────────────────────────────────────
-      // Soot, not red. The scarcity law reserves soi son for the player, and the seal below is
-      // where this sheet spends it.
-      const kickSize = Math.round(unit * 0.02);
-      x.font = '700 ' + kickSize + 'px BVP, sans-serif';
-      x.letterSpacing = Math.round(kickSize * 0.26) + 'px';
-      x.fillStyle = P.mucSoft;
-      x.globalAlpha = 0.9;
-      x.fillText(kicker, w / 2, y);
-      x.globalAlpha = 1;
-      x.letterSpacing = '0px';
-      y += Math.round(kickSize * 1.95);
-
-      // ── headline ──────────────────────────────────────────────────────────────────────────
-      // Source Serif, the game's own TITLE_FONT. It wraps rather than shrinking away: two lines at
-      // a readable size beat one line nobody can read at thumbnail scale.
-      let headSize = Math.round(unit * 0.05);
-      const wrap = (size) => {
-        x.font = '700 ' + size + 'px Serif, Georgia, serif';
-        const lines = [];
-        let line = '';
-        for (const word of caption.split(' ')) {
-          const next = line ? line + ' ' + word : word;
-          if (x.measureText(next).width > boxW && line) {
-            lines.push(line);
-            line = word;
-          } else line = next;
-        }
-        if (line) lines.push(line);
-        return lines;
-      };
-      let lines = wrap(headSize);
-      while (lines.length > 2 && headSize > unit * 0.028) {
-        headSize = Math.round(headSize * 0.93);
-        lines = wrap(headSize);
-      }
-      x.fillStyle = P.muc;
-      for (const line of lines) {
-        x.fillText(line, w / 2, y + headSize);
-        y += Math.round(headSize * 1.12);
-      }
-
-      // ── rang cua ──────────────────────────────────────────────────────────────────────────
-      // The drum's own register, standing in for a rule. Centred and short, so it reads as a
-      // device rather than as a border, and comfortably inside the plate mark.
-      y += Math.round(unit * 0.02);
-      const bandW = Math.round(Math.min(boxW * 0.34, unit * 0.3));
-      const bandH = Math.round(unit * 0.016);
-      sawtooth(x, Math.round((w - bandW) / 2), y, bandW, bandH, P.muc, 0.42);
-      y += bandH + Math.round(unit * 0.034);
-
-      // ── the seal ──────────────────────────────────────────────────────────────────────────
-      // Bottom right, inside the plate mark, the way a print is signed. The only red on the sheet.
-      const sealSize = Math.round(unit * 0.062);
-      const sealX = w - m - Math.round(unit * 0.032) - sealSize / 2;
-      const sealY = h - m - Math.round(unit * 0.032) - sealSize / 2;
-      seal(x, sealX, sealY, sealSize, P);
-
-      // ── the prints ────────────────────────────────────────────────────────────────────────
-      const footTop = sealY - sealSize / 2 - Math.round(unit * 0.016);
-      const boxH = footTop - y;
-      const gap = imgs.length > 1 ? Math.round(unit * 0.038) : 0;
-      const cell = (boxW - gap * (imgs.length - 1)) / imgs.length;
-
-      x.imageSmoothingQuality = 'high';
-
-      /**
-       * How much of a shot's height may be cropped so it fills the cell's width.
-       *
-       * Every source is 780x1688 - 2.16:1, taller than any canvas here. Fitted by height on a
-       * 16:9 Play phone it lands at about 58% of the width, adrift in paper. Filling the width
-       * instead would cost 28% of the shot, which takes the action bar with it. 15% is where the
-       * frame reads as full without losing either the header or the bar, and it is a ceiling
-       * rather than a target: the 6.9" iPhone needs no crop at all and gets none.
-       */
-      const CROP_MAX = 0.15;
-
+      const rows = imgs.map((img, i) => {
+        const [lo, hi] = crops[i];
+        return (img.width * boxH) / boxW >= hi ? hi : lo;
+      });
+      const setRows = layout.rows ?? Math.max(...rows);
+      const fw = Math.round(Math.min(boxW, (imgs[0].width * boxH) / setRows));
+      const fh = Math.round((setRows * fw) / imgs[0].width);
+      const band = layout.band ?? h - m - fh;
+      const fy = Math.round(band + (h - m - band - fh) / 2);
+      const total = n * fw + (n - 1) * gap;
+      const edge = Math.max(3, Math.round(Math.min(w, h) * 0.0045));
+      let fx = Math.round((w - total) / 2);
       imgs.forEach((img, i) => {
-        let sy = 0;
-        let sh = img.height;
-        const fillH = img.height * (cell / img.width);
-        if (fillH > boxH) {
-          const keep = Math.max(1 - CROP_MAX, boxH / fillH);
-          sh = Math.round(img.height * keep);
-          // Anchored to the top, not centred. Every source is a phone screen whose first rows are
-          // the status header - the one horizontal band that is always whole at y = 0. A centred
-          // crop takes half of it and half of the action bar, and a headline sliced through the
-          // middle of a text row reads as a broken image rather than as a chosen frame.
-          sy = 0;
-        }
-
-        const scale = Math.min(cell / img.width, boxH / sh);
-        const dw = Math.round(img.width * scale);
-        const dh = Math.round(sh * scale);
-        const dx = Math.round(pad + i * (cell + gap) + (cell - dw) / 2);
-        const dy = Math.round(y + (boxH - dh) / 2);
-
-        // The colour block, pulled first and off register - `washFill` in ink/stroke.ts. This is
-        // the medium's fingerprint: at a registration of 0 the whole thing reads as clip-art.
-        const reg = Math.max(2, unit * 0.0042);
-        x.save();
-        x.globalAlpha = 0.5;
-        x.fillStyle = P.diepDeep;
-        x.fillRect(dx + reg, dy + reg, dw, dh);
-        x.restore();
-
-        x.drawImage(img, 0, sy, img.width, sh, dx, dy, dw, dh);
-
-        // The soot contour, pulled last.
-        inkPath(
-          x,
-          [{ x: dx, y: dy }, { x: dx + dw, y: dy }, { x: dx + dw, y: dy + dh }, { x: dx, y: dy + dh }],
-          seed * 31 + i * 7,
-          { width: Math.max(1.4, unit / 900), colour: P.muc, amp: unit * 0.0011, step: unit * 0.07, closed: true },
-        );
+        window.screenPrint(x, img, rows[i], setRows, fx, fy, fw, P, edge, Math.min(w, h) * 0.03);
+        fx += fw + gap;
       });
 
+      const fitSize = window.headline(x, lines, w / 2, band / 2, w * 0.88, band, layout.size ?? Infinity, P, true);
       c.style.cssText = 'display:block;width:100%;height:100%';
       document.body.innerHTML = '';
       document.body.appendChild(c);
+      return { fitSize, band, rows: Math.max(...rows) };
     },
     {
-      srcs: shots.map((sh) => dataUri(join(shotSource, sh.source), 'image/webp')),
-      kicker: shots[0].kicker || '',
-      caption: shots[0].caption,
-      w, h, P: PIG, seed,
+      srcs: shots.map((sh) => dataUri(join(shotSource, lang, `${sh.source}.jpg`), 'image/jpeg')),
+      crops: shots.map((sh) => sh.crop),
+      lines: shots[0].caption[lang],
+      w,
+      h,
+      P: PIG,
+      layout,
     },
   );
-  writeFileSync(file, await page.screenshot({ omitBackground: false }));
+  if (file) writeFileSync(file, await page.screenshot({ omitBackground: false }));
+  return result;
 };
 
-/** 780x1688 is what every README shot is; the ratio decides how many share a frame. */
-const SHOT_ASPECT = 780 / 1688;
+/**
+ * The closing card: not a screen of the game but an advertisement for it — the wordmark the front
+ * page wears, and the game's screens fanned out beneath it like a hand of cards, with the series'
+ * last line under the fan.
+ *
+ * The screens are the set's own sources, each cut at its upper row. The centre card stands upright
+ * and in front; the others step outwards, lower, turned a few degrees and a little smaller, so the
+ * fan reads as a hand held up rather than a row of thumbnails. The wordmark is black brush on
+ * white, laid on with `multiply` so the white disappears into the sheet.
+ */
+const closer = async (shot, lang, w, h, file, layout = {}) => {
+  await page.setViewportSize({ width: w, height: h });
+  const fit = await page.evaluate(
+    async ({ srcs, crops, mark, lines, w, h, P, layout }) => {
+      await document.fonts.load('700 80px "Serif"', lines.join(' '));
+      await document.fonts.load('600 40px BVP', 'TEN THOUSAND VICTORIES');
+      const [wordmark, ...imgs] = await window.loadImages([mark, ...srcs]);
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      const x = c.getContext('2d');
+      window.paintSheet(x, w, h, P);
 
-const available = new Set(readdirSync(shotSource));
-const chosen = meta.screenshots.filter((s) => {
-  if (available.has(s.source)) return true;
-  console.warn(`  ! docs/readme/${s.source} is missing — skipped`);
-  return false;
-});
+      const m = Math.round(Math.min(w, h) * 0.045);
+      const portrait = h > w;
 
-for (const [platform, name, w, h, why] of SHOTS) {
-  const at = dir(platform, 'screenshots', name);
-  // Cleared first, because a frame's filename carries both its position and the shot that leads
-  // it: adding a seventh screenshot renumbered everything after the third, and the run that did
-  // it left `04-founder.png` standing beside the new `04-cabinet.png`. The console orders by the
-  // order you upload, and the README beside these files says to upload them sorted — so an
-  // orphan from a previous shot list is a duplicate screenshot in the store. This directory is
-  // generated in full on every run; nothing in it is worth keeping.
-  for (const stale of readdirSync(at)) {
-    if (stale.endsWith('.png')) rmSync(join(at, stale));
-  }
-  const per = Math.max(1, Math.min(3, Math.round(w / h / SHOT_ASPECT)));
-  const groups = [];
-  for (let i = 0; i < chosen.length; i += per) groups.push(chosen.slice(i, i + per));
+      // Portrait stacks brand, fan, line. Landscape cannot — a fan squeezed under a wordmark on a
+      // 16:9 sheet came out a strip of thumbnails in a field of paper — so it sets brand and line
+      // in a left column and gives the fan the full height of the right.
+      const colW = portrait ? w : w * 0.38;
+      const colX = portrait ? w / 2 : m + (colW - m) / 2;
 
-  let n = 0;
-  for (const group of groups) {
-    n += 1;
-    const file = join(at, `${String(n).padStart(2, '0')}-${group[0].source.replace(/\.\w+$/, '')}.png`);
-    await frame(group, w, h, file, 7 + n);
-    assertPng(file, w, h);
-  }
-  writeFileSync(
-    join(at, 'README.md'),
-    `# ${name} — ${w} x ${h}\n\n${why}\n\n` +
-      `${n} generated by \`yarn store:kit\` from \`docs/readme/\`, in the order set by\n` +
-      `\`screenshots\` in \`apps/mobile/store.metadata.json\`. Both consoles order by upload rather\n` +
-      `than by filename, so upload them in the sorted order shown here.\n\n` +
-      `To change which shots or captions are used, edit that file — not these PNGs.\n`,
-    'utf8',
+      // The brand block: wordmark, then its English name set small and spaced, as the menu has it.
+      const markW = portrait
+        ? Math.min(w * 0.78, (h * 0.17 * wordmark.width) / wordmark.height)
+        : (colW - m) * 0.86;
+      const markH = (markW * wordmark.height) / wordmark.width;
+      const sub = Math.round(markW * 0.042);
+      const footRoom = portrait ? Math.round(Math.min(w * 0.3, h * 0.2)) : Math.round(h * 0.34);
+      const brandH = markH + sub * 1.9;
+      const markY = portrait ? m * 1.3 : (h - (brandH + footRoom)) / 2;
+      x.save();
+      x.globalCompositeOperation = 'multiply';
+      x.drawImage(wordmark, colX - markW / 2, markY, markW, markH);
+      x.restore();
+      x.font = `600 ${sub}px BVP`;
+      x.letterSpacing = `${Math.round(sub * 0.32)}px`;
+      x.textAlign = 'center';
+      x.fillStyle = P.mucSoft;
+      const subY = markY + markH + sub * 1.9;
+      x.fillText('TEN THOUSAND VICTORIES', colX, subY);
+      x.letterSpacing = '0px';
+
+      const n = imgs.length;
+      const centre = (n - 1) / 2;
+      const cardRows = crops.map(([, hi]) => hi);
+      const setRows = Math.max(...cardRows);
+      const fanTop = portrait ? subY + sub * 2.4 : m;
+      const fanBottom = portrait ? h - footRoom : h - m;
+      const fanLeft = portrait ? m : colW + m * 0.6;
+      const fanRight = w - m * 0.5;
+      const cardH = (fanBottom - fanTop) * (portrait ? 0.9 : 0.86);
+      // A fan is its centre card plus two steps each side, turned — about 3.6 card widths wide in
+      // landscape. Sized by that, not by one card, or it spills into the brand column.
+      const cardW = Math.min((cardH * imgs[0].width) / setRows, (fanRight - fanLeft) / (portrait ? 2.1 : 3.6));
+      const realH = (setRows * cardW) / imgs[0].width;
+      const stepX = portrait ? cardW * 0.44 : cardW * 0.52;
+      const fanCx = portrait ? w / 2 : (fanLeft + fanRight) / 2;
+      const edge = Math.max(3, Math.round(Math.min(w, h) * 0.0045));
+      const order = imgs.map((_, i) => i).sort((a, b) => Math.abs(b - centre) - Math.abs(a - centre));
+      for (const i of order) {
+        const off = i - centre;
+        const scale = 1 - Math.abs(off) * 0.08;
+        const cx = fanCx + off * stepX;
+        const cy = fanTop + (fanBottom - fanTop) / 2 + Math.abs(off) * realH * 0.05;
+        x.save();
+        x.translate(cx, cy);
+        x.rotate((off * (portrait ? 7 : 6) * Math.PI) / 180);
+        x.scale(scale, scale);
+        window.screenPrint(x, imgs[i], cardRows[i], setRows, -cardW / 2, -realH / 2, cardW, P, edge, Math.min(w, h) * 0.035);
+        x.restore();
+      }
+
+      const lineCy = portrait ? h - footRoom / 2 - m * 0.2 : subY + footRoom / 2 + sub;
+      const fitSize = window.headline(
+        x, lines, colX, lineCy, portrait ? w * 0.88 : colW - m, footRoom, layout.size ?? Infinity, P, true,
+      );
+      c.style.cssText = 'display:block;width:100%;height:100%';
+      document.body.innerHTML = '';
+      document.body.appendChild(c);
+      return fitSize;
+    },
+    {
+      srcs: shot.screens.map((id) => dataUri(join(shotSource, lang, `${id}.jpg`), 'image/jpeg')),
+      crops: shot.screens.map((id) => meta.screenshots.find((s) => s.source === id).crop),
+      mark: dataUri(join(root, 'public', 'art', 'menu-wordmark-dongho-v2.webp'), 'image/webp'),
+      lines: shot.caption[lang],
+      w,
+      h,
+      P: PIG,
+      layout,
+    },
   );
-  note(at, `${n} x ${w}x${h}`);
+  if (file) writeFileSync(file, await page.screenshot({ omitBackground: false }));
+  return fit;
+};
+
+/** 1170 wide, and a phone frame usually ends near row 1830; the ratio decides how many share a card. */
+const SHOT_ASPECT = 1170 / 1830;
+
+for (const [lang, suffix] of LANGS) {
+  const has = (id) => existsSync(join(shotSource, lang, `${id}.jpg`));
+  const chosen = meta.screenshots.filter((s) => {
+    if ((s.screens ? s.screens.every(has) : has(s.source)) && s.caption?.[lang]) return true;
+    console.warn(`  ! store/gameplay/${lang}/${s.source} (or its ${lang} caption) is missing — skipped`);
+    return false;
+  });
+
+  for (const [platform, name, w, h, why] of SHOTS) {
+    const at = dir(platform, 'screenshots', name + suffix);
+    // Cleared first, because a frame's filename carries both its position and the shot that leads
+    // it: adding a seventh screenshot renumbered everything after the third, and the run that did
+    // it left `04-founder.png` standing beside the new `04-cabinet.png`. The console orders by the
+    // order you upload, and the README beside these files says to upload them sorted — so an
+    // orphan from a previous shot list is a duplicate screenshot in the store. This directory is
+    // generated in full on every run; nothing in it is worth keeping.
+    for (const stale of readdirSync(at)) {
+      if (stale.endsWith('.png')) rmSync(join(at, stale));
+    }
+    // Gameplay screens share a card where the canvas is wide enough; the closing card is always a
+    // card of its own, in the position the list puts it.
+    const per = Math.max(1, Math.min(3, Math.round(w / h / SHOT_ASPECT)));
+    const groups = [];
+    let run = [];
+    for (const s of chosen) {
+      if (s.screens) {
+        if (run.length) groups.push(run);
+        groups.push([s]);
+        run = [];
+      } else {
+        run.push(s);
+        if (run.length === per) {
+          groups.push(run);
+          run = [];
+        }
+      }
+    }
+    if (run.length) groups.push(run);
+    const plain = groups.filter((g) => !g[0].screens);
+
+    // Measure, then draw. Every frame takes the tallest cut in the set; the headline band is what a
+    // frame of that height leaves; the size is the median of what each card could carry in that
+    // band, so one long line shrinks on its own card instead of setting the size for all six.
+    let rows = 0;
+    for (const g of plain) rows = Math.max(rows, (await frame(g, lang, w, h, null)).rows);
+    const fits = [];
+    let band = 0;
+    for (const g of plain) {
+      const r = await frame(g, lang, w, h, null, { rows });
+      band = r.band;
+      fits.push(r.fitSize);
+    }
+    const sorted = [...fits].sort((a, b) => a - b);
+    const shared = { rows, band, size: sorted[Math.floor((sorted.length - 1) / 2)] };
+
+    let n = 0;
+    for (const group of groups) {
+      n += 1;
+      const file = join(at, `${String(n).padStart(2, '0')}-${group[0].source}.png`);
+      if (group[0].screens) await closer(group[0], lang, w, h, file, shared);
+      else await frame(group, lang, w, h, file, shared);
+      assertPng(file, w, h);
+    }
+    writeFileSync(
+      join(at, 'README.md'),
+      `# ${name}${suffix} — ${w} x ${h}${lang === 'vi' ? ' — Tiếng Việt' : ''}\n\n${why}\n\n` +
+        (lang === 'vi'
+          ? `For the Vietnamese store listing, which is its own locale in both consoles.\n\n`
+          : '') +
+        `${n} generated by \`yarn store:kit\` from \`store/gameplay/${lang}/\`, in the order set by\n` +
+        `\`screenshots\` in \`apps/mobile/store.metadata.json\`. Both consoles order by upload rather\n` +
+        `than by filename, so upload them in the sorted order shown here.\n\n` +
+        `To change which shots or captions are used, edit that file — not these PNGs.\n`,
+      'utf8',
+    );
+    note(at, `${n} x ${w}x${h}`);
+  }
 }
 
 await browser.close();
@@ -732,6 +911,7 @@ Nothing to answer. \`ITSAppUsesNonExemptEncryption: false\` in \`app.json\` sett
 ### Screenshots
 
 \`screenshots/iphone-6.9/\` and \`screenshots/ipad-13/\`, generated. Both are required.
+The Vietnamese listing takes the \`-vi\` twins: \`screenshots/iphone-6.9-vi/\` and \`screenshots/ipad-13-vi/\`.
 
 ### Still to do by hand
 
@@ -767,6 +947,7 @@ ${field('Privacy policy URL', S.privacyPolicyUrl)}
 | Feature graphic, 1024x500 | \`graphics/feature-graphic-1024x500.png\` — cut by \`yarn share\` |
 | Phone screenshots | \`screenshots/phone/\` |
 | Tablet screenshots | \`screenshots/tablet-10/\` |
+| Vietnamese listing | the same folders with \`-vi\`: \`screenshots/phone-vi/\`, \`screenshots/tablet-10-vi/\` |
 
 ### Category
 

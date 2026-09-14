@@ -38,10 +38,9 @@ import type { MenuScene } from '../MenuScene';
  * So the line names its own action, permanently, and the caption below it is free to say what
  * installing gets you instead of what the arrow is.
  *
- * The three parts are laid out as one group against whichever way the stamp is anchored — the
- * desktop page corners its stamp and the group grows leftward from that fixed edge; the phone
- * column centres it and the whole group is re-centred. Visual centres, not object origins: the
- * texts are bottom-anchored and the icon is not.
+ * The three parts are laid out as one group re-centred on the stamp, which both the phone column
+ * and the desktop scroll centre. Visual centres, not object origins: the texts are bottom-anchored
+ * and the icon is not.
  *
  * It only ever rides a build stamp: the front page's colophon, or a page that reserves the slot
  * with `menuInstallAnchor`. A page carrying neither gets no mark — a 16-unit arrow alone on empty
@@ -79,7 +78,6 @@ export function renderInstallMark(self: MenuScene): void {
      * in a 9px strip. The install mark is the quietest thing on the page; it gives way.
      */
     const plain = versionLine.getData('menuVersionPlain') === true;
-    const cornered = versionLine.originX === 1;
     const action = plain
       ? self.ui.label(0, versionLine.y, `${t('menu.install.action')} ·`, 'caption', {
         color: INK_UI_HEX.inkText,
@@ -93,9 +91,7 @@ export function renderInstallMark(self: MenuScene): void {
     const groupWidth = INSTALL_MARK_SIZE + INSTALL_MARK_GAP + wordWidth + versionLine.displayWidth;
     // Held inside the sheet: a long stamp in a language with longer words would otherwise push the
     // group's head off the left edge of a centred column.
-    const left = Math.max(8, cornered
-      ? versionLine.x - groupWidth
-      : versionLine.x - groupWidth / 2);
+    const left = Math.max(8, versionLine.x - groupWidth / 2);
 
     anchor = {
       x: left + INSTALL_MARK_SIZE / 2,
@@ -103,9 +99,7 @@ export function renderInstallMark(self: MenuScene): void {
     };
     action?.setX(left + INSTALL_MARK_SIZE + INSTALL_MARK_GAP);
     const stampLeft = left + INSTALL_MARK_SIZE + INSTALL_MARK_GAP + wordWidth;
-    versionLine.setX(cornered
-      ? stampLeft + versionLine.displayWidth
-      : stampLeft + versionLine.displayWidth / 2);
+    versionLine.setX(stampLeft + versionLine.displayWidth / 2);
     hitBounds = {
       x: left,
       y: versionLine.y - versionLine.displayHeight,

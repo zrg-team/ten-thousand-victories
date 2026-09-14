@@ -33,10 +33,20 @@ await cp(source, target, { recursive: true });
 const rootPackage = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 const ownPath = join(cabinet, 'package.json');
 const own = JSON.parse(await readFile(ownPath, 'utf8'));
-if (own.version !== rootPackage.version) {
+// And where the published site keeps the desktop's game updates (`scripts/desktop-web-manifest.mjs`
+// writes them under `desktop/` in the Pages deploy), from the same `homepage` every other URL of the
+// site derives from.
+const updateUrl = `${rootPackage.homepage.replace(/\/+$/, '')}/desktop`;
+if (own.version !== rootPackage.version || own.vanThang?.updateUrl !== updateUrl) {
   own.version = rootPackage.version;
+  own.vanThang = { ...own.vanThang, updateUrl };
   await writeFile(ownPath, `${JSON.stringify(own, null, 2)}\n`);
-  console.log(`version ${rootPackage.version} carried into apps/desktop/package.json`);
+  console.log(`version ${rootPackage.version} and update URL ${updateUrl} carried into apps/desktop/package.json`);
+}
+if (!(await stat(join(target, 'version.json')).catch(() => null))) {
+  // Without it the cabinet cannot tell which game it holds, and takes any download as newer.
+  console.error('dist-shell/version.json is missing — rebuild with `yarn build:shell`.');
+  process.exit(1);
 }
 
 const files = [];

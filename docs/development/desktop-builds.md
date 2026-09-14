@@ -77,6 +77,59 @@ versions still being shipped (`menu-layer-ground-v1..v5` where only v6 is drawn,
 farm and bamboo). Trimming those is a service-worker precache change as much as a packaging one, so
 it is its own job, not a packaging flag.
 
+### Game updates
+
+The web updates through its service worker and the phones through EAS Update. The desktop cabinet
+updates **the game** by itself, from the same Pages deploy, and tells the player the same way: the
+front page's version line says *Downloading version 1.1.6 · 45%*, then *tap to update*, and Settings
+has *Check for updates*. The game side is the phone's contract unchanged (`src/pwa/updates.ts`); the
+cabinet side is `apps/desktop/updater.js`.
+
+**Publishing is the Pages deploy.** After `yarn build` (which has already written `dist/sw.js`), the
+workflow runs `yarn build:shell` and `node scripts/desktop-web-manifest.mjs --web dist --out
+dist/desktop`. That writes `desktop/<major.minor>/manifest.json`: every file of the shell build with
+its size and sha256. Files byte-identical to the web build's copy (art, faces, audio: nearly all of
+it) point at the web build's own URL; only the rest (`index.html`, `version.json`, the hashed
+bundle, about 5 MB) is copied under `desktop/<line>/files/`. A push to `main` publishes it; every
+installed cabinet on that line sees it within half an hour.
+
+`yarn desktop:update` is the desktop's `yarn mobile:eas:update`: it checks the cabinet side against
+`apps/desktop/native-lines.json`, refuses a commit that is not on `origin/main`, follows (or starts)
+the deploy, and returns once the live manifest carries the build. `--dry-run` prints the plan;
+`--record` records a new line after its installers and Steam build ship. The deploy runs the same
+check (`--check`) and skips the desktop publish, with a warning, when the cabinet changed without a
+minor bump; the web deploy goes out either way.
+
+**What a cabinet does with it:**
+
+| When | What |
+|---|---|
+| 15 s after the menu first shows, then every 30 min, and on *Check for updates* | Reads `<updateUrl>/<its line>/manifest.json`. A higher build number than the game it runs means an update. |
+| Downloading | Copies every file whose sha256 matches one already on disk, downloads the rest, verifies each against the manifest, builds it in `userData/game-bundles/.staging-*` and renames it into place. |
+| *Tap to update* | Serves the new folder and reloads the window. Saves are `localStorage` on `app://van-thang` and are untouched. |
+| Next launch | Runs the newest complete download on its line if it is newer than the game inside the install, otherwise the install's own. |
+| A new game that does not reach the menu | A renderer crash, a failed load, or no menu within 90 s: the download is marked bad, never offered again, and the cabinet goes back to the game it had. A download that has reached the menu once is trusted after that. |
+
+**The line rule** is the phone's: a 1.1 cabinet asks only for `1.1/`, so a 1.1 cabinet never runs a
+1.2 game. **Anything that changes `main.js`, `preload.js`, the Electron version or the descriptor
+the game relies on is a new line**: bump the minor version and ship new installers and a new Steam
+build. Once `main` is on 1.2 the deploy publishes `1.2/` only; 1.1 cabinets find no manifest, answer
+*up to date*, and keep the newest 1.1 game they downloaded.
+
+**A Steam or installer update wins when it is newer.** The cabinet compares build numbers (the
+commit count, from `version.json` in the shell build), so a depot that ships build 610 runs its own
+game over a download of build 605, and the stale download is deleted once the menu is up.
+
+**Off in a development checkout** (`npm start`, `app.isPackaged` false): no business rewriting the
+game under test. `VAN_THANG_UPDATE_URL=<feed>` turns it on against another feed,
+`VAN_THANG_UPDATES=off` turns it off anywhere, and `VAN_THANG_USER_DATA=<dir>` gives a run its own
+profile. The end-to-end gate is `node test_scripts/scratch/desktop-update.mjs` (after
+`yarn desktop:sync`): it runs the real Electron binary against a local feed through a download,
+a relaunch, a bad hash, a game that never starts, and a missing line.
+
+**Players on 1.1.5 or older have no updater.** It ships with the first build that contains
+`updater.js`; they need that one install, and every game after it comes by itself.
+
 ### Display modes
 
 The cabinet offers **Windowed** and **Borderless**, and on macOS a third, **Fullscreen**. The row is
