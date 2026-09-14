@@ -306,7 +306,7 @@ check('the ceremony choice is in force on the very next run',
 
 // ── 4. The rendered screens ─────────────────────────────────────────────────
 console.log('\n=== SCREENS ===');
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(800);
 
@@ -634,7 +634,7 @@ console.log('\n=== VIETNAMESE ===');
     () => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 },
   ).then(() => true).catch(() => false);
   await vi.waitForTimeout(1000);
-  await vi.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await vi.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   const ran = await vi.waitForFunction(
     () => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 },
   ).then(() => true).catch(() => false);
@@ -1027,7 +1027,7 @@ console.log('\n=== DOSSIER GATES ===');
   }, [house(REIGNS.slice(0, 2))]);
   await ceremony.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
   await ceremony.waitForFunction(() => typeof window.__startBenchGame === 'function' && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-  await ceremony.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await ceremony.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await ceremony.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await ceremony.waitForTimeout(800);
 
@@ -1177,7 +1177,7 @@ console.log('\n=== DOSSIER GATES ===');
   await run.addInitScript(() => { localStorage.clear(); localStorage.setItem('mandate:language:v1', 'en'); });
   await run.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
   await run.waitForFunction(() => typeof window.__startBenchGame === 'function' && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-  await run.evaluate(() => window.__startBenchGame(4242, 'ascent'));
+  await run.evaluate(() => window.__startBenchGame(4242, 'ascent', 'v1'));
   await run.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await run.waitForTimeout(800);
   const live = await run.evaluate(async () => {
@@ -1291,7 +1291,7 @@ console.log('\n=== RANK II AND THE COUNTERS ===');
   await chipPage.addInitScript(() => { localStorage.clear(); localStorage.setItem('mandate:language:v1', 'vi'); });
   await chipPage.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
   await chipPage.waitForFunction(() => typeof window.__startBenchGame === 'function' && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-  await chipPage.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await chipPage.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await chipPage.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await chipPage.waitForTimeout(900);
   await chipPage.evaluate(async () => {

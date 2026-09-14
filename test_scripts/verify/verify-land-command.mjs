@@ -41,7 +41,7 @@ await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 // still in flight — five "Texture key already in use" errors that failed the console check on a
 // boot with nothing wrong with it.
 await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => Boolean(gameState()), null, { timeout: 30000 });
 await page.waitForTimeout(900);
 

@@ -129,7 +129,7 @@ console.log('=== CHROME: the back bar still answers the press ===');
 }
 
 console.log('=== A RUN: the Build screen rows ===');
-await page.evaluate(() => window.__startBenchGame(20260904, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(20260904, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'), null, { timeout: 30000 });
 await page.waitForTimeout(1500);
 await page.evaluate(async () => {

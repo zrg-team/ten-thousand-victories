@@ -97,7 +97,7 @@ page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 try {
   await page.goto(`${URL}/?capture=1&noladder=1`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof window.__startBenchGame === 'function', null, { timeout: 30000 });
-  await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await page.waitForTimeout(1200);
 

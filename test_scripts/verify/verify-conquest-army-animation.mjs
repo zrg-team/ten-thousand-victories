@@ -26,7 +26,7 @@ const check = (name, ok, detail) => checks.push({ name, ok, detail });
 await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
   && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30_000 });
-await page.evaluate((seed) => window.__startBenchGame(seed, 'ascent'), 20260901);
+await page.evaluate((seed) => window.__startBenchGame(seed, 'ascent', 'v1'), 20260901);
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene')
   && window.__mandateState, null, { timeout: 30_000 });
 await page.waitForTimeout(900);

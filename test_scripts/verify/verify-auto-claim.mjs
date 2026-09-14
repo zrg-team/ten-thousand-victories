@@ -30,7 +30,7 @@ await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(
   () => typeof window.__startBenchGame === 'function' && window.__phaserGame.scene.isActive('MenuScene'),
   null, { timeout: 30000 });
-await page.evaluate(() => window.__startBenchGame(20260824, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(20260824, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(800);
 
@@ -92,7 +92,7 @@ check(asked.bribes === 0, 'no province is bought behind the player', `bribe orde
 check(asked.unprompted > 0, 'the court raises the method sheet instead', `sheets raised unprompted: ${asked.unprompted}`);
 
 // ── 2. the switch hands routine expansion back ───────────────────────────────────────────────
-await page.evaluate(() => window.__startBenchGame(20260824, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(20260824, 'ascent', 'v1'));
 await page.waitForTimeout(500);
 const silent = await run(true, 300);
 check(silent.bribes > 0, 'autoClaimSilently buys as it always did', `bribe orders filed: ${silent.bribes}`);

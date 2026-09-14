@@ -256,7 +256,7 @@ await page.waitForTimeout(500);
   // A prompt built out of option cards, on screen, pressed with a real finger.
   const pressed = await page.evaluate(async () => {
     const { soundDirector } = await import('/src/ui/sound/SoundDirector.ts');
-    window.__startBenchGame(1337, 'ascent');
+    window.__startBenchGame(1337, 'ascent', 'v1');
     return typeof soundDirector.card === 'function';
   });
   void pressed;
@@ -591,7 +591,7 @@ check('no console errors', errors.length === 0, errors.slice(0, 2).join(' | '));
     JSON.stringify(afterPress));
 
   // And the map takes over when the run starts, without needing another press.
-  await page2.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await page2.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await page2.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'), null, { timeout: 20000 });
   await page2.waitForTimeout(3000);
   const onMap = await read();

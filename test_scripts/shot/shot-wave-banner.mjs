@@ -26,7 +26,7 @@ await page.waitForFunction(
   null, { timeout: 30000 },
 );
 
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(1200);
 
@@ -137,7 +137,7 @@ await viPage.waitForFunction(
   () => typeof window.__startBenchGame === 'function' && window.__phaserGame.scene.isActive('MenuScene'),
   null, { timeout: 30000 },
 );
-await viPage.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await viPage.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await viPage.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await viPage.waitForTimeout(1200);
 await viPage.evaluate(() => {

@@ -205,7 +205,7 @@ console.log('\n=== THE DEAL AND THE BINDER ===');
   await run.addInitScript(() => { localStorage.clear(); localStorage.setItem('mandate:language:v1', 'en'); });
   await run.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
   await run.waitForFunction(() => typeof window.__startBenchGame === 'function' && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-  await run.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await run.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await run.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await run.waitForTimeout(800);
   await run.evaluate(async () => {

@@ -365,10 +365,11 @@ export interface KingdomKing {
 }
 
 /**
- * Which rules a Dragon Ascent run plays by. `stable` is the shipped game; `beta` is the same engine
- * with the experiments the player opted into in Settings. See `src/game/ascentRuleset.ts`.
+ * Which numbered rules a Dragon Ascent run plays by: `v1` the original game, `v2` the current one.
+ * Saves written as `stable` / `beta` are read through `normalizeRulesetId`. See
+ * `src/game/ascentRuleset.ts`, which also says how to add a version.
  */
-export type AscentRulesetId = 'stable' | 'beta';
+export type AscentRulesetId = 'v1' | 'v2';
 
 export interface CampaignConfig {
   seaSides: 0 | 1 | 2 | 3;
@@ -376,16 +377,17 @@ export interface CampaignConfig {
   /** Optional dynasty founder chosen at setup (empire mode) — a starting Legendary hero. */
   founderId?: string;
   /**
-   * The Dragon Ascent ruleset this run was started under. **Absent means `stable`** — every save
-   * made before rulesets existed, every harness that builds a run by hand, and every stable run
-   * (which deliberately carries no field, so its saves and fingerprints are unchanged). Set only
-   * by `newAscentRun`, and read only through `rulesetIdOf` / `rulesOf`.
+   * The Dragon Ascent rule version this run was started under. **Absent means `v1`** — every save
+   * made before versions existed, every harness that builds a run by hand without naming one, and
+   * every v1 run (which deliberately carries no field, so its saves and fingerprints are
+   * unchanged). Older builds wrote `stable` / `beta`; read it only through `rulesetIdOf` /
+   * `rulesOf`, which understand both. Set only by `newAscentRun`.
    *
    * It lives on the config rather than on `AscentState` because the factory writes to the meta
    * stores and seeds the opening before `state.ascent` exists; a rule that shapes the opening has
    * to be readable from the input.
    */
-  ruleset?: AscentRulesetId;
+  ruleset?: AscentRulesetId | 'stable' | 'beta';
 }
 
 export interface CampaignScore {

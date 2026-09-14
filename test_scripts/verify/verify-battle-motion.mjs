@@ -45,7 +45,7 @@ await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 // bench bootstrap wipes `window.__mandateState` in its own create().
 await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
   && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-await page.evaluate((s) => window.__startBenchGame(s, 'ascent'), SEED);
+await page.evaluate((s) => window.__startBenchGame(s, 'ascent', 'v1'), SEED);
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene') && !!window.__mandateState,
   null, { timeout: 30000 });
 await page.waitForTimeout(800);

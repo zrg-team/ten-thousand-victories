@@ -37,7 +37,7 @@ await page.waitForFunction(
   null,
   { timeout: 30_000 },
 );
-await page.evaluate((seed) => window.__startBenchGame(seed, 'ascent'), 20260901);
+await page.evaluate((seed) => window.__startBenchGame(seed, 'ascent', 'v1'), 20260901);
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30_000 });
 await page.evaluate(() => {
   const scene = window.__phaserGame.scene.getScene('ConquestScene');

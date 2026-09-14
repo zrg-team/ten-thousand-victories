@@ -52,7 +52,7 @@ page.on('console', (m) => { if (m.type() === 'error') errors.push(`CONSOLE ${m.t
 await page.goto(`${BASE}/?capture=1&heroArt=${PACK}`, { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
   && window.__phaserGame.scene.isActive('MenuScene'), null, { timeout: 40000 });
-await page.evaluate(() => window.__startBenchGame(20260901, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(20260901, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 40000 });
 await page.waitForTimeout(700);
 

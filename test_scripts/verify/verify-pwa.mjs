@@ -138,7 +138,7 @@ try {
   // loader at runtime, which is the half a shell-only precache would silently break.
   let ranOffline = true;
   try {
-    await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+    await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
     await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   } catch {
     ranOffline = false;

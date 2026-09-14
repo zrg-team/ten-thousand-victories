@@ -99,7 +99,7 @@ const runOf = (page) => page.evaluate(() => {
 });
 
 async function startRun(page) {
-  await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await page.waitForTimeout(800);
 }
@@ -529,7 +529,7 @@ try {
       // Leaving a skirmish's field hands the whole scene back to the setup sheet, so the width has
       // to be proven on the next HUD to boot: a run's column, which would come up 780 wide if the
       // stage had not been given back.
-      await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+      await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
       await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'), null, { timeout: 30000 }).catch(() => {});
       await page.waitForTimeout(800);
       const after = await page.evaluate(() => {

@@ -165,7 +165,7 @@ rite.on('pageerror', (e) => errors.push(e.message));
 rite.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 await rite.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 await rite.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene') && window.__startBenchGame);
-await rite.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await rite.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await rite.waitForFunction(() => window.__phaserGame.scene.getScene('ConquestUIScene').coronationSheet);
 await rite.evaluate(() => {
   const ui = window.__phaserGame.scene.getScene('ConquestUIScene');

@@ -160,7 +160,7 @@ async function toMenu(page) {
  */
 async function boot(page, seed, mode) {
   await toMenu(page);
-  await page.evaluate(([s, m]) => window.__startBenchGame(s, m), [seed, mode]);
+  await page.evaluate(([s, m]) => window.__startBenchGame(s, m, 'v1'), [seed, mode]);
   const key = mode === 'ascent' ? 'ConquestScene' : 'MapScene';
   await page.waitForFunction((k) => window.__phaserGame.scene.isActive(k), key, { timeout: 30000 });
   await page.evaluate((k) => {

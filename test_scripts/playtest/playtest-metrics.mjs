@@ -25,9 +25,11 @@ const arg = (flag, fallback) => {
 const SEED_COUNT = arg('--seeds', 8);
 const TICKS = arg('--ticks', 600);
 const JSON_ONLY = process.argv.includes('--json');
-// `--ruleset beta` measures the Dragon Ascent beta (`game/ascentRuleset.ts`); stable by default,
-// so every recorded baseline stays comparable.
-const RULESET = process.argv.includes('--ruleset') ? process.argv[process.argv.indexOf('--ruleset') + 1] : 'stable';
+// `--ruleset v1` measures the original rules (`game/ascentRuleset.ts`). The default is the game's
+// current version, v2, since 2026-09-15 — numbers recorded before that date were v1 ("stable").
+const RULESET_ALIAS = { stable: 'v1', beta: 'v2' };
+const RULESET_RAW = process.argv.includes('--ruleset') ? process.argv[process.argv.indexOf('--ruleset') + 1] : 'v2';
+const RULESET = RULESET_ALIAS[RULESET_RAW] ?? RULESET_RAW;
 const SEEDS = Array.from({ length: SEED_COUNT }, (_, i) => 11 + i * 11);
 
 const browser = await chromium.launch();
@@ -253,7 +255,7 @@ const report = {
 };
 
 mkdirSync('output/playtest', { recursive: true });
-writeFileSync(RULESET === 'stable' ? 'output/playtest/metrics.json' : `output/playtest/metrics.${RULESET}.json`, JSON.stringify(report, null, 2));
+writeFileSync(RULESET === 'v2' ? 'output/playtest/metrics.json' : `output/playtest/metrics.${RULESET}.json`, JSON.stringify(report, null, 2));
 
 if (JSON_ONLY) {
   console.log(JSON.stringify(report, null, 2));

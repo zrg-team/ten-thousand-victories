@@ -246,7 +246,7 @@ check('the long runs actually fought something', long.engagements > 20,
 
 console.log('=== BAR AND LANE ===');
 
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(900);
 

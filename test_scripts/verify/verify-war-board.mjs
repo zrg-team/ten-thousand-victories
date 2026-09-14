@@ -229,7 +229,7 @@ check('a defence the odds would simply lose is never settled off-screen',
 
 console.log('=== THE BOARD ===');
 
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(700);
 

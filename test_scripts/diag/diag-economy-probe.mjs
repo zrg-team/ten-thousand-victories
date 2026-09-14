@@ -78,7 +78,7 @@ const results = await page.evaluate(async ({ seeds, ticks, open, samples, polici
   const size = (a) => a.units.spearmen + a.units.archers + a.units.heavyInfantry;
 
   const play = async (seed, seedIndex, policy) => {
-    const state = await window.__ptBoot(seed);
+    const state = await window.__ptBoot(seed, { ruleset: 'v1' });
     const seenInvaders = new Set();
     const spawns = [];
     const battles = [];

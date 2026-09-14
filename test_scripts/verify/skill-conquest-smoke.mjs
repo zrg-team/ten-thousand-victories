@@ -11,7 +11,7 @@ const out=process.env.OUT??'output/a9-performance/skill-client';await mkdir(out,
 const bootstrap=`<script type="module">
 const wait=()=>new Promise(r=>setTimeout(r,20));
 while(!window.__phaserGame?.scene.isActive('MenuScene'))await wait();
-window.__startBenchGame(20260812,'ascent');
+window.__startBenchGame(20260812,'ascent', 'v1');
 while(!window.__phaserGame.scene.getScene('ConquestUIScene')?.ui)await wait();
 const first=${FIRST_OPTION};let n=0;while(window.__mandateState.pendingAscentPrompt&&n++<12)window.__performanceBench.resolve(first(window.__mandateState.pendingAscentPrompt));
 const s=window.__phaserGame.scene.getScene('ConquestScene');s.state.isStrategyPause=true;s.refresh();

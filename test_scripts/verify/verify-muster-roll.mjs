@@ -33,7 +33,7 @@ await page.waitForFunction(
 
 /** Boot a seed and report what it mustered. */
 const roll = async (seed) => {
-  await page.evaluate((s) => window.__startBenchGame(s, 'ascent'), seed);
+  await page.evaluate((s) => window.__startBenchGame(s, 'ascent', 'v1'), seed);
   await page.waitForFunction(() => window.__mandateState?.muster !== undefined, null, { timeout: 20000 });
   return page.evaluate(() => {
     const st = window.__mandateState;

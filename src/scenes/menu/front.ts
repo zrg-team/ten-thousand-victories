@@ -22,8 +22,7 @@ import { isDesktopPlatform } from '../../platform/layout';
 import { canQuitShell, quitShell } from '../../platform/shell';
 import { QUIT_ROW_HEIGHT, SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
 import { pageFloor, renderPageHead } from './helpers';
-import { betaBadgeText, betaSaveSuffix } from './betaBadge';
-import { isAscentBetaEnabled } from '../../game/betaOptions';
+import { rulesetBadgeText, rulesetSaveSuffix } from './rulesetBadge';
 import type { MenuScene } from '../MenuScene';
 
 /**
@@ -66,14 +65,14 @@ export function renderMain(self: MenuScene): void {
   self.tipAnchor = self.tourTargets.play;
   self.content.push(self.ui.button(self.tourTargets.play, t('ascent.menu.title'), () => {
     startAscentRun(self);
-  }, { variant: 'primary', fontSize: '17px', badge: betaBadgeText() }).setData('menuPrimary', true).setData('menuBetaBadge', isAscentBetaEnabled()));
+  }, { variant: 'primary', fontSize: '17px', badge: rulesetBadgeText() }).setData('menuPrimary', true).setData('menuRulesetBadge', Boolean(rulesetBadgeText())));
   cursor += playHeight + continueGap;
 
   // This resumes a classic save. Dragon Ascent remains the primary action, and a new
   // install has no empty or disabled Continue row.
   if (saved) {
     const resume = self.ui.textLink(0, 0,
-      t('menu.continueLine', { note: (self.reloadNote ?? snapshotLabel()) + betaSaveSuffix(loadSnapshot()?.state.campaignConfig?.ruleset) }), () => {
+      t('menu.continueLine', { note: (self.reloadNote ?? snapshotLabel()) + rulesetSaveSuffix(loadSnapshot()?.state.campaignConfig?.ruleset) }), () => {
         const snapshot = loadSnapshot();
         if (snapshot) self.startGame(snapshot.state);
       }, { fontSize: '11px' }).setData('menuLink', 'continue');
@@ -133,7 +132,7 @@ function renderDesktopMain(self: MenuScene): void {
   if (snapshot) {
     const note = (self.reloadNote ?? t('time.yearSeason', {
       year: snapshot.state.year, season: seasonLabel(snapshot.state.season),
-    })) + betaSaveSuffix(snapshot.state.campaignConfig?.ruleset);
+    })) + rulesetSaveSuffix(snapshot.state.campaignConfig?.ruleset);
     self.content.push(self.ui.button({ x, y: cursor, width, height: 56 }, t('menu.continue'), () => {
       const current = loadSnapshot();
       if (current) self.startGame(current.state);
@@ -148,8 +147,8 @@ function renderDesktopMain(self: MenuScene): void {
   self.tourTargets.play = { x, y: cursor, width, height: playHeight };
   if (!saved) self.tipAnchor = self.tourTargets.play;
   self.content.push(self.ui.button(self.tourTargets.play, saved ? t('menu.newRun') : t('ascent.menu.title'),
-    () => startAscentRun(self), { variant: saved ? 'secondary' : 'primary', fontSize: saved ? '13px' : '18px', badge: betaBadgeText() })
-    .setData('menuPrimary', !saved).setData('menuNewRun', true).setData('menuBetaBadge', isAscentBetaEnabled()));
+    () => startAscentRun(self), { variant: saved ? 'secondary' : 'primary', fontSize: saved ? '13px' : '18px', badge: rulesetBadgeText() })
+    .setData('menuPrimary', !saved).setData('menuNewRun', true).setData('menuRulesetBadge', Boolean(rulesetBadgeText())));
   cursor += playHeight + 20;
   self.renderDynastyTablet(x, cursor, width, 64);
   cursor += 74;

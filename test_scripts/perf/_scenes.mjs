@@ -20,7 +20,7 @@ export const SETUP = {
   menu: async () => {},
 
   map: async (page) => {
-    await page.evaluate(([s, m]) => window.__startBenchGame(s, m), [20260812, 'ascent']);
+    await page.evaluate(([s, m]) => window.__startBenchGame(s, m, 'v1'), [20260812, 'ascent']);
     await page.waitForFunction(() => window.__phaserGame?.scene.isActive('ConquestScene')
       && window.__phaserGame.scene.getScene('ConquestScene').landNodes?.size > 0, null, { timeout: 60000 });
     await page.evaluate(async ([src]) => {

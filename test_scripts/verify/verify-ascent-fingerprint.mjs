@@ -4,7 +4,7 @@
  * `verify-modes-regression` fingerprints empire, campaign and rival — never Ascent — so nothing
  * could prove that a refactor of shared Ascent code left the game byte-identical. This does: a
  * seeded headless run per seed, every tick folded into a hash, compared against a committed
- * baseline. The beta ruleset work leans on it — the stable ruleset must reproduce the baseline
+ * baseline. The rule versions lean on it — v1 must reproduce its baseline
  * exactly after every refactor step, and a deliberate change re-baselines with its diff explained.
  *
  * Every run starts from a **fresh profile**: the meta stores (dynasty, cabinet, legacy, codex,
@@ -18,9 +18,9 @@
  *
  * Usage:
  *   node test_scripts/verify/verify-ascent-fingerprint.mjs [--seeds 8] [--ticks 600]
- *        [--ruleset stable|beta|both] [--against stable] [--write]
- *   --write      record the run(s) as the baseline for their ruleset
- *   --against X  compare every ruleset run against X's baseline (e.g. beta vs stable while the
+ *        [--ruleset v1|v2|all] [--against v1] [--write]      (old names: stable = v1, beta = v2, both = all)
+ *   --write      record the run(s) as the baseline for their version
+ *   --against X  compare every run against X's baseline (e.g. a new version vs its parent while the
  *                beta profile still equals stable)
  * Env: DEV_URL / PLAYTEST_URL for a dev server other than 127.0.0.1:5179.
  */
@@ -38,9 +38,14 @@ const argOf = (flag, fallback) => {
 };
 const SEED_COUNT = Number(argOf('--seeds', 8));
 const TICKS = Number(argOf('--ticks', 600));
-const RULESET_ARG = argOf('--ruleset', 'stable');
-const RULESETS = RULESET_ARG === 'both' ? ['stable', 'beta'] : [RULESET_ARG];
-const AGAINST = argOf('--against', undefined);
+// Every version this build runs is gated by default. `v1` must stay byte-identical; a later version
+// moves only when its own rules change, and is re-baselined with the reason written down.
+const ALL_RULESETS = ['v1', 'v2'];
+const RULESET_ALIAS = { stable: 'v1', beta: 'v2' };
+const version = (id) => RULESET_ALIAS[id] ?? id;
+const RULESET_ARG = argOf('--ruleset', 'all');
+const RULESETS = RULESET_ARG === 'all' || RULESET_ARG === 'both' ? ALL_RULESETS : [version(RULESET_ARG)];
+const AGAINST = argOf('--against', undefined) ? version(argOf('--against', undefined)) : undefined;
 const WRITE = process.argv.includes('--write');
 const SEEDS = Array.from({ length: SEED_COUNT }, (_, i) => 11 + i * 11);
 const CHECKPOINT_EVERY = 25;
@@ -192,6 +197,10 @@ function firstDiff(a, b) {
 const baselineRef = argOf('--baseline-ref', undefined);
 const baseline = baselineRef ? JSON.parse(execFileSync('git', ['show', `${baselineRef}:test_scripts/verify/baselines/ascent-fingerprint.json`], { encoding: 'utf8' }))
   : existsSync(BASELINE_PATH) ? JSON.parse(readFileSync(BASELINE_PATH, 'utf8')) : null;
+// Baselines recorded before versions were numbered are keyed by the old names.
+if (baseline?.runs) for (const [old, id] of Object.entries(RULESET_ALIAS)) {
+  if (baseline.runs[old] && !baseline.runs[id]) { baseline.runs[id] = baseline.runs[old]; delete baseline.runs[old]; }
+}
 if (baselineRef && WRITE) throw new Error('--baseline-ref is read-only and cannot be combined with --write');
 
 if (WRITE) {

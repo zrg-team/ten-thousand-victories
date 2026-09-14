@@ -63,7 +63,7 @@ await page.waitForFunction(
 );
 
 // Jump into a deterministic game.
-await page.evaluate(([seed, mode]) => window.__startBenchGame(seed, mode), [SEED, MODE]);
+await page.evaluate(([seed, mode]) => window.__startBenchGame(seed, mode, 'v1'), [SEED, MODE]);
 await page.waitForFunction(
   (scene) => window.__phaserGame.scene.isActive(scene) && !!window.__mandateState,
   WORLD_SCENE,

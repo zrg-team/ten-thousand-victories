@@ -60,7 +60,7 @@ try {
     assert.equal(new Set(requests).size, 2);
     assert(requests.every(p => pack === 'legacy' ? /^\/faces\/atlas\.(svg|json)$/.test(p) : p === `/faces-${pack}/atlas.png` || p === `/faces-${pack}/atlas.json`));
     // Actual game flow and UI: opening choice, recruited roster, then a readable sample sheet.
-    await page.evaluate(() => window.__startBenchGame(20260906, 'ascent'));
+    await page.evaluate(() => window.__startBenchGame(20260906, 'ascent', 'v1'));
     await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'));
     await page.waitForTimeout(500);
     await page.screenshot({ path: `${OUT}/${pack}-game.png` });

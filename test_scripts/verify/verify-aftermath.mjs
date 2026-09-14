@@ -18,7 +18,7 @@ await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 // waiting only for the hook to exist is a race this script won by luck.
 await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
   && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-await page.evaluate(() => window.__startBenchGame(20260812, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(20260812, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(600);
 

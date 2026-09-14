@@ -31,7 +31,7 @@ for (const mode of ['empire', 'ascent']) {
     }, lang);
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-    await page.evaluate((m) => window.__startBenchGame(1337, m), mode);
+    await page.evaluate((m) => window.__startBenchGame(1337, m, 'v1'), mode);
     const sceneKey = mode === 'ascent' ? 'ConquestScene' : 'MapScene';
     await page.waitForFunction((k) => window.__phaserGame.scene.isActive(k), sceneKey, { timeout: 30000 });
     await page.waitForTimeout(1800);

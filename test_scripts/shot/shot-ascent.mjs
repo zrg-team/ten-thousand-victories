@@ -34,7 +34,7 @@ await page.evaluate(() => {
 await page.waitForTimeout(200);
 
 // Start a real run through the menu path.
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(900);
 await page.screenshot({ path: 'output/web-game/ascent-3-founder.png' });

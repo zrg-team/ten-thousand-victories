@@ -58,7 +58,7 @@ await page.addInitScript(() => {
 await page.goto(`${BASE}/?capture=1`, { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
   && window.__phaserGame.scene.isActive('MenuScene'), null, { timeout: 40000 });
-await page.evaluate((seed) => window.__startBenchGame(seed, 'ascent'), SEED);
+await page.evaluate((seed) => window.__startBenchGame(seed, 'ascent', 'v1'), SEED);
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 40000 });
 
 await page.evaluate(async () => {

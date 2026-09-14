@@ -2,7 +2,7 @@ import type { FieldStance, GameState } from './types';
 import { t } from '../i18n';
 import { ensureAscentLaneState } from '../systems/ascent/ConquestSystem';
 import { clearLiveReign } from './dynasty';
-import { isAscentRulesetId } from '../game/ascentRuleset';
+import { normalizeRulesetId } from '../game/ascentRuleset';
 import { restoreGoalChoice } from '../systems/ascent/Goal';
 import { validHeroSave } from '../systems/heroes/heroSave';
 
@@ -250,12 +250,14 @@ function normalizeSnapshotState(state: GameState): GameState {
   // The map now paints itself from the season, so an absent one would leave the world with no
   // palette at all rather than merely with a wrong HUD label.
   clone.season ??= 'Spring';
-  // A ruleset this build does not know — a save carried back from a newer build, or one written
-  // while an experiment existed that has since been retired — resumes under the stable rules
-  // rather than a half-understood set. `stable` itself is stored as no field at all.
-  if (clone.campaignConfig && 'ruleset' in clone.campaignConfig
-    && (!isAscentRulesetId(clone.campaignConfig.ruleset) || clone.campaignConfig.ruleset === 'stable')) {
-    delete clone.campaignConfig.ruleset;
+  // The version a save names, in this build's words: `beta` reads as v2 and `stable` as v1. A
+  // version this build does not know — a save carried back from a newer build, or one written while
+  // an experiment existed that has since been retired — resumes as v1 rather than a half-understood
+  // set. v1 itself is stored as no field at all.
+  if (clone.campaignConfig && 'ruleset' in clone.campaignConfig) {
+    const version = normalizeRulesetId(clone.campaignConfig.ruleset);
+    if (!version || version === 'v1') delete clone.campaignConfig.ruleset;
+    else clone.campaignConfig.ruleset = version;
   }
   // A prompt was mid-decision when the run was saved; its options were priced against a
   // state that no longer exists, so drop it rather than restore a stale choice.

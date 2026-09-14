@@ -19,7 +19,7 @@ async function session({ label, viewport, dsf, mode, worldScene, steps }) {
   await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
     && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 40000 });
-  await page.evaluate(([s, m]) => window.__startBenchGame(s, m), [SEED, mode]);
+  await page.evaluate(([s, m]) => window.__startBenchGame(s, m, 'v1'), [SEED, mode]);
   await page.waitForFunction((k) => window.__phaserGame.scene.isActive(k), worldScene, { timeout: 40000 });
   await page.waitForTimeout(1600);
   for (const step of steps) {

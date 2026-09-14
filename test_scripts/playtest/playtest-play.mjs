@@ -123,7 +123,7 @@ const runs = await page.evaluate(async ({ seeds, ticks, rules }) => {
 
   const out = [];
   for (const seed of seeds) {
-    const state = await window.__ptBoot(seed);
+    const state = await window.__ptBoot(seed, { ruleset: 'v1' });
     // The seed stays installed for the whole run, not just world generation — see `__ptBoot`.
     // Restored below so one policy's run cannot inherit the previous one's stream.
     const chosen = {};

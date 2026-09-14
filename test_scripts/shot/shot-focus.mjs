@@ -12,7 +12,7 @@ async function shoot(mode, sceneKey, uiKey, label) {
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.goto('http://127.0.0.1:5179', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof window.__startBenchGame === 'function' && window.__phaserGame?.scene.isActive('MenuScene'), null, {timeout:30000});
-  await page.evaluate((m) => window.__startBenchGame(1337, m), mode);
+  await page.evaluate((m) => window.__startBenchGame(1337, m, 'v1'), mode);
   await page.waitForFunction((k) => window.__phaserGame.scene.isActive(k), sceneKey, {timeout:30000});
   await page.waitForTimeout(900);
 

@@ -30,7 +30,7 @@ page.on('console', (message) => {
 await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
   && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-await page.evaluate(() => window.__startBenchGame(20260824, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(20260824, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame?.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(800);
 
@@ -254,7 +254,7 @@ shortPage.on('console', (message) => {
 await shortPage.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 await shortPage.waitForFunction(() => typeof window.__startBenchGame === 'function'
   && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-await shortPage.evaluate(() => window.__startBenchGame(20260824, 'ascent'));
+await shortPage.evaluate(() => window.__startBenchGame(20260824, 'ascent', 'v1'));
 await shortPage.waitForFunction(() => window.__phaserGame?.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await shortPage.waitForTimeout(700);
 await shortPage.evaluate(async () => {

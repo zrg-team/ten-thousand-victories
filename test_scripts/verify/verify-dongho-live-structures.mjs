@@ -12,7 +12,7 @@ try{
   },quality);
   await page.goto(`${base}/?capture=1&noladder=1`);
   await page.waitForFunction(()=>window.__phaserGame?.scene.isActive('MenuScene'),null,{timeout:30000});
-  await page.evaluate(()=>window.__startBenchGame(20260901,'ascent'));
+  await page.evaluate(()=>window.__startBenchGame(20260901,'ascent', 'v1'));
   await page.waitForFunction(()=>window.__phaserGame.scene.isActive('ConquestScene'));
   const result=await page.evaluate(()=>{
    const map=window.__phaserGame.scene.getScene('ConquestScene');map.state.isPaused=true;
