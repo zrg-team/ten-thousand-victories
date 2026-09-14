@@ -130,7 +130,7 @@ for (const [lang, h] of [['en', 844], ['vi', 844], ['vi', 620]]) {
   // to be carried by the frame and is now carried by the glyph itself.
   await page.goto(`${BASE}/?capture=1`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof window.__startBenchGame === 'function', null, { timeout: 30000 });
-  await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'), null, { timeout: 30000 });
   await page.waitForTimeout(1500);
   // A run opens behind a stack of full-screen cards — the mandate first, then whatever the

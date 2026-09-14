@@ -29,7 +29,9 @@ import {
   attackLand,
   combinedDefencePower,
   createBattlePreview,
+  defenderPower,
   grantGeneralExperience,
+  handOffClaim,
   issueMoveOrder,
   masonryPowerPerDefense,
   militiaPowerPerMan,
@@ -60,7 +62,7 @@ import { grantDeed } from '../../state/cabinet';
 import { noteRubbing } from '../ascent/Inheritance';
 import type {
   Army, AscentBattleRecord, Difficulty, EraId, GameState, InvasionRecord, Kingdom, KingdomPersonality, Land,
-  PendingBattle,
+  PendingBattle, SiegeOrder,
 } from '../../state/types';
 import { t } from '../../i18n';
 
@@ -293,7 +295,10 @@ function applyInvaderLosses(army: Army, rate: number): void {
 
 function despawnInvasion(state: GameState, record: InvasionRecord): void {
   state.armies = state.armies.filter((a) => a.id !== record.armyId);
-  state.siegeOrders = state.siegeOrders.filter((o) => o.armyId !== record.armyId);
+  // A claim this host carried passes to the next of its coalition on the ground before it is
+  // dropped — see `handOffClaim`. Classic modes keep the plain filter.
+  state.siegeOrders = state.siegeOrders.filter((o) => o.armyId !== record.armyId
+    || (state.gameMode === 'ascent' && handOffClaim(state, o)));
   state.invasions = (state.invasions ?? []).filter((r) => r !== record);
 }
 
@@ -578,9 +583,16 @@ export function launchOffMapInvasion(state: GameState, kingdomId: string | undef
  */
 export function tickAutoDefend(state: GameState): void {
   if (!isEndlessMode(state.gameMode) || !state.invasions || state.invasions.length === 0) return;
-  const invaders = state.armies.filter((a) => a.kingdomId !== PLAYER_KINGDOM_ID && totalUnits(a) > 0 && state.invasions!.some((r) => r.armyId === a.id));
+  // **Ground already carried is not where the autopilot sends a host (Dragon Ascent).** A claimant
+  // standing inside a province of ours reads as "the nearest invader", and that province as "the
+  // one it will strike" — so the beaten host `retreatDefenders` had just pulled out marched straight
+  // back in, counted as relief, opened a retake and paused the claim, and the enemy's season ran
+  // out underneath it. Retaking is the player's call; the autopilot defends what is still whole.
+  // Inert in every other mode, where no claim is "falling".
+  const invaders = state.armies.filter((a) => a.kingdomId !== PLAYER_KINGDOM_ID && totalUnits(a) > 0
+    && state.invasions!.some((r) => r.armyId === a.id) && !provinceIsFalling(state, a.landId));
   if (invaders.length === 0) return;
-  const owned = playerLands(state);
+  const owned = playerLands(state).filter((land) => !provinceIsFalling(state, land.id));
   if (owned.length === 0) return;
 
   for (const army of state.armies) {
@@ -685,6 +697,26 @@ export function tickInvasions(state: GameState): void {
       continue;
     }
 
+    /**
+     * **A host that has won the ground stays on it until the flag turns (Dragon Ascent).**
+     *
+     * Reported: *when the enemy wins my capital battle they do not capture it but leave, then
+     * fight the capital again and again.* The campaign clock below was spent before the "mid-siege,
+     * stay put" check, so a claimant could run out of season halfway through its own claim and
+     * walk home. The capital is where that bites hardest: the host that reaches it has spent most
+     * of its fourteen seasons on the march, a six-season wall clock and a watched fight of twelve
+     * or more, then wins with one to three left (+2 for the win) against a claim that needs six.
+     * Staged in `verify-capital-claim`: a claimant with three seasons left withdrew on the third.
+     *
+     * So the season is still counted, but it cannot call home a host that is holding a claim or
+     * standing in a live field — a claim is bounded (two to six seasons, paused only while a fight
+     * contests it) and so is a field. The column that joined a claim waits on it here too, instead
+     * of re-targeting the province it is already standing on and despawning for want of a road.
+     */
+    const ascentHold = state.gameMode === 'ascent' && !state.ascent?.arena;
+    const claiming = ascentHold && waitsOnClaim(state, army, record);
+    const engaged = ascentHold && liveBattles(state).some((live) => (live.theirArmyIds ?? []).includes(army.id));
+
     // **The campaign season.** A court can only keep a host in the field for so long.
     //
     // Nothing anywhere used to read an invader's supply: `progressArmyLogistics` opens with
@@ -708,8 +740,13 @@ export function tickInvasions(state: GameState): void {
     // accumulates is not a wave the player can weather; it is a tide, and the difference is the
     // whole of whether losing ground is recoverable.
     if (isEndlessMode(state.gameMode) && !record.pillaged) {
+      // Deliberately *not* floored at zero while held. A host that fights a long field runs its
+      // season into debt, and the +8 a capture refills may not pay it back, so it takes the
+      // province and then turns for home — which is the campaign ending, not the claim being
+      // abandoned. Flooring it was tried: funscore 85 → 81.4, agency 2.30 → 1.87 (8 seeds), because
+      // every capture then bought a fresh campaign. Not what the report asked for.
       record.campaignTicks = (record.campaignTicks ?? CAMPAIGN_TICKS_BASE) - 1;
-      if (record.campaignTicks <= 0) {
+      if (record.campaignTicks <= 0 && !claiming && !engaged) {
         record.plan = 'withdrawing';
         record.pillaged = true; // the existing withdraw-and-despawn path
         record.exitLandId = farthestNeutralFromCapital(state)?.id;
@@ -725,7 +762,7 @@ export function tickInvasions(state: GameState): void {
     }
 
     // A host mid-siege stays put until progressSiegeOrders resolves it.
-    if (state.siegeOrders.some((o) => o.armyId === army.id)) {
+    if (claiming || state.siegeOrders.some((o) => o.armyId === army.id)) {
       continue;
     }
 
@@ -858,7 +895,65 @@ function joinsStandingSiege(state: GameState, army: Army, land: Land): boolean {
   );
   if (relieved) return false;
   army.landId = land.id;
+  enrolOnClaim(standing, army.id);
   return true;
+}
+
+/** Writes a host onto a claim's roster, so the claim can be handed to it. See `SiegeOrder.claimants`. */
+function enrolOnClaim(order: SiegeOrder, armyId: string): void {
+  const roster = (order.claimants ??= [order.armyId]);
+  if (!roster.includes(order.armyId)) roster.unshift(order.armyId);
+  if (!roster.includes(armyId)) roster.push(armyId);
+}
+
+/**
+ * True while this host is waiting on a hostile claim rather than campaigning (Dragon Ascent).
+ *
+ * Its own claim, or one it is enrolled on at the province it stands on. Saves from before the
+ * roster read a host whose target is the ground it stands on as enrolled.
+ */
+function waitsOnClaim(state: GameState, army: Army, record: InvasionRecord): boolean {
+  if (state.gameMode !== 'ascent' || state.ascent?.arena) return false;
+  if (state.siegeOrders.some((order) => order.armyId === army.id)) return true;
+  if (record.pillaged || record.intent !== 'conquest') return false;
+  const claim = hostileClaimAt(state, army.landId);
+  if (!claim || claim.attackerKingdomId !== army.kingdomId) return false;
+  return claim.claimants ? claim.claimants.includes(army.id) : record.targetLandId === army.landId;
+}
+
+/**
+ * A retake that was won lifts the claim, and the coalition that laid it leaves the ground.
+ *
+ * The comment on `progressSiegeOrders` said a won retake already did this; it did not. The claimant
+ * stands *on* the province, so the settlement's battle preview — which asks for adjacency — came
+ * back empty and `resolveInvaderBattle` returned without touching anything. The field was won and
+ * the province fell on schedule anyway. The preview now has a fallback for a decided field, and
+ * this is the net under it: whatever the per-host settlement left, no claim survives a retake the
+ * defence won, and no host of that crown is left standing inside the walls it lost.
+ */
+export function liftClaimOnRetake(state: GameState, landId: string): void {
+  if (state.gameMode !== 'ascent' || state.ascent?.arena) return;
+  const land = findLand(state, landId);
+  if (!land) return;
+  const claims = state.siegeOrders.filter((order) => order.landId === landId && order.attackerKingdomId !== PLAYER_KINGDOM_ID);
+  const crowns = new Set(claims.map((order) => order.attackerKingdomId));
+  if (claims.length > 0) state.siegeOrders = state.siegeOrders.filter((order) => !claims.includes(order));
+  for (const record of state.invasions ?? []) {
+    const host = state.armies.find((army) => army.id === record.armyId);
+    if (!host || host.landId !== landId || host.kingdomId === PLAYER_KINGDOM_ID) continue;
+    if (crowns.size > 0 && !crowns.has(host.kingdomId)) continue;
+    record.plan = 'withdrawing';
+    record.pillaged = true;
+    record.exitLandId ??= farthestNeutralFromCapital(state)?.id;
+    const from = claims.find((order) => order.attackerKingdomId === host.kingdomId)?.fromLandId;
+    const off = from && findLand(state, from)?.ownerId !== PLAYER_KINGDOM_ID
+      ? from
+      : land.neighbors.find((id) => findLand(state, id)?.ownerId !== PLAYER_KINGDOM_ID);
+    if (off) host.landId = off;
+  }
+  if (claims.length > 0 && land.ownerId === PLAYER_KINGDOM_ID) {
+    pushToast(state, t('ascent.falling.lifted', { land: land.name }), 'reward');
+  }
 }
 
 /**
@@ -1614,6 +1709,7 @@ function resolveInvaderBattle(
     const standing = hostileClaimAt(state, land.id);
     if (standing && standing.armyId !== army.id) {
       army.landId = land.id;
+      enrolOnClaim(standing, army.id);
       return;
     }
   }
@@ -1623,7 +1719,20 @@ function resolveInvaderBattle(
   const volley = openingVolleyShare(state);
   if (volley > 0) applyInvaderLosses(army, volley);
 
-  const preview = createBattlePreview(state, army.id, land.id);
+  let preview = createBattlePreview(state, army.id, land.id);
+  // **A decided field still settles when the invader is standing on the ground it fought for.**
+  // The preview asks for adjacency, and a claimant fighting a retake is *on* the province — so a
+  // retake the player won came back with no preview and changed nothing. `forced` already says
+  // who won; the powers are only read for the bill, so they are taken straight off the two sides.
+  if (!preview && forced && state.gameMode === 'ascent' && !state.ascent?.arena && army.landId === land.id) {
+    preview = {
+      attackerArmyId: army.id,
+      targetLandId: land.id,
+      winChance: 50,
+      attackerPower: Math.round(armyPower(state, army)),
+      defenderPower: Math.round(defenderPower(state, land)),
+    };
+  }
   if (!preview) {
     return;
   }
@@ -1773,8 +1882,10 @@ function resolveInvaderBattle(
   // dispatch settled on ground claimed the same tick — arrives here anyway. Two orders on one
   // province is the worst shape this bug takes: `progressSiegeOrders` would flip the ground twice
   // and announce its fall twice. `verify-lost-ground` asserts it never happens.
-  if (hostileClaimAt(state, land.id)) {
+  const claimHere = hostileClaimAt(state, land.id);
+  if (claimHere) {
     army.landId = land.id;
+    enrolOnClaim(claimHere, army.id);
     filed('we-rout');
     return;
   }
@@ -1789,6 +1900,7 @@ function resolveInvaderBattle(
     fromLandId,
     progress: 0,
     required: getAcquisitionTicksRequired(land),
+    claimants: [army.id],
     /**
      * Whoever of ours is still standing here now the field is decided — the remnant that could
      * not fall back, not a rescue. `joinsStandingSiege` reads this to tell the two apart; see

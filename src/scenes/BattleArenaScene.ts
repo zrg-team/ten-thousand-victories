@@ -1004,7 +1004,7 @@ export class BattleArenaScene extends Phaser.Scene {
   private buildArenaState(): GameState {
     // Always the stable rules: a Skirmish is a sandbox for the fight, not a reign, and the beta
     // toggle is about how a reign plays.
-    const state = newAscentRun({ ruleset: 'stable', sandbox: true });
+    const state = newAscentRun({ ruleset: 'v1', sandbox: true });
     state.ascent!.arena = true;
     state.isPaused = false;
     state.isStrategyPause = false;

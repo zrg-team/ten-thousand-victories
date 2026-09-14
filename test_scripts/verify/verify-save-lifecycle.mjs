@@ -122,7 +122,7 @@ try {
   });
   contract.forEach(label => check(true, label));
 
-  await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await ready('ConquestUIScene');
   await page.evaluate(() => {
     const world = window.__phaserGame.scene.getScene('ConquestScene');
@@ -180,7 +180,7 @@ try {
   await ready('MenuScene');
   check(JSON.parse((await slots()).manual).state.year === 999 && !(await slots()).auto, 'save and exit writes current progress without recreating recovery');
 
-  await page.evaluate(() => window.__startBenchGame(1440, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1440, 'ascent', 'v1'));
   await ready('ConquestUIScene');
   const quitLabel = await page.evaluate(async () => {
     window.__shell = { kind: 'desktop', quit: () => {
@@ -203,7 +203,7 @@ try {
   });
   await ready('MenuScene');
 
-  await page.evaluate(() => window.__startBenchGame(1441, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1441, 'ascent', 'v1'));
   await ready('ConquestUIScene');
   await page.evaluate(async () => {
     const world = window.__phaserGame.scene.getScene('ConquestScene');

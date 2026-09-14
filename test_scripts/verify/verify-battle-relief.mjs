@@ -27,7 +27,7 @@ await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(
   () => typeof window.__startBenchGame === 'function' && window.__phaserGame.scene.isActive('MenuScene'),
   null, { timeout: 30000 });
-await page.evaluate(() => window.__startBenchGame(20260823, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(20260823, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(800);
 

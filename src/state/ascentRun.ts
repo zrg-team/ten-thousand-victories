@@ -12,16 +12,18 @@
  *   Skirmish, a harness), otherwise the player's Settings choice, read here and only here;
  * - **the hands-on rule**: stamped only when the door passes one, exactly as each door did before.
  *
- * A stable run carries no `ruleset` field at all, so its state, its saves and its fingerprint are
- * byte-for-byte what they were before rulesets existed.
+ * A v1 run carries no `ruleset` field at all, so its state, its saves and its fingerprint are
+ * byte-for-byte what they were before versions existed. Every other version is written by id.
  */
-import { isAscentBetaEnabled } from '../game/betaOptions';
+import { preferredAscentRuleset } from '../game/rulesetOptions';
+import { normalizeRulesetId } from '../game/ascentRuleset';
 import { createAscentGameState } from './GameState';
 import type { AscentRulesetId, CampaignConfig, GameState } from './types';
 
 export interface NewAscentRunOptions {
   /** Whose rules the run plays by. Omitted: the player's Settings choice. */
-  ruleset?: AscentRulesetId;
+  /** Old names (`stable`, `beta`) are accepted from harnesses and resumed reigns. */
+  ruleset?: AscentRulesetId | 'stable' | 'beta';
   /** The hands-on rule. Omitted: left as the factory made it (off). */
   hardcore?: boolean;
   /** A Skirmish: a real run's data, nothing written to the house (`RunCreationOptions.sandbox`). */
@@ -29,9 +31,9 @@ export interface NewAscentRunOptions {
 }
 
 export function newAscentRun(options: NewAscentRunOptions = {}): GameState {
-  const ruleset = options.ruleset ?? (isAscentBetaEnabled() ? 'beta' : 'stable');
+  const ruleset = normalizeRulesetId(options.ruleset) ?? preferredAscentRuleset();
   const config: CampaignConfig = { seaSides: 1, difficulty: 'normal' };
-  if (ruleset !== 'stable') config.ruleset = ruleset;
+  if (ruleset !== 'v1') config.ruleset = ruleset;
   const state = createAscentGameState(config, options.sandbox ? { sandbox: true } : {});
   if (options.hardcore !== undefined && state.ascent) state.ascent.hardcore = options.hardcore;
   return state;

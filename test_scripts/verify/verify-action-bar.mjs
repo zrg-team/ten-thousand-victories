@@ -80,7 +80,7 @@ for (const mode of ['ascent', 'empire', 'campaign', 'rival']) {
       await page.evaluate((l) => localStorage.setItem('mandate:language:v1', l), lang);
       await page.reload({ waitUntil: 'domcontentloaded' });
       await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
-      await page.evaluate((m) => window.__startBenchGame(1337, m), mode);
+      await page.evaluate((m) => window.__startBenchGame(1337, m, 'v1'), mode);
       const worldKey = mode === 'ascent' ? 'ConquestScene' : 'MapScene';
       const uiKey = mode === 'ascent' ? 'ConquestUIScene' : 'UIScene';
       await page.waitForFunction((k) => window.__phaserGame.scene.isActive(k), worldKey, { timeout: 30000 });

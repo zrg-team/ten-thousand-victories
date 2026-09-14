@@ -10,7 +10,7 @@ import {
   issueHuntOrder,
   issueMoveOrder,
 } from '../WarSystem';
-import { findLand } from '../LandSystem';
+import { findLand, provinceIsFalling } from '../LandSystem';
 import { pushToast } from '../empire/notifications';
 import { finishBattle } from './BattleSystem';
 import { landGarrisonPower } from './PowerSystem';
@@ -53,9 +53,15 @@ export function hostOddsAgainst(state: GameState, army: Army, landId: string): n
   return Math.round((attack / Math.max(1, attack + landGarrisonPower(state, land))) * 100);
 }
 
-/** The owned province closest to `fromLandId` by road, if any road exists. */
-export function nearestOwnedLand(state: GameState, fromLandId: string): string | undefined {
-  const owned = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID && land.id !== fromLandId);
+/**
+ * The owned province closest to `fromLandId` by road, if any road exists.
+ *
+ * `skipFalling` leaves out provinces an enemy claim is already taking — a host sent *home* is not
+ * being sent to retake anything.
+ */
+export function nearestOwnedLand(state: GameState, fromLandId: string, skipFalling = false): string | undefined {
+  const owned = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID && land.id !== fromLandId
+    && !(skipFalling && provinceIsFalling(state, land.id)));
   let best: { id: string; legs: number } | undefined;
   for (const land of owned) {
     const path = findLandPath(state, fromLandId, land.id);
@@ -156,10 +162,12 @@ export function recallHost(state: GameState, armyId: string): { ok: boolean; rea
 
   const capitalId = state.ascent?.capitalLandId;
   const capital = capitalId ? findLand(state, capitalId) : undefined;
-  const homeId = capital && capital.ownerId === PLAYER_KINGDOM_ID
+  // Not onto a capital already being taken: recall means *bring it home safe*, and walking a host
+  // into a claimant's line is a retake the player did not order.
+  const homeId = capital && capital.ownerId === PLAYER_KINGDOM_ID && !provinceIsFalling(state, capital.id)
     && (army.landId === capital.id || findLandPath(state, army.landId, capital.id))
     ? capital.id
-    : nearestOwnedLand(state, army.landId)
+    : nearestOwnedLand(state, army.landId, true)
       ?? (findLand(state, army.landId)?.ownerId === PLAYER_KINGDOM_ID ? army.landId : undefined);
   if (!homeId) {
     return { ok: false, reason: t('ascent.orders.noRoadHome', { army: army.name }) };
@@ -229,8 +237,12 @@ function settle(state: GameState, army: Army, key: 'ascent.orders.taken' | 'asce
   pushToast(state, t(key, { army: army.name, land: land?.name ?? '', here: here?.name ?? '' }), 'info');
 }
 
-/** One host, one season: the step `tickStandingOrders` takes and `setArmyOrders` takes at once. */
-function applyOrdersNow(state: GameState, army: Army): void {
+/**
+ * One host, one season: the step `tickStandingOrders` takes and `setArmyOrders` takes at once.
+ *
+ * `fromTick` is the standing order carrying itself out, as opposed to the player giving it.
+ */
+function applyOrdersNow(state: GameState, army: Army, fromTick = false): void {
   // A refit freezes the standing order where it stands: the host neither marches nor storms
   // until the work is done. It resumes its old order on the tick the refit completes.
   if (army.refit) return;
@@ -243,6 +255,18 @@ function applyOrdersNow(state: GameState, army: Army): void {
       if (army.landId === orders.landId) { orders.holding = false; return; }
       if (busy(state, army)) return;
       const post = findLand(state, orders.landId);
+      // **A standing order does not walk a host back into ground the enemy has already carried.**
+      // `retreatDefenders` pulls a beaten host off to a neighbour, and "defend the capital" used to
+      // march it straight back the next season — fresh relief by every test, so a retake opened,
+      // the claim paused, and the fight at the capital came round again and again. It holds where
+      // it stands and says why; the player's own order (`setArmyOrders`, not the tick) still goes.
+      if (fromTick && post && provinceIsFalling(state, post.id)) {
+        if (!orders.holding) {
+          orders.holding = true;
+          pushToast(state, t('ascent.orders.holdFalling', { army: army.name, land: post.name, here: here?.name ?? '' }), 'info');
+        }
+        return;
+      }
       if (post?.ownerId === PLAYER_KINGDOM_ID && (findLandPath(state, army.landId, post.id)
         ?? (orders.hostileTransit ? findLandPath(state, army.landId, post.id, () => true) : undefined))) {
         orders.holding = false;
@@ -315,6 +339,6 @@ export function tickStandingOrders(state: GameState): void {
   if (state.gameMode !== 'ascent' || !state.ascent) return;
   for (const army of commandableHosts(state)) {
     if (armyOrders(army).kind === 'auto') continue;
-    applyOrdersNow(state, army);
+    applyOrdersNow(state, army, true);
   }
 }

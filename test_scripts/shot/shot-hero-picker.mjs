@@ -12,7 +12,7 @@ page.on('pageerror', (e) => errors.push(`PAGEERROR ${e.message}`));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(`CONSOLE ${m.text()}`); });
 await page.goto('http://127.0.0.1:5179/?capture=1', { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(() => typeof window.__startBenchGame === 'function' && window.__phaserGame.scene.isActive('MenuScene'), null, { timeout: 30000 });
-await page.evaluate(() => window.__startBenchGame(20260812, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(20260812, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(800);
 const shot = async (name) => { await page.waitForTimeout(250); await page.screenshot({ path: `output/web-game/${name}.png` }); };

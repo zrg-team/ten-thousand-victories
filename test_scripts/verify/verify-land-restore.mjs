@@ -39,7 +39,7 @@ const formula = await page.evaluate(async () => {
   const { garrisonPower, wallManning } = await import('/src/systems/WarSystem.ts');
   const { militiaCapacity, growProvincialMilitia, recoverGarrison, repairProvincialDefence } = await import('/src/systems/ResourceSystem.ts');
   const { PEOPLE_PER_WALL_POINT, WALL_MANNING_FLOOR, WALL_MANNING_FREE_DEFENSE, MILITIA_POPULATION_SHARE, GARRISON_RECOVER_SEASONS } = await import('/src/game/ascentConfig.ts');
-  const state = await window.__ptBoot(4242);
+  const state = await window.__ptBoot(4242, { ruleset: 'v1' });
   const cap = state.lands.find((l) => l.id === state.ascent.capitalLandId);
   // A fortress: walls well above the palisade band, which is where people are needed.
   const fortress = { ...cap, defense: WALL_MANNING_FREE_DEFENSE + 200 };
@@ -91,7 +91,7 @@ console.log('=== CHARGE ===');
 const charge = await page.evaluate(async () => {
   const { chargeProvinceForDefence, buildRestoreOptions, resolveRestore } = await import('/src/systems/ascent/RestoreSystem.ts');
   const { drainAscentPrompts } = await import('/src/systems/ascent/AscentState.ts');
-  const state = await window.__ptBoot(4243);
+  const state = await window.__ptBoot(4243, { ruleset: 'v1' });
   const cap = state.lands.find((l) => l.id === state.ascent.capitalLandId);
   cap.buildings = [{ type: 'farm', level: 3 }, { type: 'farm', level: 3 }, { type: 'market', level: 2 }, { type: 'wall', level: 2 }, { type: 'mine', level: 3 }, { type: 'farm', level: 2 }];
   cap.defense = 120; cap.population = 3000; cap.localSoldiers = 900;
@@ -153,7 +153,7 @@ const run = await page.evaluate(async () => {
   const { drainAscentPrompts } = await import('/src/systems/ascent/AscentState.ts');
   const out = [];
   for (const seed of [11, 22, 33, 44]) {
-    const state = await window.__ptBoot(seed);
+    const state = await window.__ptBoot(seed, { ruleset: 'v1' });
     let over = false; let restoreCards = 0; let restoreAnswered = 0;
     for (let tick = 0; tick < 420; tick += 1) {
       if (state.isDefeated || over) break;

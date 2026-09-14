@@ -25,7 +25,7 @@ const boot = async (mode) => {
   await page.goto(`${BASE}/?capture=1`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 30000 });
   await page.evaluate(() => localStorage.setItem('mandate:map-theme:v1', 'dong-ho'));
-  await page.evaluate((m) => window.__startBenchGame(1337, m), mode);
+  await page.evaluate((m) => window.__startBenchGame(1337, m, 'v1'), mode);
   const key = mode === 'ascent' ? 'ConquestScene' : 'MapScene';
   await page.waitForFunction((k) => window.__phaserGame.scene.isActive(k), key, { timeout: 30000 });
   await page.waitForTimeout(2300);

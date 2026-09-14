@@ -526,6 +526,16 @@ function reconsider(state: GameState): void {
     const target = state.lands.find((candidate) => candidate.id === record.targetLandId);
     if (!army || !target) continue;
 
+    // A host holding a claim, or waiting on one, has already won its fight: it is not deciding
+    // whether to attack. A hunter re-pointed at the player's largest host could otherwise read
+    // itself as outmatched and turn a carried province back over mid-claim.
+    if (state.siegeOrders.some((order) => order.armyId === army.id)
+      || state.siegeOrders.some((order) => order.landId === army.landId && order.attackerKingdomId === army.kingdomId
+        && provinceIsFalling(state, army.landId))) {
+      record.retreatTicks = 0;
+      continue;
+    }
+
     // A host that has already reached its objective commits to the assault.
     //
     // Without this the retreat check fires on the doorstep and the host turns around one tick

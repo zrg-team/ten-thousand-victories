@@ -16,7 +16,7 @@ page.on('pageerror', (e) => errors.push(`PAGEERROR ${e.message}`));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(`CONSOLE ${m.text()}`); });
 await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 await page.waitForFunction(() => typeof window.__startBenchGame === 'function' && window.__phaserGame.scene.isActive('MenuScene'), null, { timeout: 30000 });
-await page.evaluate(() => window.__startBenchGame(20260818, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(20260818, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(700);
 

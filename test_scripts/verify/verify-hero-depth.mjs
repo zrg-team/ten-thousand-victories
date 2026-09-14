@@ -89,7 +89,10 @@ try {
     travel.turn++; service.tickHeroLifecycle(travel);
     check('Arrival activates exactly one destination job', walker.assignedTo === far.id && walker.life.kind === 'active');
     const occupied = recruit(travel, 92);
-    check('Occupied destination is rejected', !service.previewHeroTransfer(travel, occupied.id, { kind: 'province', landId: far.id }).ok);
+    // 2026-09-14: a sitting holder is relieved by a successor on arrival, not a reason to refuse.
+    // Only a post somebody is already travelling to is refused (verify-hero-postings covers both).
+    const successor = service.previewHeroTransfer(travel, occupied.id, { kind: 'province', landId: far.id });
+    check('Held destination is quoted with the holder it relieves', successor.ok && successor.displaces === walker.id);
     const returning = service.previewHeroTransfer(travel, walker.id, { kind: 'home' });
     travel.turn++;
     check('Stale quote rejected before mutations', !service.transferHero(travel, returning).ok && walker.assignedTo === far.id);

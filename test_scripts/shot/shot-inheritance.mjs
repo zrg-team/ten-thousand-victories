@@ -21,7 +21,7 @@ for (const [lang, h] of [['en', 844], ['vi', 620]]) {
   await page.addInitScript((l) => localStorage.setItem('mandate:language:v1', l), lang);
   await page.goto(`${BASE}/?capture=1`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof window.__startBenchGame === 'function', null, { timeout: 30000 });
-  await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'), null, { timeout: 30000 });
   await page.waitForTimeout(1200);
 

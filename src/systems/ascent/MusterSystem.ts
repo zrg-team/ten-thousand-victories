@@ -11,6 +11,8 @@ import {
   recruitSoldiers,
 } from '../../game/ascentConfig';
 import { releaseHeroAssignment } from '../CourtSystem';
+import { heroCapability } from '../heroes/heroModel';
+import { heroFreeReason } from '../heroes/HeroService';
 import { refreshAllLandOutputs } from '../ResourceSystem';
 import { getMusterEstimate, getRecruitmentLand, musterLimit, queueRecruitment } from '../WarSystem';
 import { pushToast } from '../empire/notifications';
@@ -140,6 +142,12 @@ export function musterBlockedReason(state: GameState, plan: MusterPlan): string 
   // *meant* to be able to call someone back from, which is why only the field is blocked here.
   if (state.armies.some((army) => army.generalHeroId === hero.id)) {
     return t('ascent.raise.blocked.commanderHost', { hero: heroName(hero) });
+  }
+  // Beta: a hero with no road through our land to the seat cannot come to lead the muster. Said
+  // here, because `queueRecruitment` refuses the same hero with only the generic "choose a commander".
+  if (heroCapability(state, 'travel') && hero.life?.kind === 'active' && hero.life.assignment.kind === 'home'
+    && heroFreeReason(state, hero) === 'route') {
+    return t('hero.muster.cutOff', { hero: heroName(hero) });
   }
   if (!estimate.land) return t('msg.noOwnedCityArmy');
   if (estimate.alreadyTraining) {

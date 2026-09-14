@@ -1,5 +1,7 @@
 /**
- * Strings that exist only for the Dragon Ascent beta (`src/game/ascentRuleset.ts`).
+ * Strings that exist only for later Dragon Ascent rule versions (`src/game/ascentRuleset.ts`), and
+ * the words for the versions themselves (`ruleset.*`). The `beta.` prefix is historical: those keys
+ * belong to v2, which is what the beta became.
  *
  * Their own catalog so a beta feature never edits a stable string: every key here is new, under
  * the `beta.` prefix. **Never re-declare a key from another catalog** — the catalogs are merged by
@@ -10,11 +12,15 @@
  */
 
 export const enAscentBeta = {
-  "beta.settings.section": "Beta",
-  "beta.settings.row": "BETA RULES",
-  "beta.settings.note": "New reigns of Dragon Ascent play the rules being tested. A reign already under way keeps the rules it began with, and Skirmish is never affected.",
-  "beta.badge": "BETA",
-  "beta.continueTag": "beta",
+  "ruleset.settings.section": "Rules",
+  "ruleset.settings.row": "RULES VERSION",
+  "ruleset.settings.note": "{version} A reign already under way keeps the rules it began with, and Skirmish is never affected.",
+  "ruleset.v1.name": "V1 · Classic",
+  "ruleset.v1.note": "The original rules, kept for anyone who prefers them.",
+  "ruleset.v2.name": "V2 · Current",
+  "ruleset.v2.note": "The current rules: heroes that grow and travel, a goal for the reign, honest numbers.",
+  "ruleset.badge": "{version}",
+  "ruleset.badge.experimental": "{version} · TEST",
   "beta.goal.ruledOn": "The reign rules on. The +{bonus} victory bonus is kept until it ends.",
   "beta.goal.statement": "This reign's goal: break Great Invasion {wave} while holding the capital and {provinces} — or hold out to Great Invasion {late}, where the capital alone is enough.",
   "beta.goal.provincesOne": "one other province",
@@ -78,11 +84,15 @@ export const enAscentBeta = {
 } as const;
 
 export const viAscentBeta: Record<keyof typeof enAscentBeta, string> = {
-  "beta.settings.section": "Thử nghiệm",
-  "beta.settings.row": "LUẬT THỬ NGHIỆM",
-  "beta.settings.note": "Các đời mới của Rồng Thăng Long sẽ chơi theo luật đang thử nghiệm. Đời đang chơi dở vẫn giữ luật lúc bắt đầu, và Giao Tranh không bị ảnh hưởng.",
-  "beta.badge": "BETA",
-  "beta.continueTag": "thử nghiệm",
+  "ruleset.settings.section": "Luật chơi",
+  "ruleset.settings.row": "PHIÊN BẢN LUẬT",
+  "ruleset.settings.note": "{version} Đời đang chơi dở vẫn giữ luật lúc bắt đầu, và Giao Tranh không bị ảnh hưởng.",
+  "ruleset.v1.name": "V1 · Cổ điển",
+  "ruleset.v1.note": "Luật ban đầu, giữ lại cho ai thích lối chơi cũ.",
+  "ruleset.v2.name": "V2 · Hiện hành",
+  "ruleset.v2.note": "Luật hiện hành: anh hùng lên cấp và đi lại, mục tiêu cho mỗi đời, số liệu minh bạch.",
+  "ruleset.badge": "{version}",
+  "ruleset.badge.experimental": "{version} · THỬ",
   "beta.goal.ruledOn": "Trị vì tiếp. Thưởng chiến thắng +{bonus} được giữ đến khi đời này kết thúc.",
   "beta.goal.statement": "Mục tiêu đời này: phá Đại Xâm Lược {wave} mà vẫn giữ kinh thành và {provinces} — hoặc cầm cự tới Đại Xâm Lược {late}, lúc ấy chỉ cần còn kinh thành.",
   "beta.goal.provincesOne": "một trấn khác",

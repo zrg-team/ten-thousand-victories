@@ -19,7 +19,7 @@ await page.addInitScript(()=>{
 try{
  await page.goto(`${URL}/?capture=1`,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.__phaserGame?.scene.isActive('MenuScene'),null,{timeout:30000});
- await page.evaluate(()=>window.__startBenchGame(20260901,'ascent'));
+ await page.evaluate(()=>window.__startBenchGame(20260901,'ascent', 'v1'));
  await page.waitForFunction(()=>window.__phaserGame.scene.isActive('ConquestScene'),null,{timeout:30000});
  for(const zoom of [1.2,2.4]){
   await page.evaluate(({zoom,style})=>{

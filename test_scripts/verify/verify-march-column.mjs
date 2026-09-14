@@ -149,7 +149,7 @@ const longest = Math.max(...shapes.map((s) => s.length));
 check('even the largest host fits on a road', longest < 300, `longest column ${longest.toFixed(0)} units`);
 
 // ── 2. Every case on the real map ────────────────────────────────────────────────────────────
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(1200);
 

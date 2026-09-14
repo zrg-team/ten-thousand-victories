@@ -1,4 +1,9 @@
-import { effectiveHeroStats, heroActive } from '../systems/heroes/heroModel';
+import { effectiveHeroStats, heroActive, heroCapability } from '../systems/heroes/heroModel';
+import { heroFreeReason, homeProvince, previewHeroTransfer } from '../systems/heroes/HeroService';
+import type { HeroAssignment } from '../systems/heroes/types';
+import { postValue } from './heroPostFit';
+import { statChip } from './statChips';
+import type { CostChip } from './costChips';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
 import { BATTLE_RALLY_BASE } from '../game/ascentConfig';
 import { formatCourtPositionEffect, getCourtPositionLabel } from '../systems/CourtSystem';
@@ -44,6 +49,16 @@ export interface HeroPickerRow {
   vacates?: string;
   /** Why they cannot be chosen at all right now. */
   blockedReason?: string;
+  /** Which heading the row is listed under: the holder, the free, the busy, the unavailable. */
+  group: 'current' | 'free' | 'busy' | 'blocked';
+  /** Beta: what they would bring, as the chips the rules apply (`heroPostFit`). */
+  chips?: CostChip[];
+  /** Beta: seasons on the road to the post, from the real transfer quote. */
+  travelTurns?: number;
+  /** Beta: how much better (or worse) than the holder, in whole points of fit. */
+  gainOverHolder?: number;
+  /** Beta: the strongest candidate is busy elsewhere, and clearly stronger than the best free one. */
+  strongestBusy?: boolean;
 }
 
 export interface HostPickerRow {
@@ -100,7 +115,17 @@ export function heroPostingLabel(state: GameState, hero: Hero): string {
   if (hero.life?.kind === 'captive') return t('hero.depth.captive', { kingdom: state.kingdoms.find(kingdom => kingdom.id === (hero.life as { captorId: string }).captorId)?.name ?? '' });
   if (hero.life?.kind === 'dead') return t('hero.depth.dead');
   if (hero.life?.kind === 'active' && hero.life.sheltering) return t('hero.depth.sheltering');
-  if (!hero.assignedTo) return t('ascent.lane.unposted');
+  if (!hero.assignedTo) {
+    // Beta heroes are somewhere. "Awaiting a posting" said nothing about where, and where is what
+    // decides how long any posting takes — and, before this round, whether one could be made at all.
+    const life = hero.life;
+    if (life?.kind !== 'active' || !heroCapability(state, 'travel')) return t('ascent.lane.unposted');
+    const land = state.lands.find((candidate) => candidate.id === life.locationId);
+    if (heroFreeReason(state, hero) === 'route') return t('hero.where.stranded', { land: land?.name ?? '' });
+    return life.locationId === homeProvince(state) || !land
+      ? t('hero.where.seat')
+      : t('hero.where.free', { land: land.name });
+  }
   if (hero.assignedTo.startsWith('court:')) {
     return getCourtPositionLabel(hero.assignedTo.slice('court:'.length) as CourtPositionId);
   }
@@ -215,6 +240,7 @@ export function buildHeroPickerRows(state: GameState, target: HeroPickerTarget):
         break;
       }
     }
+    const isCurrent = isCurrentFor(state, hero, target);
     return {
       hero,
       effectLine,
@@ -222,20 +248,58 @@ export function buildHeroPickerRows(state: GameState, target: HeroPickerTarget):
       statsLine: heroStatsLine(hero),
       flavour: heroEffect(hero),
       score: blocked ? -1 : score,
-      isCurrent: isCurrentFor(state, hero, target),
+      isCurrent,
       isBest: false,
       vacates: blocked ? undefined : vacatesLine(state, hero, target),
       blockedReason: blocked,
+      group: (isCurrent ? 'current' : blocked ? 'blocked' : hero.assignedTo ? 'busy' : 'free') as HeroPickerRow['group'],
     };
   });
 
-  const best = scored.filter((row) => !row.blockedReason && !row.isCurrent).sort((a, b) => b.score - a.score)[0];
+  /**
+   * **Free before busy, and "best" only among the free.**
+   *
+   * A posted hero only lost the `UNPOSTED_BONUS` of ten, so any minister whose key stat beat a free
+   * hero's by more than that listed above them — and could be marked the best fit, for a seat they
+   * would have to be pulled out of another one to fill. Reported off the Spymaster picker: two busy
+   * ministers first, both "busy", the free general at the bottom. Being free is not a tie-break on a
+   * stat; it is the first thing the player is choosing between.
+   */
+  const rank = (row: typeof scored[number]): number => row.isCurrent ? 0 : row.blockedReason ? 3 : row.hero.assignedTo ? 2 : 1;
+  const best = scored.filter((row) => rank(row) === 1).sort((a, b) => b.score - a.score)[0];
   if (best) best.isBest = true;
-  return scored.sort((a, b) => {
-    if (a.isCurrent !== b.isCurrent) return a.isCurrent ? -1 : 1;
-    if (Boolean(a.blockedReason) !== Boolean(b.blockedReason)) return a.blockedReason ? 1 : -1;
-    return b.score - a.score;
-  });
+  if (heroCapability(state, 'growth')) addPostingValues(state, target, scored, best);
+  return scored.sort((a, b) => rank(a) - rank(b) || b.score - a.score);
+}
+
+/**
+ * Beta: the figures the grouped picker draws — what each hero would bring, the road, and the
+ * difference from whoever holds the post. Read off `heroPostFit`, the same module the transfer
+ * page and the hero page use, so one hero's value in one seat is one figure on every screen.
+ */
+function addPostingValues(state: GameState, target: HeroPickerTarget, rows: HeroPickerRow[], best: HeroPickerRow | undefined): void {
+  const post: HeroAssignment | undefined = target.kind === 'court' ? { kind: 'court', seat: target.seat }
+    : target.kind === 'governor' ? { kind: 'province', landId: target.landId }
+    : target.kind === 'commander' && target.armyId ? { kind: 'host', armyId: target.armyId }
+    : undefined;
+  const holder = rows.find((row) => row.isCurrent)?.hero;
+  const holderFit = post && holder ? postValue(state, post, holder).fit : undefined;
+  for (const row of rows) {
+    if (target.kind === 'commander' && !post) {
+      row.chips = [statChip('power', `+${Math.round(effectiveHeroStats(row.hero).martial * 0.25)}%`)];
+      continue;
+    }
+    if (!post) continue;
+    const value = postValue(state, post, row.hero);
+    row.chips = value.chips;
+    if (holderFit !== undefined && !row.isCurrent) row.gainOverHolder = Math.round((value.fit - holderFit) * 100);
+    if (!row.blockedReason && !row.isCurrent && heroCapability(state, 'travel')) {
+      const quote = previewHeroTransfer(state, row.hero.id, post);
+      if (quote.ok) row.travelTurns = quote.turns;
+    }
+  }
+  const busyTop = rows.filter((row) => row.group === 'busy').sort((a, b) => b.score - a.score)[0];
+  if (busyTop && (!best || busyTop.score > best.score + 5)) busyTop.strongestBusy = true;
 }
 
 /** Hosts a military method (or a follow order) could commit, with the odds each would carry. */

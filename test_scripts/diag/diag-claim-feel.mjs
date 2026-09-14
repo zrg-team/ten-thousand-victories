@@ -27,7 +27,7 @@ const out = await page.evaluate(async ({ seeds, ticks }) => {
   const rows = [];
   for (let s = 0; s < seeds; s += 1) {
     const seed = 11 + s * 11;
-    const st = await window.__ptBoot(seed);
+    const st = await window.__ptBoot(seed, { ruleset: 'v1' });
     const seen = { failures: 0, barred: new Set(), landsTaken: 0, quotes: [], stalls: 0 };
     let lastLandCount = st.lands.filter((l) => l.ownerId === PLAYER_KINGDOM_ID).length;
     let sinceGain = 0, longestStall = 0, slotFullTicks = 0;

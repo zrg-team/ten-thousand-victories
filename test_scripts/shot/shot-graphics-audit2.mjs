@@ -18,7 +18,7 @@ async function open(viewport, dsf) {
   await page.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
     && window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 40000 });
-  await page.evaluate((s) => window.__startBenchGame(s, 'ascent'), SEED);
+  await page.evaluate((s) => window.__startBenchGame(s, 'ascent', 'v1'), SEED);
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 40000 });
   await page.waitForTimeout(1200);
   return page;

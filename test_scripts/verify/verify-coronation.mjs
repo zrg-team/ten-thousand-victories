@@ -191,7 +191,7 @@ await page.waitForFunction(
   () => typeof window.__startBenchGame === 'function' && window.__phaserGame.scene.isActive('MenuScene'),
   null, { timeout: 30000 },
 );
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => {
   const state = JSON.parse(window.render_game_to_text());
   return state?.ascent?.prompt?.kind === 'coronation';

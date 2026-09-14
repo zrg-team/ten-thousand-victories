@@ -59,7 +59,7 @@ try {
       && window.__phaserGame.textures.exists('dynasty-sign-icons:v1')), `${tag}: UI and sign atlases ready before menu and gameplay`);
     check(!requests.some(r => /conquest-ui-icons\/icons-v[1234]\./.test(r)), `${tag}: obsolete atlas is not loaded by the game`);
     check(!requests.some(r => /\/icons\/(food|supplies|gold|manpower)\.svg/.test(r)), `${tag}: no old resource SVG downloads`);
-    await page.evaluate(() => window.__startBenchGame(20260909, 'ascent'));
+    await page.evaluate(() => window.__startBenchGame(20260909, 'ascent', 'v1'));
     await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene') && window.__phaserGame.scene.getScene('ConquestUIScene').ui);
     await resolveOpening(page);
     await page.evaluate(() => {
@@ -327,7 +327,7 @@ try {
   check(fallback.hiddenMissingBox && fallback.fallbackLabel && fallback.source === 'unavailable',
     'failed atlas leaves no broken-texture box and keeps utility controls readable', fallback);
   blockArt = false;
-  await recovery.evaluate(() => window.__startBenchGame(20260909, 'ascent'));
+  await recovery.evaluate(() => window.__startBenchGame(20260909, 'ascent', 'v1'));
   await recovery.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene') && window.__phaserGame.scene.getScene('ConquestUIScene').ui);
   await resolveOpening(recovery);
   check(await recovery.evaluate(() => window.__phaserGame.textures.get('conquest-ui-icons:v5').has('grain')

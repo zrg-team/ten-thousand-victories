@@ -43,7 +43,7 @@ for (const [language, height] of [['vi', 844], ['en', 620]]) {
     };
   });
   check(catalog.beats.every(b => b.exists && ['card', 'blow'].includes(b.volume)), 'all selected story moments exist and can display cards', catalog.beats);
-  await page.evaluate(() => window.__startBenchGame(20260901, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(20260901, 'ascent', 'v1'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'));
   // Art now loads at scene boundaries, not on the front menu.

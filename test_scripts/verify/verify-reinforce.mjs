@@ -138,7 +138,7 @@ check('and a muster card already up is dropped when its commander takes one',
 
 // ── the page turn, in the real lane ─────────────────────────────────────────
 console.log('=== A PAGE TURN INSIDE THE BATTLE LANE ===');
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(900);
 

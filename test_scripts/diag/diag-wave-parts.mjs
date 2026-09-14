@@ -63,7 +63,7 @@ const out = await page.evaluate(async ({ seeds, ticks }) => {
 
   const runs = [];
   for (const seed of seeds) {
-    const state = await window.__ptBoot(seed);
+    const state = await window.__ptBoot(seed, { ruleset: 'v1' });
     const log = [];
     let lastWave = 0;
     const seen = new Set();

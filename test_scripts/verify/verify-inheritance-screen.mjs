@@ -180,7 +180,7 @@ console.log('=== QUEUE ===');
 console.log('\n=== VETERAN HOUSE ===');
 {
   const { page, errors } = await open(VETERAN);
-  await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await page.waitForTimeout(600);
   // Answer the rite; the inheritance is the card behind it.
@@ -266,7 +266,7 @@ console.log('\n=== VETERAN HOUSE ===');
 console.log('\n=== FIRST REIGN ===');
 {
   const { page, errors } = await open({});
-  await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await page.waitForTimeout(600);
   await page.evaluate(() => {
@@ -300,7 +300,7 @@ console.log('\n=== VI + SHORT SHEET ===');
   // A landscape window is what clamps `GAME_HEIGHT` to its 620 floor — the sheet the four-card
   // draft used to overflow. The page must scroll rather than strand its own footer.
   const { page, errors } = await open(VETERAN, { language: 'vi', viewport: { width: 1280, height: 720 } });
-  await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await page.waitForTimeout(600);
   await page.evaluate(() => {

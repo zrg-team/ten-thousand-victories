@@ -128,10 +128,14 @@ const __ptRealRandom = Math.random;
 window.__ptRestoreRandom = () => { Math.random = __ptRealRandom; };
 window.__ptBoot = async (seed, options = {}) => {
   const { createAscentGameState } = await import('/src/state/GameState.ts');
+  const { DEFAULT_ASCENT_RULESET, normalizeRulesetId } = await import('/src/game/ascentRuleset.ts');
   window.__ptSeedRandom(seed);
-  // A stable run carries no ruleset field, exactly as the game's own door builds it.
+  // Unnamed is the game's current default version; scripts written against the original rules pin
+  // { ruleset: 'v1' }. Old names (stable, beta) still work. A v1 run carries no ruleset field,
+  // exactly as the game's own door builds it. (No backticks here: this code lives in a template.)
+  const version = normalizeRulesetId(options.ruleset) ?? DEFAULT_ASCENT_RULESET;
   const config = { seaSides: 1, difficulty: 'normal' };
-  if (options.ruleset && options.ruleset !== 'stable') config.ruleset = options.ruleset;
+  if (version !== 'v1') config.ruleset = version;
   return createAscentGameState(config);
 };
 

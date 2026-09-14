@@ -30,7 +30,7 @@ p.on('pageerror', (e) => errors.push(String(e)));
 p.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 await p.goto(`${URL}/?capture=1`, { waitUntil: 'domcontentloaded' });
 await p.waitForFunction(() => typeof window.__startBenchGame === 'function', null, { timeout: 30000 });
-await p.evaluate(() => window.__startBenchGame(20260828, 'ascent'));
+await p.evaluate(() => window.__startBenchGame(20260828, 'ascent', 'v1'));
 await p.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await p.waitForTimeout(1200);
 

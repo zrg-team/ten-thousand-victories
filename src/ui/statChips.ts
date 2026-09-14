@@ -82,6 +82,37 @@ const STAT_ICON = {
   haulage: 'cart',
   /** What a province being carried still yields. Down, like outgo: it is a loss. */
   yieldCut: 'chevrons-down',
+  // ── A champion's six stats, and what a posting turns them into ─────────────
+  /** Võ lược. */
+  martial: 'blade',
+  /** Hậu cần. */
+  logistics: 'cart',
+  /** Quản trị. */
+  administration: 'scroll',
+  /** Ngoại giao. */
+  diplomacy: 'diplomacy',
+  /** Trung thành — a hero's, not a province's (that one is the crown). */
+  fealty: 'heart',
+  /** Danh vọng. */
+  renown: 'victory',
+  /** A court's opinion of us. */
+  relations: 'cup',
+  /** Everything a province makes, lifted by whoever governs it. */
+  output: 'chevrons-up',
+  /** How fast a muster trains. */
+  recruit: 'spears',
+  /** How fast a claim on a province completes. */
+  acquire: 'territory',
+  /** How often the court deals a card. */
+  cards: 'book',
+  /** What a building costs. */
+  buildCost: 'hammer',
+  /** Builds finished early. */
+  buildSpeed: 'ladder',
+  /** Influence per season. */
+  influence: 'globe',
+  /** Favour per season. */
+  favor: 'spark',
 } as const satisfies Record<string, ConquestUiIconId>;
 
 export type StatKind = keyof typeof STAT_ICON;
@@ -110,6 +141,21 @@ const STAT_LABEL: Record<StatKind, () => string> = {
   governor: () => t('land.section.assignment'),
   haulage: () => t('ascent.supply.row'),
   yieldCut: () => t('ascent.falling.reducedYield'),
+  martial: () => t('stat.martial'),
+  logistics: () => t('stat.logistics'),
+  administration: () => t('stat.administration'),
+  diplomacy: () => t('stat.diplomacy'),
+  fealty: () => t('stat.loyalty'),
+  renown: () => t('stat.renown'),
+  relations: () => t('hero.fx.relations'),
+  output: () => t('hero.fx.output'),
+  recruit: () => t('hero.fx.recruit'),
+  acquire: () => t('hero.fx.acquire'),
+  cards: () => t('hero.fx.cards'),
+  buildCost: () => t('hero.fx.buildCost'),
+  buildSpeed: () => t('hero.fx.buildSpeed'),
+  influence: () => t('hero.fx.influence'),
+  favor: () => t('hero.fx.favor'),
 };
 
 /**

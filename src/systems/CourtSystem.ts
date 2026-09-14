@@ -102,8 +102,8 @@ export interface CourtBonuses {
   claimSlotBonus: number;
 }
 
-type NumericCourtBonusKey = Exclude<keyof CourtBonuses, 'resourceRateModifier'>;
-type CourtBonusDelta = Partial<Record<NumericCourtBonusKey, number>>;
+export type NumericCourtBonusKey = Exclude<keyof CourtBonuses, 'resourceRateModifier'>;
+export type CourtBonusDelta = Partial<Record<NumericCourtBonusKey, number>>;
 
 const BASE_STABILITY_REGEN = 0.15;
 const BASE_INFLUENCE_REGEN = 0.05;
@@ -232,6 +232,19 @@ function getMarketStabilityPressure(state: GameState): number {
     ), 0);
 }
 
+/**
+ * How much of a seat's effect this hero actually brings to it.
+ *
+ * Thái ấp's upside: a champion who holds land in their own name brings twice the weight to their
+ * seat (the province pays for it — see `getLandGovernorOutputMult`); a hero's job scale; and the
+ * court secretary's edge at the two diplomatic seats. Shared by `getCourtBonuses` and the posting
+ * screens' value readout, so a figure shown for a candidate is the figure they would bring.
+ */
+export function courtSeatScale(state: GameState, seat: CourtPositionId, hero: Hero): number {
+  return (princelyFiefs(state) ? 2 : 1) * heroJobScale(state, hero)
+    * (['chancellor', 'spymaster'].includes(seat) && hasHeroPerk(hero, 'court-secretary') ? 1.06 : 1);
+}
+
 /** Aggregates every seated hero's position effects into the kingdom-wide bonus set. */
 export function getCourtBonuses(state: GameState): CourtBonuses {
   const delta: Required<CourtBonusDelta> = {
@@ -273,10 +286,7 @@ export function getCourtBonuses(state: GameState): CourtBonuses {
       continue;
     }
     const effects = COURT_POSITION_EFFECTS[positionId as CourtPositionId](effectiveHeroStats(hero));
-    // Thái ấp's upside: a champion who holds land in their own name brings twice the weight to
-    // their seat. The province pays for it — see `getLandGovernorOutputMult`.
-    const fiefMult = (princelyFiefs(state) ? 2 : 1) * heroJobScale(state, hero)
-      * (['chancellor', 'spymaster'].includes(positionId) && hasHeroPerk(hero, 'court-secretary') ? 1.06 : 1);
+    const fiefMult = courtSeatScale(state, positionId as CourtPositionId, hero);
     for (const [key, value] of Object.entries(effects)) {
       delta[key as NumericCourtBonusKey] += (value ?? 0) * fiefMult;
     }

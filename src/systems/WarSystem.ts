@@ -9,7 +9,7 @@ import {
 } from '../game/ascentConfig';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
 import { effectiveHeroStats, heroCapability, heroActive } from './heroes/heroModel';
-import { beginHeroEncounter, completeHeroEncounter, commitHeroAssignment, returnDisbandedCommander, homeProvince } from './heroes/HeroService';
+import { beginHeroEncounter, completeHeroEncounter, commitHeroAssignment, returnDisbandedCommander, heroFreeReason } from './heroes/HeroService';
 import { heroHostFoodMultiplier, heroHostSuppliesMultiplier, heroProvinceModifiers } from './heroes/heroContributions';
 import { getLegTicks } from '../game/movementConfig';
 import {
@@ -363,7 +363,7 @@ export function retakeBonus(state: GameState, army: Army, targetLand: Land): num
   return 1 + RETAKE_POWER_BONUS * (1 - elapsed / RETAKE_BONUS_WAVES);
 }
 
-function defenderPower(state: GameState, targetLand: Land): number {
+export function defenderPower(state: GameState, targetLand: Land): number {
   // A garrison levy *is* the walls turned out (Dragon Ascent); the walls are counted below, so
   // the levy is not counted again as an army. Inert elsewhere: no other mode raises one.
   const defendingArmy = state.armies.find(
@@ -1102,7 +1102,7 @@ export function queueRecruitment(
   orders?: ArmyOrders,
 ): boolean {
   const hero = state.heroes.find((candidate) => candidate.id === heroId);
-  if (!hero || hero.assignedTo || !heroActive(hero) || (heroCapability(state, 'travel') && hero.life?.kind === 'active' && hero.life.locationId !== homeProvince(state))) {
+  if (!hero || hero.assignedTo || !heroActive(hero) || (heroCapability(state, 'travel') && hero.life?.kind === 'active' && heroFreeReason(state, hero) !== undefined)) {
     state.message = t('msg.chooseCommander');
     return false;
   }
@@ -1859,6 +1859,40 @@ export function cancelSiege(state: GameState, armyId: string, landId: string): b
   return true;
 }
 
+/**
+ * Who carries a hostile claim on when its bearer is gone (Dragon Ascent).
+ *
+ * A host of the same crown standing on the ground, with men, not holding a claim of its own, and
+ * still campaigning (a host already turned for home does not pick a province back up). The
+ * enrolment roster is read first so the claim passes in the order the coalition arrived, then the
+ * largest host — a stable sort, no RNG, so a seeded run replays.
+ */
+export function claimSuccessor(state: GameState, order: SiegeOrder): Army | undefined {
+  if (state.gameMode !== 'ascent' || state.ascent?.arena) return undefined;
+  if (order.attackerKingdomId === PLAYER_KINGDOM_ID) return undefined;
+  const eligible = state.armies.filter((army) => army.id !== order.armyId
+    && army.kingdomId === order.attackerKingdomId
+    && !army.isLevy
+    && totalUnits(army) > 0
+    && army.landId === order.landId
+    && !state.siegeOrders.some((other) => other !== order && other.armyId === army.id)
+    && (state.invasions ?? []).some((record) => record.armyId === army.id && !record.pillaged && record.intent === 'conquest'));
+  const byRoster = (order.claimants ?? [])
+    .map((id) => eligible.find((army) => army.id === id))
+    .find((army): army is Army => Boolean(army));
+  return byRoster ?? [...eligible].sort((a, b) => totalUnits(b) - totalUnits(a))[0];
+}
+
+/** Passes a claim to `claimSuccessor`, keeping its progress. False when there is nobody to take it. */
+export function handOffClaim(state: GameState, order: SiegeOrder): boolean {
+  const next = claimSuccessor(state, order);
+  if (!next) return false;
+  order.armyId = next.id;
+  const roster = (order.claimants ??= []);
+  if (!roster.includes(next.id)) roster.push(next.id);
+  return true;
+}
+
 /** Advances every in-progress siege by one tick, capturing the land once `required` ticks pass. */
 export function progressSiegeOrders(state: GameState): boolean {
   const completed: SiegeOrder[] = [];
@@ -1896,14 +1930,21 @@ export function progressSiegeOrders(state: GameState): boolean {
    * to exist so it can march it back to `fromLandId`, which is meaningless for a host that is
    * dead. Ascent only, so the classic modes keep their byte-identical fingerprint.
    *
-   * A safety net rather than the main road: a retake won through `finishBattle` already lifts the
-   * siege in `resolveBattleRecord`, and a wiped host is filtered by `despawnInvasion`. This
-   * catches the third case — a besieger emptied without any battle record being filed.
+   * A safety net rather than the main road: a retake won through `finishBattle` lifts the claim
+   * in `liftClaimOnRetake`, and a wiped host is filtered by `despawnInvasion`. This catches the
+   * third case — a besieger emptied without any battle record being filed.
+   *
+   * **Stale means nobody of that crown is left to press it, not that its first bearer fell.** The
+   * order is handed down the coalition standing on the ground first (`handOffClaim`). Dropping it
+   * with the bearer is what turned a won capital into an abandoned one: the columns that had
+   * joined the claim forgot the province was theirs, walked off, and the next wave had to fight
+   * the same walls again — reported as *they win my capital, leave, and fight it again and again*.
    */
   if (state.gameMode === 'ascent') {
     const stale = state.siegeOrders.filter((order) => {
       const army = state.armies.find((candidate) => candidate.id === order.armyId);
-      return !army || totalUnits(army) <= 0 || army.landId !== order.landId;
+      if (army && totalUnits(army) > 0 && army.landId === order.landId) return false;
+      return !handOffClaim(state, order);
     });
     for (const order of stale) {
       const land = findLand(state, order.landId);

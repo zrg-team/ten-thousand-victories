@@ -3,7 +3,8 @@ import { GAME_HEIGHT, GAME_WIDTH, surfaceWidth } from '../game/constants';
 import { LAYOUT_RESIZED } from '../game/desktopResize';
 import { applyRenderScale, applyPendingRenderScale, renderScale, requestRenderScale, GRAPHICS_MODES, getGraphicsMode, setGraphicsMode } from '../game/graphicsQuality';
 import { getLanguage, setLanguage, t, type LanguageCode } from '../i18n';
-import { isAscentBetaEnabled, setAscentBetaEnabled } from '../game/betaOptions';
+import { preferredAscentRuleset, setPreferredAscentRuleset } from '../game/rulesetOptions';
+import { ASCENT_RULESET_IDS, ASCENT_RULESET_INFO } from '../game/ascentRuleset';
 import { applyUpdate, buildStamp, canCheckForUpdate, checkForUpdate, getDownloadProgress, getUpdateCheckResult, getUpdateStatus, subscribeDownloadProgress, subscribeUpdateStatus } from '../pwa/updates';
 import { BACK_BAR_BAND, BACK_BAR_HEIGHT, InkUI, INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type InkScrollArea } from '../ui/InkUI';
 import {
@@ -373,15 +374,18 @@ export class SettingsScene extends Phaser.Scene {
         pick: (id) => { setLanguage(id as LanguageCode); this.render(true); },
       },
     ];
-    // Last, on purpose: the page is ordered from what everybody touches to what few will, and an
-    // opt-in to rules still being tested is the one row nobody should meet by accident.
-    const beta: Row[] = [
+    // Last, on purpose: the page is ordered from what everybody touches to what few will. One row
+    // per offered version, in order; the note says what the chosen one is. A version added to the
+    // registry appears here by itself (`ASCENT_RULESET_INFO.selectable`).
+    const chosen = preferredAscentRuleset();
+    const rules: Row[] = [
       {
-        name: t('beta.settings.row'),
-        options: [{ id: 'off', label: t('menu.toggle.off') }, { id: 'on', label: t('menu.toggle.on') }],
-        current: isAscentBetaEnabled() ? 'on' : 'off',
-        pick: (id) => { setAscentBetaEnabled(id === 'on'); this.render(true); },
-        note: t('beta.settings.note'),
+        name: t('ruleset.settings.row'),
+        options: ASCENT_RULESET_IDS.filter((id) => ASCENT_RULESET_INFO[id].selectable)
+          .map((id) => ({ id, label: t(`ruleset.${id}.name`) })),
+        current: chosen,
+        pick: (id) => { setPreferredAscentRuleset(id as typeof chosen); this.render(true); },
+        note: t('ruleset.settings.note', { version: t(`ruleset.${chosen}.note`) }),
       },
     ];
     return [
@@ -390,7 +394,7 @@ export class SettingsScene extends Phaser.Scene {
       { key: 'map', heading: t('menu.settings.section.map'), rows: map },
       { key: 'sound', heading: t('menu.settings.section.sound'), rows: sound },
       { key: 'interface', heading: t('menu.settings.section.interface'), rows: face },
-      { key: 'beta', heading: t('beta.settings.section'), rows: beta },
+      { key: 'rules', heading: t('ruleset.settings.section'), rows: rules },
     ];
   }
 

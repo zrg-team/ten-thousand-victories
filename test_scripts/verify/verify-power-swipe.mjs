@@ -43,7 +43,7 @@ async function prepareDraft({ language = 'en', held = false } = {}) {
 const fixture = readFileSync('index.html', 'utf8').replace('</body>', `<script type="module">
 const waitFor = async (fn) => { while (!fn()) await new Promise(r => setTimeout(r, 100)); };
 await waitFor(() => window.__phaserGame?.scene.isActive('MenuScene'));
-window.__startBenchGame(1337, 'ascent');
+window.__startBenchGame(1337, 'ascent', 'v1');
 await waitFor(() => window.__phaserGame.scene.isActive('ConquestUIScene'));
 await new Promise(r => setTimeout(r, 700));
 await (${prepareDraft.toString()})({language:'en'});
@@ -70,7 +70,7 @@ try {
     const cdp = await page.context().newCDPSession(page);
     await page.goto(`${url}/?capture=1`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 60000 });
-    await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+    await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
     await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'));
     await page.waitForTimeout(700);
 

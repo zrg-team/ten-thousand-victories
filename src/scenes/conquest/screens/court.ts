@@ -13,6 +13,7 @@
 import { getCourtBonuses, ALL_COURT_POSITIONS, getCourtPositionLabel } from '../../../systems/CourtSystem';
 import { showHeroDepth, showHeroChronicle, showHeroAftermath } from './heroDepth';
 import { protectHero } from '../../../systems/heroes/HeroService';
+import { heroCapability } from '../../../systems/heroes/heroModel';
 import { autosaveSnapshot } from '../../../state/save';
 import {
   authorityCap,
@@ -369,10 +370,15 @@ function heroWageChip(state: GameState, hero: Hero): CostChip {
  * they lead and where it stands (and the field, if it is fighting). Empty for anyone without a
  * posting — their situation is a sentence instead, see `heroSituationLine`.
  */
-function heroPostingChips(state: GameState, hero: Hero, status: HeroStatus): CostChip[] {
+export function heroPostingChips(state: GameState, hero: Hero, status: HeroStatus): CostChip[] {
   const at = hero.assignedTo;
-  if (!at || status === 'captive' || status === 'recovering' || status === 'transit' || status === 'dead') return [];
   const chip = (icon: CostChip['icon'], value: string, label: string): CostChip => ({ icon, value, label });
+  // Beta: a free hero is somewhere, and where decides how long any posting takes.
+  if (!at && status === 'idle' && hero.life?.kind === 'active' && heroCapability(state, 'travel')) {
+    const land = state.lands.find((candidate) => candidate.id === (hero.life as { locationId: string }).locationId);
+    return land ? [chip('territory', land.name, t('ascent.heroes.chip.land'))] : [];
+  }
+  if (!at || status === 'captive' || status === 'recovering' || status === 'transit' || status === 'dead') return [];
   if (at.startsWith('court:')) {
     return [chip('crown', getCourtPositionLabel(at.slice('court:'.length) as CourtPositionId), t('ascent.heroes.chip.court'))];
   }

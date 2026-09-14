@@ -137,7 +137,7 @@ try {
       await new Promise(resolve => setTimeout(resolve, 450));
       await route.continue();
     });
-    await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+    await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
     await page.locator('[data-page-loading="ConquestScene"]').waitFor();
     await page.screenshot({ path: `${OUT}/${language}-loading-conquest.png` });
     await ready(page, 'ConquestScene');

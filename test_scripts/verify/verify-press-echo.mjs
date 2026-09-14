@@ -74,7 +74,7 @@ async function stageSheet() {
     if (!g.scene.isActive('MenuScene')) g.scene.start('MenuScene');
   });
   await page.waitForTimeout(400);
-  await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
   await page.waitForTimeout(900);
   return page.evaluate(async () => {

@@ -90,7 +90,7 @@ for (const mode of booted ? MODES : []) {
   let reached = false;
 
   try {
-    await page.evaluate(([m, s]) => window.__startBenchGame(s, m), [mode, SEED]);
+    await page.evaluate(([m, s]) => window.__startBenchGame(s, m, 'v1'), [mode, SEED]);
     await page.waitForFunction((s) => window.__phaserGame.scene.isActive(s), scene, { timeout: 30000 });
     await page.waitForTimeout(900);
     reached = true;

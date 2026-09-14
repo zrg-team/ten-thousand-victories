@@ -92,7 +92,7 @@ const setHidden = (hidden) => page.evaluate((hidden) => {
 }, hidden);
 
 console.log(`=== verify-resume — ${URL} ===`);
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 await page.waitForTimeout(1200);
 const base = await frame('0-base');

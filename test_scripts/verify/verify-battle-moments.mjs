@@ -43,7 +43,7 @@ const out = await page.evaluate(async ([seeds, ticks, decline]) => {
   let lapsed = 0;
 
   for (let s = 0; s < seeds; s += 1) {
-    const st = await window.__ptBoot(1000 + s * 7919);
+    const st = await window.__ptBoot(1000 + s * 7919, { ruleset: 'v1' });
     for (let tick = 0; tick < ticks; tick += 1) {
       advanceAscentTick(st);
       let guard = 0;

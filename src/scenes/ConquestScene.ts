@@ -12,7 +12,9 @@ import { searchForTalent } from '../systems/ascent/ChampionSearch';
 import { advanceCeremony } from '../systems/ascent/Ceremony';
 import { offerConquestMethods } from '../systems/ascent/ConquestSystem';
 import { offerEnvoyTo } from '../systems/ascent/EnvoySystem';
-import { applyAppointment, offerAppointment, offerLawChoice } from '../systems/ascent/CourtLaneSystem';
+import { applyAppointmentResult, offerAppointment, offerLawChoice } from '../systems/ascent/CourtLaneSystem';
+import { heroName, t } from '../i18n';
+import { heroReasonText } from '../ui/heroReasons';
 import { raiseHostNow } from '../systems/ascent/AutopilotSystem';
 import { recallHost, resupplyHost, setArmyOrders } from '../systems/ascent/StandingOrders';
 import { raiseHostWithPlan, type MusterPlan } from '../systems/ascent/MusterSystem';
@@ -641,7 +643,16 @@ export class ConquestScene extends MapScene {
     // bench. The same `applyAppointment` the appointment card resolves through.
     this.onUi('ui:ascent-assign', (payload: { heroId: string; optionId: string }) => {
       if (this.state.pendingAscentPrompt) return;
-      applyAppointment(this.state, payload.heroId, payload.optionId);
+      // A refusal is said in the header strip. It used to be dropped here, so a picker that could
+      // not seat somebody closed exactly as if it had.
+      const result = applyAppointmentResult(this.state, payload.heroId, payload.optionId);
+      if (!result.ok) {
+        const hero = this.state.heroes.find((candidate) => candidate.id === payload.heroId);
+        pushToast(this.state, t('hero.pick.failed', {
+          hero: hero ? heroName(hero) : '',
+          reason: heroReasonText(result.reason),
+        }), 'threat');
+      }
       this.refresh();
       ui.events.emit('state-changed');
     });

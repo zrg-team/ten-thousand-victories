@@ -50,7 +50,7 @@ import {
   formationBeats, formationTier, formationTiltSign,
   FORMATION_RING, type BattleFormation,
 } from '../../data/ascent/formations';
-import { raiseEnemyGarrisonLevy, raiseGarrisonLevy, resolveBattleRecord } from '../empire/InvasionSystem';
+import { liftClaimOnRetake, raiseEnemyGarrisonLevy, raiseGarrisonLevy, resolveBattleRecord } from '../empire/InvasionSystem';
 import { recordEngagement } from './battleReport';
 import {
   addSideBattle, battleAt, focusBattle, hasRoomForAnotherFront, liveBattles, promoteNextFront,
@@ -61,7 +61,7 @@ import {
   applyAttackOutcome, armyPower, compositionMatchup, issueMoveOrder, terrainDefenseMultiplier,
 } from '../WarSystem';
 import { occupyEmptyLand } from '../AcquisitionSystem';
-import { findLand, provinceIsFalling } from '../LandSystem';
+import { findLand, isAdjacent, provinceIsFalling } from '../LandSystem';
 import { defenceCommanderOf } from './landCommand';
 import { landGarrisonPower } from './PowerSystem';
 import { battleLine, enrolArrivals, hostHeadcount, ourHosts, theirHosts } from './battleMembership';
@@ -2500,11 +2500,13 @@ export function finishBattle(state: GameState, decision: 'press' | 'hold' | 'ret
   // `reported` — the record above IS this fight's report, and the shared settlement code files
   // one of its own for every engagement it settles now (see `battleReport`). Without the flag the
   // watched fight is the one fight in the run that gets reported twice.
-  resolveBattleRecord(state, battleRecord(battle), resolved, forced, true);
+  resolveBattleRecord(state, battleRecord(battle, forced === 'invader' ? claimBearer(state, battle) : battle.invaderArmyId), resolved, forced, true);
   // A rout breaks *every* host that came to the field, not only the one that made contact:
   // a coalition that ran does not get to try the same gate again next tick, one column at a time.
   if (forced === 'defence') {
     for (const id of invaderIds) resolveBattleRecord(state, battleRecord(battle, id), 'delegate', 'defence', true);
+    // And a retake the defence won lifts the claim whatever the per-host settlement left standing.
+    if (battle.retake) liftClaimOnRetake(state, battle.landId);
   }
   // And a line that broke does not stand again this wave with what is left of it. The next
   // column to reach these walls is settled by dispatch, or joins the siege the winner has laid
@@ -2514,6 +2516,36 @@ export function finishBattle(state: GameState, decision: 'press' | 'hold' | 'ret
   if (forced === 'invader') {
     (ascent.routedGround ??= {})[battle.landId] = ascent.wave;
   }
+}
+
+/**
+ * Which of the winning hosts carries the claim a won field lays.
+ *
+ * The field was settled through `battle.invaderArmyId` — the column that happened to make contact
+ * first. When that host died in a fight its side still won, the settlement either found no army
+ * and laid nothing, or laid the claim for a host of nobody, which `progressSiegeOrders` lifted as
+ * stale the next season with a *reward* toast. The columns that actually carried the walls then
+ * made contact again and the capital was fought a second time. Staged both ways in
+ * `verify-capital-claim` (lead zeroed, lead removed).
+ *
+ * The lead if it is still a host; otherwise the strongest still-campaigning conquest host of the
+ * field that is on or beside the ground, conquest before raid, then by size. No RNG.
+ */
+function claimBearer(state: GameState, battle: AscentBattle): string {
+  if (state.ascent?.arena) return battle.invaderArmyId;
+  const alive = (id: string): Army | undefined => {
+    const army = state.armies.find((candidate) => candidate.id === id);
+    const record = state.invasions?.find((candidate) => candidate.armyId === id);
+    if (!army || !record || record.pillaged || totalUnits(army) <= 0) return undefined;
+    return army.landId === battle.landId || isAdjacent(state, army.landId, battle.landId) ? army : undefined;
+  };
+  if (alive(battle.invaderArmyId)) return battle.invaderArmyId;
+  const intent = (army: Army) => state.invasions?.find((record) => record.armyId === army.id)?.intent === 'conquest' ? 0 : 1;
+  const next = (battle.theirArmyIds ?? [])
+    .map(alive)
+    .filter((army): army is Army => Boolean(army))
+    .sort((a, b) => intent(a) - intent(b) || totalUnits(b) - totalUnits(a))[0];
+  return next?.id ?? battle.invaderArmyId;
 }
 
 /** What an assault of ours came to, applied through the same consequence the odds roll uses. */

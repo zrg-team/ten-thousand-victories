@@ -1,11 +1,16 @@
 /**
- * Dragon Ascent rulesets: one engine, more than one set of rules.
+ * Dragon Ascent rule versions: one engine, several numbered sets of rules.
  *
- * Gameplay experiments ship as a **beta** the player turns on in Settings, not as edits to the
- * shipped game. A run is stamped with its ruleset when it starts (`CampaignConfig.ruleset`, set by
+ * A run is stamped with its version when it starts (`CampaignConfig.ruleset`, set by
  * `newAscentRun`) and keeps it for life — saves, "go again" and resume all carry it. The same
- * scenes, the same tick loop and the same systems run both; where a rule differs, the one shared
- * function that owns that rule reads `rulesOf(state)` and branches *inside itself*.
+ * scenes, the same tick loop and the same systems run every version; where a rule differs, the one
+ * shared function that owns that rule reads `rulesOf(state)` and branches *inside itself*.
+ *
+ * **The versions** (`ASCENT_RULESET_INFO`):
+ * - `v1` — the original game, frozen. Kept playable from Settings; `verify-ascent-fingerprint.mjs`
+ *   holds it byte-identical to its baseline, and saves from before versions existed resume as v1.
+ * - `v2` — the current game and the default (graduated from the old "beta", 2026-09-15).
+ * - a future `v3` — see *Adding a version* below.
  *
  * Rules for this module, because everything imports it:
  *
@@ -15,12 +20,23 @@
  *   ↔ AscentState). A registry that imported any system would close a new loop through them.
  * - **Ids, flags and numbers only — never functions.** A ruleset is data a save could name and a
  *   harness could print. Strategy code lives beside the function that owns the seam, not here.
- * - **Stable is today's game.** A seam's stable branch is the old code moved verbatim, not the new
- *   formula run with old numbers (`1 * x` is not always `x`), and a stable path never gains a
- *   `Math.random` draw. `verify-ascent-fingerprint.mjs` holds stable byte-identical to a baseline.
- * - **One switch per experiment.** Each beta feature is its own field, so it can be measured alone
- *   (`docs/phase-2/validation-plan.md`: keep experiments separately selectable) and graduated
- *   alone: promoting a feature is copying its value into `STABLE` and deleting the dead branch.
+ * - **v1 is the old game.** A seam's v1 branch is the old code moved verbatim, not the new formula
+ *   run with old numbers (`1 * x` is not always `x`), and a v1 path never gains a `Math.random`
+ *   draw. A bug fix may reach v1 and re-baseline it; a *rule* change never does.
+ * - **One switch per feature.** Each difference is its own field, so it can be measured alone and
+ *   carried into the next version alone. A version is its parent spread plus the fields it changes.
+ *
+ * **Adding a version** (a `v3` experiment, say):
+ * 1. Add `'v3'` to `AscentRulesetId` (`state/types.ts`) and to `ASCENT_RULESET_IDS` below.
+ * 2. `const V3: AscentRuleset = { ...V2, id: 'v3', ...only the new or changed fields }`, and add it
+ *    to `BASE`. A new field goes on `AscentRuleset` with its V1 value, so older versions read "off".
+ * 3. Give it an `ASCENT_RULESET_INFO` entry: `status: 'experimental'` lists it in Settings and puts
+ *    the experimental badge on the Play button; `selectable: false` keeps it harness-only.
+ * 4. Add `ruleset.v3.name` / `ruleset.v3.note` to `i18n/catalogs/ascentBeta.ts`.
+ * 5. Record its fingerprint (`verify-ascent-fingerprint.mjs --write --ruleset v3`) and gate it.
+ * 6. Graduating it is `DEFAULT_ASCENT_RULESET = 'v3'` and v2's status becoming `legacy`.
+ * Retiring a version: drop it from the ids and map it in `RULESET_ALIASES` to the version its saves
+ * should resume under.
  */
 import type { AscentRulesetId, GameState } from '../state/types';
 
@@ -103,7 +119,7 @@ export interface AscentRuleset {
   /**
    * A1/A3 — how far (0–1) a wave after the opening is sized against what it strikes (the capital,
    * the median frontier province, the hunted host; `systems/ascent/strikeReference.ts`) instead of
-   * the whole realm. 0 is the shipped sizing, byte for byte.
+   * the whole realm. 0 is the v1 sizing, byte for byte.
    */
   readonly strikeSizing: number;
   /**
@@ -120,7 +136,7 @@ export interface AscentRuleset {
    */
   readonly talentPriceByFavor: boolean;
 }
-// strikeSizing, measured and NOT adopted for the beta (verify-skill-ceiling, 16 dev seeds, goal at
+// strikeSizing, measured and NOT adopted for v2 (verify-skill-ceiling, 16 dev seeds, goal at
 // capital + 2, 2026-09-13; beta baseline: raw spread 1.31×, paired 78%, agency 1.60×):
 //   0.25 → raw 1.29×, agency 1.49× (Warhost falls to 16.4 waves) — both under the gate;
 //   0.5  → raw 1.06×, paired 53% — the spread collapses (Bastion 23.0 → 17.3 waves);
@@ -129,10 +145,34 @@ export interface AscentRuleset {
 // wide one. Built behind the flag (0 = shipped sizing, byte for byte) so a better reference can be
 // tried against the same gate.
 
-export const ASCENT_RULESET_IDS: readonly AscentRulesetId[] = ['stable', 'beta'];
+/** Every version this build can run, oldest first. The Settings picker lists them in this order. */
+export const ASCENT_RULESET_IDS: readonly AscentRulesetId[] = ['v1', 'v2'];
 
-const STABLE: AscentRuleset = {
-  id: 'stable',
+/** What a new reign plays when the player has never chosen, and what a harness gets unless it pins one. */
+export const DEFAULT_ASCENT_RULESET: AscentRulesetId = 'v2';
+
+export type AscentRulesetStatus = 'legacy' | 'current' | 'experimental';
+
+/**
+ * How each version is offered. `status` decides the badge (the default version wears none) and
+ * `selectable` whether Settings lists it at all — an experiment can exist for harnesses first.
+ * Words live in the catalog under `ruleset.<id>.name` / `.note`.
+ */
+export const ASCENT_RULESET_INFO: Readonly<Record<AscentRulesetId, { status: AscentRulesetStatus; selectable: boolean }>> = {
+  v1: { status: 'legacy', selectable: true },
+  v2: { status: 'current', selectable: true },
+};
+
+/**
+ * Names older builds wrote into saves, preferences and harness flags, and the version each means
+ * now. `stable` was the shipped game (v1); `beta` is what became v2. Never removed: a save lives in
+ * a player's browser for as long as they keep it.
+ */
+const RULESET_ALIASES: Readonly<Record<string, AscentRulesetId>> = { stable: 'v1', beta: 'v2' };
+
+/** V1 — the original game. */
+const V1: AscentRuleset = {
+  id: 'v1',
   heroGrowth: false,
   heroRulesVersion: 1,
   heroTrainingPerLevel: 2,
@@ -156,10 +196,10 @@ const STABLE: AscentRuleset = {
   talentPriceByFavor: false,
 };
 
-/** Stable, plus the experiments. Spread so a field the beta does not override reads as stable. */
-const BETA: AscentRuleset = {
-  ...STABLE,
-  id: 'beta',
+/** V2 — V1 plus everything the beta proved. Spread, so a field V2 does not name reads as V1. */
+const V2: AscentRuleset = {
+  ...V1,
+  id: 'v2',
   talentPriceByFavor: true,
   scaledStories: true,
   heroGrowth: true,
@@ -194,8 +234,10 @@ const BETA: AscentRuleset = {
 
 declare global {
   // eslint-disable-next-line no-var
-  var __ascentRulesetOverride: Partial<Record<AscentRulesetId, Record<string, unknown>>> | undefined;
+  var __ascentRulesetOverride: Partial<Record<string, Record<string, unknown>>> | undefined;
 }
+
+const BASE: Readonly<Record<AscentRulesetId, AscentRuleset>> = { v1: V1, v2: V2 };
 
 /**
  * The resolved table, with any harness override applied **once, at module load**.
@@ -203,24 +245,42 @@ declare global {
  * Same reason `ASCENT_TUNING` is seeded that way: the dev server can hold two instances of a module
  * (the game bundle's and a harness's `import('/src/…')`), so assigning into the object after boot
  * reaches only one of them. A harness sets `globalThis.__ascentRulesetOverride` with
- * `page.addInitScript` before navigation — e.g. `{ beta: { goal: false } }` to measure the beta
- * without one of its features. Nothing in the game writes it, and saves never carry it.
+ * `page.addInitScript` before navigation — e.g. `{ v2: { goal: false } }` (the old name
+ * `{ beta: … }` still works) to measure a version without one of its features. Nothing in the game
+ * writes it, and saves never carry it.
  */
 const RULESETS: Readonly<Record<AscentRulesetId, AscentRuleset>> = (() => {
   const override = typeof globalThis !== 'undefined' ? globalThis.__ascentRulesetOverride : undefined;
-  const stable: AscentRuleset = { ...STABLE, ...(override?.stable ?? {}), id: 'stable' };
-  const beta: AscentRuleset = { ...BETA, ...(override?.beta ?? {}), id: 'beta' };
-  return { stable, beta };
+  const table = {} as Record<AscentRulesetId, AscentRuleset>;
+  for (const id of ASCENT_RULESET_IDS) {
+    const patches = Object.entries(override ?? {})
+      .filter(([key]) => normalizeRulesetId(key) === id)
+      .map(([, patch]) => patch);
+    table[id] = Object.assign({}, BASE[id], ...patches, { id });
+  }
+  return table;
 })();
 
-export function isAscentRulesetId(value: unknown): value is AscentRulesetId {
-  return value === 'stable' || value === 'beta';
+/** A version id this build runs, accepting the old names; `undefined` for anything else. */
+export function normalizeRulesetId(value: unknown): AscentRulesetId | undefined {
+  if (typeof value !== 'string') return undefined;
+  if ((ASCENT_RULESET_IDS as readonly string[]).includes(value)) return value as AscentRulesetId;
+  return RULESET_ALIASES[value];
 }
 
-/** The ruleset a run was started under. Anything absent or unrecognised is `stable`. */
+export function isAscentRulesetId(value: unknown): value is AscentRulesetId {
+  return typeof value === 'string' && (ASCENT_RULESET_IDS as readonly string[]).includes(value);
+}
+
+/**
+ * The version a run was started under.
+ *
+ * **Absent means v1**: every save made before versions existed was the original game, and a v1
+ * run still carries no field so its saves and fingerprints stay byte-identical. A name this build
+ * does not know also resumes as v1.
+ */
 export function rulesetIdOf(state: Pick<GameState, 'campaignConfig'> | undefined): AscentRulesetId {
-  const id = state?.campaignConfig?.ruleset;
-  return isAscentRulesetId(id) ? id : 'stable';
+  return normalizeRulesetId(state?.campaignConfig?.ruleset) ?? 'v1';
 }
 
 /** The rules a run plays by. The one read every seam makes. */
@@ -228,6 +288,7 @@ export function rulesOf(state: Pick<GameState, 'campaignConfig'> | undefined): A
   return RULESETS[rulesetIdOf(state)];
 }
 
-export function rulesetById(id: AscentRulesetId): AscentRuleset {
-  return RULESETS[id];
+/** A version's rules by id. Old names are accepted (harnesses); anything unknown is v1. */
+export function rulesetById(id: AscentRulesetId | 'stable' | 'beta'): AscentRuleset {
+  return RULESETS[normalizeRulesetId(id) ?? 'v1'];
 }

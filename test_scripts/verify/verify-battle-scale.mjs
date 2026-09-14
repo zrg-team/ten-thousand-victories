@@ -56,7 +56,7 @@ const FIRST = `(p) => { const o = p.options ?? [];
   } }`;
 
 const run = await page.evaluate(async (src) => {
-  window.__startBenchGame(20260812, 'ascent');
+  window.__startBenchGame(20260812, 'ascent', 'v1');
   await new Promise((r) => setTimeout(r, 1200));
   const st = window.__mandateState;
   const { advanceAscentTick } = await import('/src/systems/ascent/AscentTick.ts');

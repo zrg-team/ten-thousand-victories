@@ -76,7 +76,7 @@ function fitOf(score: number): GovernorFit {
  * support does not read as a great posting. A province that fights its focus is a bad posting for
  * everyone, and the screen should say so.
  */
-function scoreHero(state: GameState, land: Land, hero: Hero): number {
+export function scoreHero(state: GameState, land: Land, hero: Hero): number {
   const stats = effectiveHeroStats(hero);
   const keyStat = governorKeyStat(land);
   const focus = getLandSpecialization(land);

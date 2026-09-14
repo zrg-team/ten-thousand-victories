@@ -76,7 +76,7 @@ export async function boot({
 /** Jumps into a deterministic run and waits for the world scene. */
 export async function startWorld(page, { mode = 'rival', seed = 1337, settle = 800 } = {}) {
   const worldScene = mode === 'ascent' ? 'ConquestScene' : 'MapScene';
-  await page.evaluate(([s, m]) => window.__startBenchGame(s, m), [seed, mode]);
+  await page.evaluate(([s, m]) => window.__startBenchGame(s, m, 'v1'), [seed, mode]);
   await page.waitForFunction(
     (scene) => { const game = window.__phaserGame; const ui = game?.scene.getScene(scene === 'ConquestScene' ? 'ConquestUIScene' : 'UIScene'); return game?.scene.isActive(scene) === true && game.scene.getScene(scene).landNodes?.size > 0 && ui?.sys.isActive() && !!ui.ui; },
     worldScene, { timeout: 40000 },

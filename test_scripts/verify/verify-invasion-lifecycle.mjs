@@ -150,7 +150,7 @@ const result = await page.evaluate(async () => {
  * longer than the fall, so every timed frame came back empty and the harness would have "proved"
  * the opposite of the truth. Polling the scene for the banner's own lifetime is exact.
  */
-await page.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await page.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 30000 });
 // A sentinel on `window`, checked again at the end of the phase.
 //

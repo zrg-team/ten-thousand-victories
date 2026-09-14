@@ -300,7 +300,7 @@ await first.goto(`${BASE}/?capture=1&tour=1`, { waitUntil: 'domcontentloaded' })
 await first.waitForFunction(() => typeof window.__startBenchGame === 'function', null, { timeout: 30000 });
 // Let Boot finish its art preload before the bench starts a scene using the same atlas.
 await first.waitForFunction(() => window.__phaserGame.scene.isActive('MenuScene'), null, { timeout: 30000 });
-await first.evaluate(() => window.__startBenchGame(1337, 'ascent'));
+await first.evaluate(() => window.__startBenchGame(1337, 'ascent', 'v1'));
 await first.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'), null, { timeout: 30000 });
 // A new dynasty now opens its optional customizer and an inheritance summary before decisions.
 for (let setup = 0; setup < 2; setup += 1) {

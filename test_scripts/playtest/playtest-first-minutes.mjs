@@ -87,7 +87,7 @@ async function playOneRun(browser, seed) {
   await page.waitForFunction(() => typeof window.__startBenchGame === 'function'
     && window.__phaserGame.scene.isActive('MenuScene'), null, { timeout: 40000 });
   const menuAt = at();
-  await page.evaluate((s) => window.__startBenchGame(s, 'ascent'), seed);
+  await page.evaluate((s) => window.__startBenchGame(s, 'ascent', 'v1'), seed);
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestScene'), null, { timeout: 40000 });
   const runAt = at();
   await page.evaluate(OPTIONS);

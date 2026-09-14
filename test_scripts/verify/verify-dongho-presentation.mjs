@@ -16,7 +16,7 @@ for(const [lang,height] of [['en',844],['vi',844],['vi',620]]){
  },lang);
  await page.goto(`${base}/?capture=1&noladder=1`);
  await page.waitForFunction(()=>window.__phaserGame?.scene.isActive('MenuScene'));
- await page.evaluate(()=>window.__startBenchGame(20260901,'ascent'));
+ await page.evaluate(()=>window.__startBenchGame(20260901,'ascent', 'v1'));
  await page.waitForFunction(()=>window.__phaserGame.scene.isActive('ConquestScene'));
  await page.evaluate(()=>{
   const st=window.__mandateState;st.isPaused=true;

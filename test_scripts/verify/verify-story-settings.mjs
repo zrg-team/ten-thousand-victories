@@ -28,7 +28,7 @@ for (const [width, height, language] of [[390, 844, 'vi'], [390, 620, 'en'], [14
   await page.goto(`${process.env.DEV_URL ?? 'http://127.0.0.1:5183'}/?capture=1&noladder=1&layout=${width > 700 ? 'desktop' : 'phone'}`);
   await page.waitForFunction(() => window.__phaserGame?.scene.isActive('MenuScene'), null, { timeout: 60000 });
   check(await page.evaluate(() => !window.__phaserGame.textures.exists('story-print:setting-court')), `${tag}: settings do not load on the menu`);
-  await page.evaluate(() => window.__startBenchGame(20260908, 'ascent'));
+  await page.evaluate(() => window.__startBenchGame(20260908, 'ascent', 'v1'));
   await page.waitForFunction(() => window.__phaserGame.scene.isActive('ConquestUIScene'));
   await page.evaluate(() => {
     const st = window.__mandateState;
