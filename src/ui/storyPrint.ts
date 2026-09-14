@@ -4,11 +4,13 @@ import { inkPath } from './ink/stroke';
 import type { UIBounds } from './InkUI';
 import cardPrintAssets from './storyPrintAssets.json';
 import settingAssets from './storySettingAssets.json';
+/** Prints drawn for one story's key moments (Thánh Gióng first); see `docs/thanh-giong-print-prompts.json`. */
+import momentAssets from './storyMomentAssets.json';
 
 /** Symbolic Đông Hồ scenes, not reconstructions of a named person or dynasty. */
-export type StoryPrint = 'harvest' | 'muster' | 'petition' | keyof typeof cardPrintAssets | keyof typeof settingAssets;
+export type StoryPrint = 'harvest' | 'muster' | 'petition' | keyof typeof cardPrintAssets | keyof typeof settingAssets | keyof typeof momentAssets;
 const printFiles: Record<StoryPrint, string> = {
-  harvest: 'harvest-v1.webp', muster: 'muster-v1.webp', petition: 'petition-v1.webp', ...cardPrintAssets, ...settingAssets,
+  harvest: 'harvest-v1.webp', muster: 'muster-v1.webp', petition: 'petition-v1.webp', ...cardPrintAssets, ...settingAssets, ...momentAssets,
 };
 /** Cards are shared by History/Cabinet; setting prints load only with the playable map. */
 export const STORY_PRINTS = Object.keys(printFiles).filter(key => !key.startsWith('setting-')) as readonly StoryPrint[];
@@ -45,6 +47,14 @@ export const STORY_BEAT_PRINTS: Readonly<Record<string, StoryPrint>> = {
   'river-stakes.his-men-would-cut-the-timber': 'bach-dang-stakes',
   'hich-tuong-si.he-reads-it-to-the-officers': 'hich-van',
   'chi-lang.the-pass-is-narrow-here': 'chi-lang',
+  // Thánh Gióng, one print per turn of the record. Each is the moment on its own card, never a later one.
+  'thanh-giong.loi-keu-goi': 'giong-loi-keu-goi',
+  'thanh-giong.lan-xin-thu-nhat': 'giong-lan-xin-thu-nhat',
+  'thanh-giong.lan-xin-thu-hai': 'giong-lan-xin-thu-hai',
+  'thanh-giong.ca-nuoc-nuoi-giong': 'giong-ca-nuoc-nuoi',
+  'thanh-giong.lan-xin-thu-ba': 'giong-lan-xin-thu-ba',
+  'thanh-giong.he-rides': 'giong-ra-tran',
+  'thanh-giong.soc-son-khong-xuong-nua': 'giong-soc-son',
 };
 
 export function storyBeatPrint(templateId: string, fragmentId: string): StoryPrint | undefined {

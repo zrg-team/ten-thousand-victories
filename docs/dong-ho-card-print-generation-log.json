@@ -500,6 +500,81 @@
       "height": 384,
       "bytes": 66596,
       "prompt": "docs/dong-ho-card-print-prompts.json#chieu-hien"
+    },
+    {
+      "id": "giong-loi-keu-goi",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a0a178-370d-7590-8753-8d612cdc8762\\exec-1dcd0876-adde-4964-8b5f-787a3f421ed8.png",
+      "master": "output/dongho-card-prints/masters/giong-loi-keu-goi.png",
+      "runtime": "public/art/story-prints/giong-loi-keu-goi-v1.webp",
+      "width": 576,
+      "height": 384,
+      "bytes": 82486,
+      "prompt": "docs/thanh-giong-print-prompts.json#giong-loi-keu-goi"
+    },
+    {
+      "id": "giong-lan-xin-thu-nhat",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a0a178-370d-7590-8753-8d612cdc8762\\exec-a6ca1e39-d661-42ea-a609-00c331518942.png",
+      "master": "output/dongho-card-prints/masters/giong-lan-xin-thu-nhat.png",
+      "runtime": "public/art/story-prints/giong-lan-xin-thu-nhat-v1.webp",
+      "width": 576,
+      "height": 384,
+      "bytes": 92034,
+      "prompt": "docs/thanh-giong-print-prompts.json#giong-lan-xin-thu-nhat"
+    },
+    {
+      "id": "giong-lan-xin-thu-hai",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a0a178-370d-7590-8753-8d612cdc8762\\exec-a32a3eb9-55c4-42f9-9a2e-dbdaae438d4a.png",
+      "master": "output/dongho-card-prints/masters/giong-lan-xin-thu-hai.png",
+      "runtime": "public/art/story-prints/giong-lan-xin-thu-hai-v1.webp",
+      "width": 576,
+      "height": 384,
+      "bytes": 81508,
+      "prompt": "docs/thanh-giong-print-prompts.json#giong-lan-xin-thu-hai",
+      "revisionPrompt": "docs/thanh-giong-print-human-scale-revision.json#giong-lan-xin-thu-hai"
+    },
+    {
+      "id": "giong-ca-nuoc-nuoi",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a0a178-370d-7590-8753-8d612cdc8762\\exec-cca6c6e4-2f98-4213-b009-d54993a65b5d.png",
+      "master": "output/dongho-card-prints/masters/giong-ca-nuoc-nuoi.png",
+      "runtime": "public/art/story-prints/giong-ca-nuoc-nuoi-v1.webp",
+      "width": 576,
+      "height": 384,
+      "bytes": 94188,
+      "prompt": "docs/thanh-giong-print-prompts.json#giong-ca-nuoc-nuoi",
+      "revisionPrompt": "docs/thanh-giong-print-human-scale-revision.json#giong-ca-nuoc-nuoi"
+    },
+    {
+      "id": "giong-lan-xin-thu-ba",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a0a178-370d-7590-8753-8d612cdc8762\\exec-6fe3d0c9-b37b-4d2b-8025-ad19450556f1.png",
+      "master": "output/dongho-card-prints/masters/giong-lan-xin-thu-ba.png",
+      "runtime": "public/art/story-prints/giong-lan-xin-thu-ba-v1.webp",
+      "width": 576,
+      "height": 384,
+      "bytes": 89020,
+      "prompt": "docs/thanh-giong-print-prompts.json#giong-lan-xin-thu-ba",
+      "revisionPrompt": "docs/thanh-giong-print-human-scale-revision.json#giong-lan-xin-thu-ba"
+    },
+    {
+      "id": "giong-soc-son",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a0a178-370d-7590-8753-8d612cdc8762\\exec-1baddc45-7dbe-48f2-a9fd-6eff48ee5dc6.png",
+      "master": "output/dongho-card-prints/masters/giong-soc-son.png",
+      "runtime": "public/art/story-prints/giong-soc-son-v1.webp",
+      "width": 576,
+      "height": 384,
+      "bytes": 78794,
+      "prompt": "docs/thanh-giong-print-prompts.json#giong-soc-son",
+      "revisionPrompt": "docs/thanh-giong-print-human-scale-revision.json#giong-soc-son"
+    },
+    {
+      "id": "giong-ra-tran",
+      "generatedSource": "C:\\Users\\zerg\\.codex\\generated_images\\01a0a178-370d-7590-8753-8d612cdc8762\\exec-ce159f1e-afd6-4d5e-9c65-be11a584635b.png",
+      "master": "output/dongho-card-prints/masters/giong-ra-tran.png",
+      "runtime": "public/art/story-prints/giong-ra-tran-v1.webp",
+      "width": 576,
+      "height": 384,
+      "bytes": 82122,
+      "prompt": "docs/thanh-giong-print-prompts.json#giong-ra-tran",
+      "revisionPrompt": "docs/thanh-giong-print-human-scale-revision.json#giong-ra-tran"
     }
   ]
 }

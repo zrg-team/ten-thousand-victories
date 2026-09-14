@@ -204,11 +204,6 @@ export const depthVi: Record<string, StoryCatalog> = {
     'raise-the-dyke.body': 'Năm nay ông lý trưởng không nói gì cả. Ông ta mang theo một cái que và đặt xuống chiếu. Trên que có ba vạch khắc: năm ngoái, năm kia, năm kìa. Khoảng cách giữa các vạch không đều — nó rộng dần. Rồi ông ta ngồi xuống và chờ.',
   },
 
-  'thanh-giong': {
-    want: 'một con ngựa sắt, một cây roi sắt, một bộ giáp sắt',
-    waiting: 'Bộ giáp thứ ba — thợ rèn đã thôi đo, chỉ ước chừng.',
-  },
-
   'salt-road': {
     want: 'có người chịu đi bốn ngày đường',
     waiting: 'Có ai lên đường ấy xem không.',
@@ -407,11 +402,6 @@ export const depthEn: Record<string, StoryCatalog> = {
     want: 'a dyke before the rains',
     waiting: 'This year’s water, against the three notches on the stick.',
     'raise-the-dyke.body': 'This year the village head says nothing. He lays a stick on the mat. Three notches are cut in it: last year, the year before, the year before that. The gaps between them are not even — they widen. Then he sits down and waits.',
-  },
-
-  'thanh-giong': {
-    want: 'an iron horse, an iron rod, iron armour',
-    waiting: 'The third suit of armour — the smith has stopped measuring and only guesses.',
   },
 
   'salt-road': {

@@ -8,6 +8,7 @@ import { scaledGain } from '../ascent/priceScale';
 import { storyGain } from '../ascent/storyValue';
 import { pushToast } from '../empire/notifications';
 import { launchPunitiveHost } from '../ascent/EnemyCommandDirector';
+import { routInvasions } from '../empire/InvasionSystem';
 import { findPowerCard } from '../../data/ascentCards';
 import { getProject as findProject } from '../../data/edicts';
 import { generateHero } from '../../data/heroFactory';
@@ -223,6 +224,21 @@ export function disperseIncoming(ctx: StoryCtx, share = 1): number {
   }
   if (gone > 0) ctx.note('enemySoldiers', -gone);
   return gone;
+}
+
+/**
+ * The whole invasion is destroyed — or `share` of its hosts, largest first — and paid for as if
+ * each had been beaten in the field. Unlike `disperseIncoming` it touches only hosts with an
+ * invasion record and cleans up every claim, siege and march they held (`routInvasions`).
+ * Returns the soldiers destroyed.
+ */
+export function routInvaders(ctx: StoryCtx, share = 1): number {
+  const { hosts, soldiers } = routInvasions(ctx.state, share);
+  if (hosts > 0) {
+    ctx.note('hostsBroken', hosts);
+    ctx.note('enemySoldiers', -soldiers);
+  }
+  return soldiers;
 }
 
 /** A great host, launched now, outside the wave cycle. The loudest thing a story can do. */

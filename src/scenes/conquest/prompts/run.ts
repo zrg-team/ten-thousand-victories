@@ -26,7 +26,7 @@ import { addStoryPrint, powerStoryPrint } from '../../../ui/storyPrint';
 import { staggerIn } from '../../../ui/animations';
 import { captureScreen } from '../../../ui/captureScreen';
 import { TITLE_FONT, UI_FONT } from '../../../ui/fonts';
-import { heroName, t } from '../../../i18n';
+import { heroName, t, type TranslationKey } from '../../../i18n';
 import { DYNASTY_TRAITS_LIVE, DYNASTY_TRAITS_PENDING } from '../../../data/dynastyTraits';
 import { dynastyHistory, dynastyProgress, dynastyProgressForXp, dynastyXpStep, getDynasty } from '../../../state/dynasty';
 import { motionMs, reducedMotion } from '../../../game/lifeSettings';
@@ -323,6 +323,34 @@ export function heroDeckPrompt(self: ConquestUIScene, opts: {
   ));
 }
 
+/** How many lines each lament pool holds in `catalogs/ascent.ts` — `lament.<pool>.1..n`. */
+const LAMENT_POOLS = { any: 15, capital: 4, nothing: 2, fallen: 2 } as const;
+
+/**
+ * One line of lament for a reign that fell — why the land is still ours, not a restatement of the
+ * cause above it. Drawn from the pool that fits how the reign ended: the capital taken, nothing
+ * left at all, and heroes enshrined, each on top of the lines any defeat can carry.
+ *
+ * **Stable per reign, not per draw.** `showRunOver` is re-entered by the archive-exit retry and
+ * by "stay", and a keepsake whose closing line changes between the look and the picture is not a
+ * keepsake. So it is picked by a hash of what the reign was, not by `Math.random`.
+ */
+function runOverLament(prompt: Extract<AscentPrompt, { kind: 'run-over' }>, waves: number, enshrined: number): string {
+  const pool: Array<[TranslationKey, Record<string, string | number>?]> = [];
+  const add = (name: keyof typeof LAMENT_POOLS, params?: Record<string, string | number>): void => {
+    for (let i = 1; i <= LAMENT_POOLS[name]; i += 1) pool.push([`ascent.over.lament.${name}.${i}` as TranslationKey, params]);
+  };
+  add('any');
+  add(prompt.cause === 'capital' ? 'capital' : 'nothing');
+  if (enshrined > 0) add('fallen', { n: enshrined });
+  let hash = 2166136261;
+  for (const ch of `${prompt.score}|${waves}|${prompt.landName ?? ''}|${prompt.reign ?? ''}`) {
+    hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619);
+  }
+  const [key, params] = pool[(hash >>> 0) % pool.length];
+  return t(key, params);
+}
+
 /**
  * The Reckoning, written as a **chiếu chỉ** — the edict a court promulgates when a reign closes.
  *
@@ -369,6 +397,11 @@ export function showRunOver(self: ConquestUIScene, prompt: Extract<AscentPrompt,
   const kept = !victory && prompt.goalWave !== undefined
     ? `\n${t('beta.goal.kept', { wave: prompt.goalWave, bonus: prompt.goalBonus ?? 0 })}`
     : '';
+  const lament = victory ? '' : runOverLament(prompt, ascent?.wavesSurvived ?? 0, self.state.memorials?.length ?? 0);
+  // The subtitle comes out of the same page budget as the ledger, and at the 620 clamp a
+  // three-line lament under a two-line reign pushed the tiles to their 38 floor. There the cause
+  // gives way: its wave count is already the first tile, and the lament is what the page is for.
+  const cause = lament && GAME_HEIGHT < 700 ? '' : fall;
   const content = archiveExit
     ? self.promptFrame(prompt.reign ?? t('ascent.over.title'), t('hero.depth.archiveExit'))
     : victory
@@ -376,8 +409,7 @@ export function showRunOver(self: ConquestUIScene, prompt: Extract<AscentPrompt,
       [prompt.reign, prompt.reignDetail, fall].filter(Boolean).join('\n'))
     : self.promptFrame(
       prompt.reign ?? t('ascent.over.title'),
-      (prompt.reignDetail ? `${prompt.reignDetail}
-${fall}` : fall) + kept,
+      [prompt.reignDetail, cause, lament].filter(Boolean).join('\n') + kept,
     );
 
   // Every band on this page is paid for out of one budget, because the page must not scroll and

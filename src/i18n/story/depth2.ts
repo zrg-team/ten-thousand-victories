@@ -60,14 +60,6 @@ export const depth2Vi: Record<string, StoryCatalog> = {
     stake: 'Một mùa người và một kho gỗ — đổi lấy chỗ đứng khi nước lên.',
     'the-year-it-does-not-hold.body': 'Nước không dừng ở đâu cả. Nó lên qua vạch cũ, qua vạch mới, qua cái gờ mà ông già làng nói cả đời chưa thấy nước chạm. {land} còn lại mái đình và ba cây gạo. Người thì lên đồi kịp — vì có người tin lời ông già mà đi từ đêm trước.',
   },
-  'thanh-giong': {
-    stake: 'Sắt của cả một làng — đặt cược vào lời đầu tiên của một đứa bé.',
-    'regard.fed': 'Nó ăn phần cơm cả làng nấu, và làng nấu thêm. Không ai trong làng gọi đó là gánh nặng.',
-    'regard.rising': 'Nó lớn nhanh tới mức thợ rèn phải đo lại mỗi tuần. Nó không nói gì thêm — nó chỉ đợi đồ sắt.',
-    'regard.unanswered': 'Nó thôi nói, như trước. Làng {land} thôi kể, như trước. Chỉ có mẹ nó thỉnh thoảng vẫn nhìn ra đường cái.',
-    'he-asked-for-an-iron-horse.body': 'Câu đầu tiên trong đời nó là một lời xin: một con ngựa sắt, một cây roi sắt, một bộ giáp sắt. Không xin cơm, không gọi mẹ. Sứ giả chép xong đọc lại, tưởng mình chép nhầm. Mẹ nó đứng nép cửa, nói nhỏ: từ hôm có tin giặc, nó mới nói — và chỉ nói đúng chừng ấy.',
-    'he-rides.body': 'Nó đi thẳng vào chỗ đông nhất. Roi sắt gãy ở thân cây thứ mấy không ai đếm — nó cúi xuống nhổ tre bên đường, cả bụi, và đánh tiếp bằng tre. Xong việc, nó không quay lại nhận gì cả. Nó lên núi, cả người lẫn ngựa, và không xuống nữa. Làng {land} giữ lại được đúng một dấu chân.',
-  },
   'salt-road': {
     stake: 'Giá muối trong bếp mọi nhà — và điều đang ngồi trên con đường ấy.',
     'a-camp-nine-seasons-old.body': 'Không phải cướp. Toán đi xem về vẽ lại: hàng rào gỗ hai lớp, ruộng rau bên trong, giếng đào sâu — một cái trại dựng từ chín mùa trước, đủ lâu để thành một cái làng có vũ khí. Nó ngồi ngay trên đường muối, và nó không giấu nữa, vì nó đã đủ lớn để không cần giấu.',
@@ -222,14 +214,6 @@ export const depth2En: Record<string, StoryCatalog> = {
   'mountain-water': {
     stake: 'A season of hands and a yard of timber — against a place to stand when the water rises.',
     'the-year-it-does-not-hold.body': 'The water does not stop anywhere. It passes the old mark, the new mark, the ledge the village elder swore it had never touched in his lifetime. What is left of {land} is a temple roof and three kapok trees. The people reached the hills in time — because some of them believed the old man and left the night before.',
-  },
-  'thanh-giong': {
-    stake: 'A village’s whole stock of iron — wagered on a child’s first words.',
-    'regard.fed': 'He eats what the whole village cooks, and the village cooks more. Nobody there calls it a burden.',
-    'regard.rising': 'He grows so fast the smith re-measures him weekly. He says nothing further — he is only waiting for the iron.',
-    'regard.unanswered': 'He has stopped speaking, as before. {land} has stopped telling it, as before. Only his mother still looks out at the high road sometimes.',
-    'he-asked-for-an-iron-horse.body': 'The first words of his life were a request: an iron horse, an iron rod, a suit of iron armour. Not rice. Not his mother’s name. The envoy read his notes back, certain he had miscopied. The mother stood pressed to the doorframe and said quietly: he only began to speak the day the news of the invasion came — and he has said exactly that much.',
-    'he-rides.body': 'He goes straight for the thickest part of them. Nobody counted which tree-trunk the iron rod broke on — he leans down, pulls roadside bamboo up whole, and goes on with that. When it is finished he collects nothing. He rides up the mountain, horse and all, and does not come down. What {land} keeps of him is one footprint.',
   },
   'salt-road': {
     stake: 'The price of salt in every kitchen — and whatever is sitting on that road.',

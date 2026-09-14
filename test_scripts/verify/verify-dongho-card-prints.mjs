@@ -6,6 +6,9 @@ const out = 'output/dongho-card-prints/verification';
 mkdirSync(out, { recursive: true });
 const assets = JSON.parse(readFileSync('src/ui/storyPrintAssets.json', 'utf8'));
 const ids = Object.keys(assets);
+// The three founding prints, the card prints, and any story's moment prints — every key `STORY_PRINTS` preloads.
+const moments = Object.keys(JSON.parse(readFileSync('src/ui/storyMomentAssets.json', 'utf8')));
+const expectedLoaded = 3 + ids.length + moments.length;
 const checks = [], errors = [];
 function check(ok, name, detail) {
   checks.push({ ok: !!ok, name, detail });
@@ -51,8 +54,8 @@ for (const [language, height] of [['vi', 844], ['en', 620]]) {
     const { STORY_PRINTS } = await import('/src/ui/storyPrint.ts');
     return STORY_PRINTS.filter(k => window.__phaserGame.textures.exists(`story-print:${k}`)).length;
   });
-  check(catalog.powers >= ids.length && catalog.matched === ids.length && catalog.fallbacksValid && catalog.loaded === 53,
-    `${language}: ${ids.length} authored powers uniquely mapped, catalogue fallbacks valid, all 53 prints loaded`, catalog);
+  check(catalog.powers >= ids.length && catalog.matched === ids.length && catalog.fallbacksValid && catalog.loaded === expectedLoaded,
+    `${language}: ${ids.length} authored powers uniquely mapped, catalogue fallbacks valid, all ${expectedLoaded} prints loaded`, catalog);
   await page.evaluate(() => {
     const st = window.__mandateState;
     st.isPaused = true; st.pendingAscentPrompt = undefined; st.ascent.promptQueue = [];
@@ -156,7 +159,7 @@ for (const [language, height] of [['vi', 844], ['en', 620]]) {
   }
   const fallback = await page.evaluate(async () => {
     const ui = window.__phaserGame.scene.getScene('ConquestUIScene');
-    const { addStoryPrint } = await import('/src/ui/storyPrint.ts');
+    const { addStoryPrint, storyBeatPrint } = await import('/src/ui/storyPrint.ts');
     const { cardFaceTextureKey } = await import('/src/ui/cardFace.ts');
     const fallbackPrompt = { ...window.__mandateState.pendingAscentPrompt, storyId: 'fallback', band: 'mountain' };
     window.__mandateState.pendingAscentPrompt = undefined;
@@ -165,7 +168,10 @@ for (const [language, height] of [['vi', 844], ['en', 620]]) {
     window.__phaserGame.textures.renameTexture('story-print:iron-levy', 'art-review:hidden-iron-levy');
     const absent = addStoryPrint(ui, ui.modalLayer, 'iron-levy', { x: 0, y: 0, width: 100, height: 60 }) === undefined;
     const icon = !!cardFaceTextureKey(ui, 'iron-levy', 3);
-    window.__phaserGame.textures.renameTexture('story-print:chi-lang', 'art-review:hidden-chi-lang');
+    // Whichever moment the loop above left on screen — the last entry of `STORY_BEAT_PRINTS`, which
+    // was chi-lang until later stories added their own moments after it.
+    const beatPrint = storyBeatPrint(fallbackPrompt.templateId, fallbackPrompt.fragmentId);
+    if (beatPrint) window.__phaserGame.textures.renameTexture(`story-print:${beatPrint}`, `art-review:hidden-${beatPrint}`);
     window.__phaserGame.textures.renameTexture('story-print:setting-mountain', 'art-review:hidden-setting-mountain');
     window.__mandateState.pendingAscentPrompt = fallbackPrompt;
     ui.events.emit('state-changed');
