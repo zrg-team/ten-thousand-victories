@@ -128,18 +128,34 @@ const version = fingerprint.digest('hex').slice(0, 12);
 const url = (rel) => `${BASE}${rel}`;
 const critical = [];
 const optional = [];
-for (const { rel } of entries) {
+/**
+ * Bytes per URL, so the worker can report its install as a share of the download, not of files.
+ * Numbers in the same order as the two lists rather than a map keyed by URL: every quoted string in
+ * `sw.js` reads as a precached URL to verify-pwa, and a second copy of each would double-count.
+ */
+const criticalSizes = [];
+const optionalSizes = [];
+for (const { rel, full } of entries) {
+  const size = statSync(full).size;
   // The shell is asked for twice under two names — a cold launch of an installed app requests the
   // directory, a reload requests the file — and `caches.match` does not know they are the same
   // page. Both are cached; the worker answers navigations with the directory form.
-  if (rel === 'index.html') critical.push(BASE, url(rel));
-  else (isOptional(rel) ? optional : critical).push(url(rel));
+  if (rel === 'index.html') {
+    critical.push(BASE, url(rel));
+    criticalSizes.push(size, size);
+  } else if (isOptional(rel)) {
+    optional.push(url(rel));
+    optionalSizes.push(size);
+  } else {
+    critical.push(url(rel));
+    criticalSizes.push(size);
+  }
 }
 
 const list = (urls) => `[\n${urls.map((entry) => `  ${JSON.stringify(entry)},`).join('\n')}\n]`;
 
 // Function replacements, not string ones. `String.replace` reads `$&` and `$'` in a replacement
-// string as instructions, and three of these four replacements are file names. Nothing in `dist/`
+// string as instructions, and three of these six replacements are file names. Nothing in `dist/`
 // carries a `$` today, and a build that silently emitted a corrupt worker would be a poor way to
 // find out that had changed.
 const worker = [
@@ -147,6 +163,8 @@ const worker = [
   ["'__APP_VERSION__'", JSON.stringify(PKG.version ?? '')],
   ['__PRECACHE_CRITICAL__', list(critical)],
   ['__PRECACHE_OPTIONAL__', list(optional)],
+  ['__PRECACHE_CRITICAL_SIZES__', JSON.stringify(criticalSizes)],
+  ['__PRECACHE_OPTIONAL_SIZES__', JSON.stringify(optionalSizes)],
   ['__SHELL_URL__', JSON.stringify(BASE)],
 ].reduce((source, [placeholder, value]) => source.replace(placeholder, () => value), template);
 
