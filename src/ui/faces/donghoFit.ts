@@ -60,6 +60,16 @@ export const DONGHO_HAT_CONTACTS: Record<string, [number, number, number]> = {
   'hat-fur': [-34, 34, -36.3],
 };
 
+/**
+ * The broad leaf hats, fitted as a brim over the head rather than a band around it: the conical
+ * nón lá, and the flat nón ba tầm, whose inner ring seats a disc wider than the shoulders.
+ */
+const NON_LA = new Set(['hat-non', 'hat-non-chop', 'hat-non-worker', 'hat-non-batam']);
+/** Brim growth over the contact-band fit; the cap keeps the rim inside the ±66 cartouche. */
+const NON_LA_BRIM = 1.55, NON_LA_MAX_W = 128;
+/** Front of the rim: over the hairline, clear of the common brows (most top out at −31…−29). */
+const NON_LA_RIM_Y = -31;
+
 // Measured band contacts in the generated royal PNGs, in their part coordinates.
 // Wings and a wrap's side knot are decoration, not part of the head opening.
 export const ROYAL_HAT_CONTACTS: Record<string, [number, number, number]> = {
@@ -155,6 +165,22 @@ export function fitDonghoPart(def: FacePartDef, head?: FacePartDef): FittedFaceP
       : kerchief ? Math.min(def.key === 'hat-moqua-tied' ? -38 : -35, head.cy - head.h / 2 - 1 + crownHeight * sx) : -35;
     const sy = straps ? head.h / 82 : kerchief ? sx : Math.min((targetY + 84) / crownHeight,
       Math.max(sx, (targetY - (head.cy - head.h / 2) + 1) / crownHeight));
+    if (NON_LA.has(def.key)) {
+      /**
+       * **A nón lá is a parasol, not a cap.** A real one is 40–50 cm across on a 16 cm head, and
+       * its inner ring sits the cone down over the crown until the brim shades the brows. Sized
+       * off the contact band like a turban it came out one head-and-a-half wide and perched on
+       * the hair like a saucer. So the brim grows past the band — capped inside the cartouche —
+       * the cone keeps its own pitch, and the whole hat settles to just above the brows.
+       */
+      const scale = Math.min(sx * NON_LA_BRIM, NON_LA_MAX_W / def.w);
+      // The ba tầm is a disc a finger thick: at the cone's pitch its top face is too shallow to
+      // hide the crown, and the hair pokes through the middle. Seen a little more from above, it
+      // covers the head without the rim coming down over the brows.
+      const sy = def.key === 'hat-non-batam' ? scale * 1.45 : scale;
+      return [{ ...def, cx: center + (def.cx - (l + r) / 2) * scale,
+        cy: NON_LA_RIM_Y + (def.cy - front) * sy, w: def.w * scale, h: def.h * sy }];
+    }
     const fitted: FittedFacePart = { ...def, cx: center + (def.cx - (l + r) / 2) * sx,
       cy: targetY + (def.cy - front) * sy, w: def.w * sx, h: def.h * sy };
     if (!def.key.startsWith('hat-phocdau')) return [fitted];
@@ -178,13 +204,64 @@ export function fitDonghoPart(def: FacePartDef, head?: FacePartDef): FittedFaceP
   }
   if (/^(hair-(?!comb|flower|ribbon|cord)|topknot|bun-|knot-)/.test(def.key)) {
     const sx = (right - left + 4) / 61, sy = head.h / 82;
-    return [{ ...def, cx: center + def.cx * sx, cy: -27 + (def.cy + 27) * sy, w: def.w * sx, h: def.h * sy }];
+    return [{ ...def, cx: center + def.cx * sx, cy: hairY(def.cy, head), w: def.w * sx, h: def.h * sy }];
+  }
+  if (/^(hairpin(?!-nape)|hair-(comb|flower|ribbon|cord))/.test(def.key)) {
+    // What is pinned into the hair travels with it, at its own size.
+    const sx = (right - left + 4) / 61;
+    return [{ ...def, cx: center + def.cx * sx, cy: hairY(def.cy, head) }];
   }
   if (/^(eyes-|brow-|nose-|mouth-)/.test(def.key)) {
     const sx = (right - left) / 52;
     return [{ ...def, cx: center + def.cx * sx, w: def.w * sx }];
   }
   return [{ ...def }];
+}
+
+/** Top of the canonical `head-oval` part (its crop padding included), which hair is authored on. */
+const CANONICAL_HEAD_TOP = -53;
+
+/**
+ * **Hair grows from the crown, so it is placed from the crown.** A source y on the canonical head
+ * goes to the same distance under this head's top, stretched by its height. It used to pivot on
+ * the brow line (−27) instead, which left a long head's dome bare above the hair and floated the
+ * hair clear of a short round skull.
+ */
+function hairY(y: number, head: FacePartDef): number {
+  return head.cy - head.h / 2 + (y - CANONICAL_HEAD_TOP) * (head.h / 82);
+}
+
+/**
+ * A line through the body of each hair crescent, in source design coordinates: below the
+ * crescent's highest top edge and above its lowest bottom edge, measured on the committed PNGs
+ * at the centre and quarter columns (`test_scripts/scratch/hairline-measure.mjs`).
+ */
+const HAIRLINE: Record<string, number> = {
+  'hair-crown': -43.8, 'hair-cropped': -44.9, 'hair-low': -41.5, 'hair-high': -46.7,
+  'hair-peak': -44.5, 'hair-swept': -43.7, 'hair-receding': -48.5, 'hair-thick': -42.2,
+  'hair-parted': -41, 'hair-wavy': -40.7, 'hair-long': -40.2, 'hair-long-full': -38.4,
+  'hair-long-short': -39.3, 'hair-braid': -39, 'hair-tail': -40.9,
+  'hair-woman-center': -39.7, 'hair-woman-temple': -39.1, 'hair-woman-short': -39.2,
+  'hair-woman-loose': -38.5, 'hair-woman-wrapped': -39.2, 'hair-woman-tran-short': -38.7,
+};
+
+/**
+ * **The skull above a hairline is hair, whatever shape the skull is.**
+ *
+ * The v2 hair is a crescent — a hairline, not a cap — sized off the forehead. On the canonical
+ * head its top edge meets the crown; on a long head the dome rises past it and reads as a bald
+ * patch over a headband, and on a round one the flatter crescent overhangs the skull like a
+ * visor with skin under it. So the head's own silhouette, cropped at a line inside the crescent
+ * and tinted with the hair, is laid under it: the crown is covered to the outline on every head,
+ * and the crescent still draws the hairline.
+ */
+export function donghoHairCap(def: FacePartDef, head?: FacePartDef): FittedFacePart | undefined {
+  const line = HAIRLINE[def.key];
+  if (line === undefined || !head || !FOREHEAD[head.key]) return undefined;
+  const top = head.cy - head.h / 2;
+  const bottom = (hairY(line, head) - top) / head.h;
+  if (bottom <= 0) return undefined;
+  return { ...head, layer: def.layer - 0.5, crop: { left: 0, right: 1, top: 0, bottom } };
 }
 
 export function donghoHead(parts: readonly HeroLookPart[], defs: ReadonlyMap<string, FacePartDef>): FacePartDef | undefined {

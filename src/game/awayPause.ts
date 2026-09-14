@@ -1,7 +1,6 @@
 import { autosaveSnapshot, canAutosave, clearAutosave } from '../state/save';
 import { noteLiveReign } from '../systems/ascent/Inheritance';
 import type { GameState } from '../state/types';
-import { heroAtRisk } from './haltReason';
 
 /**
  * The run stops when the player leaves, and is written down before the device can take it.
@@ -66,10 +65,10 @@ export function installAwayPause(state: GameState, onChange?: () => void): AwayP
   const leave = (): void => {
     const wasAway = state.isAwayPause;
     state.isAwayPause = true;
-    // A risky Beta reign resumes only after the player's deliberate Continue, never on focus — but
-    // only while something is actually at risk. Held on every departure, every Beta reign came back
-    // from a glance at a notification frozen, with nothing on the screen to say why.
-    if (state.ascent?.heroDepth?.rules.capabilities.recovery && heroAtRisk(state)) state.isStrategyPause = true;
+    // A hero at risk no longer holds the world past the player's return. It did — a reign came back
+    // from a glance at a notification frozen, with only a badge to say why — and it was one of the
+    // stops reported as *the game stops frequently for "… gặp nguy"*. The danger is on the Heroes
+    // icon's dot and bubble instead.
     store();
     if (!wasAway) onChange?.();
   };

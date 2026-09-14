@@ -292,8 +292,10 @@ export function resolveHeroLook(hero: Hero): HeroLook {
       // The búi tó only shows under a wound/closed cloth or no hat at all; lacquered court caps
       // cover it. Lý closed wrapping is represented by khăn vuông, not Nguyễn khăn vấn.
       if (hat === '' || hat.startsWith('hat-khanvan') || hat === 'hat-khandong' || hat === 'hat-khanvuong') {
-        parts.push({ key: pick(manKnotFor(era), next), tint: 'hair' });
-        if (era === 'dinh') parts.push({ key: 'hairpin', tint: 'none' });
+        const knot = pick(manKnotFor(era), next);
+        parts.push({ key: knot, tint: 'hair' });
+        // The pin goes through a crown knot. A nape knot has nothing up there to hold it.
+        if (era === 'dinh' && knot !== 'knot-nape') parts.push({ key: 'hairpin', tint: 'none' });
       }
     }
   }

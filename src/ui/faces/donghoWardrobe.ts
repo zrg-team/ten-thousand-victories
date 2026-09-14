@@ -23,6 +23,9 @@ export function donghoWardrobeParts(look: HeroLook): HeroLookPart[] {
   const hat = look.parts.find(p => p.key.startsWith('hat-'))?.key;
   const openCrown = !hat || /^hat-(khanvan(?:-|$)|band(?:-|$))/.test(hat);
   const hasSash = look.parts.some(p => p.key.startsWith('sash-'));
+  // A crown pin needs a crown mass to go through. Looks saved before the rule pinned a Đinh
+  // man's nape knot at the crown too, leaving the pin floating above a bare head.
+  const crownMass = look.parts.some(p => /^(topknot|bun-(?!nape|side))/.test(p.key));
   for (const part of look.parts) {
     if (CLOTHING.test(part.key)) continue;
     if (part.key.startsWith('badge-') && (!['le', 'nguyen'].includes(look.era) || armour)) continue;
@@ -32,6 +35,7 @@ export function donghoWardrobeParts(look: HeroLook): HeroLookPart[] {
     if (hasSash && part.key.startsWith('belt-')) continue;
     // Closed headwear encloses the crown hair and its ornaments. Side/nape hair
     // remains visible; open khăn vấn and cloth bands can show the tied crown.
+    if (!crownMass && /^(hairpin(?!-nape)|hair-(comb|flower))/.test(part.key)) continue;
     if (!openCrown && /^(topknot|bun-(?!nape|side)|hairpin(?!-nape)|hair-(comb|flower|ribbon|cord))/.test(part.key)) continue;
     if (look.era === 'nguyen' && part.key.startsWith('hat-helm')) {
       parts.push({ key: 'hat-khandong', tint: 'none' }); continue;

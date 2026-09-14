@@ -12,7 +12,7 @@ import {
 import { formatNumber } from '../../utils/format';
 import { treasuryGraftFrom } from './priceScale';
 import { STORE_KEYS, marketCapacity, storeWasteFrom } from './GranarySystem';
-import { resourceLabel } from '../../i18n';
+import { heroName, resourceLabel } from '../../i18n';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { rulesOf } from '../../game/ascentRuleset';
 import { goalCapitalAloneWave, goalHold, goalNeed, goalProvincesPhrase } from './Goal';
@@ -460,6 +460,29 @@ export function adviseAscent(state: GameState): Advice[] {
       body: 'advice.edicts.body',
       params: { points },
       lane: 'court',
+    });
+  }
+
+  // ── A champion in danger ─────────────────────────────────────────────────
+  // Beta (Hero Depth). This used to stop the world — every season, on some rulesets — and the only
+  // words for why were a toast in the header strip. The warning is a line here now, and the bar's
+  // bubble points at the Heroes lane where it is answered (unless the player muted the bubbles).
+  // The id carries the exposure and its revision, so a *new* danger raises the bubble again while
+  // the same one standing does not.
+  const danger = Object.values(ascent.heroDepth?.exposures ?? {})
+    .filter((exposure) => !exposure.resolved && !exposure.acknowledged);
+  if (danger.length > 0) {
+    const first = danger[0];
+    const hero = state.heroes.find((candidate) => candidate.id === first.heroId);
+    const land = state.lands.find((candidate) => candidate.id === first.landId);
+    add({
+      id: `hero-danger:${first.id}:${first.revision}`,
+      tone: 'urgent',
+      priority: 93,
+      line: danger.length > 1 ? 'advice.heroDanger.lineMany' : 'advice.heroDanger.line',
+      body: 'advice.heroDanger.body',
+      params: { hero: hero ? heroName(hero) : '', land: land?.name ?? '', n: danger.length },
+      lane: 'heroes',
     });
   }
 

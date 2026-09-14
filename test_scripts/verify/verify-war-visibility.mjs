@@ -354,8 +354,9 @@ const ui = await page.evaluate(async () => {
   };
 });
 
-check('the bar has no Battle slot when nothing is happening', !ui.quietKeys.includes('battle'), ui.quietKeys.join(','));
-check('the bar grows a Battle slot while the realm is under attack', ui.loudKeys.includes('battle'));
+// The Battle slot is permanent now (reported: the bar changed shape with the war), so quiet and loud bars match.
+check('the bar keeps its Battle slot when nothing is happening', ui.quietKeys[0] === 'battle', ui.quietKeys.join(','));
+check('the bar does not change shape when the realm is attacked', ui.loudKeys.join(',') === ui.quietKeys.join(','));
 check('two live fields still open the FIGHT, never a list in front of it',
   ui.twoFieldsOpenFight === true, ui.twoFieldTitles.slice(0, 3).join(' | '));
 check('a lone field opens the fight too', ui.oneFieldOpensFight === true);

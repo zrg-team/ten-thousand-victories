@@ -63,14 +63,22 @@ import type { ConquestUIScene } from '../../ConquestUIScene';
 /**
  * The hero roster: who serves, what they cost, when the next one comes, and what each is doing.
  *
- * Read top-down in the order the page is opened for. A one-line lead; the payroll as a coin, not a
- * word; the Favour meter with its sentence; the one paid door; then the champions **grouped by what
- * they are doing** — the free and the endangered first. The roster used to be one column sorted
- * posted-or-not with a posting sentence on every card, which answered *where is Nguyễn Trãi* and
- * not *who is free, who is fighting, who has been taken*.
+ * **The page is for reading and finding; the sheet is for acting.** The same split the Build and
+ * Court lanes already make. This page used to stack its actions above the list — a 54-point
+ * search button, then *protect all*, *under threat*, *aftermath* and *chronicle* as four more
+ * full-width cards — and on a phone the first champion started below the fold. Reported: *a lot of
+ * buttons that consume space, I can't see the list of heroes*.
  *
- * Tapping anyone opens the same Appointment card the game raises when a champion arrives, so a
- * posting can be changed the moment the player wants to.
+ * So the page body carries only the payroll, the Favour clock and the roster, with tabs across the
+ * top to find a champion by what they are doing. Everything that *does* something lives in the
+ * bottom sheet: the decisions waiting (a champion to call in, threatened heroes to protect, an
+ * aftermath to read, the idle to post) as its rows, and the paid talent search and the chronicle
+ * under them. The sheet's header counts what is waiting, so a folded sheet still says there is
+ * something to do.
+ *
+ * Tapping a champion opens the same Appointment card the game raises when one arrives (or the
+ * hero's own page, for a hero with growth), so a posting can be changed the moment the player
+ * wants to.
  */
 export function showHeroesScreen(self: ConquestUIScene): void {
   const state = self.state;
@@ -83,12 +91,94 @@ export function showHeroesScreen(self: ConquestUIScene): void {
   // yourself is gone.
   const king = state.heroes.find((hero) => hero.id === 'king');
   const champions = state.heroes.filter((hero) => hero.id !== 'king');
-  const { addRow, addHeading, addWidget, finish } = self.laneList(
+  const entries = champions
+    .map((hero) => ({ hero, status: heroStatus(state, hero) }))
+    .sort((a, b) => HERO_STATUS_ORDER.indexOf(a.status) - HERO_STATUS_ORDER.indexOf(b.status));
+  const inGroup = (group: HeroGroup) => entries.filter((entry) => heroGroup(entry.status) === group);
+
+  const rebuild = (): void => self.replaceLanePage(() => showHeroesScreen(self));
+  const openHero = (hero: Hero): void => {
+    if (hero.growth) { self.replaceLanePage(() => showHeroDepth(self, hero.id)); return; }
+    self.closeLane();
+    self.events.emit('ui:ascent-appoint', hero.id);
+  };
+
+  // ── The tabs: find a champion by what they are doing ──
+  const tabIds: Array<'all' | HeroGroup> = ['all', ...HERO_GROUP_ORDER];
+  const storedTab = Number(self.data.get(HEROES_TAB_KEY) ?? 0);
+  const activeTab = Number.isInteger(storedTab) && storedTab >= 0 && storedTab < tabIds.length ? storedTab : 0;
+  const activeGroup = tabIds[activeTab];
+
+  // ── What is waiting on the player: the sheet's rows, most urgent first ──
+  const forecast = talentForecast(state);
+  const reports = state.ascent?.heroDepth;
+  const threatened = reports
+    ? Object.values(reports.exposures).filter((item) => !item.resolved && !item.acknowledged)
+    : [];
+  const idle = inGroup('idle');
+  const waiting: Array<{ label: string; onPress: () => void }> = [];
+  if (forecast.draftWaiting) {
+    waiting.push({ label: t('ascent.talent.callWaiting'), onPress: () => callTalent(self) });
+  }
+  if (threatened.length) {
+    waiting.push({
+      label: `${t('hero.depth.protectAll')} · ${threatened.length}`,
+      onPress: () => {
+        for (const warning of threatened) protectHero(state, warning.id);
+        refreshAllLandOutputs(state);
+        autosaveSnapshot(state);
+        rebuild();
+      },
+    });
+  }
+  if (reports?.notices.length) {
+    waiting.push({
+      label: `${t('hero.depth.aftermath')} · ${reports.notices.length}`,
+      onPress: () => self.replaceLanePage(() => showHeroAftermath(self)),
+    });
+  }
+  if (idle.length) {
+    waiting.push({ label: t('ascent.heroes.assignIdle', { n: idle.length }), onPress: () => openHero(idle[0].hero) });
+  }
+
+  const hasChronicle = Boolean(reports);
+  const { addRow, addHeading, addNote, addWidget, finish } = self.laneList(
     t('action.heroes'),
     t('ascent.heroes.lead', { king: king ? heroName(king) : '—' }),
+    {
+      tabs: {
+        items: tabIds.map((id) => ({
+          label: t(`ascent.heroes.tab.${id}` as Parameters<typeof t>[0]),
+          count: id === 'all' ? entries.length : inGroup(id).length,
+        })),
+        active: activeTab,
+        onSelect: (index) => { self.data.set(HEROES_TAB_KEY, index); rebuild(); },
+      },
+      dock: {
+        // Folded with nothing waiting, the sheet is still where the search lives — say so, rather
+        // than the generic "options" a player would not think to open.
+        label: (n) => (n > 0 ? t('ascent.lane.actions', { n }) : t('ascent.talent.button')),
+        items: waiting,
+        rebuild: () => showHeroesScreen(self),
+      },
+      footerWidget: {
+        height: SEARCH_BUTTON_HEIGHT + (hasChronicle ? CHRONICLE_LINK_HEIGHT + 8 : 0),
+        build: (holder, width) => {
+          buildTalentSearch(self, holder, width, forecast);
+          if (hasChronicle) {
+            holder.add(self.ui.button(
+              { x: 0, y: SEARCH_BUTTON_HEIGHT + 8, width, height: CHRONICLE_LINK_HEIGHT },
+              t('hero.depth.chronicle'),
+              () => self.replaceLanePage(() => showHeroChronicle(self)),
+              { variant: 'ghost', fontSize: '12px' },
+            ));
+          }
+        },
+      },
+    },
   );
 
-  addRosterHeader(self, addWidget, champions.length);
+  addRosterSummary(self, addWidget, entries.length, forecast);
 
   // **A page with nothing on it says nothing.**
   //
@@ -104,104 +194,78 @@ export function showHeroesScreen(self: ConquestUIScene): void {
       vacantFace: true,
       muted: true,
     });
+    finish();
+    return;
   }
 
-  const reports = state.ascent?.heroDepth;
-  if (reports) {
-    const warnings = Object.values(reports.exposures).filter(item => !item.resolved && !item.acknowledged);
-    if (warnings.length) addRow({ title: t('hero.depth.protectAll'), subtitle: t('hero.depth.warningBody'), border: INK_UI.jade }, () => {
-      for (const warning of warnings) protectHero(state, warning.id);
-      refreshAllLandOutputs(state); autosaveSnapshot(state); self.replaceLanePage(() => showHeroesScreen(self));
-    });
-    if (warnings.length) addRow({ title: t('hero.depth.warnings', { n: warnings.length }), subtitle: t('hero.depth.warningBody'), border: INK_UI.cinnabar }, () => self.replaceLanePage(() => showHeroDepth(self, warnings[0].heroId)));
-    if (reports.notices.length) addRow({ title: t('hero.depth.aftermath'), subtitle: t('hero.depth.aftermathBody'), border: INK_UI.gold },
-      () => self.replaceLanePage(() => showHeroAftermath(self)));
-    addRow({ title: t('hero.depth.chronicle'), subtitle: t('hero.depth.cosmetic'), border: INK_UI.brush }, () => self.replaceLanePage(() => showHeroChronicle(self)));
-  }
+  const addHeroRow = ({ hero, status }: { hero: Hero; status: HeroStatus }): void => {
+    const tone = heroStatusTone(status);
+    addRow(
+      {
+        title: `${heroName(hero)}  ·  ${rarityLabel(hero.rarity)}`,
+        // The bio stays on the hero's own card; a roster row is read at a glance, and three lines
+        // of history under every name pushed the fourth champion off a phone screen.
+        subtitle: [heroSituationLine(self, hero, status), heroStatLine(hero)].filter(Boolean).join('\n'),
+        // What the hero costs, then where they serve — as glyphs, one strip each, so a wage is
+        // never read as a posting and a land name never wraps in beside a number.
+        stats: [heroWageChip(state, hero)],
+        statsSecond: heroPostingChips(state, hero, status),
+        border: tone === 'alert' ? INK_UI.cinnabar : tone === 'settled' ? INK_UI.jade : INK_UI.softBrush,
+        muted: status === 'dead',
+        portrait: hero,
+      },
+      status === 'dead' ? undefined : () => openHero(hero),
+    );
+  };
 
-  // Three headings — free, working, in trouble — each with its count, and only when non-empty.
-  // Inside a heading the finer kind orders the cards (a fight before a governorship), and the
-  // card's border and chips carry the difference.
-  const byGroup = new Map<HeroGroup, Array<{ hero: Hero; status: HeroStatus }>>();
-  for (const hero of champions) {
-    const status = heroStatus(state, hero);
-    const group = heroGroup(status);
-    byGroup.set(group, [...(byGroup.get(group) ?? []), { hero, status }]);
-  }
-  for (const groupId of HERO_GROUP_ORDER) {
-    const group = (byGroup.get(groupId) ?? [])
-      .sort((a, b) => HERO_STATUS_ORDER.indexOf(a.status) - HERO_STATUS_ORDER.indexOf(b.status));
-    if (!group.length) continue;
-    addHeading(`${t(`ascent.heroes.group.${groupId}` as Parameters<typeof t>[0])} · ${group.length}`);
-    for (const { hero, status } of group) {
-      const tone = heroStatusTone(status);
-      const border = tone === 'alert' ? INK_UI.cinnabar : tone === 'settled' ? INK_UI.jade : INK_UI.softBrush;
-      addRow(
-        {
-          title: `${heroName(hero)}  ·  ${rarityLabel(hero.rarity)}`,
-          // The bio stays on the hero's own card; a roster row is read at a glance, and three lines
-          // of history under every name pushed the fourth champion off a phone screen.
-          subtitle: [heroSituationLine(self, hero, status), heroStatLine(hero)]
-            .filter(Boolean).join('\n'),
-          // What the hero costs, then where they serve — as glyphs, one strip each, so a wage is
-          // never read as a posting and a land name never wraps in beside a number.
-          stats: [heroWageChip(state, hero)],
-          statsSecond: heroPostingChips(state, hero, status),
-          border,
-          muted: status === 'dead',
-          portrait: hero,
-        },
-        status === 'dead' ? undefined : () => {
-          if (hero.growth) { self.replaceLanePage(() => showHeroDepth(self, hero.id)); return; }
-          self.closeLane();
-          self.events.emit('ui:ascent-appoint', hero.id);
-        },
-      );
+  if (activeGroup === 'all') {
+    // Every champion, under the three headings — free, working, in trouble.
+    for (const group of HERO_GROUP_ORDER) {
+      const members = inGroup(group);
+      if (!members.length) continue;
+      addHeading(`${t(`ascent.heroes.group.${group}` as Parameters<typeof t>[0])} · ${members.length}`);
+      members.forEach(addHeroRow);
     }
+  } else {
+    // One kind only: the tab already names it, so no heading repeats it.
+    const members = inGroup(activeGroup);
+    if (!members.length) addNote(t('ascent.heroes.emptyTab'));
+    members.forEach(addHeroRow);
   }
   finish();
 }
 
-/** Height of the roster header: payroll row, favour sentence and bar, and the search button. */
-const ROSTER_HEADER_HEIGHT = 122;
+/** Scene data key for the Heroes page's selected tab, so a rebuild keeps it. */
+const HEROES_TAB_KEY = 'heroesTab';
+const ROSTER_SUMMARY_HEIGHT = 56;
 const SEARCH_BUTTON_HEIGHT = 54;
+const CHRONICLE_LINK_HEIGHT = 34;
+
+function callTalent(self: ConquestUIScene): void {
+  self.closeLane();
+  self.events.emit('ui:ascent-search-talent');
+}
 
 /**
- * **The roster's header** — payroll, the Favour clock, and *Tìm nhân tài trong thiên hạ*.
- *
- * Drawn bare on the paper, not as a card: a card here read as one more champion (reported, twice).
- *
- * The button is one control in every state and says why when it cannot be pressed. While the
- * search rests, its own face fills with the rest as a bar, so "when can I buy again" is answered
- * where the finger already is; when the treasury is short, the same bar fills with the gold held
- * against the price. A Favour draft already waiting turns it into a free call.
- *
- * Gold is a coin glyph everywhere on this header, never the word — the same chips the rest of the
- * mode prices in. The confirm page, not this tap, is what spends: the price is a share of the
- * treasury, so late in a run one tap is thousands of coin.
+ * **What the roster costs and when the next champion comes** — the only numbers the page body
+ * carries above the list. Drawn bare on the paper, not as a card: a card here read as one more
+ * champion (reported, twice). Gold is a coin glyph, never the word.
  */
-function addRosterHeader(
+function addRosterSummary(
   self: ConquestUIScene,
   addWidget: ReturnType<ConquestUIScene['laneList']>['addWidget'],
   championCount: number,
+  forecast: ReturnType<typeof talentForecast>,
 ): void {
   const state = self.state;
-  const forecast = talentForecast(state);
   const favor = Math.floor(forecast.favor);
-  const search = (): void => {
-    self.closeLane();
-    self.events.emit('ui:ascent-search-talent');
-  };
-
-  addWidget(ROSTER_HEADER_HEIGHT, (holder, width) => {
-    // ── Payroll ──
+  addWidget(ROSTER_SUMMARY_HEIGHT, (holder, width) => {
     holder.add(self.ui.label(2, 2, t('ascent.heroes.payroll', { n: championCount }), 'caption', { fontSize: '11px' }));
     const pay = drawCostChips(self, [resourceChip('gold', t('ascent.heroes.perSeason', { gold: heroPayroll(state) }))],
       { x: 0, y: 0, width, size: 'stat' });
     pay.setX(width - 2 - pay.getBounds().width);
     holder.add(pay);
 
-    // ── Favour, in a sentence and a bar ──
     const favourLine = forecast.draftWaiting
       ? t('ascent.talent.waiting')
       : forecast.seasonsLeft === undefined
@@ -214,68 +278,83 @@ function addRosterHeader(
       forecast.draftWaiting ? 1 : forecast.threshold,
       forecast.draftWaiting ? INK_UI.jade : INK_UI.gold,
     ));
-
-    // ── The search ──
-    const top = ROSTER_HEADER_HEIGHT - SEARCH_BUTTON_HEIGHT;
-    const resting = !forecast.draftWaiting && forecast.seasonsUntilSearch > 0;
-    const short = !forecast.draftWaiting && !resting && !forecast.canAfford;
-    const ready = forecast.draftWaiting || (!resting && !short);
-    const variant = forecast.draftWaiting ? 'primary' : ready ? 'secondary' : 'disabled';
-    holder.add(self.ui.button({ x: 0, y: top, width, height: SEARCH_BUTTON_HEIGHT }, '', () => {
-      if (!ready) return;
-      if (forecast.draftWaiting) { search(); return; }
-      self.showConfirmPage({
-        title: t('ascent.talent.title'),
-        lines: [
-          t('ascent.talent.cost', { gold: forecast.price, held: Math.floor(state.resources.gold) }),
-          // Beta: why this price — the Favour still to fill, and the searches already bought.
-          ...(rulesOf(state).talentPriceByFavor ? [
-            t('beta.talent.priceWhy', { pct: Math.round(favorRemaining(state) * 100) }),
-            ...((state.ascent?.talentSearches ?? 0) > 0 ? [t('beta.talent.priceRepeat', {
-              n: (state.ascent?.talentSearches ?? 0) + 1,
-              mult: talentSearchEscalation(state).toFixed(2).replace(/\.?0+$/, ''),
-            })] : []),
-          ] : []),
-          t('ascent.talent.body'),
-          t('ascent.talent.limit', { n: TALENT_SEARCH_REST_SEASONS }),
-        ],
-        confirmLabel: t('ascent.talent.confirm', { gold: forecast.price }),
-        onConfirm: search,
-        onBack: () => self.replaceLanePage(() => showHeroesScreen(self)),
-      });
-    }, { variant, fontSize: '13px' }));
-
-    // The face of the button, laid over it: the name, then what it costs or why it waits.
-    const cx = width / 2;
-    holder.add(self.ui.label(cx, top + 17, forecast.draftWaiting ? t('ascent.talent.callWaiting') : t('ascent.talent.button'), 'button', {
-      fontSize: '13px',
-      ...(forecast.draftWaiting ? { color: cssHex(INK_UI.cinnabar) } : {}),
-    }).setOrigin(0.5).setAlpha(ready ? 1 : 0.6));
-
-    const second = top + 36;
-    if (forecast.draftWaiting) {
-      holder.add(self.ui.label(cx, second, t('ascent.talent.free'), 'caption', { fontSize: '11px' }).setOrigin(0.5));
-    } else if (resting) {
-      holder.add(self.ui.label(cx, second - 3, t('ascent.talent.resting', { n: forecast.seasonsUntilSearch }), 'caption', { fontSize: '10px' })
-        .setOrigin(0.5).setAlpha(0.8));
-    } else {
-      const chips = drawCostChips(self, [resourceChip('gold',
-        short ? `${Math.floor(state.resources.gold)}/${forecast.price}` : forecast.price,
-        short ? INK_UI.cinnabar : undefined)], { x: 0, y: second - 8, width, size: 'stat' });
-      chips.setX(cx - chips.getBounds().width / 2);
-      holder.add(chips);
-    }
-
-    // Progress inside the button whenever it cannot be pressed: the rest, or the gold against the price.
-    if (resting || short) {
-      holder.add(self.ui.statBar(
-        { x: 18, y: top + SEARCH_BUTTON_HEIGHT - 12, width: width - 36, height: 5 },
-        resting ? forecast.restProgress : Math.max(0, state.resources.gold),
-        resting ? 1 : forecast.price,
-        resting ? INK_UI.jade : INK_UI.gold,
-      ));
-    }
   });
+}
+
+/**
+ * **Tìm nhân tài trong thiên hạ**, as the sheet's one button.
+ *
+ * One control in every state that says why when it cannot be pressed. While the search rests, its
+ * own face fills with the rest as a bar, so "when can I buy again" is answered where the finger
+ * already is; when the treasury is short, the same bar fills with the gold held against the price.
+ * A Favour draft already waiting turns it into a free call. The confirm page, not this tap, is what
+ * spends: the price is a share of the treasury, so late in a run one tap is thousands of coin.
+ */
+function buildTalentSearch(
+  self: ConquestUIScene,
+  holder: Phaser.GameObjects.Container,
+  width: number,
+  forecast: ReturnType<typeof talentForecast>,
+): void {
+  const state = self.state;
+  const resting = !forecast.draftWaiting && forecast.seasonsUntilSearch > 0;
+  const short = !forecast.draftWaiting && !resting && !forecast.canAfford;
+  const ready = forecast.draftWaiting || (!resting && !short);
+  const variant = forecast.draftWaiting ? 'primary' : ready ? 'secondary' : 'disabled';
+  holder.add(self.ui.button({ x: 0, y: 0, width, height: SEARCH_BUTTON_HEIGHT }, '', () => {
+    if (!ready) return;
+    if (forecast.draftWaiting) { callTalent(self); return; }
+    self.showConfirmPage({
+      title: t('ascent.talent.title'),
+      lines: [
+        t('ascent.talent.cost', { gold: forecast.price, held: Math.floor(state.resources.gold) }),
+        // Beta: why this price — the Favour still to fill, and the searches already bought.
+        ...(rulesOf(state).talentPriceByFavor ? [
+          t('beta.talent.priceWhy', { pct: Math.round(favorRemaining(state) * 100) }),
+          ...((state.ascent?.talentSearches ?? 0) > 0 ? [t('beta.talent.priceRepeat', {
+            n: (state.ascent?.talentSearches ?? 0) + 1,
+            mult: talentSearchEscalation(state).toFixed(2).replace(/\.?0+$/, ''),
+          })] : []),
+        ] : []),
+        t('ascent.talent.body'),
+        t('ascent.talent.limit', { n: TALENT_SEARCH_REST_SEASONS }),
+      ],
+      confirmLabel: t('ascent.talent.confirm', { gold: forecast.price }),
+      onConfirm: () => callTalent(self),
+      onBack: () => self.replaceLanePage(() => showHeroesScreen(self)),
+    });
+  }, { variant, fontSize: '13px' }));
+
+  // The face of the button, laid over it: the name, then what it costs or why it waits.
+  const cx = width / 2;
+  holder.add(self.ui.label(cx, 17, forecast.draftWaiting ? t('ascent.talent.callWaiting') : t('ascent.talent.button'), 'button', {
+    fontSize: '13px',
+    ...(forecast.draftWaiting ? { color: cssHex(INK_UI.cinnabar) } : {}),
+  }).setOrigin(0.5).setAlpha(ready ? 1 : 0.6));
+
+  const second = 36;
+  if (forecast.draftWaiting) {
+    holder.add(self.ui.label(cx, second, t('ascent.talent.free'), 'caption', { fontSize: '11px' }).setOrigin(0.5));
+  } else if (resting) {
+    holder.add(self.ui.label(cx, second - 3, t('ascent.talent.resting', { n: forecast.seasonsUntilSearch }), 'caption', { fontSize: '10px' })
+      .setOrigin(0.5).setAlpha(0.8));
+  } else {
+    const chips = drawCostChips(self, [resourceChip('gold',
+      short ? `${Math.floor(state.resources.gold)}/${forecast.price}` : forecast.price,
+      short ? INK_UI.cinnabar : undefined)], { x: 0, y: second - 8, width, size: 'stat' });
+    chips.setX(cx - chips.getBounds().width / 2);
+    holder.add(chips);
+  }
+
+  // Progress inside the button whenever it cannot be pressed: the rest, or the gold against the price.
+  if (resting || short) {
+    holder.add(self.ui.statBar(
+      { x: 18, y: SEARCH_BUTTON_HEIGHT - 12, width: width - 36, height: 5 },
+      resting ? forecast.restProgress : Math.max(0, state.resources.gold),
+      resting ? 1 : forecast.price,
+      resting ? INK_UI.jade : INK_UI.gold,
+    ));
+  }
 }
 
 /** A hero's wage this season as a coin chip. Half-pay shows its half: 2.5, not a rounded 3. */

@@ -167,18 +167,24 @@ export interface ActionSlot {
 }
 
 export interface ActionBarContext {
-  /** Ascent only: the Battle button exists exactly while there is a siege to watch. */
+  /**
+   * Ascent: the realm is under attack. It no longer adds or removes a slot — see `getActionKeys` —
+   * and is kept so the bar's callers and harnesses can still say which state they are drawing.
+   */
   battleLive?: boolean;
 }
 
-export function getActionKeys(gameMode: string, context: ActionBarContext = {}): readonly string[] {
+export function getActionKeys(gameMode: string, _context: ActionBarContext = {}): readonly string[] {
   if (gameMode === 'ascent') {
-    // `battle` sits first because while a siege is live it is the only thing that matters, and
-    // it is the one button that appears and disappears with the state of the world. A button
-    // that is present with nothing behind it is worse than no button: tapping it used to open
-    // an empty screen with no way back.
-    const lanes = context.battleLive ? ['battle', ...ASCENT_KEYS] : [...ASCENT_KEYS];
-    return [...lanes, ...ASCENT_SYSTEM_KEYS];
+    // `battle` sits first, and it is **always** there.
+    //
+    // It used to exist only while the realm was under attack, so the bar changed shape with the
+    // war: every lane slid one place right when a siege began and back when it ended, and the
+    // button the player was reaching for was never where they last found it. Reported: *fight
+    // list will show and hide — make it consistent*. The war page behind it now has something to
+    // say in peace as well (the next invasion, and the last one's standing), so the old reason for
+    // hiding it — an empty screen with no way back — is gone. Its dot still lights for a live war.
+    return ['battle', ...ASCENT_KEYS, ...ASCENT_SYSTEM_KEYS];
   }
   if (gameMode === 'empire') return [...EMPIRE_KEYS];
   return isCampaignMode(gameMode) ? [...CAMPAIGN_KEYS] : [...RIVAL_KEYS];
@@ -407,6 +413,9 @@ export class ActionBar extends Phaser.GameObjects.Container {
     const slots = actionBarSlots(this.gameMode, this.context(), this.barWidth, this.layout);
     const key = [
       paused ? 1 : 0,
+      // The Battle lane is inked red only while the realm is under attack, and its slot no longer
+      // appears with the war — so the war itself has to be in the key, or the ink would never change.
+      this.context().battleLive ? 1 : 0,
       ...slots.map((slot) => `${slot.action}:${slot.x}:${slot.width}:${slot.system ? 1 : 0}`
         + `:${this.slotLabel(slot.action, paused)}:${this.statusColor?.(slot.action) ?? ''}`),
     ].join('|');
@@ -567,7 +576,8 @@ export class ActionBar extends Phaser.GameObjects.Container {
     const cy = bounds.y + bounds.height / 2;
     const container = this.scene.add.container(cx, cy);
 
-    const loud = slot.action === 'battle' || (slot.action === 'pause' && paused);
+    // The Battle lane is always on the bar now; it shouts only while there is a war to shout about.
+    const loud = (slot.action === 'battle' && Boolean(this.context().battleLive)) || (slot.action === 'pause' && paused);
     const tone = loud ? INK_UI.cinnabar : INK_UI.brush;
 
     const icon = drawCardIcon(this.scene, LANE_ICONS[slot.action] ?? 'scroll', tone);
