@@ -7,7 +7,10 @@ from PIL import Image
 
 root = Path(__file__).resolve().parents[2]
 card_id, source = sys.argv[1:3]
-jobs = json.loads((root / 'docs/dong-ho-card-print-prompts.json').read_text(encoding='utf-8'))['jobs']
+# The card prints, then any story's moment prints (docs/<story>-print-prompts.json).
+prompt_files = [root / 'docs/dong-ho-card-print-prompts.json', *sorted((root / 'docs').glob('*-print-prompts.json'))]
+jobs = [dict(job, promptFile=path.relative_to(root).as_posix())
+        for path in dict.fromkeys(prompt_files) for job in json.loads(path.read_text(encoding='utf-8'))['jobs']]
 job = next(job for job in jobs if job['id'] == card_id)
 master = root / 'output/dongho-card-prints/masters' / f'{card_id}.png'
 master.parent.mkdir(parents=True, exist_ok=True)
@@ -25,6 +28,6 @@ log = json.loads(log_path.read_text(encoding='utf-8')) if log_path.exists() else
 log['assets'] = [a for a in log['assets'] if a['id'] != card_id]
 log['assets'].append({'id':card_id, 'generatedSource':source, 'master':master.relative_to(root).as_posix(),
     'runtime':job['output'], 'width':576, 'height':384, 'bytes':target.stat().st_size,
-    'prompt':'docs/dong-ho-card-print-prompts.json#'+card_id})
+    'prompt':job['promptFile']+'#'+card_id})
 log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-print(f'{len(log["assets"])}/50 saved: {target.relative_to(root)} ({target.stat().st_size} bytes)')
+print(f'{len(log["assets"])} saved: {target.relative_to(root)} ({target.stat().st_size} bytes)')

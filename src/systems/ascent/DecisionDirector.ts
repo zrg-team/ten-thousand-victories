@@ -28,7 +28,7 @@ import { offerHeroSummon } from './SummonSystem';
 import { offerPowerDraft } from './PowerDraftSystem';
 import { inAnyBattle } from './fronts';
 import { doctrineReady, offerDoctrine } from './RealmDoctrineSystem';
-import { offerStoryBeat, storyBeatReady, storyCardsMuted } from '../story/StorySystem';
+import { offerStoryBeat, omenBeatReady, storyBeatReady, storyCardsMuted } from '../story/StorySystem';
 import type { AscentPhase, AscentPromptKind, GameState } from '../../state/types';
 
 /**
@@ -329,6 +329,8 @@ function isReady(state: GameState, kind: AscentPromptKind): boolean {
       // `promptsRaised` is stamped in `drainAscentPrompts`, the one place every prompt of every
       // kind passes through. The floor keeps the opening seasons from being all Chronicle before
       // the run has raised anything to take a share of.
+      // An omen — a story answering a moment that will not come round again — is outside the share.
+      if (omenBeatReady(state)) return true;
       const raised = state.storyPromptsRaised ?? 0;
       const shown = Math.max(8, ascent.promptsRaised ?? 0);
       return raised / shown < STORY_PROMPT_SHARE;
@@ -517,7 +519,12 @@ export function tickDecisionDirector(state: GameState): void {
     return;
   }
 
-  for (const kind of [...overdue, ...ready]) {
+  // An omen's card goes first in Court. Last in `CONSIDER_ORDER` it waited out every other kind and
+  // never reached its 18-tick starvation before its own node gave up: traced on Thánh Gióng, the
+  // court's call sat held from season 341 to 355 through ten Court ticks, unraised, and the story
+  // walked down "nobody was called" on its own. Still Court-only and still behind the gap.
+  const omenFirst: AscentPromptKind[] = ready.includes('story-beat') && omenBeatReady(state) ? ['story-beat'] : [];
+  for (const kind of [...omenFirst, ...overdue, ...ready]) {
     if (!raise(state, kind)) continue;
     // `lastPromptTurn` is stamped by `drainAscentPrompts`, which every prompt passes through.
     delete ascent.promptWaiting[kind];

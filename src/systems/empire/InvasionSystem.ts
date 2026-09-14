@@ -322,6 +322,63 @@ function recordArmyDefeated(state: GameState, total: number): void {
   state.campaignScore.largestArmyDefeated = Math.max(state.campaignScore.largestArmyDefeated, total);
 }
 
+/**
+ * Every invading host on the map is destroyed at once, and paid for as if each had been beaten.
+ *
+ * For a miracle, not a battle: Thánh Gióng riding through the whole invasion. `disperseIncoming`
+ * already removes armies, but it takes every non-player army (enemy garrison levies included),
+ * pays nothing, and leaves the rest of the war pointing at hosts that no longer exist — the claim
+ * on the province, the wall clock, the march order, the battle waiting on the player's answer —
+ * each of which some other system then trips over for a tick or keeps running for good.
+ *
+ * So, in order:
+ *  - only hosts with an invasion record, which is what "the invasion" means to every counter;
+ *  - all of them leave `state.armies` **before** any claim is looked at, or `handOffClaim` passes a
+ *    province's claim to the next host of the same coalition that is about to be removed too;
+ *  - each is booked through the same `grantRepelSpoils` + `recordArmyDefeated` a beaten host gets,
+ *    so the wave banner's *hosts broken* and the Reckoning count them;
+ *  - the dead go into `enemySoldiersSlain` here. A host removed mid-field is routed by the next
+ *    beat and `finishBattle` tallies only up to the last beat it saw, so nothing is counted twice;
+ *  - the watched fields are left to end themselves on that beat (`they-rout`). Setting `over` by
+ *    hand would drop a side battle without filing it (see `advanceBattle`).
+ *
+ * The wave itself resolves on the next `tickWaveDirector`, which sees no invasions left.
+ * `share` below 1 takes that share of the hosts, largest first. Returns what was destroyed.
+ */
+export function routInvasions(state: GameState, share = 1): { hosts: number; soldiers: number } {
+  const live = (state.invasions ?? [])
+    .map((record) => ({ record, army: state.armies.find((army) => army.id === record.armyId) }))
+    .filter((entry): entry is { record: InvasionRecord; army: Army } => Boolean(entry.army))
+    .sort((a, b) => totalUnits(b.army) - totalUnits(a.army));
+  const taken = live.slice(0, Math.max(0, Math.round(live.length * Math.min(1, share))));
+  if (taken.length === 0) return { hosts: 0, soldiers: 0 };
+
+  const gone = new Set(taken.map((entry) => entry.army.id));
+  let soldiers = 0;
+  for (const { army } of taken) soldiers += totalUnits(army);
+  state.armies = state.armies.filter((army) => !gone.has(army.id));
+  state.invasions = (state.invasions ?? []).filter((record) => !gone.has(record.armyId));
+  state.siegeOrders = state.siegeOrders.filter((order) => !gone.has(order.armyId)
+    || (state.gameMode === 'ascent' && handOffClaim(state, order)));
+  state.movementOrders = state.movementOrders.filter((order) => !gone.has(order.armyId));
+  if (state.pendingBattle && gone.has(state.pendingBattle.invaderArmyId)) state.pendingBattle = undefined;
+  for (const land of state.lands) {
+    if (land.siege && gone.has(land.siege.attackerId)
+      && !state.armies.some((army) => (state.invasions ?? []).some((record) => record.armyId === army.id
+        && record.targetLandId === land.id))) {
+      land.siege = undefined;
+    }
+  }
+
+  for (const { army, record } of taken) {
+    const size = totalUnits(army);
+    grantRepelSpoils(state, size, record);
+    recordArmyDefeated(state, size);
+  }
+  if (state.campaignScore) state.campaignScore.enemySoldiersSlain = (state.campaignScore.enemySoldiersSlain ?? 0) + soldiers;
+  return { hosts: taken.length, soldiers };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Spawning an invasion
 // ─────────────────────────────────────────────────────────────────────────────

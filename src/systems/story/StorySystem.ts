@@ -361,6 +361,15 @@ function trySeed(state: GameState): void {
   }
   if (eligible.length === 0) return;
 
+  // Omens first, each on its own gate — see `StoryTemplate.omen`. One seeding per tick either way.
+  for (const template of eligible) {
+    if (!template.omen) continue;
+    const cast = template.seed(state);
+    if (cast) { seedStory(state, template, cast); return; }
+  }
+  const drawn = eligible.filter((template) => !template.omen);
+  if (drawn.length === 0) return;
+
   /**
    * A template the run has not touched yet is favoured heavily over one it has.
    *
@@ -376,17 +385,22 @@ function trySeed(state: GameState): void {
   const weightOf = (template: StoryTemplate) =>
     template.seedWeight * (seen.has(template.id) ? 1 : 3.5);
 
-  const total = eligible.reduce((sum, template) => sum + weightOf(template), 0);
+  const total = drawn.reduce((sum, template) => sum + weightOf(template), 0);
   let roll = Math.random() * total;
-  let chosen = eligible[eligible.length - 1];
-  for (const template of eligible) {
+  let chosen = drawn[drawn.length - 1];
+  for (const template of drawn) {
     roll -= weightOf(template);
     if (roll <= 0) { chosen = template; break; }
   }
 
   const cast = chosen.seed(state);
   if (!cast) return;
+  seedStory(state, chosen, cast);
+}
 
+/** Starts a template latent with the cast it bound. */
+function seedStory(state: GameState, chosen: StoryTemplate, cast: StoryCast): void {
+  const stories = state.stories ?? [];
   storySeq += 1;
   stories.push({
     id: `story-${state.turn}-${storySeq}`,
@@ -818,8 +832,25 @@ function firstWaiting(state: GameState): Waiting | undefined {
     held.push({ story, template, fragment });
   }
   if (held.length === 0) return undefined;
-  return held.sort((a, b) => (b.story.temperature - a.story.temperature)
+  // An omen answers a moment that will not wait (see `StoryTemplate.omen`), so it goes ahead of the
+  // rest; among equals, hottest first, then longest-held.
+  const omen = (entry: Waiting) => (entry.template.omen ? 1 : 0);
+  return held.sort((a, b) => (omen(b) - omen(a))
+    || (b.story.temperature - a.story.temperature)
     || (a.story.lastSpokeTurn - b.story.lastSpokeTurn))[0];
+}
+
+/**
+ * True when the card the director would raise next belongs to an omen.
+ *
+ * Measured on Thánh Gióng before this: seeded in six of twelve runs, and in both runs that lived
+ * long enough its court card was never raised inside the node's patience — the Chronicle's 15%
+ * share was already spent — so the story walked itself down the "nobody was called" doors unasked.
+ * An omen's beat is exempt from that share; it still waits for the court phase and the queue.
+ */
+export function omenBeatReady(state: GameState): boolean {
+  if (state.gameMode !== 'ascent') return false;
+  return Boolean(firstWaiting(state)?.template.omen);
 }
 
 /** True when some story is holding a card or a blow the director could raise. */
@@ -884,8 +915,8 @@ export function offerStoryBeat(state: GameState): boolean {
     advisorKey: advisor ? `${story.templateId}.${fragment.id}.advice` : undefined,
     options: (fragment.options ?? []).map((option) => ({
       id: option.id,
-      cost: storyOptionCost(state, option),
-      affordable: (!option.cost || canSpend(state, storyOptionCost(state, option) ?? {}))
+      cost: storyOptionCost(state, option, story),
+      affordable: canSpend(state, storyOptionCost(state, option, story) ?? {})
         && (option.enabled ? option.enabled(ctx) : true),
       blockedKey: option.blockedKey,
     })),
@@ -935,11 +966,11 @@ export function resolveStoryBeat(state: GameState, storyId: string, fragmentId: 
     publishOutcome(state, story, fragment, ctx);
     return true;
   }
-  const paid = storyOptionCost(state, option);
+  const paid = storyOptionCost(state, option, story);
   if (paid && !canSpend(state, paid)) return false;
   if (option.enabled && !option.enabled(ctx)) return false;
 
-  if (option.cost) {
+  if (paid) {
     applyResourceDelta(state, Object.fromEntries(
       Object.entries(paid ?? {}).map(([key, value]) => [key, -(value ?? 0)]),
     ));
@@ -1031,7 +1062,9 @@ function noteTurn(ctx: StoryCtx, story: ActiveStory, from: string, to: string): 
  * is still affordable, and the resolver charges it; three readings of `option.cost` where one is
  * scaled and two are not is a card that quotes one number and takes another.
  */
-function storyOptionCost(state: GameState, option: StoryOption): Partial<ResourceBag> | undefined {
+function storyOptionCost(state: GameState, option: StoryOption, story: ActiveStory): Partial<ResourceBag> | undefined {
+  // A story that fixed its own price is charged exactly that; see `StoryOption.price`.
+  if (option.price) return option.price(state, story);
   // The purse on a stable reign; on a Beta reign, raised to what the option is about (`storyValue`).
   return option.cost ? storyCost(state, option.cost, option.costBasis) : undefined;
 }
@@ -1103,7 +1136,7 @@ export function openingView(state: GameState, opening: StoryOpening): { cost?: P
   const fragment = template?.fragments.find((candidate) => candidate.id === opening.fragmentId);
   const option = fragment?.options?.[0];
   if (!option) return { affordable: true };
-  const cost = storyOptionCost(state, option);
+  const cost = story && storyOptionCost(state, option, story);
   return { cost, affordable: !cost || canSpend(state, cost) };
 }
 
@@ -1118,10 +1151,10 @@ export function takeOpening(state: GameState, storyId: string, fragmentId: strin
   ctx.speaking = fragment.id;
   const option = fragment.options?.[0];
   if (option) {
-    const paid = storyOptionCost(state, option);
+    const paid = storyOptionCost(state, option, story);
     if (paid && !canSpend(state, paid)) return false;
     if (option.enabled && !option.enabled(ctx)) return false;
-    if (option.cost) {
+    if (paid) {
       applyResourceDelta(state, Object.fromEntries(
         Object.entries(paid ?? {}).map(([key, value]) => [key, -(value ?? 0)]),
       ));
@@ -1214,8 +1247,8 @@ export function heldBeatOptions(
   const ctx = makeCtx(state, story, worldDelta(state, state.storyWatch ?? snapshot(state)));
   return (fragment.options ?? []).map((option) => ({
     id: option.id,
-    cost: storyOptionCost(state, option),
-    affordable: (!option.cost || canSpend(state, storyOptionCost(state, option) ?? {}))
+    cost: storyOptionCost(state, option, story),
+    affordable: canSpend(state, storyOptionCost(state, option, story) ?? {})
       && (option.enabled ? option.enabled(ctx) : true),
     blockedKey: option.blockedKey,
   }));

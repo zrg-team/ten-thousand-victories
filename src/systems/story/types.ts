@@ -197,6 +197,15 @@ export interface StoryOption {
    * the realm. See `systems/ascent/storyValue.ts`.
    */
   costBasis?: ValueBasis;
+  /**
+   * A price the story fixes for itself, read in place of `cost` and charged exactly as returned.
+   *
+   * For a story whose asks are measured against each other rather than against the purse: Thánh
+   * Gióng's second request is twice his first *to the grain*, which is only true if both are read
+   * from the one figure the story locked when he first spoke. Passed through `scaledCost` it would
+   * be twice the first times whatever the purse had drifted to in between. Undefined means free.
+   */
+  price?: (state: GameState, story: ActiveStory) => Partial<ResourceBag> | undefined;
   /** Extra gate beyond affordability — e.g. "needs a hero of martial 55 in that province". */
   enabled?: (ctx: StoryCtx) => boolean;
   /** Text key suffix explaining why it is closed. Rendered under the option. */
@@ -318,6 +327,17 @@ export interface StoryTemplate {
   pressure?: (ctx: StoryCtx) => string | undefined;
   /** Relative chance of being the one considered on a seeding tick. */
   seedWeight: number;
+  /**
+   * Seeded by its own gate on every seeding tick, outside the weighted draw.
+   *
+   * For a story that answers a rare moment rather than a common one. The draw considers one
+   * template per tick, so a template whose `seed` declines almost always is almost never drawn at
+   * the instant it would accept: measured on Thánh Gióng, the invasion outweighed the realm by half
+   * on 0–4% of seeding ticks, and across six 360-season runs it seeded zero times. An omen's
+   * `seed` is asked every tick its gate could be open, so its rarity is exactly what `seed` itself
+   * says — the world's condition and the template's own roll — and `seedWeight` is not used.
+   */
+  omen?: boolean;
   /** Earliest turn this may seed. */
   minTurn?: number;
   /** Only one instance of a template at a time unless this is set. */

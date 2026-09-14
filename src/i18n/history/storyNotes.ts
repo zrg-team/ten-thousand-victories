@@ -118,7 +118,7 @@ export const storyNotesEn: HistoryCatalog = {
   'stories.thanh-giong.happened':
     'A child who had not spoken for three years asked for an iron horse and an iron rod when the invaders came, grew to a giant, drove them out, and rode into the sky at Sóc Sơn without waiting to be thanked.',
   'stories.thanh-giong.inGame':
-    'Help that arrives from nowhere, does exactly one thing, and cannot be kept, promoted or asked for again.',
+    'Help you must trust the people for: a child who asks for a share of the stores, then twice that, then gold for his iron — and destroys the whole invasion only if you never stopped.',
 
   'stories.mountain-water.happened':
     'Sơn Tinh and Thủy Tinh both asked for the same princess. The mountain arrived first. The water has been coming back every year since, and that is the flood season.',
@@ -360,7 +360,7 @@ export const storyNotesVi: HistoryCatalog = {
   'stories.thanh-giong.happened':
     'Một đứa bé ba năm không nói, khi giặc Ân sang thì xin ngựa sắt roi sắt, vươn vai thành tráng sĩ, đuổi xong giặc rồi bay lên trời ở Sóc Sơn mà không đợi ai cảm ơn.',
   'stories.thanh-giong.inGame':
-    'Sự trợ giúp đến từ hư không, làm đúng một việc, rồi không giữ lại được, không thăng chức được, cũng không xin thêm lần nữa được.',
+    'Sự giúp đỡ phải tin dân mới có: một đứa bé xin một phần kho, rồi gấp đôi, rồi vàng để rèn sắt — và chỉ phá tan cả đạo quân giặc nếu ngươi chưa từng dừng tay.',
 
   'stories.mountain-water.happened':
     'Sơn Tinh và Thủy Tinh cùng đến cầu hôn công chúa Mỵ Nương. Thần Núi tới trước. Thần Nước từ đó năm nào cũng quay lại, và đó là mùa nước lũ.',
