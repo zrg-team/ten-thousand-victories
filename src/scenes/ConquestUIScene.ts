@@ -770,7 +770,7 @@ export class ConquestUIScene extends Phaser.Scene {
 
   /* --------------------- the lane: the sliding page every screen is drawn into */
 
-  openLane(lane: AscentLane): void { lanesFrame.openLane(this, lane); }
+  openLane(lane: AscentLane, options?: lanesFrame.OpenLaneOptions): void { lanesFrame.openLane(this, lane, options); }
 
   laneList(
     title: string,

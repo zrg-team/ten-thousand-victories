@@ -15,6 +15,7 @@ import { heroProgressLine, heroPortraitCard, heroXpTrack } from '../../../ui/Her
 import { heroPostingLabel, heroStatsLine } from '../../../ui/heroPickerRows';
 import { refreshAllLandOutputs } from '../../../systems/ResourceSystem';
 import { INK_UI } from '../../../ui/InkUI';
+import { resourceChip } from '../../../ui/statChips';
 import { showHeroesScreen } from './court';
 import { archiveHeroChronicle, readHeroChronicle } from '../../../state/heroChronicle';
 
@@ -102,9 +103,19 @@ export function showHeroDepth(self: ConquestUIScene, heroId: string, feedback?: 
     }
   }
   if (hero.life?.kind === 'captive') {
-    const ransom = quoteHeroRelease(state, heroId, 'gold')!, concession = quoteHeroRelease(state, heroId, 'concession')!;
-    addRow({ title: t('hero.depth.ransom', { n: ransom.cost }), subtitle: t('hero.depth.releaseBody'), border: INK_UI.gold }, () => update(releaseHeroFromQuote(state, ransom)));
-    addRow({ title: t('hero.depth.concession'), subtitle: t('hero.depth.releaseBody'), border: INK_UI.jade }, () => update(releaseHeroFromQuote(state, concession)));
+    // One way out, priced to the realm. The no-gold "release for a pact" row is gone: it freed the
+    // hero for nothing and handed the captor a non-aggression pact, which in this mode stops no
+    // wave — a free release dressed as a price, and a word (hòa ước) about a war the player cannot
+    // wage. Read as *what does it mean? we cannot attack them, why does it care about a pact?*
+    const ransom = quoteHeroRelease(state, heroId, 'gold')!;
+    const short = Math.max(0, ransom.cost - state.resources.gold);
+    addRow({
+      title: t('hero.depth.ransom'),
+      subtitle: short > 0 ? t('hero.depth.ransomShort', { n: short }) : t('hero.depth.releaseBody'),
+      border: short > 0 ? INK_UI.brush : INK_UI.gold,
+      muted: short > 0,
+      costs: [resourceChip('gold', ransom.cost, short > 0 ? INK_UI.cinnabar : undefined)],
+    }, short > 0 ? undefined : () => update(releaseHeroFromQuote(state, ransom)));
   }
   if (hero.life?.kind === 'recovering' && !hero.life.respec && !hero.life.treatmentUsed) {
     const cost = scaledCost(state, { supplies: 10 }).supplies!;

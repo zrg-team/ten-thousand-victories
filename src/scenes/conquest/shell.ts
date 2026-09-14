@@ -818,7 +818,9 @@ export function handleBarAction(self: ConquestUIScene, action: string): void {
     self.closeLane();
     if (same) return;
   }
-  self.openLane(action as AscentLane);
+  // The Battle button always opens the war board, paused like every other lane — never the fight
+  // itself, whether or not one is live. The board lists every field; a row walks onto it.
+  self.openLane(action as AscentLane, { board: action === 'battle' });
 }
 
 /**

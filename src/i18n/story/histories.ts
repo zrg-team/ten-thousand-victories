@@ -714,7 +714,7 @@ export const riceRiotEn: StoryCatalog = {
   'nika.title': 'Nika',
   'nika.body': 'There is no enemy. It is the people. They are already in the yard, and they know where the treasury is.',
   'nika.ok': 'There is nobody to fight',
-  'nika.toast': 'The capital rioted. {gold} gold is gone.',
+  'nika.toast': 'The capital rioted. [[gold]]{gold} is gone.',
   'nika.chronicle': 'The capital rioted, and there was no enemy to blame.',
   'nika.scene': 'The gate was not forced. Someone inside opened it, and nobody will yet say who. Out in the yard they are not shouting, which is the part that is hard to stand. A woman nearest the steps is still carrying an empty basket, and she says exactly one thing out loud, asking which store is opened first. Behind her the crowd has stepped aside on both sides, leaving a lane in.',
   'the-carts-run-again.line': 'The carts run again. Nobody is counting.',

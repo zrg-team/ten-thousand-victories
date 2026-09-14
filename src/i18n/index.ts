@@ -167,9 +167,18 @@ export function tickLabel(count: number): string {
   return t(count === 1 ? 'tick.one' : 'tick.many');
 }
 
+/**
+ * A store's glyph token, written directly before its figure: `${resourceToken('gold')}385`. Every
+ * Phaser Text draws it as the header strip's glyph (`ui/inlineIcons.ts`), so an amount inside a
+ * sentence reads the way it does in a chip. Phaser-free, so systems can build their messages with it.
+ */
+export function resourceToken(resource: ResourceKey): string {
+  return `[[${resource}]]`;
+}
+
 export function formatResourceList(values: Partial<Record<ResourceKey, number>>): string {
   return Object.entries(values)
-    .map(([key, value]) => `${value} ${resourceLabel(key as ResourceKey)}`)
+    .map(([key, value]) => `${resourceToken(key as ResourceKey)}${value}`)
     .join(', ');
 }
 

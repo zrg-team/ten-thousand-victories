@@ -82,7 +82,7 @@ import {
 } from './decree/rules';
 import { currentTaxRate, taxGoldMult, taxGrowthDelta, taxStabilityBase } from './TaxSystem';
 import type { Army, BuildOrder, EraId, GameState, Land, LandBuildingType, LandSpecialization, ResourceBag, ResourceKey, Season } from '../state/types';
-import { buildingLabel, buildBuildingLabel, formatResourceList, resourceLabel, t } from '../i18n';
+import { buildingLabel, buildBuildingLabel, formatResourceList, resourceToken, t } from '../i18n';
 
 export type BuildingCategory = 'production' | 'military' | 'public';
 
@@ -2253,5 +2253,5 @@ function formatCostBlocker(cost: Partial<ResourceBag>): string {
 }
 
 export function formatLabor(labor: number): string {
-  return `${labor} ${resourceLabel('humans')}`;
+  return `${resourceToken('humans')}${labor}`;
 }

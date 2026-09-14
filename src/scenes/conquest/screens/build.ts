@@ -41,7 +41,7 @@ import { compactNumber } from '../../../utils/format';
 import { isMarked, openingFor, takeOpening } from '../../../systems/story/StorySystem';
 import { storyText } from '../../../i18n/story';
 import { INK_UI } from '../../../ui/InkUI';
-import { buildingLabel, heroName, resourceLabel, t } from '../../../i18n';
+import { buildingLabel, heroName, resourceLabel, resourceToken, t } from '../../../i18n';
 import { RESOURCE_ICON, resourceChips, seasonsChip } from '../../../ui/costChips';
 import { focusChip, resourceChip, statChips } from '../../../ui/statChips';
 import type { AscentLane, AscentLedgerLine } from '../../../state/types';
@@ -694,9 +694,9 @@ export function showLedgerScreen(self: ConquestUIScene): void {
     const demand = Math.round(line.demand);
     const net = Math.round(line.net);
     return {
-      // `resourceLabel` is written for mid-sentence use and comes back lowercase; at the head of
-      // a tile it is a name.
-      title: `${resourceLabel(key).charAt(0).toLocaleUpperCase()}${resourceLabel(key).slice(1)}  ${net >= 0 ? `+${net}` : net}`,
+      // The net alone: the tile already carries the store's glyph (`icon` below), and spelling the
+      // store beside it was the one place on the page a resource was still a word.
+      title: net >= 0 ? `+${net}` : `${net}`,
       // The same glyph the header strip spends on this resource, so the tile and the running
       // total above it are visibly the same thing.
       icon: RESOURCE_ICON[key],
@@ -723,11 +723,12 @@ export function showLedgerScreen(self: ConquestUIScene): void {
     const quote = saleQuote(state, key);
     const name = resourceLabel(key);
     const wasted = ledger.waste?.[key] ?? 0;
+    const glyph = resourceToken(key);
     const body = `${t('ascent.ledger.sellBody', {
-      capacity: quote.capacity,
-      from: compactNumber(storeWasteFrom(state, key)),
+      capacity: `${glyph}${quote.capacity}`,
+      from: `${glyph}${compactNumber(storeWasteFrom(state, key))}`,
       rate: Math.round(STORE_WASTE_RATE * 100),
-    })}${wasted > 0 ? `\n${t('ascent.ledger.wasted', { n: wasted })}` : ''}`;
+    })}${wasted > 0 ? `\n${t('ascent.ledger.wasted', { n: `${glyph}${wasted}` })}` : ''}`;
     if (quote.blocked) {
       const why = quote.blocked === 'no-market'
         ? t('ascent.ledger.sellNoMarket', { resource: name })
@@ -739,7 +740,7 @@ export function showLedgerScreen(self: ConquestUIScene): void {
     }
     addRow(
       {
-        title: t(quote.thin ? 'ascent.ledger.sellThin' : 'ascent.ledger.sell', { units: quote.units, resource: name, gold: quote.gold }),
+        title: t(quote.thin ? 'ascent.ledger.sellThin' : 'ascent.ledger.sell', { units: `${glyph}${quote.units}`, resource: name, gold: quote.gold }),
         subtitle: body,
         border: wasted > 0 ? INK_UI.cinnabar : INK_UI.jade,
       },

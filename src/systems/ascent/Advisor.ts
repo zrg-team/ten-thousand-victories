@@ -12,7 +12,7 @@ import {
 import { formatNumber } from '../../utils/format';
 import { treasuryGraftFrom } from './priceScale';
 import { STORE_KEYS, marketCapacity, storeWasteFrom } from './GranarySystem';
-import { heroName, resourceLabel } from '../../i18n';
+import { heroName, resourceLabel, resourceToken } from '../../i18n';
 import { PLAYER_KINGDOM_ID } from '../../game/constants';
 import { rulesOf } from '../../game/ascentRuleset';
 import { goalCapitalAloneWave, goalHold, goalNeed, goalProvincesPhrase } from './Goal';
@@ -439,10 +439,11 @@ export function adviseAscent(state: GameState): Advice[] {
         body: marketCapacity(state) > 0 ? 'advice.storeRot.body' : 'advice.storeRot.bodyNoMarket',
         params: {
           resource: resourceLabel(worst),
-          held: formatNumber(state.resources[worst]),
-          from: formatNumber(storeWasteFrom(state, worst)),
+          // The store's glyph rides each figure, so the line needs no word for which store it is.
+          held: `${resourceToken(worst)}${formatNumber(state.resources[worst])}`,
+          from: `${resourceToken(worst)}${formatNumber(storeWasteFrom(state, worst))}`,
           rate: pct(STORE_WASTE_RATE),
-          lost: formatNumber(waste[worst]),
+          lost: `${resourceToken(worst)}${formatNumber(waste[worst])}`,
         },
         lane: 'build',
       });

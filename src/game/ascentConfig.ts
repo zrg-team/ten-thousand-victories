@@ -2552,6 +2552,22 @@ export const SUMMON_EVERY_N_WAVES = 2;
  * At the founding (~300 gold) a search is ~180; holding 5,000 it is 2,250.
  */
 export const TALENT_SEARCH_BASE_GOLD = 180;
+/**
+ * A captured hero's ransom: the share of what the realm holds — the treasury plus
+ * `HERO_RANSOM_INCOME_SEASONS` of gold income — that a crown asks for a hero of this rarity, never
+ * below the flat price scaled for the realm. It was the flat price alone (`30 + 10 × level` gold,
+ * price-scaled), which quoted an Epic hero at 244 gold to a realm holding 7,000 and banking +614 a
+ * season: a rounding error for the one prisoner worth the most. Reported as *ARE YOU REALLY SCALING
+ * THE NUMBER?* Each level above the first adds `HERO_RANSOM_PER_LEVEL` to the share.
+ */
+export const HERO_RANSOM_SHARE: Record<'Common' | 'Rare' | 'Epic' | 'Legendary', number> = {
+  Common: 0.1, Rare: 0.15, Epic: 0.22, Legendary: 0.3,
+};
+export const HERO_RANSOM_BASE_MULT: Record<'Common' | 'Rare' | 'Epic' | 'Legendary', number> = {
+  Common: 1, Rare: 1.6, Epic: 2.4, Legendary: 3.5,
+};
+export const HERO_RANSOM_INCOME_SEASONS = 4;
+export const HERO_RANSOM_PER_LEVEL = 0.04;
 export const TALENT_SEARCH_TREASURY_SHARE = 0.45;
 export const TALENT_SEARCH_REST_SEASONS = 28;
 /**
