@@ -40,7 +40,7 @@ import {
   STORE_WASTE_SEASONS,
 } from '../../game/ascentConfig';
 import { pushToast } from '../empire/notifications';
-import { resourceLabel, t } from '../../i18n';
+import { resourceLabel, resourceToken, t } from '../../i18n';
 import type { GameState } from '../../state/types';
 
 export type StoreKey = 'food' | 'supplies';
@@ -140,7 +140,7 @@ export function sellStores(state: GameState, key: StoreKey, units?: number): boo
   const prior = ascent.storeSales[key];
   ascent.storeSales[key] = { turn: state.turn, lots: (prior && prior.turn === state.turn ? prior.lots : 0) + 1 };
   ascent.laneStats.storesSold = (ascent.laneStats.storesSold ?? 0) + sold;
-  pushToast(state, t('ascent.ledger.soldToast', { units: sold, resource: resourceLabel(key), gold }), 'info');
+  pushToast(state, t('ascent.ledger.soldToast', { units: `${resourceToken(key)}${sold}`, resource: resourceLabel(key), gold }), 'info');
   return true;
 }
 

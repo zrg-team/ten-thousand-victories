@@ -22,7 +22,7 @@ import { PROMPT_FOOTER_HEIGHT } from '../constants';
 import { promptFoot } from './frame';
 import { iconForOption, type CardIconId } from '../../../ui/CardIcons';
 import { staggerIn } from '../../../ui/animations';
-import { formatResourceList, heroName, resourceLabel, t } from '../../../i18n';
+import { formatResourceList, heroName, resourceLabel, resourceToken, t } from '../../../i18n';
 import { resourceChips } from '../../../ui/costChips';
 import { focusTitle } from '../../../ui/focusPanel';
 import { storyPrintHeader } from '../../../ui/storyPrint';
@@ -266,7 +266,7 @@ export function showProvinceOrder(
       ? t('ascent.province.setupBody', { focus: focusTitle(self.state, proposedFocus) })
       : t('ascent.province.shortBody', {
         resource: resourceLabel(resource),
-        rate: Math.abs(prompt.rate ?? 0),
+        rate: `${resourceToken(resource)}${Math.abs(prompt.rate ?? 0)}`,
       });
   const { body, bodyWidth, finish } = self.promptScrollBody(
     t('ascent.province.title', { land: prompt.landName }),
@@ -281,7 +281,7 @@ export function showProvinceOrder(
       ? (prompt.reason === 'undefended'
         ? t('ascent.province.focusWalls', { n: option.effect ?? 0 })
         : t('ascent.province.focusGain', {
-          n: option.effect ?? 0,
+          n: `${resourceToken(resource)}+${option.effect ?? 0}`,
           resource: resourceLabel(resource),
         }))
       : option.role === 'governor'

@@ -7,7 +7,7 @@ import { scaledCost } from '../ascent/priceScale';
 import { committedWavePlan } from '../ascent/wavePlanView';
 import { forecastInvader } from '../ascent/frontForecast';
 import { battleBeatsPerTick } from '../../game/battleOptions';
-import { BATTLE_ROUT_MORALE } from '../../game/ascentConfig';
+import { BATTLE_ROUT_MORALE, HERO_RANSOM_BASE_MULT, HERO_RANSOM_INCOME_SEASONS, HERO_RANSOM_PER_LEVEL, HERO_RANSOM_SHARE } from '../../game/ascentConfig';
 import { heroMeasurements, measureHero, measureHeroMilestone, measureHeroSeason } from './heroMeasurements';
 import { heroFate } from './heroFate';
 import {
@@ -642,10 +642,15 @@ export function releaseKingdomPrisoners(state: GameState, kingdomId: string): vo
   for (const hero of state.heroes) if (hero.life?.kind === 'captive' && hero.life.captorId === kingdomId) returnTransport(state, hero);
   for (const hero of state.heroes) if (hero.assignedTo === `ambassador:${kingdomId}`) returnTransport(state, hero);
 }
+/** Scaled to the realm's wealth and the hero's rarity and level — see `HERO_RANSOM_SHARE`. */
 export function heroRansomCost(state: GameState, hero: Hero): number {
   const captorId = hero.life?.kind === 'captive' ? hero.life.captorId : '';
   const custodian = state.heroes.some(envoy => envoy.assignedTo === `ambassador:${captorId}` && hasHeroPerk(envoy, 'custodian'));
-  return Math.ceil(scaledCost(state, { gold: 30 + 10 * heroLevel(hero) }).gold! * (custodian ? .8 : 1));
+  const level = heroLevel(hero);
+  const flat = scaledCost(state, { gold: (30 + 10 * level) * (HERO_RANSOM_BASE_MULT[hero.rarity] ?? 1) }).gold!;
+  const wealth = Math.max(0, state.resources.gold) + Math.max(0, state.resourceRates?.gold ?? 0) * HERO_RANSOM_INCOME_SEASONS;
+  const share = (HERO_RANSOM_SHARE[hero.rarity] ?? HERO_RANSOM_SHARE.Common) * (1 + HERO_RANSOM_PER_LEVEL * Math.max(0, level - 1));
+  return Math.ceil(Math.max(flat, wealth * share) * (custodian ? .8 : 1));
 }
 export function quoteHeroRelease(state: GameState, heroId: string, method: 'gold' | 'concession'): HeroReleaseQuote | undefined {
   const hero = state.heroes.find(person => person.id === heroId);

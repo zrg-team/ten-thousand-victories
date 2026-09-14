@@ -24,6 +24,7 @@ import type { HistoryScene } from './scenes/HistoryScene';
 import { installResilience } from './game/resilience';
 import { isDesktopPlatform, layoutDiagnosis } from './platform/layout';
 import { installDesktopResize } from './game/desktopResize';
+import { installInlineIcons } from './ui/inlineIcons';
 
 declare global {
   interface Window {
@@ -118,6 +119,8 @@ watchInstall();
 cacheTipsForSplash();
 subscribeLanguageChange(() => cacheTipsForSplash());
 
+// Before the first scene draws a line: store tokens ([[gold]]) print as their glyphs in every Text.
+installInlineIcons();
 const game = new Phaser.Game(gameConfig);
 window.__phaserGame = game;
 // How many textures one batch may bind. Phaser gives a phone exactly one, which turns every

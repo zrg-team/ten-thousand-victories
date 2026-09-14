@@ -71,8 +71,21 @@ const LANE_TABS_GAP = 8;
 /** Width of the portrait column beside a hero row. */
 const LANE_PORTRAIT_COLUMN = 62;
 
-export function openLane(self: ConquestUIScene, lane: AscentLane): void {
+/**
+ * `board`: open the Battle lane on the war board even while a fight is live, holding the world like
+ * every other lane. The bottom bar's Battle button asks for this — it used to land on the fight
+ * when one was running and on the board when none was, and the player could not tell which a tap
+ * would bring. Reported: *sometimes it opens the battle, sometimes the fight list — always open the
+ * fight list and pause like other screens*. A row on the board still walks onto its field
+ * (`takeField`), which releases the hold, and the map's clash marks still open their own fight.
+ */
+export interface OpenLaneOptions {
+  board?: boolean;
+}
+
+export function openLane(self: ConquestUIScene, lane: AscentLane, options: OpenLaneOptions = {}): void {
   if (self.state.pendingAscentPrompt) return;
+  const board = lane === 'battle' && options.board === true;
   // The Battle lane is two screens: the fight, when there is one, and the war board when there
   // is not. It used to be one screen and a dead button — and the screen opens for a measured
   // 6–15 of the 20–96 engagements a run settles, so for most of a wave the one control with
@@ -96,7 +109,7 @@ export function openLane(self: ConquestUIScene, lane: AscentLane): void {
   // reading "Tiếp tục". Reported verbatim: *fight stop in middle, nothing to do.* Walking into a
   // fight is an instruction to fight it; the opening drum sets its own hold a moment later
   // (`maybeAutoOpenBattle`), and the player's own Pause is still theirs to press.
-  if (lane === 'battle') {
+  if (lane === 'battle' && !board) {
     self.lanePauseBeforeOpen = false;
     self.state.isStrategyPause = false;
     // And the hard clock with it. `isWorldHalted` reads both, so clearing only the strategy
@@ -124,7 +137,8 @@ export function openLane(self: ConquestUIScene, lane: AscentLane): void {
       }
       case 'heroes': self.showHeroesScreen(); break;
       case 'court': self.showCourtScreen(); break;
-      case 'battle': self.showBattle(); break;
+      // The board draws itself, and restores the map from under a fight's full-bleed sheet.
+      case 'battle': if (board) self.showWarBoard(); else self.showBattle(); break;
       case 'army':
         // A plan handed over by the muster card opens on the form, filled in; any other entry
         // starts the lane clean.

@@ -337,10 +337,11 @@ check(
   const bareFigures = sheet.filter((l) => /^\d+$/.test(l.trim())).length;
   check(
     'the status block shows people, growth and the yield chips',
-    sheet.some((l) => /people\s+·\s+\+\d+\/season/.test(l))
+    // People are the humans glyph now — `[[humans]]` draws in an em-space slot — not the word.
+    sheet.some((l) => / [\d.,k]+\s+·\s+\+\d+\/season/.test(l))
       && sheet.some((l) => /each season/i.test(l))
       && bareFigures >= 3,
-    `${sheet.filter((l) => /people|each season/i.test(l)).slice(0, 2).join(' / ')} · ${bareFigures} figures`,
+    `${sheet.filter((l) => / |each season/i.test(l)).slice(0, 2).join(' / ')} · ${bareFigures} figures`,
   );
 }
 

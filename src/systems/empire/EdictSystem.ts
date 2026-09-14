@@ -8,7 +8,7 @@ import { applyResourceDelta, canSpend, refreshAllLandOutputs } from '../Resource
 import { scaledCost } from '../ascent/priceScale';
 import { eraIndex, grantEdictPoints } from './MandateSystem';
 import { pushToast } from './notifications';
-import { resourceLabel, t } from '../../i18n';
+import { resourceLabel, resourceToken, t } from '../../i18n';
 
 function pct(v: number): string {
   return `${v > 0 ? '+' : ''}${Math.round(v * 100)}%`;
@@ -25,7 +25,7 @@ export function projectEffectSummary(project: RealmProject): string {
   if (m.resourceRateModifier) {
     for (const [k, v] of Object.entries(m.resourceRateModifier)) {
       if (!v) continue;
-      parts.push(t('edict.fx.rate', { value: `${v > 0 ? '+' : ''}${v}`, res: resourceLabel(k as ResourceKey) }));
+      parts.push(t('edict.fx.rate', { value: `${resourceToken(k as ResourceKey)}${v > 0 ? '+' : ''}${v}`, res: resourceLabel(k as ResourceKey) }));
     }
   }
   if (m.marketGoldOutputModifier) parts.push(t('edict.fx.marketGold', { pct: pct(m.marketGoldOutputModifier) }));
