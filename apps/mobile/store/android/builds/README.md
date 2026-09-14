@@ -3,5 +3,5 @@
 Downloaded by `yarn store:builds`, named by version and build.
 Gitignored — they are tens of megabytes and reproducible from a commit.
 
-- `van-thang-1.1.5-593.aab` — Play Console → Production → Create release
-- `van-thang-1.1.5-593.apk` — sideload for testing; never upload an APK to Play
+- `van-thang-1.1.5-596.aab` — Play Console → Production → Create release
+- `van-thang-1.1.5-596.apk` — sideload for testing; never upload an APK to Play
