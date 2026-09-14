@@ -11,8 +11,10 @@ import {
   applyUpdate,
   BUILD_VERSION,
   buildStamp,
+  getDownloadProgress,
   getIncomingVersion,
   getUpdateStatus,
+  subscribeDownloadProgress,
 } from '../../pwa/updates';
 import { INK_UI, INK_UI_HEX } from '../../ui/InkUI';
 import { CARD_ICON_SIZE, drawCardIcon } from '../../ui/CardIcons';
@@ -201,9 +203,20 @@ export function renderVersionLine(self: MenuScene): void {
   // Both update states carry an icon at the line's left; the room is spent before the
   // shrink-to-fit so icon and glyphs scale as one thing.
   const maxWidth = GAME_WIDTH - 32 - (ready || installing ? 18 : 0);
-  if (line.width > maxWidth) {
-    line.setScale(maxWidth / line.width);
+  const fit = (): void => {
+    line.setScale(1);
+    if (line.width > maxWidth) {
+      line.setScale(maxWidth / line.width);
+    }
+  };
+  // The percentage rides the downloading sentence: "Downloading version 0.3.1 (current 0.3.0) · 45%".
+  const withPercent = (progress: number | undefined): string => (
+    progress === undefined ? text : `${text}  ·  ${Math.floor(progress * 100)}%`
+  );
+  if (installing) {
+    line.setText(withPercent(getDownloadProgress()));
   }
+  fit();
   self.content.push(line);
 
   // Left of the line either way: half its width off a centred stamp, all of it off a cornered one.
@@ -237,6 +250,41 @@ export function renderVersionLine(self: MenuScene): void {
     });
     arrow.once('destroy', () => drop.stop());
     self.content.push(tray, arrow);
+
+    /**
+     * The bar: a thin rule of ink over the sentence, as long as the sentence, filled as the bytes
+     * land. Only where the download reports how far it has got — a worker or shell that never says
+     * gets the arrow alone, not a bar parked at nothing.
+     *
+     * Updated in place off its own subscription, never by redrawing the page: a download moves a
+     * hundred times, and a front page rebuilt a hundred times restarts every tween on it. Every
+     * position is read back off the line, because the desktop page moves the whole footer after
+     * this function returns.
+     */
+    const bar = self.add.graphics().setData('menuVersionBar', true);
+    const place = (progress: number | undefined): void => {
+      line.setText(withPercent(progress));
+      fit();
+      const left = line.x - line.displayWidth * (corner ? 1 : 0.5);
+      tray.x = left - 11;
+      arrow.x = left - 11;
+      bar.clear();
+      if (progress === undefined) {
+        return;
+      }
+      const top = line.y - line.displayHeight - 4;
+      bar.fillStyle(0x6f6250, 0.18);
+      // In the bar's own space: the desktop page moves the graphics object along with the line.
+      bar.fillRect(left - bar.x, top - bar.y, line.displayWidth, 2.5);
+      bar.fillStyle(0x8a5f1c, 0.95);
+      bar.fillRect(left - bar.x, top - bar.y, Math.max(1.5, line.displayWidth * progress), 2.5);
+    };
+    const unsubscribe = subscribeDownloadProgress(place);
+    bar.once('destroy', unsubscribe);
+    self.content.push(bar);
+    // Drawn once the desktop page has moved the footer into its corner, so the first bar is not
+    // left behind at the phone column's coordinates.
+    self.time.delayedCall(0, () => { if (bar.active) place(getDownloadProgress()); });
   }
 
   if (ready) {

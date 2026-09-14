@@ -128,6 +128,56 @@ export function getIncomingVersion(): string | undefined {
 }
 
 /**
+ * How much of the download is down, 0..1 — or undefined when nothing is downloading, or when the
+ * thing downloading never said (a worker built before it reported, a shell before it forwarded).
+ * Undefined draws no bar rather than a bar stuck at nothing.
+ *
+ * Its own listeners, apart from the status's: a status change redraws whole pages, and a download
+ * moves a hundred times. Whoever draws the bar keeps hold of it and updates it in place.
+ */
+let downloadProgress: number | undefined;
+const progressListeners = new Set<(progress: number | undefined) => void>();
+
+export function getDownloadProgress(): number | undefined {
+  return downloadProgress;
+}
+
+export function subscribeDownloadProgress(listener: (progress: number | undefined) => void): () => void {
+  progressListeners.add(listener);
+  return () => progressListeners.delete(listener);
+}
+
+/** Whole percents only: nobody reads 45.3%, and every notice redraws a line. */
+function setDownloadProgress(next: number | undefined): void {
+  const value = next === undefined || !Number.isFinite(next) ? undefined : Math.min(1, Math.max(0, next));
+  const same = value === undefined || downloadProgress === undefined
+    ? value === downloadProgress
+    : Math.floor(value * 100) === Math.floor(downloadProgress * 100);
+  if (same) {
+    return;
+  }
+  downloadProgress = value;
+  for (const listener of progressListeners) {
+    listener(downloadProgress);
+  }
+}
+
+/** A worker's `{done, total}` in bytes, from a progress post or a `GET_VERSION` reply. */
+function noteWorkerBytes(data: { done?: unknown; total?: unknown } | undefined): void {
+  const done = typeof data?.done === 'number' ? data.done : undefined;
+  const total = typeof data?.total === 'number' ? data.total : undefined;
+  if (done === undefined || total === undefined || total <= 0) {
+    return;
+  }
+  // Only while something is on its way: a late post from a worker that has since finished must
+  // not raise a bar over "Version x ready".
+  if (status !== 'installing' && status !== 'caching') {
+    return;
+  }
+  setDownloadProgress(done / total);
+}
+
+/**
  * Ask a downloading or waiting worker which version it is.
  *
  * Asked on every `refresh` rather than once per worker: a message posted while the script is
@@ -143,6 +193,7 @@ function askIncomingVersion(worker: ServiceWorker | null): void {
   try {
     const channel = new MessageChannel();
     channel.port1.onmessage = (event) => {
+      noteWorkerBytes(event.data);
       const version = typeof event.data?.version === 'string' ? event.data.version : undefined;
       if (version && version !== incomingVersion) {
         incomingVersion = version;
@@ -193,6 +244,17 @@ export function registerShellUpdates(): void {
  * download under way (the front page's "Downloading version …"); the bundle it ends in arrives
  * through `noteShellUpdate`.
  */
+/**
+ * The shell's download, 0..1, called through `window.__gameUpdateProgress` while
+ * `Updates.fetchUpdateAsync` runs. Heard only while the front page says "Downloading".
+ */
+export function noteShellProgress(progress: number): void {
+  if (status !== 'installing' || typeof progress !== 'number') {
+    return;
+  }
+  setDownloadProgress(progress);
+}
+
 export function noteShellCheck(news: string, version?: string): void {
   if (news === 'installing') {
     if (typeof version === 'string' && version.length > 0) {
@@ -223,6 +285,10 @@ function setStatus(next: UpdateStatus): void {
   status = next;
   // "Up to date" was true of the state being left; a new one owes nobody that sentence.
   checkResult = undefined;
+  // A bar belongs to a download. Leaving one — landed, failed, or taken by another tab — ends it.
+  if (next !== 'installing' && next !== 'caching') {
+    setDownloadProgress(undefined);
+  }
   for (const listener of listeners) {
     listener(status);
   }
@@ -257,6 +323,16 @@ export function registerServiceWorker(): void {
       // exactly as it did before service workers, just without the offline copy.
       setStatus('unsupported');
     });
+
+  // The installing worker's byte count (`INSTALL_PROGRESS` in `scripts/sw-template.js`). Started
+  // explicitly: a page's message queue otherwise opens only once the document has finished loading,
+  // and a first visit's install is well under way by then.
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data?.type === 'INSTALL_PROGRESS') {
+      noteWorkerBytes(event.data);
+    }
+  });
+  navigator.serviceWorker.startMessages?.();
 
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!applying) {

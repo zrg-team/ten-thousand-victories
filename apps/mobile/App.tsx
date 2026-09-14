@@ -8,7 +8,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { useKeepAwake } from 'expo-keep-awake';
 import { Asset } from 'expo-asset';
 import { Directory, File, Paths } from 'expo-file-system';
-import { unzip } from 'react-native-zip-archive';
+import { subscribe as subscribeUnzip, unzip } from 'react-native-zip-archive';
 import * as Updates from 'expo-updates';
 import Server, { ERROR_LOG_FILE, STATES, getActiveServerId } from '@dr.pogodin/react-native-static-server';
 
@@ -115,6 +115,11 @@ function updateCheckScript(news: UpdateCheckNews, version?: string): string {
   return `window.__gameUpdateCheck && window.__gameUpdateCheck(${JSON.stringify(news)}, ${JSON.stringify(version ?? '')}); true;`;
 }
 
+/** How far the download has got, 0..1, for the bar under the game's "Downloading version …". */
+function updateProgressScript(progress: number): string {
+  return `window.__gameUpdateProgress && window.__gameUpdateProgress(${JSON.stringify(progress)}); true;`;
+}
+
 function updateReadyScript(version?: string): string {
   return `window.__gameUpdateReady && window.__gameUpdateReady(${JSON.stringify(version ?? '')}); true;`;
 }
@@ -170,6 +175,12 @@ function Shell() {
    */
   const [diary, setDiary] = useState<string[]>([]);
   const [failed, setFailed] = useState(false);
+  /**
+   * How much of the archive is unpacked, 0..1, while the wait view stands over an unpack — the
+   * first launch after an update spends most of its wait here, 43 MB of it. Undefined draws the
+   * dial alone.
+   */
+  const [unpacked, setUnpacked] = useState<number>();
   /** Bumped to run the boot again from the diagnostic's Try again. */
   const [bootKey, setBootKey] = useState(0);
   /** When this boot began, so every diary line carries how long the shell had been at it. */
@@ -291,6 +302,15 @@ function Shell() {
       const root = new Directory(Paths.document, `web-${stamp}`);
       if (!root.exists) {
         note(`unpacking build ${version.build}…`);
+        // Whole percents only: every one is a render of the wait view.
+        let shown = -1;
+        const unpacking = subscribeUnzip(({ progress }) => {
+          const percent = Math.floor(Math.min(1, Math.max(0, progress)) * 100);
+          if (cancelled || percent === shown) return;
+          shown = percent;
+          setUnpacked(percent / 100);
+        });
+        setUnpacked(0);
         try {
           await unzip(asPath(asset.localUri), asPath(root.uri));
         } catch (error) {
@@ -299,6 +319,9 @@ function Shell() {
           try { if (root.exists) root.delete(); } catch { /* nothing to undo */ }
           const reason = error instanceof Error ? error.message : String(error);
           throw new Error(`${reason} — ${source.size} bytes at ${asPath(asset.localUri)}`);
+        } finally {
+          unpacking.remove();
+          if (!cancelled) setUnpacked(undefined);
         }
       }
 
@@ -524,7 +547,17 @@ function Shell() {
       const incoming = manifestVersion(found.manifest);
       downloading = true;
       tell(updateCheckScript('installing', incoming));
-      const fetched = await Updates.fetchUpdateAsync();
+      // The native state machine counts the download; the game draws it. Whole percents only,
+      // because each one is a line of script injected into the page.
+      let told = -1;
+      const progress = Updates.addUpdatesStateChangeListener(({ context }) => {
+        if (!context.isDownloading || typeof context.downloadProgress !== 'number') return;
+        const percent = Math.floor(Math.min(1, Math.max(0, context.downloadProgress)) * 100);
+        if (percent === told) return;
+        told = percent;
+        tell(updateProgressScript(percent / 100));
+      });
+      const fetched = await Updates.fetchUpdateAsync().finally(() => progress.remove());
       if (!fetched.isNew) {
         tell(updateCheckScript('upToDate'));
         return;
@@ -671,8 +704,16 @@ function Shell() {
           <Image source={SPLASH_SEAL} style={styles.progressSeal} resizeMode="contain" accessibilityIgnoresInvertColors />
           <Text style={styles.progressName}>Vạn Thắng</Text>
           <ActivityIndicator color="#8a5f1c" style={styles.progressDial} />
-          <Text style={styles.progressTitle}>Đang chuẩn bị trò chơi…</Text>
+          <Text style={styles.progressTitle}>
+            Đang chuẩn bị trò chơi…{unpacked !== undefined ? ` ${Math.floor(unpacked * 100)}%` : ''}
+          </Text>
           <Text style={styles.progressSub}>Preparing your game</Text>
+          {/* The unpack's own bar: the one long wait here, and a dial alone does not say it ends. */}
+          {unpacked !== undefined ? (
+            <View style={styles.progressTrack}>
+              <View style={[styles.progressFill, { width: `${Math.max(1, unpacked * 100)}%` }]} />
+            </View>
+          ) : null}
         </View>
       ) : null}
     {origin ? (
@@ -790,4 +831,6 @@ const styles = StyleSheet.create({
   progressDial: { marginTop: 22 },
   progressTitle: { color: '#2a2118', fontSize: 16, fontWeight: '600', marginTop: 12 },
   progressSub: { color: '#8a7a60', fontSize: 13, marginTop: 3 },
+  progressTrack: { width: 220, maxWidth: '70%', height: 4, borderRadius: 2, backgroundColor: 'rgba(111, 98, 80, 0.18)', marginTop: 14, overflow: 'hidden' },
+  progressFill: { height: 4, borderRadius: 2, backgroundColor: '#8a5f1c' },
 });

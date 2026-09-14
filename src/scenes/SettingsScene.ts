@@ -4,7 +4,7 @@ import { LAYOUT_RESIZED } from '../game/desktopResize';
 import { applyRenderScale, applyPendingRenderScale, renderScale, requestRenderScale, GRAPHICS_MODES, getGraphicsMode, setGraphicsMode } from '../game/graphicsQuality';
 import { getLanguage, setLanguage, t, type LanguageCode } from '../i18n';
 import { isAscentBetaEnabled, setAscentBetaEnabled } from '../game/betaOptions';
-import { applyUpdate, buildStamp, canCheckForUpdate, checkForUpdate, getUpdateCheckResult, getUpdateStatus, subscribeUpdateStatus } from '../pwa/updates';
+import { applyUpdate, buildStamp, canCheckForUpdate, checkForUpdate, getDownloadProgress, getUpdateCheckResult, getUpdateStatus, subscribeDownloadProgress, subscribeUpdateStatus } from '../pwa/updates';
 import { BACK_BAR_BAND, BACK_BAR_HEIGHT, InkUI, INK_UI, INK_UI_HEX, scrollGestureConsumedTap, type InkScrollArea } from '../ui/InkUI';
 import {
   BATTLE_DIFFICULTIES,
@@ -626,6 +626,25 @@ export class SettingsScene extends Phaser.Scene {
     }).setOrigin(0, 0);
     holder.add(line);
     cursor += line.height;
+
+    // How much of the download is down, while one is on its way: the percentage on the status line
+    // and a bar under it, both updated in place (a download moves a hundred times; the page is
+    // redrawn only when the status changes). Nothing drawn until the download has said how far.
+    if (status === 'installing' || status === 'caching') {
+      const words = line.text;
+      const barY = cursor + 6;
+      let bar: Phaser.GameObjects.Container | undefined;
+      const place = (progress: number | undefined): void => {
+        if (!line.active) return;
+        line.setText(progress === undefined ? words : `${words}  ·  ${Math.floor(progress * 100)}%`);
+        bar?.destroy();
+        bar = progress === undefined ? undefined : this.ui.statBar({ x, y: barY, width, height: 5 }, progress, 1);
+        if (bar) holder.add(bar);
+      };
+      place(getDownloadProgress());
+      holder.once(Phaser.GameObjects.Events.DESTROY, subscribeDownloadProgress(place));
+      cursor += 11;
+    }
 
     // The app's manual check (iOS/Android shell only), offered at rest. A button, not the web's
     // link: in the app it is the one way to ask for an update, and a nine-pixel link beside the
