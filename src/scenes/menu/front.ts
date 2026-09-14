@@ -23,7 +23,6 @@ import { canQuitShell, quitShell } from '../../platform/shell';
 import { QUIT_ROW_HEIGHT, SETTINGS_BLOCK_GAP, SETTINGS_TOP, SUPPORT_ROW_HEIGHT, SUPPORT_TOP, VERSION_EDGE } from './constants';
 import { pageFloor, renderPageHead } from './helpers';
 import { betaBadgeText, betaSaveSuffix } from './betaBadge';
-import { openTrailer } from '../../ui/trailerPlayer';
 import { isAscentBetaEnabled } from '../../game/betaOptions';
 import type { MenuScene } from '../MenuScene';
 
@@ -402,9 +401,8 @@ function renderFooterPair(self: MenuScene, top = SETTINGS_TOP): void {
     { id: 'guide', label: t('guide.menu.button'), icon: 'scroll', onPress: () => self.scene.start('GuideScene') },
     { id: 'history', label: t('history.menu.button'), icon: 'book', onPress: () => self.scene.start('HistoryScene') },
     { id: 'settings', label: t('menu.settings'), icon: 'gear', onPress: () => self.scene.start('SettingsScene') },
-    // Last, and a door of the same tier: the film is reference material about the game, like the
-    // manual beside it. It plays over the menu and returns to it (`ui/trailerPlayer.ts`).
-    { id: 'trailer', label: t('menu.trailer.button'), icon: 'play', onPress: () => openTrailer() },
+    // The trailer was a fourth door here for a round. It lives in the support row now, beside
+    // "help build the game" — it is about the game, not a place in it (`renderSupportRow`).
   ];
   // Measured, then divided, rather than three fixed cells.
   //

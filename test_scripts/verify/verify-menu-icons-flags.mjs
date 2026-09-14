@@ -66,11 +66,13 @@ const supportLayout = (page) => page.evaluate(() => {
 const checkSupportLayout = (layout, language) => {
   const coffee = layout?.links.find((link) => link.id === 'coffee');
   const improve = layout?.links.find((link) => link.id === 'improve');
+  const trailer = layout?.links.find((link) => link.id === 'trailer');
   check(Boolean(layout)
-      && layout.links.length === 2
-      && coffee.y === improve.y
-      && coffee.x < improve.x
+      && layout.links.length === 3
+      && coffee.y === improve.y && improve.y === trailer.y
+      && coffee.x < improve.x && improve.x < trailer.x
       && improve.hitLeft - coffee.hitRight >= 3
+      && trailer.hitLeft - improve.hitRight >= 3
       && !layout.text.some((line) => /or even better|hay hơn nữa/i.test(line)),
     `${language} support actions share one line without the connective phrase`, JSON.stringify(layout));
 };
