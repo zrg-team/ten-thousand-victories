@@ -3235,3 +3235,21 @@ export const HERO_LEAVE_LOYALTY = 25;
 export const HERO_NEGLECT_EVERY = 4;
 export const HERO_NEGLECT_OVERDUE = 1.5;
 export const HERO_NEGLECT_FLOOR = 30;
+
+// ── Provinces that grow by themselves (provinceAutoGrow) — see systems/ascent/ProvinceAutoGrow.ts ──
+/**
+ * Seasons a province waits after an order of its own finishes before it files the next: a governed
+ * province goes straight on to the next thing, an ungoverned one lets the district sit. Measured
+ * before this rule (v2, 4 seeds x 80 seasons): the realm-wide autopilot filed 40-65 orders a run
+ * with 0-1 governors posted, so a governor never mattered to how a province grew; and a hands-on
+ * (desktop) reign filed none at all, its capital sitting on its founding districts while 1-3k gold
+ * piled up.
+ */
+export const AUTOGROW_GAP_GOVERNED = 0;
+export const AUTOGROW_GAP_UNGOVERNED = 4;
+/** An ungoverned province's own orders take this much longer to finish (nobody is driving the works). */
+export const AUTOGROW_TICKS_UNGOVERNED = 1.5;
+/** Orders the provinces may file between them in one season, so a rich realm does not spend its treasury in one tick. */
+export const AUTOGROW_MAX_ORDERS_PER_TICK = 2;
+/** How much more a governed province values what its focus produces when it chooses what to build. */
+export const AUTOGROW_FOCUS_WEIGHT = 1.5;

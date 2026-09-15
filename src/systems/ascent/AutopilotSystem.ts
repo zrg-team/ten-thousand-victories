@@ -1,6 +1,8 @@
 import { effectiveHeroStats } from '../heroes/heroModel';
 import { NEUTRAL_OWNER_ID, PLAYER_KINGDOM_ID } from '../../game/constants';
 import {
+  AUTOGROW_FOCUS_WEIGHT,
+  AUTOGROW_MAX_ORDERS_PER_TICK,
   AUTOBUILD_GOLD_RESERVE,
   AUTOTRIM_BROKE_TICKS,
   AUTOTRIM_GAP_TICKS,
@@ -28,6 +30,14 @@ import {
   targetArmyCount,
 } from '../../game/ascentConfig';
 import {
+  autoGrowActive,
+  autoGrowReady,
+  landAutoGrows,
+  landGovernor,
+  stampAutoOrder,
+} from './ProvinceAutoGrow';
+import {
+  getLandSpecialization,
   applyResourceDelta,
   ascentArmyUpkeep,
   buildDistrictBuilding,
@@ -221,6 +231,92 @@ function autoUpgrade(state: GameState): boolean {
 
   if (!best) return false;
   return upgradeDistrictBuilding(state, best.landId, best.index);
+}
+
+/** The resource each focus is chosen for, as a governor reads it when choosing what to build. */
+const FOCUS_RESOURCE: Partial<Record<string, 'gold' | 'food' | 'supplies'>> = {
+  breadbasket: 'food',
+  populous: 'food',
+  mining: 'supplies',
+  garrison: 'supplies',
+  fortress: 'supplies',
+  trade: 'gold',
+};
+
+/** Flat worth of a season's output to a province nobody governs: no shortage, doctrine or focus read. */
+const NAIVE_WEIGHTS: Record<'gold' | 'food' | 'supplies' | 'humans', number> = { gold: 3, food: 1, supplies: 2.5, humans: 0.4 };
+
+/**
+ * What the province with nobody at its seat, or its governor, would file next (provinceAutoGrow).
+ *
+ * The governor reads the realm: shortages and doctrine (`outputWeights`), the province's own focus
+ * (`AUTOGROW_FOCUS_WEIGHT` on what the focus is for), a wave bearing down, and weighs new districts
+ * and upgrades together. An ungoverned province values every resource flat, never reads the threat,
+ * and only improves a district when there is nothing new it can raise.
+ */
+function provinceChoice(state: GameState, land: Land, governed: boolean):
+  | { kind: 'build'; type: LandBuildingType; score: number }
+  | { kind: 'upgrade'; index: number; score: number }
+  | undefined {
+  const isCapital = land.id === state.ascent?.capitalLandId;
+  const weight = governed ? { ...outputWeights(state) } : { ...NAIVE_WEIGHTS };
+  if (governed) {
+    const focusResource = FOCUS_RESOURCE[getLandSpecialization(land)];
+    if (focusResource) weight[focusResource] *= AUTOGROW_FOCUS_WEIGHT;
+  }
+  const defensive = governed && underPressure(state);
+  const doctrineMult = governed ? doctrineDefenceMult(state) : 1;
+
+  let best: { kind: 'build'; type: LandBuildingType; score: number } | { kind: 'upgrade'; index: number; score: number } | undefined;
+  for (const option of getBuildOptions(state, land)) {
+    if (!option.canBuild) continue;
+    const score = optionScore(option, defensive, isCapital, weight, doctrineMult);
+    if (score > 0 && (!best || score > best.score)) best = { kind: 'build', type: option.type, score };
+  }
+  if (best && !governed) return best;
+  const upgrades = getUpgradeOptions(state, land);
+  for (let index = 0; index < upgrades.length; index += 1) {
+    const option = upgrades[index];
+    if (!option.canUpgrade) continue;
+    const score = optionScore(option, defensive, isCapital, weight, doctrineMult);
+    if (score > 0 && (!best || score > best.score)) best = { kind: 'upgrade', index, score };
+  }
+  return best;
+}
+
+/**
+ * Each province that grows by itself files its own next order (provinceAutoGrow), governed ones
+ * first, while the treasury stands above the reserve. At most `AUTOGROW_MAX_ORDERS_PER_TICK` a
+ * season between them. Returns the orders filed, split into builds and upgrades.
+ */
+function autoGrowProvinces(state: GameState, reserve: number): { builds: number; upgrades: number } {
+  const filed = { builds: 0, upgrades: 0 };
+  const lands = playerLands(state)
+    .filter((land) => landAutoGrows(state, land) && autoGrowReady(state, land) && !getBuildOrder(state, land.id))
+    .map((land) => ({ land, governed: Boolean(landGovernor(state, land)) }))
+    // Governed seats choose first, then the capital, then the realm's own order — stable, no draw.
+    .sort((a, b) => Number(b.governed) - Number(a.governed)
+      || Number(b.land.id === state.ascent?.capitalLandId) - Number(a.land.id === state.ascent?.capitalLandId));
+  for (const { land, governed } of lands) {
+    if (filed.builds + filed.upgrades >= AUTOGROW_MAX_ORDERS_PER_TICK) break;
+    if (state.resources.gold <= reserve) break;
+    const choice = provinceChoice(state, land, governed);
+    if (!choice) continue;
+    const ok = choice.kind === 'build'
+      ? buildDistrictBuilding(state, land.id, choice.type)
+      : upgradeDistrictBuilding(state, land.id, choice.index);
+    if (!ok) continue;
+    stampAutoOrder(state, land);
+    if (choice.kind === 'build') filed.builds += 1;
+    else filed.upgrades += 1;
+  }
+  return filed;
+}
+
+/** Gold the builders leave alone: a minimum host's price, eight seasons of any deficit, four of the wages. */
+function buildReserveOf(state: GameState): number {
+  const wageBill = heroPayroll(state) + ascentArmyUpkeep(state).gold + getTotalArmyGoldUpkeepAscent(state);
+  return Math.max(AUTOBUILD_GOLD_RESERVE * realmIncomeScale(state), -state.resourceRates.gold * 8, wageBill * 4);
 }
 
 function armySize(army: { units: { spearmen: number; archers: number; heavyInfantry: number } }): number {
@@ -800,6 +896,12 @@ export function tickAscentAutopilot(state: GameState): void {
   if (!ascent) return;
   // Hands-on rule (tự tay cai trị): the hosts still hold their own ground, and nothing else moves without an order.
   if (ascent.hardcore) {
+    // Provinces the player has told to grow by themselves still do (provinceAutoGrow).
+    if (autoGrowActive(state)) {
+      const filed = autoGrowProvinces(state, buildReserveOf(state));
+      ascent.autopilotStats.builds += filed.builds;
+      ascent.autopilotStats.upgrades += filed.upgrades;
+    }
     autoDefend(state);
     return;
   }
@@ -840,7 +942,12 @@ export function tickAscentAutopilot(state: GameState): void {
    */
   const musterStanding = state.pendingAscentPrompt?.kind === 'muster-proposal'
     || ascent.promptQueue.some((prompt) => prompt.kind === 'muster-proposal');
-  if (!musterStanding && state.resources.gold > buildReserve) {
+  if (!musterStanding && autoGrowActive(state)) {
+    // Each province builds for itself, at its governor's pace (provinceAutoGrow).
+    const filed = autoGrowProvinces(state, buildReserve);
+    ascent.autopilotStats.builds += filed.builds;
+    ascent.autopilotStats.upgrades += filed.upgrades;
+  } else if (!musterStanding && state.resources.gold > buildReserve) {
     if (autoBuild(state)) {
       ascent.autopilotStats.builds += 1;
     } else if (autoUpgrade(state)) {
