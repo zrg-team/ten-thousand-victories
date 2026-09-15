@@ -49,6 +49,11 @@ const SEAM = Number(params.get('seam')) || 272;
 const SEAM_SHORT = Number(params.get('seamShort')) || 140;
 const SRC_W = Number(params.get('src')) || 1170;   // what the capture stage hands us
 const LANDSCAPE = W > H;
+/**
+ * Which kind of trailer this is. `release` ends on the QR to the play page; `prerelease` ends on a
+ * "coming soon" seal instead — no code, no door, for showing the game before it is out.
+ */
+const KIND = params.get('kind') || 'release';
 const canvas = document.getElementById('sheet');
 canvas.width = W;
 canvas.height = H;
@@ -435,6 +440,243 @@ function endCard(alpha, lang) {
   signature(W / 2, top + 900, 'center', alpha);
 }
 
+/**
+ * The prerelease card's words. The pitch and the question are the play card's own; what replaces the
+ * code is a single seal that says the day is not here yet.
+ */
+function prereleaseWords(lang) {
+  return lang === 'vi'
+    ? {
+      pitch: ['Lịch sử Việt Nam,', 'trong tay bạn.'],
+      ask: 'Triều đại của bạn đi được bao xa?',
+      seal: 'SẮP RA MẮT',
+    }
+    : {
+      pitch: ['Vietnamese history,', 'in your hands.'],
+      ask: 'How far would your reign get?',
+      seal: 'COMING SOON',
+    };
+}
+
+/**
+ * The seal: a son chop with the words knocked out in paper, set a degree off square the way a hand
+ * stamps it. Sized by its lettering, so either language fills it without a fixed box to overflow.
+ */
+function seal(cx, cy, text, size, alpha, maxWidth) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  const setFont = () => {
+    ctx.font = `700 ${size}px "Source Serif 4", Georgia, serif`;
+    ctx.letterSpacing = `${Math.round(size * 0.14)}px`;
+  };
+  setFont();
+  let width = ctx.measureText(text).width;
+  if (maxWidth && width + size * 1.8 > maxWidth) {
+    size = Math.floor(size * (maxWidth / (width + size * 1.8)));
+    setFont();
+    width = ctx.measureText(text).width;
+  }
+  const w = Math.round(width + size * 1.8);
+  const h = Math.round(size * 2.3);
+  ctx.translate(cx, cy);
+  ctx.rotate(-0.025);
+  ctx.fillStyle = PIGMENT.son;
+  ctx.fillRect(-w / 2, -h / 2, w, h);
+  ctx.strokeStyle = PIGMENT.diepHi;
+  ctx.lineWidth = Math.max(2, Math.round(size * 0.06));
+  const inset = Math.round(size * 0.22);
+  ctx.strokeRect(-w / 2 + inset, -h / 2 + inset, w - inset * 2, h - inset * 2);
+  ctx.fillStyle = PIGMENT.diepHi;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // letterSpacing trails the last glyph too; shift by half a space so the word sits centred.
+  ctx.fillText(text, Math.round(size * 0.07), Math.round(size * 0.04));
+  ctx.restore();
+}
+
+/**
+ * The front page's wordmark: black brush on white, laid on with `multiply` so the white drops into
+ * the paper. The same file the store kit's closing card uses.
+ */
+const wordmark = new Image();
+const wordmarkReady = new Promise((resolve) => {
+  wordmark.onload = () => resolve(true);
+  wordmark.onerror = () => resolve(false);
+  wordmark.src = '/art/menu-wordmark-dongho-v2.webp';
+});
+
+/**
+ * The prerelease film's hand of cards: the store kit's closing card (`06-closer.png`), in its order,
+ * each screen with the row it is cut at. The sources are the trailer frames the store kit keeps in
+ * `apps/mobile/store/gameplay/<lang>/`, so the Vietnamese film fans Vietnamese screens.
+ */
+const FAN = [['draft', 2080], ['invasion', 2080], ['battle', 2080], ['deck', 1710], ['summon', 2080]];
+const FAN_ROWS = 2080;
+const fanCache = new Map();
+function fanImages(lang) {
+  const key = lang === 'vi' ? 'vi' : 'en';
+  if (!fanCache.has(key)) {
+    fanCache.set(key, Promise.all(FAN.map(([id]) => new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = `/apps/mobile/store/gameplay/${key}/${id}.jpg`;
+    }))));
+  }
+  return fanCache.get(key);
+}
+
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
+const easeOutCubic = (u) => 1 - Math.pow(1 - u, 3);
+const easeOutBack = (u) => 1 + 2.2 * Math.pow(u - 1, 3) + 1.2 * Math.pow(u - 1, 2);
+
+/**
+ * One game screen as a framed print, centred on the current origin: a soot edge, the screen down to
+ * `rows`, and when that is shorter than the set, its own last row stretched so every card is the
+ * same height. Same construction as the store kit's `screenPrint`.
+ */
+function screenCard(img, rows, cardW, alpha) {
+  const s = cardW / img.width;
+  const h = FAN_ROWS * s;
+  const edge = Math.max(3, Math.round(cardW * 0.009));
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.shadowColor = 'rgba(40,20,10,0.42)';
+  ctx.shadowBlur = cardW * 0.09;
+  ctx.shadowOffsetY = cardW * 0.025;
+  ctx.fillStyle = PIGMENT.muc;
+  ctx.fillRect(-cardW / 2 - edge, -h / 2 - edge, cardW + edge * 2, h + edge * 2);
+  ctx.restore();
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.drawImage(img, 0, 0, img.width, rows, -cardW / 2, -h / 2, cardW, rows * s);
+  if (FAN_ROWS > rows) {
+    ctx.drawImage(img, 0, rows - 2, img.width, 1, -cardW / 2, -h / 2 + rows * s - 1, cardW, (FAN_ROWS - rows) * s + 1);
+  }
+  ctx.restore();
+}
+
+/**
+ * The prerelease film's last shot, drawn whole rather than laid over the front page.
+ *
+ * The wordmark comes up first; the five screens rise into the middle as one stacked deck and then
+ * fan out from behind the centre card, the way the store's closing card holds them; then the words
+ * and the seal. Portrait stacks brand, fan, words. Landscape sets brand and words in a left column
+ * and gives the fan the right, where the front page's hanging scroll used to stand.
+ *
+ * `t` is seconds into the end cut.
+ */
+async function closingSheet(t, lang) {
+  const imgs = await fanImages(lang);
+  const say = prereleaseWords(lang);
+  const L = LANDSCAPE;
+
+  ctx.fillStyle = PIGMENT.diep;
+  ctx.fillRect(0, 0, W, H);
+
+  const colW = L ? Math.round(W * 0.42) : W;
+  const colX = L ? Math.round(W * 0.225) : W / 2;
+
+  // ── brand ──
+  const brandIn = easeOutCubic(clamp01((t - 0.1) / 0.6));
+  const markW = L ? 560 : 760;
+  const markH = wordmark.naturalWidth ? (markW * wordmark.naturalHeight) / wordmark.naturalWidth : 0;
+  const subSize = L ? 24 : 32;
+  const wordsH = 520;   // landscape: the column below the brand, so brand + words centre as a block
+  const markY = L ? Math.round((H - (markH + subSize * 2.2 + wordsH)) / 2) : 96;
+  if (markH) {
+    ctx.save();
+    ctx.globalAlpha = brandIn;
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(wordmark, colX - markW / 2, markY - (1 - brandIn) * 18, markW, markH);
+    ctx.restore();
+  }
+  const subY = markY + markH + subSize * 1.5;
+  ctx.save();
+  ctx.globalAlpha = brandIn;
+  ctx.font = `600 ${subSize}px "Be Vietnam Pro", system-ui, sans-serif`;
+  ctx.letterSpacing = `${Math.round(subSize * 0.32)}px`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = PIGMENT.mucSoft;
+  ctx.fillText('TEN THOUSAND VICTORIES', colX + subSize * 0.16, subY);
+  ctx.restore();
+
+  // ── the fan ──
+  const fanTop = L ? 60 : subY + 56;
+  const fanBottom = L ? H - 60 : fanTop + 790;
+  const cardH = (fanBottom - fanTop) * (L ? 0.8 : 0.86);
+  const cardW = Math.min((cardH * 1170) / FAN_ROWS, L ? (W - colW) / 3.1 : W / 2.1);
+  const realH = (FAN_ROWS * cardW) / 1170;
+  const stepX = cardW * (L ? 0.46 : 0.44);
+  const fanCx = L ? colW + (W - colW) / 2 - 20 : W / 2;
+  const fanCy = (fanTop + fanBottom) / 2;
+  const centre = (FAN.length - 1) / 2;
+  // The deck rises into the middle as one stack, then each card slides out from behind the centre
+  // one — outer cards a beat later, so the hand opens rather than snapping into place.
+  const arrive = easeOutCubic(clamp01((t - 0.25) / 0.6));
+  const order = FAN.map((_, i) => i).sort((a, b) => Math.abs(b - centre) - Math.abs(a - centre));
+  for (const i of order) {
+    const img = imgs[i];
+    if (!img || arrive <= 0) continue;
+    const off = i - centre;
+    const spread = easeOutBack(clamp01((t - 0.85 - Math.abs(off) * 0.07) / 0.9));
+    const scale = (0.86 + 0.14 * arrive) * (1 - Math.abs(off) * 0.08 * spread);
+    ctx.save();
+    ctx.translate(fanCx + off * stepX * spread, fanCy + (1 - arrive) * 90 + Math.abs(off) * realH * 0.05 * spread);
+    ctx.rotate(((off * (L ? 6 : 7) * Math.PI) / 180) * spread);
+    ctx.scale(scale, scale);
+    screenCard(img, FAN[i][1], cardW, arrive);
+    ctx.restore();
+  }
+
+  // ── the words ──
+  const wordsIn = easeOutCubic(clamp01((t - 1.7) / 0.7));
+  const lift = (1 - wordsIn) * 18;
+  const base = (L ? subY + 44 : fanBottom + 16) + lift;
+  const k = L ? 0.92 : 1;
+  const at = (n) => base + n * k;
+  if (wordsIn > 0) {
+    ctx.save();
+    ctx.globalAlpha = wordsIn;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = PIGMENT.muc;
+    ctx.font = `700 ${L ? 50 : 52}px "Source Serif 4", Georgia, serif`;
+    ctx.fillText(say.pitch[0], colX, at(44));
+    ctx.fillText(say.pitch[1], colX, at(104));
+    ctx.fillStyle = PIGMENT.mucSoft;
+    ctx.font = `400 ${L ? 30 : 38}px "Be Vietnam Pro", system-ui, sans-serif`;
+    ctx.fillText(say.ask, colX, at(170));
+    ctx.fillStyle = PIGMENT.son;
+    ctx.fillRect(colX - 80, at(212), 160, 4);
+    ctx.restore();
+  }
+
+  // The seal lands last, pressed down onto the sheet: a touch large, settling to its size.
+  const stamp = clamp01((t - 2.3) / 0.35);
+  if (stamp > 0) {
+    ctx.save();
+    ctx.translate(colX, at(306));
+    const press = 1 + (1 - easeOutCubic(stamp)) * 0.35;
+    ctx.scale(press, press);
+    seal(0, 0, say.seal, L ? 38 : 50, Math.min(1, stamp * 1.6), L ? colW - 80 : W - 160);
+    ctx.restore();
+  }
+
+  if (wordsIn > 0) {
+    ctx.save();
+    ctx.globalAlpha = wordsIn * 0.75;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = PIGMENT.mucSoft;
+    ctx.font = `italic 600 ${L ? 28 : 34}px "Source Serif 4", Georgia, serif`;
+    ctx.fillText('Nam quốc sơn hà Nam đế cư.', colX, at(420));
+    ctx.restore();
+    signature(colX, at(522), 'center', wordsIn, L ? 0.9 : 1);
+  }
+}
+
 /** Where the code points: one page, three doors — the browser, Play, the App Store. */
 const PLAY_URL = 'https://zrg-team.github.io/ten-thousand-victories/play/';
 
@@ -583,6 +825,18 @@ function intro(alpha) {
  * ever softening a letter.
  */
 window.__compose = async (spec) => {
+  if (KIND === 'prerelease' && spec.endTime !== undefined) {
+    // The prerelease film ends on its own sheet, not on a photograph of the front page.
+    await closingSheet(spec.endTime, spec.lang);
+    if (spec.fade > 0) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, spec.fade);
+      ctx.fillStyle = PIGMENT.diep;
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+    }
+    return canvas.toDataURL('image/jpeg', 0.94);
+  }
   if (spec.frame !== loaded) await load(spec.frame);
   const zoom = spec.zoom ?? 1;
   const cropW = SRC_W / zoom;
@@ -630,14 +884,15 @@ window.__compose = async (spec) => {
  * Passing text is what makes the loader fetch the range that covers it. Every size the film sets
  * is listed because `fonts.load` matches on the whole shorthand, not just the family.
  */
-const VIET = 'VẠN THẮNG đêểọụỹ Cố thủ Thúc quân Lịch sử Việt Nam';
+const VIET = 'VẠN THẮNG đêểọụỹ Cố thủ Thúc quân Lịch sử Việt Nam SẮP RA MẮT';
 await emblemReady;
 await authorReady;
+await wordmarkReady;
 await document.fonts.ready;
 await Promise.all([
-  ...['700 118px', '700 56px', '700 48px', '700 42px', '600 54px', '600 46px', 'italic 600 36px']
+  ...['700 118px', '700 58px', '700 52px', '700 50px', '700 64px', '700 56px', '700 48px', '700 42px', '700 40px', '700 38px', '600 54px', '600 46px', 'italic 600 36px']
     .map((face) => document.fonts.load(`${face} "Source Serif 4"`, VIET)),
-  ...['600 44px', '600 40px', '400 40px', '400 38px', '400 32px', '400 36px']
+  ...['600 44px', '600 40px', '600 32px', '600 24px', '400 40px', '400 38px', '400 32px', '400 36px']
     .map((face) => document.fonts.load(`${face} "Be Vietnam Pro"`, VIET)),
 ]);
 window.__composeReady = true;
