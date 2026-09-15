@@ -24,8 +24,13 @@
  * prices by several times, and the round is the part of difficulty they do not see.
  *
  * Never used on a per-season effect (`stipend`, `debt`, `exactTribute`): a recurring sum stacks
- * against a growing realm on its own, which is how a card becomes an engine. Nor on a mixed-sign
- * bag — an exchange rate the author wrote stays the rate they wrote.
+ * against a growing realm on its own, which is how a card becomes an engine. A mixed-sign bag — an
+ * exchange rate the author wrote — keeps its rate: under par prices both sides wear one factor
+ * (`tradeBagScale`), otherwise it lands as written.
+ *
+ * **Par prices** (v2, `parPrices`) carry the round inside the purse, so `roundScale` is 1 there, and
+ * add the purse itself: a coin cost is never less than `treasuryWeighted` — reported as a 40-gold
+ * story charging 64 to a realm holding 4,700.
  *
  * A leaf over `priceScale`, the ruleset registry and the config.
  */
