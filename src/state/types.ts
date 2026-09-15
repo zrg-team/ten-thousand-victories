@@ -117,6 +117,13 @@ export interface Land {
   /** Season the focus was last set (Dragon Ascent), so a fresh choice is given time to work. */
   focusSetTurn?: number;
   /**
+   * Whether the province builds and upgrades its own districts (provinceAutoGrow). Absent means the
+   * reign's default: on where the autopilot runs, off on a hands-on reign. See `ProvinceAutoGrow.ts`.
+   */
+  autoGrow?: boolean;
+  /** The season from which the province may file its next order of its own. */
+  autoGrowReadyTurn?: number;
+  /**
    * How far this province actually obeys the throne's standing law, 0–100 (empire/ascent only).
    *
    * Not the same thing as `loyalty`, and the difference is the point: loyalty is whether they want
@@ -1030,6 +1037,8 @@ export interface BuildOrder {
   buildingIndex?: number;
   progress: number;
   required: number;
+  /** Filed by the province itself (provinceAutoGrow), not by the player. */
+  auto?: boolean;
 }
 
 /** An in-progress training order: a new army being assembled at `landId` over several ticks. */

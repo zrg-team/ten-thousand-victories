@@ -37,6 +37,8 @@ import { GLUT_WARN_BELOW, PAR_HOARD_FREE_SEASONS, STORE_WASTE_RATE } from '../..
 import { waterTradeActive, waterTradeBonus, watersideHexes } from '../../../systems/ascent/WaterTrade';
 import { priceBreakdown } from '../../../systems/ascent/priceScale';
 import { landTradeNetworkBonus } from '../../../systems/ResourceSystem';
+import { autoGrowActive, autoGrowPace, landAutoGrows, landGovernor, setLandAutoGrow } from '../../../systems/ascent/ProvinceAutoGrow';
+import { AUTOGROW_GAP_UNGOVERNED, AUTOGROW_TICKS_UNGOVERNED } from '../../../game/ascentConfig';
 import { buildFocusRows, focusTitle } from '../../../ui/focusPanel';
 import { buildGovernorRows } from '../../../ui/governorPanel';
 import { buildHeroPickerRows } from '../../../ui/heroPickerRows';
@@ -464,7 +466,7 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
   if (buildOrder) {
     addRow({
       title: t('ascent.screen.building', { n: Math.max(0, buildOrder.required - buildOrder.progress) }),
-      subtitle: t('ascent.screen.buildingHint'),
+      subtitle: buildOrder.auto ? t('ascent.autoGrow.ownOrder') : t('ascent.screen.buildingHint'),
       border: INK_UI.gold,
       muted: true,
     });
@@ -494,6 +496,7 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
     },
     candidates.length > 0 ? () => showGovernorPicker(self, land.id) : undefined,
   );
+  addAutoGrowRow(self, addRow, land.id, () => self.replaceLanePage(() => showBuildOptions(self, land.id)));
 
   addHeading(t('land.section.focus'), t('focus.headingHint'));
   for (const row of buildFocusRows(state, land)) {
@@ -606,6 +609,10 @@ export function showFocusPicker(self: ConquestUIScene, landId: string): void {
     { back: () => self.replaceLanePage(() => showBuildOptions(self, landId)) },
   );
 
+  if (autoGrowActive(state)) {
+    addHeading(t('ascent.autoGrow.heading'));
+    addAutoGrowRow(self, addRow, land.id, () => self.replaceLanePage(() => showFocusPicker(self, landId)));
+  }
   addHeading(t('land.section.focus'));
   for (const row of buildFocusRows(state, land)) {
     addRow(
@@ -628,6 +635,45 @@ ${row.suitLine}`,
     );
   }
   finish();
+}
+
+/**
+ * Tự phát triển — the province's own "grow by itself" switch (provinceAutoGrow), with what it means
+ * for this province right now: a governor who drives the works, or nobody, and how much slower and
+ * blinder that makes it. Nothing is drawn without the rule.
+ */
+function addAutoGrowRow(
+  self: ConquestUIScene,
+  addRow: ReturnType<ConquestUIScene['laneList']>['addRow'],
+  landId: string,
+  reopen: () => void,
+): void {
+  const state = self.state;
+  const land = state.lands.find((candidate) => candidate.id === landId);
+  if (!land || !autoGrowActive(state) || land.ownerId !== PLAYER_KINGDOM_ID) return;
+  const on = landAutoGrows(state, land);
+  const governor = landGovernor(state, land);
+  const pace = autoGrowPace(state, land);
+  const subtitle = !on
+    ? t('ascent.autoGrow.off')
+    : governor
+      ? t('ascent.autoGrow.onGoverned', { hero: heroName(governor) })
+      : t('ascent.autoGrow.onUngoverned', {
+          gap: AUTOGROW_GAP_UNGOVERNED,
+          pct: Math.round((AUTOGROW_TICKS_UNGOVERNED - 1) * 100),
+        });
+  addRow(
+    {
+      title: `${on ? '☑' : '☐'}  ${t('ascent.autoGrow.title')}`,
+      subtitle,
+      border: !on ? INK_UI.softBrush : pace.governed ? INK_UI.jade : INK_UI.gold,
+    },
+    () => {
+      setLandAutoGrow(state, land.id, !on);
+      reopen();
+      self.refresh();
+    },
+  );
 }
 
 export function showGovernorPicker(self: ConquestUIScene, landId: string): void {

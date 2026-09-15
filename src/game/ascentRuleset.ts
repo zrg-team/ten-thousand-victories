@@ -168,6 +168,14 @@ export interface AscentRuleset {
   readonly upkeepRound: boolean;
   /** heroRaises — champions ask for more pay by level, deeds and temperament; a proud one refused again and again may leave. */
   readonly heroRaises: boolean;
+  /**
+   * provinceAutoGrow — each province carries its own "grow by itself" switch instead of one
+   * realm-wide autopilot builder. On by default where the autopilot ran (phones), off on a
+   * hands-on reign (desktop), and either can be flipped per province. A governor makes it grow
+   * sooner and choose better; an ungoverned province waits between orders, builds slower and
+   * chooses naively. See `systems/ascent/ProvinceAutoGrow.ts`.
+   */
+  readonly provinceAutoGrow: boolean;
 }
 // strikeSizing, measured and NOT adopted for v2 (verify-skill-ceiling, 16 dev seeds, goal at
 // capital + 2, 2026-09-13; beta baseline: raw spread 1.31×, paired 78%, agency 1.60×):
@@ -234,6 +242,7 @@ const V1: AscentRuleset = {
   parPrices: false,
   upkeepRound: false,
   heroRaises: false,
+  provinceAutoGrow: false,
 };
 
 /** V2 — V1 plus everything the beta proved. Spread, so a field V2 does not name reads as V1. */
@@ -279,6 +288,7 @@ const V2: AscentRuleset = {
   parPrices: true,
   upkeepRound: true,
   heroRaises: true,
+  provinceAutoGrow: true,
 };
 
 declare global {
