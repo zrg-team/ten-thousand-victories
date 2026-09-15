@@ -70,11 +70,21 @@ const VIEW = SURFACES[SURFACE] ?? SURFACES.phone;
 const view = () => ({ ...VIEW, lang: LANG });
 
 const LANG = arg('--lang', 'en');
-const SUFFIX = `${SURFACE === 'phone' ? '' : `-${SURFACE}`}${LANG === 'en' ? '' : `-${LANG}`}`;
-const RAW = arg('--frames', `scripts/trailer/out/raw${SUFFIX}`);
+/**
+ * Which kind of trailer: `release` (ends on the QR to the play page) or `prerelease` (no code — a
+ * "coming soon" seal, for showing the game before it is out). Only the compositor draws the end card,
+ * so the prerelease cut reads the release cut's raw frames and only ever composes and encodes: it
+ * never recaptures (the raw frames belong to the release cut) and makes no GIF. Its only outputs are
+ * `out/composed*-prerelease/` and `out/van-thang-trailer*-prerelease-*.mp4`.
+ */
+const KIND = arg('--kind', 'release');
+const CAPTURE_SUFFIX = `${SURFACE === 'phone' ? '' : `-${SURFACE}`}${LANG === 'en' ? '' : `-${LANG}`}`;
+const SUFFIX = `${CAPTURE_SUFFIX}${KIND === 'release' ? '' : `-${KIND}`}`;
+const RAW = arg('--frames', `scripts/trailer/out/raw${CAPTURE_SUFFIX}`);
 const COMPOSED = `scripts/trailer/out/composed${SUFFIX}`;
 const OUT = arg('--out', `scripts/trailer/out/van-thang-trailer${SUFFIX}-${VIEW.out[0]}x${VIEW.out[1]}.mp4`);
 const GIF = arg('--gif', `docs/readme/trailer${SUFFIX}.gif`);
+const PRERELEASE = KIND === 'prerelease';
 
 // The capture surface. 360x640 CSS at 3.25x gives 1170x2080 device pixels, and the game's own
 // design surface resolves to 390x693 there — a 9:16 sheet, so the trailer is full bleed with no
@@ -868,6 +878,7 @@ function spec(cut, i, total, frame, ripple, timeline = []) {
   if (cut.end) {
     // The card comes up over the front page rather than replacing it.
     out.end = Math.min(1, Math.max(0, (time - 0.5) / 0.9));
+    out.endTime = time;   // the prerelease film animates its closing sheet off this
     out.lang = LANG;
   }
   return out;
@@ -905,7 +916,7 @@ async function compose() {
       Object.defineProperty(Location.prototype, 'reload', { value: () => {}, configurable: true });
     } catch { /* the socket block is the load-bearing half */ }
   });
-  await page.goto(`${URL}/scripts/trailer/compose.html?w=${VIEW.out[0]}&h=${VIEW.out[1]}&seam=${VIEW.seam}&seamShort=${VIEW.seamShort}&src=${VIEW.width * VIEW.scale}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${URL}/scripts/trailer/compose.html?w=${VIEW.out[0]}&h=${VIEW.out[1]}&seam=${VIEW.seam}&seamShort=${VIEW.seamShort}&src=${VIEW.width * VIEW.scale}&kind=${KIND}`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.__composeReady === true, null, { timeout: 30000 });
 
   const started = Date.now();
@@ -1127,7 +1138,11 @@ async function gif() {
 
 // ────────────────────────────────────────────────────────────────────────────────────────────────
 
-if (STAGE === 'capture' || STAGE === 'all') await capture();
+if (PRERELEASE && (STAGE === 'capture' || STAGE === 'gif')) {
+  console.error(`--kind prerelease only composes and encodes; it has no ${STAGE} stage.`);
+  process.exit(1);
+}
+if (!PRERELEASE && (STAGE === 'capture' || STAGE === 'all')) await capture();
 if (STAGE === 'compose' || STAGE === 'all') await compose();
 if (STAGE === 'encode' || STAGE === 'all') await encode();
-if (STAGE === 'gif' || STAGE === 'all') await gif();
+if (!PRERELEASE && (STAGE === 'gif' || STAGE === 'all')) await gif();

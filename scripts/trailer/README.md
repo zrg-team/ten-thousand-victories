@@ -40,6 +40,27 @@ node scripts/trailer/build-trailer.mjs --stage gif         # rebuild the README'
 node scripts/trailer/build-trailer.mjs --only shapes,press  # one chapter, while tuning it
 ```
 
+## The prerelease trailer: no code, "coming soon"
+
+```sh
+node scripts/trailer/build-trailer.mjs --kind prerelease   # -> out/van-thang-trailer-prerelease-1080x1920.mp4
+```
+
+For showing the game before there is anywhere to send people. The last shot is not the front page:
+`closingSheet` in `compose.html` draws its own paper sheet, modelled on the store's closing card
+(`apps/mobile/store/ios/screenshots/iphone-6.9/06-closer.png`). The wordmark comes up, then the five
+screens that card uses (`apps/mobile/store/gameplay/<lang>/`) rise into the middle as one stacked deck
+and fan out. The pitch and the question follow, and last a son seal is pressed down reading
+**COMING SOON** (**SẮP RA MẮT** in the Vietnamese cut). There is no QR. Portrait stacks brand, fan
+and words; landscape puts brand and words in a left column and the fan on the right. The words are
+in `prereleaseWords`.
+
+Only the compositor draws the end card, so `--kind prerelease` reads the release cut's raw frames
+(`out/raw*`, so capture the release cut first) and only composes and encodes. It never recaptures
+and makes no GIF, and everything it writes is named `-prerelease` inside `scripts/trailer/out/`, so
+the release trailer and the README GIFs are never touched. Combine it with `--surface` and `--lang`
+as usual.
+
 ## Two surfaces, two films
 
 ```sh
