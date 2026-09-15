@@ -35,6 +35,7 @@ import { resolvePendingBattle } from '../systems/empire/InvasionSystem';
 import { SHEET_TOP } from '../ui/BottomSheet';
 import { createMapRenderer, type MapRenderer } from '../ui/MapRenderer';
 import { applyPaperFX } from '../ui/ink/PaperFX';
+import { applyDepthFX } from '../ui/ink/DepthFX';
 import { type ProgressBadgeVariant, createMapItemRenderer, LABEL_KEEP_OUT, type MapItemRenderer } from '../ui/MapItemRenderer';
 /** Map badges (build, siege, battle, claim) are drawn at 1.8× the renderers' thirty units — a third larger was still reported as small. */
 const MAP_BADGE_SCALE = 1.8;
@@ -621,6 +622,8 @@ export class MapScene extends Phaser.Scene {
     // And its place on the sheet: the whole of it. On the desktop the sheet is wider than the
     // chrome column, and this is the camera that fills it. A no-op on the phone.
     applyCameraLayout(this, renderScaleNow());
+    // The Settings page's map depth filter: on this camera only, so the HUD drawn over it stays sharp.
+    applyDepthFX(this);
     window.__mandateState = this.state;
     this.registry.set('gameState', this.state);
     this.mapRenderer = createMapRenderer(this);
