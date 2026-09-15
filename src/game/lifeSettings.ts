@@ -13,6 +13,7 @@
  * Read at spawn time, not per frame: nothing here is consulted in a hot loop, and changing a
  * setting restarts the scene that owns the props it governs.
  */
+import { layoutKind } from '../platform/layout';
 
 export type TrafficDensity = 'none' | 'few' | 'normal' | 'busy';
 
@@ -36,11 +37,21 @@ export interface LifeSettings {
    * a toll on the twentieth run and a hazard for anyone motion-sensitive.
    */
   motion: MotionLevel;
+  /**
+   * The map breathing — kitchen smoke over the villages, wind combing the paddies, the water's
+   * glints, waves and the odd boat, smoke over a live fight (`MapLifeRenderer`). Desktop layout
+   * only: see `mapLifeLevel`.
+   */
+  mapLife: MapLifeLevel;
 }
+
+export type MapLifeLevel = 'off' | 'calm' | 'full';
+
+export const MAP_LIFE_LEVELS: MapLifeLevel[] = ['off', 'calm', 'full'];
 
 const STORAGE_KEY = 'mandate:life:v1';
 
-const DEFAULTS: LifeSettings = { birds: true, traffic: 'normal', seasons: true, motion: 'full' };
+const DEFAULTS: LifeSettings = { birds: true, traffic: 'normal', seasons: true, motion: 'full', mapLife: 'full' };
 
 /** The longest a reduced-motion tween may run. Under it, motion reads as a change, not a passage. */
 const REDUCED_MOTION_MS = 120;
@@ -69,6 +80,7 @@ function read(): LifeSettings {
     if (typeof stored.seasons === 'boolean') cached.seasons = stored.seasons;
     if (stored.traffic && TRAFFIC_DENSITIES.includes(stored.traffic)) cached.traffic = stored.traffic;
     if (stored.motion && MOTION_LEVELS.includes(stored.motion)) cached.motion = stored.motion;
+    if (stored.mapLife && MAP_LIFE_LEVELS.includes(stored.mapLife)) cached.mapLife = stored.mapLife;
   } catch {
     // A corrupt entry is a defaulted entry. Nothing here is worth failing a boot over.
   }
@@ -98,6 +110,15 @@ export function birdsEnabled(): boolean {
 
 export function seasonsEnabled(): boolean {
   return read().seasons;
+}
+
+/**
+ * How much the map breathes, as the renderer should read it: the stored level on the desktop
+ * layout, and always `off` on the phone column — the effects are a wide-sheet feature, and a phone
+ * is where every extra draw is paid for. Read every frame, so the Settings page applies live.
+ */
+export function mapLifeLevel(): MapLifeLevel {
+  return layoutKind() === 'desktop' ? read().mapLife : 'off';
 }
 
 export function reducedMotion(): boolean {

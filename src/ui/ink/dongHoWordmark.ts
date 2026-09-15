@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 
 export const DONG_HO_WORDMARK_KEY = 'menu-wordmark-dongho-v2';
+/** Width over height of the wordmark master (1088 x 321), for sizing before the image exists. */
+export const WORDMARK_ASPECT = 1088 / 321;
 
 /** Contemporary Quốc ngữ brush lettering; provenance in docs/design/dongho-wordmark-v2. */
 export function dongHoWordmark(scene: Phaser.Scene, x: number, y: number, width: number): Phaser.GameObjects.Image {

@@ -146,6 +146,7 @@ export class ConquestScene extends MapScene {
     // Shared for the same reason: the seasonal weather drifts on the frame clock, not the tick,
     // and this mode turns the year fastest of all.
     this.seasons.update(time, delta);
+    this.life.update(time, delta);
 
     this.state.realtimeSeconds += delta / 1000;
     this.ascentAccumulator += delta;

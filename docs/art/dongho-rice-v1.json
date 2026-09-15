@@ -1,0 +1,254 @@
+{
+  "date": "2026-09-16",
+  "tool": "Built-in ImageGen",
+  "base": "Create a production game sprite sheet of Vietnamese Red River Delta RICE PADDY FIELD COMPOUNDS for the existing Đông Hồ woodblock map game shown in reference image 1. Reference 1 is STYLE AND SCALE CONTEXT only, do not recreate the screenshot. Reference 2 shows the old field asset whose badge-like enclosing outline and transparent holes inside plots are defects to avoid.\nOutput a landscape 1536x1024 PNG sprite sheet with TRUE TRANSPARENT ALPHA background. Exactly FIVE separate compound sprites in a strictly regular THREE COLUMN by TWO ROW grid of 512x512 cells; bottom-right cell EMPTY TRANSPARENT. Leave generous transparent margins of at least 45px around each sprite. NO text, labels, numerals, checkerboard pattern, background color, shadows or scene. Each sprite 410px wide and 210-245px tall centered in its cell. Flat front-facing oblique farmland footprint, ground vertically compressed about 0.5, horizontal foreground edges. NOT an isometric diamond, no raised island, no thick enclosing frame.\nCell order: top-left FLOODED: dull jade-blue shallow water and a few engraved ripple dashes, no rice. Top-middle FALLOW: muted pale ochre soil with short interrupted furrows. Top-right NURSERY: shallow greenish water with tiny fresh green rice shoots in rows. Bottom-left TRANSPLANTED: muted leaf-green rice tuft rows with soil/water visible between. Bottom-middle RIPE: straw and ochre mature rice rows, a few small drooping grain heads.\nWithin EVERY parcel there is fully opaque pigment color under all rice strokes; no transparent holes among plants. Only outside the compound is transparent.\nAuthentic-inspired Dong Ho hand-carved graphic language matching the game: warm dark brown ink contour, slightly imperfect hand-carved rhythmic marks, flat natural pigment fills, restrained pale ochre, sage leaf-green, grey jade water. Crisp edges, economical details, no gradients, no photorealism, no digital bevel, no watercolor wash, no noisy paper speckles. Rice stalks noticeably finer than the boundary ink. Do not include trees, people, animals, houses, icons, floating wheat sheaves. Keep footprint geometry consistent across the five farming stages, with minimal small irregularities.",
+  "variants": [
+    {
+      "key": "carved",
+      "prompt": "Version A — CARVED STRIPS: a natural open-edged field system of FIVE uneven elongated rectangular parcels connected by narrow pale earth banks. Angular corners softened only by hand carving. Two broad back plots and three foreground plots, some edges staggered. Dominant pale golden straw earth with restrained jade/green. Thin clean warm brown bank contours, very sparse ink, horizontal/diagonal rice-row rhythms. Avoid a circular oval silhouette. Quiet and very legible."
+    },
+    {
+      "key": "jade",
+      "prompt": "Version B — JADE MOSAIC: a field system of SIX irregular quadrilateral parcels with narrow shared pale sage/ochre bunds, staggered outward tips and offset angular edge breaks. A subtle little water inlet on one side. Gentle jade and leaf-green color family for water/soil, ripe remains straw gold. Fine warm brown contour, balanced visible rice tufts in small repeating V shapes, less dense than old art. Flat ornamental but agricultural and grounded. Avoid an overall oval silhouette."
+    },
+    {
+      "key": "harvest",
+      "prompt": "Version C — HARVEST RHYTHM: a field system of FOUR large broad tapering strips with staggered ends and one narrow cross-bund. Predominantly warm pale ochre and straw, with muted leaf green in planted stages and jade flooded water. Distinct confident woodcut strokes and alternating rows of simplified upright rice and bowed mature ears. Thin brown outline and occasional dark cut marks. More graphic and bold than the other options, yet never a heavy enclosing badge."
+    }
+  ],
+  "alphaAttempt": {
+    "prompt": "Edit this exact sprite sheet ONLY to remove the entire gray/white checkerboard background and pale wispy backdrop outside the five field shapes. Deliver a PNG with real transparent alpha pixels outside all five paddies, including the empty bottom-right cell and all margins. Preserve the five paddy drawings, outlines, colors, plants, cell positions, 1536x1024 dimensions, and ALL solid field interiors exactly. Do not redraw or restyle. Background removal/isolation only. All ground/water inside the brown outer boundaries must remain fully opaque. No checkerboard drawn into the output.",
+    "result": "Rejected: RGB checkerboard persisted."
+  },
+  "isolationPrompt": "Production sprite isolation. Replace ALL gray/white checkerboard and pale wavy background OUTSIDE the five rice fields with a SINGLE PERFECTLY FLAT SOLID CHROMA MAGENTA RGB(255,0,255) #ff00ff. This is deliberately a chroma-key spritesheet for a game asset packer. Do NOT paint ANY checkerboard or transparent-preview visualization. The bottom-right sixth cell must be 100% flat #ff00ff. Preserve each field artwork, colors and solid water/soil interiors. Keep 1536x1024 canvas and exact original layout. Remove outside shadows/haze entirely. Clean crisp contour against pure magenta; no magenta inside the field parcels. Do not add text or change the field drawings.",
+  "sources": [
+    {
+      "version": "carved",
+      "master": "output/rice-fields/carved-master.png",
+      "generated": "Generated images are saved to C:\\Users\\zerg\\.codex\\generated_images\\01a0a658-2c6d-7100-ac2f-7628260d2f1b as C:\\Users\\zerg\\.codex\\generated_images\\01a0a658-2c6d-7100-ac2f-7628260d2f1b\\exec-13f99878-142b-4a5e-8128-d7c8375ac509.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "asset": "public/art/terrain/rice-carved-v1.webp",
+      "packing": {
+        "frames": [
+          {
+            "frame": 0,
+            "crop": {
+              "x": 21,
+              "y": 151,
+              "w": 483,
+              "h": 288
+            },
+            "width": 244,
+            "height": 145.49068322981367
+          },
+          {
+            "frame": 1,
+            "crop": {
+              "x": 526,
+              "y": 152,
+              "w": 485,
+              "h": 289
+            },
+            "width": 244,
+            "height": 145.3938144329897
+          },
+          {
+            "frame": 2,
+            "crop": {
+              "x": 1031,
+              "y": 150,
+              "w": 485,
+              "h": 292
+            },
+            "width": 244,
+            "height": 146.90309278350514
+          },
+          {
+            "frame": 3,
+            "crop": {
+              "x": 21,
+              "y": 607,
+              "w": 484,
+              "h": 291
+            },
+            "width": 244,
+            "height": 146.70247933884298
+          },
+          {
+            "frame": 4,
+            "crop": {
+              "x": 526,
+              "y": 607,
+              "w": 488,
+              "h": 295
+            },
+            "width": 244,
+            "height": 147.5
+          }
+        ],
+        "removed": 1001980,
+        "transparent": 98447,
+        "gutterInk": 0,
+        "magenta": 0,
+        "source": "output/rice-fields/carved-master.png",
+        "target": "public/art/terrain/rice-carved-v1.webp",
+        "bytes": 95020,
+        "sha256": "408546093e301aea67adc8df003d114b0c2ed89f835b3045429ad7acc4d4ebd3"
+      }
+    },
+    {
+      "version": "jade",
+      "master": "output/rice-fields/jade-master.png",
+      "generated": "Generated images are saved to C:\\Users\\zerg\\.codex\\generated_images\\01a0a658-2c6d-7100-ac2f-7628260d2f1b as C:\\Users\\zerg\\.codex\\generated_images\\01a0a658-2c6d-7100-ac2f-7628260d2f1b\\exec-00f8fa5b-2d42-421a-b470-cd4629e1cc08.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "asset": "public/art/terrain/rice-jade-v1.webp",
+      "packing": {
+        "frames": [
+          {
+            "frame": 0,
+            "crop": {
+              "x": 18,
+              "y": 116,
+              "w": 485,
+              "h": 296
+            },
+            "width": 242.5,
+            "height": 148
+          },
+          {
+            "frame": 1,
+            "crop": {
+              "x": 528,
+              "y": 115,
+              "w": 486,
+              "h": 297
+            },
+            "width": 242.1818181818182,
+            "height": 148
+          },
+          {
+            "frame": 2,
+            "crop": {
+              "x": 1039,
+              "y": 116,
+              "w": 486,
+              "h": 296
+            },
+            "width": 243,
+            "height": 148
+          },
+          {
+            "frame": 3,
+            "crop": {
+              "x": 17,
+              "y": 596,
+              "w": 486,
+              "h": 298
+            },
+            "width": 241.36912751677852,
+            "height": 148
+          },
+          {
+            "frame": 4,
+            "crop": {
+              "x": 528,
+              "y": 595,
+              "w": 486,
+              "h": 299
+            },
+            "width": 240.561872909699,
+            "height": 148
+          }
+        ],
+        "removed": 1123518,
+        "transparent": 131486,
+        "gutterInk": 0,
+        "magenta": 0,
+        "source": "output/rice-fields/jade-master.png",
+        "target": "public/art/terrain/rice-jade-v1.webp",
+        "bytes": 79632,
+        "sha256": "8835c1b5f9172ebccebdd53fe0cd8c94bac89d33b39994cd28f8b725fa3b93f5"
+      }
+    },
+    {
+      "version": "harvest",
+      "master": "output/rice-fields/harvest-master.png",
+      "generated": "Generated images are saved to C:\\Users\\zerg\\.codex\\generated_images\\01a0a658-2c6d-7100-ac2f-7628260d2f1b as C:\\Users\\zerg\\.codex\\generated_images\\01a0a658-2c6d-7100-ac2f-7628260d2f1b\\exec-a51b405b-4f41-4cec-b3f5-63fb7fcc6e8f.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+      "asset": "public/art/terrain/rice-harvest-v1.webp",
+      "packing": {
+        "frames": [
+          {
+            "frame": 0,
+            "crop": {
+              "x": 16,
+              "y": 137,
+              "w": 490,
+              "h": 303
+            },
+            "width": 239.33993399339934,
+            "height": 148
+          },
+          {
+            "frame": 1,
+            "crop": {
+              "x": 522,
+              "y": 135,
+              "w": 494,
+              "h": 304
+            },
+            "width": 240.5,
+            "height": 148
+          },
+          {
+            "frame": 2,
+            "crop": {
+              "x": 1036,
+              "y": 134,
+              "w": 490,
+              "h": 305
+            },
+            "width": 237.7704918032787,
+            "height": 148
+          },
+          {
+            "frame": 3,
+            "crop": {
+              "x": 20,
+              "y": 646,
+              "w": 480,
+              "h": 301
+            },
+            "width": 236.01328903654485,
+            "height": 148
+          },
+          {
+            "frame": 4,
+            "crop": {
+              "x": 526,
+              "y": 643,
+              "w": 489,
+              "h": 307
+            },
+            "width": 235.73941368078175,
+            "height": 148
+          }
+        ],
+        "removed": 1011054,
+        "transparent": 109883,
+        "gutterInk": 0,
+        "magenta": 0,
+        "source": "output/rice-fields/harvest-master.png",
+        "target": "public/art/terrain/rice-harvest-v1.webp",
+        "bytes": 92070,
+        "sha256": "6668b47a5b2b0d4fef72a23249ba2d9088b74676e6c4a0420c62452f2edbfd86"
+      }
+    }
+  ],
+  "packing": "scripts/conquest-art/pack-rice-fields.mjs — key isolated magenta, crop, preserve aspect ratio, downsample to shared 256x160 cells; verify zero matte pixels and transparent gutters.",
+  "stageOrder": [
+    "flooded",
+    "fallow",
+    "nursery",
+    "transplanted",
+    "ripe"
+  ],
+  "selection": "Rejected by user: all isolated field compounds are superseded by connected wet-paddy ground."
+}

@@ -1,0 +1,13 @@
+{
+  "tool": "Built-in image_gen",
+  "source": "C:/Users/zerg/.codex/generated_images/01a0a5fc-eef3-7200-b815-9123195665ef/exec-a867614c-3161-4bcc-8046-b1362555c813.png",
+  "prompt": "Use case: stylized-concept\nAsset type: transparent game sprite atlas for a Vietnamese Đông Hồ woodblock-art strategy map.\nPrimary request: Six small butterfly sprites arranged in a precise 3-column by 2-row grid on a truly transparent alpha background. Row 1 is the same golden ochre butterfly in three successive wing positions: wings fully spread, half folded upward, nearly closed. Row 2 is the same warm earth-brown butterfly in those three positions. Body points straight up in every frame; exact same body length and central pivot, consistent patterns across frames. Each cell square, ample transparent padding, no overlaps.\nStyle/medium: Vietnamese Đông Hồ folk woodblock printing; bold slightly irregular dark charcoal carved outlines, four simple rounded wing lobes, flat natural pigment, a few large cream carved spots/veins. Ochre yellow, warm brown, cream, charcoal only. Extremely simple silhouette legible as a tiny insect against sage grass. Keep antennae short. Thin dark body, no cartoon face.\nComposition: orthographic top view, 3x2 animation sheet, bodies centered at each cell center. Half-folded and nearly closed frames are visibly narrower while body length stays identical. Fill about two thirds of each square with the open butterfly. Transparent outside silhouettes and between antennae. No paper backdrop, no colored or checkerboard backdrop, no borders, no text, no labels, no scenery, no grass, no flowers, no shadows, no glow, no gradients, no 3D.",
+  "unusedExtraction": {
+    "prompt": "Use case: background-extraction. Remove the ENTIRE background and all golden/brown glow surrounding these six butterfly sprites. Return a true RGBA image with alpha 0 everywhere outside each butterfly silhouette, including between antennae and between all six figures. Preserve all six butterflies, their precise positions, body lengths, shapes, flat pigments and carved details unchanged. Keep dark wing outlines opaque. No shadow, no haze, no background color, no black fill and no checkerboard painted into the pixels. This is a production game sprite atlas; transparency must be real, not a simulated appearance.",
+    "reason": "Original already had genuine alpha. Retained the original silhouettes."
+  },
+  "runtime": "public/art/life/dongho-butterflies-v1.png",
+  "packing": "scripts/conquest-art/pack-butterflies.mjs",
+  "frames": "2 rows (gold, brown), 3 columns (open, half, closed), 64x64 pixels",
+  "scope": "Butterflies only. V1 grass and V2 backup preserved."
+}

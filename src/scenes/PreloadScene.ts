@@ -6,6 +6,10 @@ import { applyRenderScale } from '../game/graphicsQuality';
 import { configuredSupportChannels, supportQrTextureKey } from '../data/support';
 import { allowsDonationLinks } from '../platform/shell';
 import { preloadConquestMapArt } from '../ui/conquestMapArt';
+import { preloadGrassGround } from '../ui/ink/grassGround';
+import { preloadButterflyArt } from '../ui/ink/butterflyArt';
+import { preloadRiceFieldArt } from '../ui/ink/riceFieldArt';
+import { preloadRicePrint } from '../ui/ink/ricePrint';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -17,6 +21,10 @@ export class PreloadScene extends Phaser.Scene {
     preloadConquestUiIcons(this, baseUrl);
     // Optional authored world art. Every call site retains its procedural draw as a fallback.
     preloadConquestMapArt(this, baseUrl, ['flora', 'terrain', 'settlements', 'markers'], false);
+    preloadGrassGround(this, baseUrl);
+    preloadButterflyArt(this, baseUrl);
+    preloadRiceFieldArt(this, baseUrl);
+    preloadRicePrint(this, baseUrl);
 
     // The front-page landscape is a registered four-plate illustration. Mountains, bamboo and
     // lotus retain a shared 1536x1024 frame so MenuScene can move them independently without the

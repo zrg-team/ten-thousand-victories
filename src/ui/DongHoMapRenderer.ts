@@ -19,22 +19,25 @@ import {
   conquestArtStamp, conquestKarstArtId, conquestTreeArtId, hasConquestMapArt, stampFootY,
 } from './conquestMapArt';
 import { applyStamp, placeStamp } from './ink/stamp';
+import { paintPrintedGround } from './ink/printedGround';
+import { hasGrassGround, paintGrassGround } from './ink/grassGround';
+import { riceFieldFrame, riceFieldTexture } from './ink/riceFieldArt';
+import { connectedRiceGround, paintRiceGround, planRiceGround, riceTouchesBox, riceTouchesCircle, type RicePlan } from './ink/riceGround';
+import { RicePrintLayer } from './ink/ricePrint';
+
+
+/** Open water: chàm deepened toward the home page river's own indigo. */
+const WATER_BODY = mixPigment(PIGMENT.cham, PIGMENT.chamPale, 0.42);
+/** The bank's ink: the indigo taken down toward soot. */
+const WATER_BANK = mixPigment(PIGMENT.cham, PIGMENT.muc, 0.35);
 
 /**
  * Đông Hồ landscape rendering — the whole map drawn in one pass instead of tile by tile.
  *
- * The rule this class exists to enforce:
- *
- *   **The grid decides where. It never decides what shape.**
- *
- * Nothing here is clipped to a cell. Ground tone blends between cells with a radial falloff, props
- * are one scatter over the whole map that merely *consults* the grid for what to be, ranges and
- * field systems draw as whole objects across many cells, and everything sorts back-to-front so
- * overlap reads as depth.
- *
- * The version that clipped each tile into its own hexagon read, correctly, as a list of dioramas:
- * static, cut off at every boundary, and nothing like a country. Deleting the clip is the single
- * largest change in this art direction.
+ * Ground tones, ranges and props form a continuous landscape. Rice is cultivated terrain:
+ * at the user's direction its water-retaining bund follows the actual tile boundary. Adjacent
+ * rice cells share world-aligned crop material and one enclosing bund, so they form a field
+ * rather than separate inset objects. Standing scenery still sorts back-to-front by its feet.
  */
 
 /**
@@ -277,13 +280,16 @@ export class DongHoMapRenderer implements MapRenderer {
   /** Authored scatter is scene-level so it can retain alpha and be flattened by the existing bake. */
   private generatedDecoration: Phaser.GameObjects.Image[] = [];
   private previousDecoration = new Map<string, Phaser.GameObjects.Image>();
-  /** Low-alpha authored texture plates under the procedural coast and bund geometry. */
+  /** Cached authored ground surfaces and paddy plates under the coast and relief. */
   private generatedTerrain: Phaser.GameObjects.Image[] = [];
+  private ricePlan?: RicePlan;
+  private riceGraphics?: Phaser.GameObjects.Graphics;
+  private ricePrint?: RicePrintLayer;
 
   constructor(
     private readonly scene: Phaser.Scene,
     readonly theme: MapThemeDefinition,
-  ) {}
+  ) { scene.events.once('shutdown', () => this.ricePrint?.destroy()); }
 
   get palette(): MapThemePalette {
     return this.theme.palette;
@@ -303,6 +309,10 @@ export class DongHoMapRenderer implements MapRenderer {
     }
     for (const image of this.generatedTerrain) image.destroy();
     this.generatedTerrain = [];
+    this.ricePlan = connectedRiceGround() ? planRiceGround(ctx) : undefined;
+    this.ricePrint?.destroy();
+    this.ricePrint = this.ricePlan && RicePrintLayer.available(this.scene) ? new RicePrintLayer(this.scene, this.ricePlan) : undefined;
+    this.riceGraphics ??= this.scene.add.graphics().setDepth(0.034);
 
     // Flat ground only, in the terrain layer: tone, water, and the paddy, which IS the ground.
     //
@@ -311,6 +321,10 @@ export class DongHoMapRenderer implements MapRenderer {
     // wood ends up growing out of a cliff face and a rice terrace ends up halfway up one. It is
     // planned here and drawn with the props, in one back-to-front order.
     yield* this.paintGround(graphics, visible, ctx);
+    for (const image of paintGrassGround(this.scene, ctx)) {
+      if (image) this.generatedTerrain.push(image);
+      yield;
+    }
     yield* this.paintWater(graphics, visible, ctx);
     yield* this.paintFields(graphics, visible, ctx);
 
@@ -360,7 +374,14 @@ export class DongHoMapRenderer implements MapRenderer {
     this.generatedDecoration = [];
     decoration.clear();
     const size = this.scatterTileSize;
+    if (this.riceGraphics) {
+      this.riceGraphics.clear();
+      if (this.ricePrint) yield* this.ricePrint.repaint(getFoliageSeason());
+      if (this.ricePlan) yield* paintRiceGround(this.riceGraphics, this.ricePlan, getFoliageSeason(), !!this.ricePrint);
+    }
     for (const cell of this.groundPlan ?? []) {
+      // Grass colour washes must not veil the separately printed water and crop pigments.
+      if (this.ricePlan?.parcels.some(p => riceTouchesCircle(p, cell, size * 1.8))) continue;
       const cast = groundCast(cell.terrain);
       if (!cast) {
         continue;
@@ -502,13 +523,29 @@ export class DongHoMapRenderer implements MapRenderer {
       return;
     }
 
+    // The body, in the home page river's colours (its plate samples #284459 / #34505e / #445a68):
+    // a pale chàm halo that softens the bank, then the indigo itself laid solid inside each cell so
+    // open water reads as water and not as a grey wash on the paper.
     for (const tile of tiles) {
       yield;
       if (tile.terrain !== 'water') {
         continue;
       }
       const centre = ctx.centreOf(tile);
-      groundTone(graphics, centre.x, centre.y, ctx.tileSize * 1.15, PIGMENT.chamWash, 0.5);
+      groundTone(graphics, centre.x, centre.y, ctx.tileSize * 1.15, PIGMENT.chamWash, 0.55);
+    }
+    for (const tile of tiles) {
+      yield;
+      if (tile.terrain !== 'water') {
+        continue;
+      }
+      const centre = ctx.centreOf(tile);
+      const corners = Array.from({ length: 6 }, (_, index) => {
+        const angle = Math.PI / 180 * (60 * index - 30);
+        return { x: centre.x + Math.cos(angle) * ctx.tileSize * 1.0, y: centre.y + Math.sin(angle) * ctx.tileSize * 1.0 };
+      });
+      graphics.fillStyle(WATER_BODY, 0.6);
+      graphics.fillPoints(corners, true);
     }
 
     const rand = mulberry32(4400);
@@ -540,10 +577,11 @@ export class DongHoMapRenderer implements MapRenderer {
             { x: mx + (nx / length) * reach, y: my + (ny / length) * reach },
           ],
           Math.round(mx + my * 3),
-          { width: 1.1, alpha: 0.62, colour: PIGMENT.cham, wobble: 1.8, step: 12 },
+          { width: 1.3, alpha: 0.8, colour: WATER_BANK, wobble: 1.8, step: 12 },
         );
       }
-      // Two curved carved marks per cell, kept inside the continuous water body.
+      // Two curved carved marks per cell, kept inside the continuous water body: cream, cut into the
+      // indigo the way the home page river's lines are.
       for (let line = 0; line < 2; line += 1) {
       yield;
         const oy = centre.y + (rand() - 0.5) * ctx.tileSize * 0.7;
@@ -557,17 +595,22 @@ export class DongHoMapRenderer implements MapRenderer {
             { x: centre.x + half, y: oy },
           ],
           Math.round(centre.x + oy + line),
-          { width: 0.8, alpha: 0.48, colour: PIGMENT.cham, wobble: 0.45, step: 9 },
+          { width: 0.85, alpha: 0.72, colour: PIGMENT.diepHi, wobble: 0.45, step: 9 },
         );
       }
     }
   }
 
   /**
-   * Soft radial tone per cell, so neighbours overlap into one continuous field of colour.
-   * A hex-shaped fill here is exactly how the grid leaks back into the picture.
+   * Connected colour blocks establish the printed ground; subtle overlapping tone
+   * keeps the existing relief palette above it. Decorations supply the small marks.
    */
   private *paintGround(graphics: Phaser.GameObjects.Graphics, tiles: LandscapeContext['tiles'], ctx: LandscapeContext): Generator<void> {
+    const textured = hasGrassGround(this.scene);
+    // The full-paper background is depth 0. Grass lies above it, followed by the
+    // shared pigment/water pass, then existing paddy plates and coast ink.
+    graphics.setDepth(textured ? 0.04 : 0);
+    yield* paintPrintedGround(ctx, textured);
     for (const tile of tiles) {
       yield;
       const tone = groundFor(tile.terrain);
@@ -800,11 +843,14 @@ export class DongHoMapRenderer implements MapRenderer {
   }
 
   /**
-   * One wandering lattice across the whole map; a plot is kept only where the land beneath it is
-   * paddy. Neighbouring cells therefore share their bunds and the field system ends raggedly —
-   * which is what a delta looks like from above, and the opposite of a field per tile.
+   * Default cultivation is planned from whole terrain tiles and painted with the season.
+   * The older lattice and authored compounds below remain explicit comparison alternatives.
    */
   private *paintFields(graphics: Phaser.GameObjects.Graphics, tiles: LandscapeContext['tiles'], ctx: LandscapeContext): Generator<void> {
+    if (connectedRiceGround()) {
+      // Crop drawing follows the calendar in repaintScatterJobs; geometry stays resident.
+      return;
+    }
     const paddy = tiles.filter((tile) => tile.terrain === 'riceFields' || tile.terrain === 'fields');
     if (paddy.length === 0) {
       return;
@@ -815,6 +861,26 @@ export class DongHoMapRenderer implements MapRenderer {
       return { ...centre, q: tile.coord.q, r: tile.coord.r };
     });
     const systems = planPaddySystems(cells, ctx.tileSize);
+    const riceTexture = riceFieldTexture(this.scene);
+    if (riceTexture) {
+      for (const system of systems) {
+        yield;
+        const stage = seasonalStage(system.stage);
+        const state: PaddySystemState = stage < 0.28 ? 'flooded'
+          : stage < 0.4 ? 'fallow'
+            : stage > 0.9 ? 'nursery'
+              : stage > 0.68 ? 'ripe' : 'transplanted';
+        // The new frames have tighter transparent margins than the original plates.
+        // Match their visible footprint and retain the existing static ground cache.
+        const image = this.scene.add.image(system.x, system.y, riceTexture, riceFieldFrame(state))
+          .setDisplaySize(system.width * 0.86, system.height * 0.86)
+          .setDepth(0.15).setFlipX((system.seed & 1) === 1)
+          .setData('conquestTerrainPlate', `terrain.paddy-system-${state}`)
+          .setData('riceFieldArt', riceTexture);
+        this.generatedTerrain.push(image);
+      }
+      return;
+    }
     const familyLoaded = PADDY_SYSTEM_STATES.every((state) => (
       hasConquestMapArt(this.scene, `terrain.paddy-system-${state}`)
     ));
@@ -1055,6 +1121,14 @@ export class DongHoMapRenderer implements MapRenderer {
       yield;
       const reach = FOOTPRINT[item.kind] * item.scale * unit * 0.5;
       const isTallVegetation = TALL_VEGETATION.has(item.kind);
+      if (this.ricePlan && item.kind !== 'farmer') {
+        const crown = TALL_VEGETATION_BOX[item.kind];
+        const halfWidth = crown ? crown.halfWidth * tileSize * item.scale : reach;
+        const height = crown ? crown.height * tileSize * item.scale : reach;
+        const box = { left: item.x - halfWidth - 2, right: item.x + halfWidth + 2,
+          top: item.y - height - 2, bottom: item.y + reach + 2 };
+        if (this.ricePlan.parcels.some(p => riceTouchesBox(p, box))) continue;
+      }
       const nearbyClear = new Set<(typeof keepClear)[number]>();
       for (let y = Math.floor((item.y - reach) / cell); y <= Math.floor((item.y + reach) / cell); y++) {
         for (let x = Math.floor((item.x - reach) / cell); x <= Math.floor((item.x + reach) / cell); x++) {
@@ -1373,13 +1447,14 @@ export class DongHoMapRenderer implements MapRenderer {
       return;
     }
     const seed = Math.round(points[0].x + points[0].y);
-    const width = Math.max(1.5, widthFrom * 0.65);
+    const textured = hasGrassGround(this.scene);
+    const width = Math.max(textured ? 2 : 1.5, widthFrom * 0.65);
     // Matching paths form a quiet ink edge around a flat ochre road plate.
     inkPath(graphics, points as Pt[], seed, {
-      width: width + 0.6, alpha: 0.4, colour: PIGMENT.mucSoft, wobble: 0.7, step: 14,
+      width: width + (textured ? 1 : 0.6), alpha: textured ? 0.62 : 0.4, colour: PIGMENT.mucSoft, wobble: 0.7, step: 14,
     });
     inkPath(graphics, points as Pt[], seed, {
-      width, alpha: 0.72, colour: PIGMENT.hoePale, wobble: 0.7, step: 14,
+      width, alpha: textured ? 0.96 : 0.72, colour: PIGMENT.hoePale, wobble: 0.7, step: 14,
     });
   }
 

@@ -1,0 +1,22 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Use case: stylized-concept. Asset type: one production-ready transparent 2D game ground texture atlas, 1024x1024 square, arranged as exactly four equal 512x512 cells (2 columns, 2 rows), no visible cell boundaries. Each cell contains a different flat irregular patch of low meadow grass and exposed soil viewed directly from above, centered in its cell, with at least 48 pixels of completely transparent margin on all four sides. These are ground surface decals, NOT floating islands, NOT isometric tiles. The four patch silhouettes must be asymmetric and noticeably different; small peninsulas and holes in the surface fade organically into full alpha transparency. Inside each patch: joined quiet areas of pale sage vegetation, small clusters of fine hand-drawn blades, pale straw, a little warm ochre soil visible between clumps, a few tiny pebbles. Use the flat layered pigment and hand-cut contours of Vietnamese Dong Ho woodblock illustration. Match muted palette: sage #a7b98d, cajuput #7d9160, shaded green #5b6d45 sparingly, warm earth #c9b78c, pale ochre #dcbe7e. Quiet medium-scale material variation, no dark black outlines, no dense random noise. Each patch covers around 70 percent of its cell width and height. Soft irregular low-contrast margins that blend into a cream-colored world when composited, but ACTUAL TRANSPARENT BACKGROUND, no solid cream backdrop, no checkerboard baked in. Consistent overhead soft daylight, flat ground with no elevated rim, no cliff, no drop shadow. Ground detail only: no trees, buildings, characters, UI, labels, lettering, borders, grids, flowers, logos or watermark. Output the single complete four-cell texture atlas.",
+  "source": "exec-4edfc45f-e5b0-46d5-b409-6ce6812ae7f8.png",
+  "runtime": null,
+  "created": "2026-09-15",
+  "dimensions": [
+    512,
+    512
+  ],
+  "frameDimensions": [
+    256,
+    256
+  ],
+  "frameCount": 4,
+  "runtimeBytes": 260330,
+  "processing": "Chromium canvas resize and WebP quality 1 encoding, four-pixel transparent gutters; no painted edits. The full generated source remains in the local generated_images directory.",
+  "intent": "Natural 2D ground cover matching the existing Dong Ho palette. Authored surface variation under existing trees, relief, fields and roads; seeded placement and static chunk caching.",
+  "status": "Superseded after user review: isolated grass patches did not fit the connected Dong Ho landscape.",
+  "localArchive": "output/connected-ground/meadow-v1.webp",
+  "replacement": "src/ui/ink/printedGround.ts"
+}

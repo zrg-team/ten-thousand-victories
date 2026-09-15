@@ -33,6 +33,8 @@ import {
 import type { ConquestUIScene } from '../../ConquestUIScene';
 import { setConquestArmyStepping, warmFigureStamps } from '../../../ui/ink/figureStamps';
 import { PIGMENT } from '../../../ui/ink/palette';
+import { grassGroundTexture } from '../../../ui/ink/grassGround';
+import { getLifeSettings } from '../../../game/lifeSettings';
 
 /**
  * How far a block must be given to cross before its men are shown walking.
@@ -55,7 +57,8 @@ function trackMarker(hostId: string, marker: Phaser.GameObjects.Container, muste
 export function battleFieldSignature(self: ConquestUIScene, battle: AscentBattle): string {
   const ours = ourHosts(self.state, battle).map((host) => host.id);
   const theirs = theirHosts(self.state, battle).map((host) => host.id);
-  return `${ours.join(',')}|${theirs.join(',')}`;
+  const life = getLifeSettings();
+  return `${ours.join(',')}|${theirs.join(',')}|${grassGroundTexture(self) ?? 'paper'}|${life.mapLife}|${life.motion}`;
 }
 
 /**
