@@ -33,7 +33,10 @@ import {
 import { wallManning } from '../../../systems/WarSystem';
 import { hostileClaimAt } from '../../../systems/LandSystem';
 import { STORE_KEYS, saleQuote, sellStores, storeWasteFrom } from '../../../systems/ascent/GranarySystem';
-import { STORE_WASTE_RATE } from '../../../game/ascentConfig';
+import { GLUT_WARN_BELOW, PAR_HOARD_FREE_SEASONS, STORE_WASTE_RATE } from '../../../game/ascentConfig';
+import { waterTradeActive, waterTradeBonus, watersideHexes } from '../../../systems/ascent/WaterTrade';
+import { priceBreakdown } from '../../../systems/ascent/priceScale';
+import { landTradeNetworkBonus } from '../../../systems/ResourceSystem';
 import { buildFocusRows, focusTitle } from '../../../ui/focusPanel';
 import { buildGovernorRows } from '../../../ui/governorPanel';
 import { buildHeroPickerRows } from '../../../ui/heroPickerRows';
@@ -258,9 +261,12 @@ export function showClaimTargets(self: ConquestUIScene): void {
         // What a claim *costs to try* is the best way in and who would go — words, because both
         // are names. What it is *worth weighing* is three figures, and five provinces' worth of
         // "3 ways in · Garrison 149 · Suits Food · 91%" is a paragraph per row to compare.
-        subtitle: open.length > 0
-          ? bestLine
-          : `${target.busyReason ?? t('ascent.conquer.noWay')}${bestLine ? `\n${bestLine}` : ''}`,
+        subtitle: [
+          open.length > 0
+            ? bestLine
+            : `${target.busyReason ?? t('ascent.conquer.noWay')}${bestLine ? `\n${bestLine}` : ''}`,
+          target.waterPct ? t('ascent.water.claimTag', { pct: target.waterPct }) : '',
+        ].filter(Boolean).join('\n'),
         costs: statChips([
           open.length > 0 ? ['ways', open.length] : undefined,
           ['garrison', target.garrison],
@@ -392,6 +398,12 @@ export function showBuildOptions(self: ConquestUIScene, landId: string): void {
       held: Math.round(land.population),
       cap: landPopulationCapacity(state, land),
     }));
+    // Water trade, said on the sheet of the province that has it — the one place a player decides
+    // what to build here. Dry ground says nothing: a line on every sheet would be noise.
+    if (waterTradeActive(state)) {
+      const wet = watersideHexes(state, land);
+      if (wet > 0) notes.push(t('ascent.water.landNote', { n: wet, pct: Math.round(waterTradeBonus(state, land) * 100) }));
+    }
     const breach = Math.round(land.wallsBreached ?? 0);
     if (breach > 0) notes.push(t('ascent.land.wallsBreached', { n: breach }));
     // The fight burnt the district, and the walls need people behind them — both new
@@ -715,6 +727,56 @@ export function showLedgerScreen(self: ConquestUIScene): void {
     flow('gold', ledger.gold),
   ], { chipSize: 'stat' }));
 
+  // What prices wear and why (parPrices): the round everyone pays, the realm's standing against a
+  // normal realm at this wave, and the hoard. Reported as "the numbers stop meaning anything" — a
+  // player who can see the three parts can see that a lead still buys more, and what a hoard costs.
+  const prices = priceBreakdown(state);
+  if (prices) {
+    const standing = prices.ratio < 0.8 ? 'poor' : prices.ratio < 1.25 ? 'steady' : prices.ratio < 2 ? 'thriving' : 'mighty';
+    addRow({
+      title: t('ascent.ledger.priceTitle', { total: prices.total.toFixed(2) }),
+      subtitle: [
+        t('ascent.ledger.priceBody', {
+          round: prices.round.toFixed(2),
+          worth: prices.worth.toFixed(2),
+          hoard: prices.hoard.toFixed(2),
+          ratio: prices.ratio.toFixed(1),
+          gross: prices.parGross,
+          treasury: compactNumber(prices.parTreasury),
+          standing: t(`ascent.ledger.standing.${standing}` as Parameters<typeof t>[0]),
+        }),
+        prices.hoard > 1 ? t('ascent.ledger.hoardNote', { n: PAR_HOARD_FREE_SEASONS }) : '',
+      ].filter(Boolean).join('\n'),
+      border: prices.ratio >= 1.25 ? INK_UI.jade : prices.ratio < 0.8 ? INK_UI.cinnabar : INK_UI.softBrush,
+    });
+  }
+
+  // Where the gold comes from, province by province (waterTrade): the coin each sends and what
+  // water and the connected block add to it — the numbers a player grows and steers by.
+  if (waterTradeActive(state)) {
+    const earners = state.lands
+      .filter((land) => land.ownerId === PLAYER_KINGDOM_ID && land.outputs.gold > 0)
+      .sort((a, b) => b.outputs.gold - a.outputs.gold)
+      .slice(0, 8);
+    if (earners.length > 0) {
+      addHeading(t('ascent.ledger.from'), t('ascent.ledger.fromHint'));
+      addWidget(0, (parent, width) => self.actionTiles(parent, width, earners.map((land) => {
+        const water = Math.round(waterTradeBonus(state, land) * 100);
+        const block = Math.round(landTradeNetworkBonus(state, land) * 100);
+        return {
+          title: land.name,
+          note: [
+            water > 0 ? t('ascent.ledger.fromWater', { pct: water }) : t('ascent.ledger.fromDry'),
+            block > 0 ? t('ascent.ledger.fromBlock', { pct: block }) : '',
+          ].filter(Boolean).join(' · '),
+          costs: [resourceChip('gold', Math.round(land.outputs.gold))],
+          border: water > 0 ? INK_UI.jade : INK_UI.softBrush,
+          onTap: () => showBuildOptions(self, land.id),
+        };
+      })));
+    }
+  }
+
   // The stores: what would rot, sold through the markets. One row a store, the sale on the tap
   // and the waste line under it, so a granary reading sixty thousand is a number with a verb next
   // to it rather than a scoreboard. See `GranarySystem`.
@@ -728,7 +790,7 @@ export function showLedgerScreen(self: ConquestUIScene): void {
       capacity: `${glyph}${quote.capacity}`,
       from: `${glyph}${compactNumber(storeWasteFrom(state, key))}`,
       rate: Math.round(STORE_WASTE_RATE * 100),
-    })}${wasted > 0 ? `\n${t('ascent.ledger.wasted', { n: `${glyph}${wasted}` })}` : ''}`;
+    })}${wasted > 0 ? `\n${t('ascent.ledger.wasted', { n: `${glyph}${wasted}` })}` : ''}${quote.glut < GLUT_WARN_BELOW ? `\n${t('ascent.ledger.glut', { pct: Math.round(quote.glut * 100) })}` : ''}`;
     if (quote.blocked) {
       const why = quote.blocked === 'no-market'
         ? t('ascent.ledger.sellNoMarket', { resource: name })

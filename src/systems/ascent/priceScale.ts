@@ -43,7 +43,28 @@ import {
   PRICE_WEALTH_STORE_USE_FLOOR,
   TREASURY_GRAFT_FROM,
   TREASURY_GRAFT_SEASONS,
+  PAR_CEILING_EXPONENT,
+  PAR_GAIN_ROUND_EXPONENT,
+  PAR_GAIN_SKILL_EXPONENT_ABOVE,
+  PAR_GAIN_SKILL_EXPONENT_BELOW,
+  PAR_GAIN_SKILL_MAX,
+  PAR_GAIN_SKILL_MIN,
+  PAR_GROSS,
+  PAR_HOARD_EXPONENT,
+  PAR_HOARD_FREE_SEASONS,
+  PAR_HOARD_MAX,
+  PAR_PRICE_MAX,
+  PAR_ROUND_EXPONENT,
+  PAR_SKILL_EXPONENT_ABOVE,
+  PAR_SKILL_EXPONENT_BELOW,
+  PAR_SKILL_MAX,
+  PAR_SKILL_MIN,
+  PAR_TREASURY,
+  PAR_TREASURY_SEASONS,
+  UPKEEP_ROUND_EXPONENT,
+  UPKEEP_ROUND_MAX,
 } from '../../game/ascentConfig';
+import { rulesOf } from '../../game/ascentRuleset';
 import type { GameState, ResourceBag } from '../../state/types';
 
 /** The stores a price can be quoted in. People are never scaled: a man is a man. */
@@ -55,10 +76,92 @@ export function realmGrossGold(state: GameState): number {
   return Math.max(0, state.ascentLedger?.gold.gross ?? 0);
 }
 
+// ── The par curve: prices read the round, and how far the realm stands from a normal one ──
+//
+// Reported 2026-09-15: *"make a smart scaling that does not make users feel no progression (my skill
+// no matter) — difficult but still enjoyable. Consider current gold, the invasion round, and the
+// delta between the user's gold and a base number we feel is normal for all users."*
+//
+// The income x hoard scale priced a realm against *itself*: whatever it earned, prices followed at
+// the 0.6 power, and a treasury above four seasons paid again. So a strong realm's lead was taxed
+// twice, and a real player at wave ~10 (gross 470, 5.7k gold) paid x3.95 — less buying power than a
+// normal realm at the same wave. Skill did not show.
+//
+// Par prices split the scale into what everyone pays and what a lead pays:
+//  - **Round** — what a normal realm grosses at this wave (`PAR_GROSS`) against the founding's 120,
+//    at the 0.7 power. The war gets dearer for everyone as it goes on.
+//  - **Standing** — the realm's worth (gross + treasury/16) over par's, passed through at `r^0.4`
+//    above par and `r^0.25` below, ramped in over the first waves. A realm at twice par pays 1.32x
+//    and keeps 1.52x par's buying power: the lead is priced, never erased.
+//  - **Ceiling** — never more than income can carry (`(gross/120)^0.75`), so a realm is not priced
+//    out by a treasury it has no income behind.
+//  - **Hoard** — only past ten seasons of income held (see `targetWealthScale`), so saving toward a
+//    mercenary company is a plan while sitting on gold is still not a strategy.
+
+/** A per-wave table read at the run's wave, flat after its last entry. */
+function parAt(table: readonly number[], wave: number): number {
+  return table[Math.max(0, Math.min(table.length - 1, Math.floor(wave)))] ?? table[table.length - 1];
+}
+
+/** True when this run prices against the par curve. */
+export function parPricesActive(state: GameState): boolean {
+  return state.gameMode === 'ascent' && !!state.ascent && rulesOf(state).parPrices;
+}
+
+/** Gross gold a season and treasury a normal realm holds at this run's wave. */
+export function parFigures(state: GameState): { gross: number; treasury: number } {
+  const wave = state.ascent?.wave ?? 0;
+  return { gross: parAt(PAR_GROSS, wave), treasury: parAt(PAR_TREASURY, wave) };
+}
+
+/** The round's weight on prices: 1 at the founding, climbing with what a normal realm earns. */
+export function parRound(state: GameState): number {
+  return Math.pow(parFigures(state).gross / PRICE_SCALE_BASE_GROSS, PAR_ROUND_EXPONENT);
+}
+
+/** The realm's worth over par's: gross plus a treasury counted as `PAR_TREASURY_SEASONS` of it. */
+export function parRatio(state: GameState): number {
+  const par = parFigures(state);
+  const worth = realmGrossGold(state) + Math.max(0, state.resources.gold) / PAR_TREASURY_SEASONS;
+  return worth / Math.max(1, par.gross + par.treasury / PAR_TREASURY_SEASONS);
+}
+
+/** 0 at the founding, 1 from the third wave: the opening is priced as written, whatever the purse. */
+function parRamp(state: GameState): number {
+  return Math.max(0, Math.min(1, ((state.ascent?.wave ?? 0) - 1) / 2));
+}
+
+function leadFactor(ratio: number, above: number, max: number, below: number, min: number, ramp: number): number {
+  const raw = ratio >= 1
+    ? Math.min(max, Math.pow(ratio, above))
+    : Math.max(min, Math.pow(Math.max(1e-6, ratio), below));
+  return 1 + (raw - 1) * ramp;
+}
+
+/** What the realm's standing against par adds to prices (1 = par). */
+export function parStanding(state: GameState): number {
+  return leadFactor(parRatio(state), PAR_SKILL_EXPONENT_ABOVE, PAR_SKILL_MAX, PAR_SKILL_EXPONENT_BELOW, PAR_SKILL_MIN, parRamp(state));
+}
+
+/**
+ * What standing costs climb by with the round (`upkeepRound`): hero pay, the hosts' coin, building
+ * upkeep, the offices' base wage. The round only — never the standing or the hoard, because an
+ * upkeep that grew with income would be the self-neutralising economy this mode escaped once.
+ * The literal 1 when the rule is off.
+ */
+export function upkeepRoundScale(state: GameState): number {
+  if (state.gameMode !== 'ascent' || !state.ascent || !rulesOf(state).upkeepRound) return 1;
+  return Math.min(UPKEEP_ROUND_MAX, Math.round(Math.pow(parRound(state), UPKEEP_ROUND_EXPONENT) * 100) / 100);
+}
+
 /** Where the income scale is heading: the live figure, before smoothing. */
 export function targetPriceScale(state: GameState): number {
   if (state.gameMode !== 'ascent') return 1;
   const gross = realmGrossGold(state);
+  if (parPricesActive(state)) {
+    const ceiling = Math.max(1, Math.pow(gross / PRICE_SCALE_BASE_GROSS, PAR_CEILING_EXPONENT));
+    return Math.max(1, Math.min(PAR_PRICE_MAX, parRound(state) * parStanding(state), ceiling));
+  }
   if (gross <= PRICE_SCALE_BASE_GROSS) return 1;
   return Math.min(PRICE_SCALE_MAX, Math.pow(gross / PRICE_SCALE_BASE_GROSS, PRICE_SCALE_EXPONENT));
 }
@@ -82,6 +185,12 @@ export function heldSeasons(state: GameState, store: PricedStore): number {
 export function targetWealthScale(state: GameState, store: PricedStore): number {
   if (state.gameMode !== 'ascent') return 1;
   const held = heldSeasons(state, store);
+  // Under par prices the treasury already counts toward standing, so the hoard factor waits for a
+  // real hoard: ten seasons of income, not four. Grain and goods keep their own reading.
+  if (store === 'gold' && parPricesActive(state)) {
+    if (held <= PAR_HOARD_FREE_SEASONS) return 1;
+    return Math.min(PAR_HOARD_MAX, Math.pow(held / PAR_HOARD_FREE_SEASONS, PAR_HOARD_EXPONENT));
+  }
   if (held <= PRICE_WEALTH_FREE_SEASONS) return 1;
   return Math.min(PRICE_WEALTH_MAX, Math.pow(held / PRICE_WEALTH_FREE_SEASONS, PRICE_WEALTH_EXPONENT));
 }
@@ -161,6 +270,17 @@ export function scaledCost(state: GameState, cost: Partial<ResourceBag>): Partia
 export function gainScale(state: GameState, store: keyof ResourceBag): number {
   if (state.gameMode !== 'ascent' || !state.ascent) return 1;
   const ledger = state.ascentLedger;
+  // Under par prices a reward follows the round and a softer share of the realm's standing than
+  // prices take, so buying power drifts 1.0-1.4 across a run for every kind of player.
+  if ((store === 'gold' || store === 'humans') && parPricesActive(state)) {
+    const round = Math.pow(parFigures(state).gross / PRICE_SCALE_BASE_GROSS, PAR_GAIN_ROUND_EXPONENT);
+    const lead = leadFactor(parRatio(state), PAR_GAIN_SKILL_EXPONENT_ABOVE, PAR_GAIN_SKILL_MAX, PAR_GAIN_SKILL_EXPONENT_BELOW, PAR_GAIN_SKILL_MIN, parRamp(state));
+    // The same ceiling prices wear: a reward never outruns what the realm's income could buy with
+    // it. Without it a two-province realm grossing 100 at wave 8 was paid x2.77 on every windfall
+    // while its prices sat at x1.0 — the buying-power drift this curve exists to hold near 1.
+    const ceiling = Math.max(1, Math.pow(realmGrossGold(state) / PRICE_SCALE_BASE_GROSS, PAR_CEILING_EXPONENT));
+    return Math.max(1, Math.min(GAIN_SCALE_MAX, round * lead, ceiling));
+  }
   const gross = store === 'humans' || store === 'gold'
     ? realmGrossGold(state)
     : Math.max(0, ledger?.[store].gross ?? 0);
@@ -213,4 +333,37 @@ export function scaledGain(state: GameState, bag: Partial<ResourceBag>): Partial
  */
 export function treasuryGraftFrom(state: GameState): number {
   return Math.max(TREASURY_GRAFT_FROM, Math.round(realmGrossGold(state) * TREASURY_GRAFT_SEASONS));
+}
+
+/**
+ * The price scale taken apart for the Books page: what the round asks, what the realm's standing
+ * adds, what a hoard adds. `worth` is the standing itself — so it agrees with the ratio printed beside
+ * it — and `round` is what remains of the smoothed scale once the standing is divided out, so the
+ * three always multiply to the total prices really wear. When income caps the price (the ceiling),
+ * that shows as a smaller round, never as a realm standing below par.
+ */
+export interface PriceBreakdown {
+  total: number;
+  round: number;
+  worth: number;
+  hoard: number;
+  ratio: number;
+  parGross: number;
+  parTreasury: number;
+}
+
+export function priceBreakdown(state: GameState): PriceBreakdown | undefined {
+  if (!parPricesActive(state)) return undefined;
+  const par = parFigures(state);
+  const standing = Math.max(0.01, parStanding(state));
+  const income = realmIncomeScale(state);
+  return {
+    total: realmPriceScale(state),
+    round: Math.round((income / standing) * 100) / 100,
+    worth: Math.round(standing * 100) / 100,
+    hoard: realmWealthScale(state, 'gold'),
+    ratio: Math.round(parRatio(state) * 100) / 100,
+    parGross: par.gross,
+    parTreasury: par.treasury,
+  };
 }

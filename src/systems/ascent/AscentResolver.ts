@@ -27,6 +27,7 @@ import { resolveDoctrine } from './RealmDoctrineSystem';
 import { resolveEnvoy } from './EnvoySystem';
 import { resolveProvinceOrder } from './ProvinceOrderSystem';
 import { resolveFamine } from './FamineSystem';
+import { resolveHeroRaise } from './HeroRaiseSystem';
 import { resolveRestore } from './RestoreSystem';
 import { relieveHost } from './hostRescue';
 import { releaseHost } from '../WarSystem';
@@ -297,6 +298,11 @@ export function resolveAscentPrompt(state: GameState, choiceId: string): boolean
 
     case 'famine': {
       handled = resolveFamine(state, choiceId);
+      break;
+    }
+
+    case 'hero-raise': {
+      handled = resolveHeroRaise(state, prompt, choiceId);
       break;
     }
 

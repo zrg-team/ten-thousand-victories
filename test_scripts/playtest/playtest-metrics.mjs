@@ -32,8 +32,14 @@ const RULESET_RAW = process.argv.includes('--ruleset') ? process.argv[process.ar
 const RULESET = RULESET_ALIAS[RULESET_RAW] ?? RULESET_RAW;
 const SEEDS = Array.from({ length: SEED_COUNT }, (_, i) => 11 + i * 11);
 
+// `--override '{"v2":{"parPrices":false}}'` measures a version with some of its rule fields switched,
+// set before navigation so both module instances read it (see `ascentRuleset.ts`). An overridden run
+// never writes the metrics file, so the recorded score is always the shipped rules'.
+const OVERRIDE = process.argv.includes('--override') ? process.argv[process.argv.indexOf('--override') + 1] : undefined;
+
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+if (OVERRIDE) await page.addInitScript((o) => { globalThis.__ascentRulesetOverride = JSON.parse(o); }, OVERRIDE);
 const errors = [];
 page.on('pageerror', (e) => errors.push(`PAGEERROR ${e.message}`));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(`CONSOLE ${m.text().slice(0, 200)}`); });
@@ -255,7 +261,7 @@ const report = {
 };
 
 mkdirSync('output/playtest', { recursive: true });
-writeFileSync(RULESET === 'v2' ? 'output/playtest/metrics.json' : `output/playtest/metrics.${RULESET}.json`, JSON.stringify(report, null, 2));
+if (!OVERRIDE) writeFileSync(RULESET === 'v2' ? 'output/playtest/metrics.json' : `output/playtest/metrics.${RULESET}.json`, JSON.stringify(report, null, 2));
 
 if (JSON_ONLY) {
   console.log(JSON.stringify(report, null, 2));

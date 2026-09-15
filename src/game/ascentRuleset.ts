@@ -135,6 +135,39 @@ export interface AscentRuleset {
    * Off is the shipped price: a base or a flat share of the treasury, whichever is greater.
    */
   readonly talentPriceByFavor: boolean;
+  /**
+   * Economy round 2026-09-15 — reported as "gold and goods grow too fast, so the numbers stop
+   * meaning anything". One switch per lever so each can be measured alone.
+   *
+   * damperNetwork — owning the land around a province is worth much less: an owned neighbour adds
+   * 0.75 of a road instead of 2, and the connected block adds +3% a province (cap +30%) instead of
+   * +9% (cap +160%). A province is worth holding for what it makes, not for touching other land.
+   */
+  readonly damperNetwork: boolean;
+  /**
+   * waterTrade — a province with hexes on a river or the sea trades by water: its coin lines earn up
+   * to +60%, its markets a flat bonus, its farms irrigation, and only it can raise a harbour. Water
+   * hexes never belong to a province (`terrainSummary.water` is always 0), so this counts the
+   * province's own hexes that touch water — see `systems/ascent/WaterTrade.ts`.
+   */
+  readonly waterTrade: boolean;
+  /**
+   * goodsSink — goods are used up: walls, towers, barracks and the civic districts wear goods to
+   * keep, hosts wear out their kit, and production climbs a flatter curve per level.
+   */
+  readonly goodsSink: boolean;
+  /** marketGlut — a store sold season after season floods the market and the price falls; it recovers while the market rests. */
+  readonly marketGlut: boolean;
+  /**
+   * parPrices — the price scale reads the invasion round and how far the realm stands above or below
+   * a normal realm at that round (the par curve), passing only part of a lead into prices so skill
+   * keeps buying more than par. Off is the income x hoard scale. See `priceScale.ts`.
+   */
+  readonly parPrices: boolean;
+  /** upkeepRound — standing costs (hero pay, hosts, building upkeep, the offices' base wage) climb with the round, never with wealth. */
+  readonly upkeepRound: boolean;
+  /** heroRaises — champions ask for more pay by level, deeds and temperament; a proud one refused again and again may leave. */
+  readonly heroRaises: boolean;
 }
 // strikeSizing, measured and NOT adopted for v2 (verify-skill-ceiling, 16 dev seeds, goal at
 // capital + 2, 2026-09-13; beta baseline: raw spread 1.31×, paired 78%, agency 1.60×):
@@ -194,6 +227,13 @@ const V1: AscentRuleset = {
   strikeSizing: 0,
   scaledStories: false,
   talentPriceByFavor: false,
+  damperNetwork: false,
+  waterTrade: false,
+  goodsSink: false,
+  marketGlut: false,
+  parPrices: false,
+  upkeepRound: false,
+  heroRaises: false,
 };
 
 /** V2 — V1 plus everything the beta proved. Spread, so a field V2 does not name reads as V1. */
@@ -230,6 +270,15 @@ const V2: AscentRuleset = {
   aggressorForecast: 5,
   threatRefresh: true,
   scopeLabels: true,
+  // Economy round, 2026-09-15: changed in v2 directly at the user's call. Each lever is measured
+  // against the others switched off with `__ascentRulesetOverride` (diag-economy-v2.mjs --override).
+  damperNetwork: true,
+  waterTrade: true,
+  goodsSink: true,
+  marketGlut: true,
+  parPrices: true,
+  upkeepRound: true,
+  heroRaises: true,
 };
 
 declare global {

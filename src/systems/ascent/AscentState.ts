@@ -212,6 +212,8 @@ const PROMPT_PRIORITY: Record<AscentPromptKind, number> = {
   // the rebuilding is not decided, and the decision is what the fight was for.
   'restore-land': 3.3,
   'hero-choice': 10,
+  // A champion's pay: after the summon, before the reward draft. It waits a season without harm.
+  'hero-raise': 10.5,
   'power-draft': 11,
   // Below every decision that moves the run and above the reward draft. A blow that has already
   // been telegraphed by two whispers should not jump ahead of a wave landing, but it must not sit

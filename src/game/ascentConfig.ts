@@ -3020,3 +3020,218 @@ export const SUPPLY_NEIGHBOR_WEIGHTS = {
  * and mountains, which is exactly where a maintained road is the difference.
  */
 export const OWN_GROUND_MARCH_BONUS = 0.7;
+
+// ── Economy round, 2026-09-15: slower growth, water trade, goods that are used, smart prices ──
+/**
+ * Reported with two screenshots (year 13–19, six provinces): gold 6.8k at +236 a season, goods
+ * 1.4k at +546, and the Books page itemising a seven-hero payroll of 46, building upkeep of 17 and
+ * a 145-man host at 6 — numbers too small to decide anything about, beside income too large to
+ * notice. Measured on v2 (16 seeds, `diag-economy-v2.mjs`): goods had no use but the market, which
+ * took 40 units a market level at a flat 0.2 gold and so turned the player's 1,120 goods into 224
+ * gold a season, half their gross; and a province's coin was set by how much of *our* land touched
+ * it. Every constant below is switched per ruleset field (`game/ascentRuleset.ts`); v1 never reads
+ * them.
+ */
+
+/**
+ * damperNetwork — what an owned neighbour weighs in a province's trade (was 1), just above a
+ * neutral village's 0.55. Owning the land next door no longer makes a province richer than trading
+ * with it did. The first cut tried here (0.75 of a road for *every* neighbour, and 0.75 gold a road
+ * on markets) also took the neutral neighbours' roads away and halved the founding's gross (107 ->
+ * 58, 16/16 engaged runs dead by wave 17): the complaint was the growth from connected land, not the
+ * base a province draws from the country around it.
+ */
+export const NETWORK_OWN_NEIGHBOUR_WEIGHT = 0.6;
+/** damperNetwork — the connected block's trade multiplier: +3% a province, capped at +30% (was 9% / 160%). */
+export const NETWORK_TRADE_PER_LAND = 0.03;
+export const NETWORK_TRADE_MAX = 0.3;
+
+/**
+ * waterTrade — what a province's hexes on a river or the coast are worth (see `WaterTrade.ts`).
+ * 0.12 + 0.04 a hex, capped at +60%: a five-hex bank earns +32%, a twelve-hex delta the cap. Sized
+ * so that a well-watered province roughly buys back what `damperNetwork` took from a well-connected
+ * one — the value moved from adjacency to water, it did not vanish.
+ */
+export const WATER_TRADE_BASE = 0.12;
+export const WATER_TRADE_PER_HEX = 0.04;
+export const WATER_TRADE_MAX = 0.6;
+/** waterTrade — flat coin per market level from the quay, and grain per farm level from irrigation. */
+export const WATER_MARKET_FLAT_PER_HEX = 0.6;
+export const WATER_MARKET_FLAT_MAX = 6;
+export const WATER_IRRIGATION_PER_HEX = 0.5;
+export const WATER_IRRIGATION_MAX = 4;
+/** waterTrade — waterside hexes at which the focus advisor reads a province as fully wet. */
+export const WATER_WET_FULL_HEXES = 6;
+
+/**
+ * goodsSink — goods a district of each kind wears a season per level, times the level's upkeep
+ * curve (the same shape its coin upkeep has). The garrison districts wear the most: walls are kept
+ * with timber and iron, not coin. A lighter linear table (wall 0.5, army 0.01) was measured and
+ * rejected: on 48 funscore seeds it read 72.8 against 83.2 for these numbers — a sink too light
+ * lets goods pile back up and the market turns them into coin again.
+ */
+export const GOODS_UPKEEP_PER_LEVEL: Readonly<Partial<Record<'wall' | 'tower' | 'barracks' | 'communalHall' | 'workshop' | 'guild' | 'university' | 'harbor', number>>> = {
+  wall: 1,
+  tower: 1,
+  barracks: 2,
+  communalHall: 1,
+  workshop: 1,
+  guild: 2,
+  university: 2,
+  harbor: 1,
+};
+/** goodsSink — goods a soldier wears out a season (was one per 650 men, rounded up). */
+export const ARMY_GOODS_PER_SOLDIER = 0.015;
+/**
+ * goodsSink — the goods a production district makes per level, L1..L5 (was 1 / 1.7 / 2.7 / 4.0 / 5.6).
+ * Goods only: the first cut flattened every resource, and with coin flattened too the offices' flat
+ * wages rose to 47% of gross and the engaged driver's median reign fell from 22 waves to 15 (16 seeds).
+ */
+export const PRODUCTION_LEVEL_CURVE: readonly number[] = [1, 1.6, 2.35, 3.15, 4];
+
+/**
+ * marketGlut — units sold recently depress the price. `recent` decays by `GLUT_DECAY` a season;
+ * the unit price is the base over `1 + recent / (GLUT_DEPTH x capacity)`, never under
+ * `GLUT_FLOOR` of the base. Selling a full lot every season settles at the floor (recent
+ * converges on four lots); selling every third season fetches about two thirds of the base.
+ */
+export const GLUT_DECAY = 0.75;
+export const GLUT_DEPTH = 2;
+export const GLUT_FLOOR = 0.35;
+/** Below this share of the base price the Books row says the market is flooded. */
+export const GLUT_WARN_BELOW = 0.8;
+
+/**
+ * parPrices — the par curve: gross gold a season and treasury a normal realm holds at each wave,
+ * index = wave, flat after the last entry.
+ *
+ * Waves 0-5 are measured: `diag-economy-v2.mjs` on this round's economy (engaged driver, the median
+ * per wave, running maximum). Past wave 5 the driver stops being a normal realm — it loses land
+ * faster than it takes it, so its median plateaus from wave 3 and would freeze the round's weight
+ * there for the rest of the reign. Par climbs linearly instead, to what the surviving engaged realms
+ * grossed and held late on the old economy scaled by this round's cut (~450 / ~2,250 at wave 25), so
+ * every wave still costs a little more than the last. Re-derive whenever the economy's numbers move.
+ */
+export const PAR_GROSS: readonly number[] = [
+  120, 150, 180, 230, 270, 280, 290, 300, 310, 320, 330, 340, 350,
+  360, 370, 380, 390, 400, 410, 420, 425, 430, 435, 440, 445, 450,
+];
+export const PAR_TREASURY: readonly number[] = [
+  450, 850, 850, 850, 900, 1250, 1300, 1350, 1400, 1450, 1500, 1550, 1600,
+  1650, 1700, 1750, 1800, 1850, 1900, 1950, 2000, 2050, 2100, 2150, 2200, 2250,
+];
+/** parPrices — seasons of treasury counted as one season of income when weighing a realm against par. */
+export const PAR_TREASURY_SEASONS = 16;
+/**
+ * parPrices — how much of a lead over par reaches prices: `r^0.25` above par (a realm at twice par
+ * pays 1.19x and keeps 1.68x par's buying power), `r^0.25` below (a struggling realm pays at most 15%
+ * less, and never under the written price). 0.40 was the first design (twice par kept 1.52x) and was
+ * measured charging the wide, high-earning plan for its lead: verify-skill-ceiling Frontier 18.0 waves
+ * with par prices off vs 13.8 on (32 seeds). At 0.25 every engaged plan beats declining by 1.59x.
+ */
+export const PAR_SKILL_EXPONENT_ABOVE = 0.25;
+export const PAR_SKILL_MAX = 2;
+export const PAR_SKILL_EXPONENT_BELOW = 0.25;
+export const PAR_SKILL_MIN = 0.85;
+/** parPrices — the round's own weight: `(parGross / 120) ^ 0.7`, 1.0 at the founding. */
+export const PAR_ROUND_EXPONENT = 0.7;
+/** parPrices — no premium a realm's income cannot carry: the index never exceeds `(gross / 120) ^ 0.75`. */
+export const PAR_CEILING_EXPONENT = 0.75;
+export const PAR_PRICE_MAX = 12;
+/** parPrices — seasons of income a treasury holds before the hoard factor starts (was 4), its exponent and cap. */
+export const PAR_HOARD_FREE_SEASONS = 10;
+export const PAR_HOARD_EXPONENT = 0.5;
+export const PAR_HOARD_MAX = 2.5;
+/** parPrices — one-time rewards: the round at `^0.8`, and a softer share of the lead than prices take. */
+export const PAR_GAIN_ROUND_EXPONENT = 0.8;
+export const PAR_GAIN_SKILL_EXPONENT_ABOVE = 0.3;
+export const PAR_GAIN_SKILL_MAX = 1.75;
+export const PAR_GAIN_SKILL_EXPONENT_BELOW = 0.1875;
+export const PAR_GAIN_SKILL_MIN = 0.885;
+
+/**
+ * upkeepRound — standing costs wear the round: `round ^ UPKEEP_ROUND_EXPONENT`, capped. Hero pay, the
+ * hosts' coin and building upkeep — not the offices' wage, which already carries 15% of each province's
+ * own output. The coin a wage costs follows a *normal* realm's income, never the player's own, so a
+ * realm earning above par pays the same and keeps the difference. 0.6 gives x1.49 at wave 8 and x1.77
+ * at wave 25. The first cut, 0.25 (x1.18 at wave 8), left a seven-hero payroll at 46 and a 402-man host
+ * at 16 against a gross of 262 — reported as "all under 20, really small"; 1.0 (x1.94) was measured
+ * too, and with the other levers cost the engaged driver 1.5 more waves than 0.6 for no gain in agency.
+ */
+export const UPKEEP_ROUND_EXPONENT = 0.6;
+export const UPKEEP_ROUND_MAX = 3;
+
+/**
+ * parPrices — a one-time story or court cost is never less than `authored x (treasury / REF) ^ EXP`,
+ * and that floor never more than `CAP` of the treasury. Reported: a 40-gold story charged 64 to a
+ * realm holding 4,700 — 1.4% of the purse — because every price reads income and a treasury of
+ * eighteen seasons of it only reached prices through the hoard factor. At 0.7 a story written at 40
+ * costs ~190 at 4,700 (4%) and ~330 at 10,000 (3.3%): the purse makes a choice weigh something, and a
+ * bigger purse still buys relatively more, so saving keeps its value. Below REF nothing changes.
+ * 0.6 / 15% was tried with the lighter goods table and rejected with it (see `GOODS_UPKEEP_PER_LEVEL`).
+ */
+export const STORY_TREASURY_REF = 500;
+export const STORY_TREASURY_EXPONENT = 0.7;
+export const STORY_TREASURY_CAP = 0.4;
+
+// ── Hero pay and raises (heroRaises, 2026-09-15) — see systems/heroes/heroPay.ts ──
+/** Wage per level past the first: a level-8 champion draws 2.05x the written wage. */
+export const HERO_PAY_PER_LEVEL = 0.15;
+/** Seasons each temperament serves before expecting a raise (a wave is ~13 seasons). */
+export const HERO_PATIENCE_SEASONS: Readonly<Record<'modest' | 'steady' | 'ambitious' | 'greedy', number>> = {
+  modest: 60,
+  steady: 44,
+  ambitious: 32,
+  greedy: 24,
+};
+/** How much each level held and each battle won since the last raise shortens patience, and the floor it never passes. */
+export const HERO_PATIENCE_PER_LEVEL = 0.06;
+export const HERO_PATIENCE_PER_WIN = 0.05;
+export const HERO_PATIENCE_FLOOR = 0.5;
+/** No champion asks before this wave: the opening is for setting up, not for wage talks. */
+export const HERO_RAISE_FROM_WAVE = 3;
+/** Seasons between one champion's asks, granted or not. */
+export const HERO_RAISE_ASK_GAP = 20;
+/**
+ * The size of an ask: this share of the realm's gross gold a season, times the temperament's
+ * appetite and the square root of the level over three — sized to what the realm earns now,
+ * the way the player asked — and never under a fifth of the hero's current wage.
+ */
+export const HERO_RAISE_INCOME_SHARE = 0.025;
+export const HERO_RAISE_APPETITE: Readonly<Record<'modest' | 'steady' | 'ambitious' | 'greedy', number>> = {
+  modest: 0.7,
+  steady: 1,
+  ambitious: 1.3,
+  greedy: 1.6,
+};
+export const HERO_RAISE_MIN_SHARE = 0.2;
+/** A champion whose wage already passes this share of gross is content and does not ask. */
+export const HERO_WAGE_GROSS_CAP = 0.08;
+/** Loyalty a granted raise buys, and a one-time reward. */
+export const HERO_RAISE_GRANT_LOYALTY = 8;
+export const HERO_RAISE_REWARD_LOYALTY = 3;
+/** A one-time reward pays this many seasons of the ask, and resets half the clock. */
+export const HERO_RAISE_REWARD_SEASONS = 6;
+/** Loyalty a refusal costs, by temperament. */
+export const HERO_REFUSE_LOYALTY: Readonly<Record<'modest' | 'steady' | 'ambitious' | 'greedy', number>> = {
+  modest: 3,
+  steady: 6,
+  ambitious: 9,
+  greedy: 12,
+};
+/**
+ * Leaving is bounded on purpose ("not too hard"): only an ambitious or greedy champion, refused at
+ * least `HERO_LEAVE_REFUSALS` times, below `HERO_WARN_LOYALTY` gets a card that warns — and only a
+ * refusal of that warned card, at or below `HERO_LEAVE_LOYALTY`, sends them away.
+ */
+export const HERO_LEAVE_REFUSALS = 2;
+export const HERO_WARN_LOYALTY = 35;
+export const HERO_LEAVE_LOYALTY = 25;
+/**
+ * A champion already refused and still unraised past 1.5x patience loses a point of loyalty this often, never below the
+ * floor. Only after a refusal: the card is rare (0-4 a reign, measured), and draining every unasked champion to the
+ * floor punished a court for asks it was never given.
+ */
+export const HERO_NEGLECT_EVERY = 4;
+export const HERO_NEGLECT_OVERDUE = 1.5;
+export const HERO_NEGLECT_FLOOR = 30;

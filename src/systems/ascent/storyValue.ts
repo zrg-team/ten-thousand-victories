@@ -24,12 +24,20 @@
  * prices by several times, and the round is the part of difficulty they do not see.
  *
  * Never used on a per-season effect (`stipend`, `debt`, `exactTribute`): a recurring sum stacks
- * against a growing realm on its own, which is how a card becomes an engine. Nor on a mixed-sign
- * bag — an exchange rate the author wrote stays the rate they wrote.
+ * against a growing realm on its own, which is how a card becomes an engine. A mixed-sign bag — an
+ * exchange rate the author wrote — keeps its rate: under par prices both sides wear one factor
+ * (`tradeBagScale`), otherwise it lands as written.
+ *
+ * **Par prices** (v2, `parPrices`) carry the round inside the purse, so `roundScale` is 1 there, and
+ * add the purse itself: a coin cost is never less than `treasuryWeighted` — reported as a 40-gold
+ * story charging 64 to a realm holding 4,700.
  *
  * A leaf over `priceScale`, the ruleset registry and the config.
  */
 import {
+  STORY_TREASURY_CAP,
+  STORY_TREASURY_EXPONENT,
+  STORY_TREASURY_REF,
   STORY_PEOPLE_BASE,
   STORY_PEOPLE_EXPONENT,
   STORY_PEOPLE_MAX,
@@ -38,7 +46,7 @@ import {
 } from '../../game/ascentConfig';
 import { rulesOf } from '../../game/ascentRuleset';
 import type { GameState, ResourceBag, ValueBasis } from '../../state/types';
-import { realmPriceScale, scaledCost, scaledGain, storePriceScale } from './priceScale';
+import { parPricesActive, realmPriceScale, scaledCost, scaledGain, storePriceScale } from './priceScale';
 
 /** Whether this reign prices its stories by what they are about. */
 export function storiesScaled(state: GameState): boolean {
@@ -48,6 +56,9 @@ export function storiesScaled(state: GameState): boolean {
 /** How much later in the run this is: 1 at the founding, rising with every wave, capped. */
 export function roundScale(state: GameState): number {
   if (!storiesScaled(state)) return 1;
+  // Par prices already carry the round inside the purse (`parRound`); multiplying it in again here
+  // would charge a wave-25 story the round twice (x2.25 on top of x2.5).
+  if (parPricesActive(state)) return 1;
   const wave = Math.max(0, state.ascent?.wave ?? 0);
   return Math.min(STORY_ROUND_SCALE_MAX, 1 + STORY_ROUND_SCALE_PER_WAVE * wave);
 }
@@ -95,7 +106,37 @@ export function storyCost(state: GameState, cost: Partial<ResourceBag>, basis?: 
   if (seasons > 0 && (cost.gold ?? 0) > 0) {
     out.gold = Math.max(out.gold ?? 0, Math.ceil(hostWageBill(state) * seasons));
   }
+  // The purse the choice is weighed against (parPrices): a coin cost is never a rounding error beside
+  // the treasury the player is holding. See `STORY_TREASURY_EXPONENT`.
+  if ((cost.gold ?? 0) > 0 && out.gold !== undefined) {
+    out.gold = Math.max(out.gold, treasuryWeighted(state, cost.gold ?? 0));
+  }
   return out;
+}
+
+/**
+ * What an authored coin cost weighs against the treasury (parPrices): `authored x (treasury/REF)^0.7`,
+ * never more than `STORY_TREASURY_CAP` of the treasury, and 0 below REF or without the rule — the
+ * caller takes the greater of this and its own price.
+ */
+export function treasuryWeighted(state: GameState, authoredGold: number): number {
+  if (!parPricesActive(state) || authoredGold <= 0) return 0;
+  const treasury = Math.max(0, state.resources.gold);
+  if (treasury <= STORY_TREASURY_REF) return 0;
+  const weighted = authoredGold * Math.pow(treasury / STORY_TREASURY_REF, STORY_TREASURY_EXPONENT);
+  return Math.ceil(Math.min(weighted, treasury * STORY_TREASURY_CAP));
+}
+
+/**
+ * The one factor a court *trade* (a mixed-sign bag) is scaled by under parPrices, on both sides, so
+ * the exchange rate the author wrote is the rate paid and neither side is pocket change. 1 otherwise.
+ */
+export function tradeBagScale(state: GameState, bag: Partial<ResourceBag>): number {
+  if (!parPricesActive(state)) return 1;
+  const gold = Math.abs(bag.gold ?? 0);
+  const byPrice = realmPriceScale(state);
+  const byTreasury = gold > 0 ? treasuryWeighted(state, gold) / gold : 0;
+  return Math.max(1, byPrice, byTreasury);
 }
 
 /**

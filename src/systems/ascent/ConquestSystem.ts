@@ -1,3 +1,4 @@
+import { waterTradeBonus } from './WaterTrade';
 import { effectiveHeroStats } from '../heroes/heroModel';
 import { NEUTRAL_OWNER_ID, PLAYER_KINGDOM_ID } from '../../game/constants';
 import {
@@ -206,7 +207,8 @@ export function buildConquestTarget(state: GameState, land: Land): ConquestTarge
     ownerName: state.kingdoms.find((kingdom) => kingdom.id === land.ownerId)?.name,
     garrison: Math.round(landGarrisonPower(state, land)),
     rewardTag: rewardTag(land),
-    suits: landSuits(land),
+    suits: landSuits(land, state),
+    waterPct: Math.round(waterTradeBonus(state, land) * 100) || undefined,
     bestChance: open.reduce((best, method) => Math.max(best, method.chance), 0),
     hasCertainMethod: open.some((method) => method.chance >= 100),
     methods,
@@ -822,8 +824,8 @@ function bestBattle(state: GameState, land: Land): { chance: number; armyId?: st
  * player who reads the land — a delta for rice, a limestone shelf for iron, a crossroads for
  * coin — has to be able to read it before paying for it, or the skill has nowhere to show.
  */
-function landSuits(land: Land): ConquestTarget['suits'] {
-  const aptitude = getLandAptitude(land);
+function landSuits(land: Land, state: GameState): ConquestTarget['suits'] {
+  const aptitude = getLandAptitude(land, state);
   const focus = (['breadbasket', 'mining', 'trade'] as const)
     .reduce((best, next) => (aptitude[next] > aptitude[best] ? next : best));
   return { focus, pct: Math.round(aptitude[focus] * 100) };

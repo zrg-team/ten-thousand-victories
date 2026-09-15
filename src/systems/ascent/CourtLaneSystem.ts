@@ -14,7 +14,7 @@ import {
   getCourtPositionLabel,
   releaseHeroAssignment,
 } from '../CourtSystem';
-import { refreshAllLandOutputs } from '../ResourceSystem';
+import { heroWage, refreshAllLandOutputs } from '../ResourceSystem';
 import { estateStanding, overreach } from '../DecreeSystem';
 import { ennobled } from '../decree/rules';
 import { weightedPickIndex } from '../../utils/math';
@@ -179,7 +179,9 @@ export function buildAppointmentOptions(state: GameState, hero: Hero): Appointme
       id: 'dismiss',
       role: 'dismiss',
       title: t('ascent.appoint.dismiss'),
-      effect: t('ascent.appoint.dismissFx', { gold: hero.upkeepGold }),
+      // What letting them go actually saves: the wage they draw (half for the unposted), not the
+      // written figure, which the card used to print for everyone.
+      effect: t('ascent.appoint.dismissFx', { gold: Math.round(heroWage(state, hero) * 10) / 10 }),
       detail: t('ascent.appoint.dismissNote'),
     });
   }
@@ -220,6 +222,7 @@ export function dismissHero(state: GameState, heroId: string): boolean {
   const hero = state.heroes.find((candidate) => candidate.id === heroId);
   if (!hero || !canDismissHero(state, hero)) return false;
   const wasGovernor = Boolean(hero.assignedTo && state.lands.some((land) => land.id === hero.assignedTo));
+  const savedWage = Math.round(heroWage(state, hero) * 10) / 10;
   releaseHeroAssignment(state, hero);
   if (wasGovernor) refreshAllLandOutputs(state);
   state.heroes = state.heroes.filter((candidate) => candidate.id !== heroId);
@@ -229,7 +232,7 @@ export function dismissHero(state: GameState, heroId: string): boolean {
   if (state.ascent) {
     state.ascent.reservedHeroIds = state.ascent.reservedHeroIds.filter((id) => id !== heroId);
   }
-  pushToast(state, t('ascent.appoint.dismissed', { hero: heroName(hero), gold: hero.upkeepGold }), 'info');
+  pushToast(state, t('ascent.appoint.dismissed', { hero: heroName(hero), gold: savedWage }), 'info');
   return true;
 }
 

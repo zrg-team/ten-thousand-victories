@@ -19,6 +19,8 @@ import { projectDescription, projectEffectSummary, projectTitle } from '../../..
 import { getProject } from '../../../data/edicts';
 import { lawCardView } from '../../../systems/ascent/CourtLaneSystem';
 import { heroPayroll } from '../../../systems/ResourceSystem';
+import { refusalWouldLose } from '../../../systems/ascent/HeroRaiseSystem';
+import { HERO_RAISE_GRANT_LOYALTY, HERO_RAISE_REWARD_LOYALTY, HERO_REFUSE_LOYALTY } from '../../../game/ascentConfig';
 import { heroTitleLine } from '../../../ui/heroPickerRows';
 import { eraLabel } from '../../../systems/empire/MandateSystem';
 import { INK_UI } from '../../../ui/InkUI';
@@ -389,4 +391,60 @@ export function showParliament(self: ConquestUIScene, prompt: Extract<AscentProm
     back: { onTap: () => { self.choose('decline'); self.openLane('court'); } },
     close: { label: t('ascent.parliament.decline'), onTap: () => self.choose('decline') },
   });
+}
+
+/**
+ * A champion asks for more pay. Three answers — raise, reward once, refuse — each with its price
+ * printed, and a refusal that would send the champion away says so on its own card before it is
+ * tapped. Sized to the realm's income, so the ask reads as a share of it. See `HeroRaiseSystem`.
+ */
+export function showHeroRaise(self: ConquestUIScene, prompt: Extract<AscentPrompt, { kind: 'hero-raise' }>): void {
+  const hero = self.state.heroes.find((candidate) => candidate.id === prompt.heroId);
+  const gross = Math.max(1, self.state.ascentLedger?.gold.gross ?? 0);
+  const leaves = hero ? refusalWouldLose(self.state, hero, prompt.temperament, prompt.warn) : false;
+  const body = [
+    hero ? `${heroTypeLabel(hero.type)}  ·  ${heroStatLine(hero)}` : '',
+    t('ascent.payRaise.body', {
+      seasons: prompt.seasons,
+      wage: Math.round(prompt.wage),
+      ask: prompt.ask,
+      pct: Math.max(1, Math.round((prompt.ask / gross) * 100)),
+      temper: t(`ascent.payRaise.temper.${prompt.temperament}` as Parameters<typeof t>[0]),
+    }),
+    prompt.warn ? t('ascent.payRaise.warn') : '',
+  ].filter(Boolean).join('\n');
+  const { body: scroll, bodyWidth, finish } = self.promptScrollBody(
+    t('ascent.payRaise.title', { hero: hero ? heroName(hero) : '' }),
+    body,
+    0,
+  );
+
+  const rowHeight = 74;
+  const cards: Phaser.GameObjects.Container[] = [];
+  let used = 0;
+  for (const option of prompt.options) {
+    const detail = option.id === 'grant'
+      ? t('ascent.payRaise.grantD', { ask: prompt.ask, loyalty: HERO_RAISE_GRANT_LOYALTY })
+      : option.id === 'reward'
+        ? t('ascent.payRaise.rewardD', { loyalty: HERO_RAISE_REWARD_LOYALTY })
+        : t(leaves ? 'ascent.payRaise.refuseLeaveD' : 'ascent.payRaise.refuseD', { loyalty: HERO_REFUSE_LOYALTY[prompt.temperament] });
+    const card = self.optionCard(
+      { x: 0, y: used, width: bodyWidth, height: rowHeight },
+      {
+        title: t(`ascent.payRaise.${option.id}` as Parameters<typeof t>[0]),
+        body: detail,
+        costs: option.cost ? resourceChips(option.cost, option.affordable ? undefined : INK_UI.cinnabar) : undefined,
+        note: option.cost && !option.affordable ? t('ascent.response.cantAfford') : undefined,
+        noteColor: option.affordable ? undefined : '#a4402c',
+        accent: !option.affordable ? INK_UI.softBrush : option.id === 'refuse' ? INK_UI.cinnabar : option.id === 'grant' ? INK_UI.jade : INK_UI.gold,
+        disabled: !option.affordable,
+        parent: scroll,
+        onTap: () => self.choose(option.id),
+      },
+    );
+    cards.push(card);
+    used += ((card.getData('cardHeight') as number) ?? rowHeight) + 9;
+  }
+  staggerIn(self, cards);
+  finish(used);
 }
