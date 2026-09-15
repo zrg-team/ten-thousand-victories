@@ -20,7 +20,7 @@ import { createMapRenderer } from '../../ui/MapRenderer';
 import { BACK_BAR_BAND, InkUI, INK_UI, INK_UI_HEX } from '../../ui/InkUI';
 import { Copilot, type CopilotStep } from '../../ui/Copilot';
 import { TITLE_FONT, UI_FONT } from '../../ui/fonts';
-import { dongHoWordmark } from '../../ui/ink/dongHoWordmark';
+import { dongHoWordmark, WORDMARK_ASPECT } from '../../ui/ink/dongHoWordmark';
 import { applyPaperFX } from '../../ui/ink/PaperFX';
 import { applyPendingRenderScale, applyRenderScale } from '../../game/graphicsQuality';
 import { notifyShellReady } from '../../platform/shell';
@@ -38,6 +38,7 @@ import { takeReloadReason } from '../../game/resilience';
 import { pushToast } from '../../systems/empire/notifications';
 import { ARRIVING_PAGES, PAGE_ARRIVAL_BAND, PAGE_ARRIVAL_RISE } from './constants';
 import { openMainScroll } from './scrollOpening';
+import { finishTitleRise, rangePeakY, riseTitle } from './titleRise';
 import { showLandscape } from './backdrop';
 import type { MenuScene } from '../MenuScene';
 
@@ -253,8 +254,9 @@ export function render(self: MenuScene): void {
   // The landscape is the front page's. Every other page is a sheet of paper, like the three
   // page scenes it stands beside in the footer.
   showLandscape(self, self.mode === 'main');
-  const columnVeil = self.children.list.find((child) => child.getData?.('menuColumnVeil')) as Phaser.GameObjects.Graphics | undefined;
-  columnVeil?.setVisible(self.mode === 'main' && !isDesktopSheet());
+  for (const columnVeil of self.children.list.filter((child) => child.getData?.('menuColumnVeil'))) {
+    (columnVeil as Phaser.GameObjects.Graphics).setVisible(self.mode === 'main' && !isDesktopSheet());
+  }
   if (!self.lineageSwipeArmed) {
     self.lineageSwipeArmed = true;
     self.input.on('pointermove', (pointer: Phaser.Input.Pointer) => self.onLineageSwipe(pointer));
@@ -402,13 +404,24 @@ function renderPage(self: MenuScene): void {
  */
 function renderTitle(self: MenuScene): void {
   if (isDesktopSheet()) return;
-  const title = dongHoWordmark(self, GAME_WIDTH / 2, self.vy(44) + 7,
-    Phaser.Math.Clamp(260 * self.vScale, 226, 260));
-  const subtitle = self.ui.label(GAME_WIDTH / 2, title.y + title.displayHeight / 2 + 4,
+  // 268 wide, up from 232 on a 390x844 phone: the name is the page's subject and it had room to be
+  // larger. Only as large as the air above the range allows, though — the tagline hangs under the
+  // wordmark, and on a 640 sheet a flat 258 printed "TEN THOUSAND" across the highest peak. 226 is
+  // the size that sheet always had; it grows wherever the peaks leave room.
+  const y = self.vy(46) + 8;
+  const SUBTITLE_GAP = 3;
+  const SUBTITLE_LINE = 13;
+  const peakY = rangePeakY(self);
+  const roomWidth = peakY === undefined ? Infinity
+    : 2 * (peakY - 3 - SUBTITLE_LINE - SUBTITLE_GAP - y) * WORDMARK_ASPECT;
+  const title = dongHoWordmark(self, GAME_WIDTH / 2, y,
+    Math.max(226, Math.min(268, roomWidth)));
+  const subtitle = self.ui.label(GAME_WIDTH / 2, title.y + title.displayHeight / 2 + SUBTITLE_GAP,
     'TEN THOUSAND VICTORIES', 'caption', {
-      fontFamily: UI_FONT, fontSize: '9px', color: INK_UI_HEX.mutedText,
-    }).setOrigin(0.5, 0).setLetterSpacing(1.4);
+      fontFamily: UI_FONT, fontSize: '10px', color: INK_UI_HEX.mutedText,
+    }).setOrigin(0.5, 0).setLetterSpacing(1.6);
   self.content.push(title, subtitle);
+  riseTitle(self, title, subtitle);
 }
 
 /**
@@ -492,6 +505,7 @@ export function startGame(self: MenuScene, state: ReturnType<typeof createInitia
 
 function clearContent(self: MenuScene): void {
   self.menuOpening?.finish();
+  finishTitleRise(self);
   // A re-render underneath an open modal would put fresh buttons on top of its blocker.
   self.closeModal();
   self.pageScroll?.destroy();

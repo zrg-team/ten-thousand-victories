@@ -130,26 +130,6 @@ export function battleBaseScale(self: ConquestUIScene): number {
 }
 
 /**
- * How far back the camps stand, in the depth the field actually has.
- *
- * A fraction of the *band* rather than of the field height: it is the distance between the
- * horizon and the line of battle that has to hold a camp, a gap, and a block of men.
- *
- * Both halves of that are load-bearing. Nearer and a host block stands in its own camp, which is
- * where this started. Further and the tall things that come with a settlement — a lũy tre is eight
- * metres, a cây đa fourteen — reach back over the skyline, and a bamboo hedge crossing a mountain
- * reads as a mistake even though a real village at the foot of real hills does exactly that. The
- * hills are drawn as a pale wash with no ink in them, so anything dark in front of them looks like
- * it is *on* them.
- *
- * **0.46, down from 0.56.** Reported with the screenshots: *make building and camp smaller and we
- * have space to show army*. Depth is the only lever this screen allows — `verify-battle-scale`
- * holds every prop to one caller scale and permits nothing to change it but where the thing
- * stands — so a settlement that should read smaller has to stand further off, and this is the
- * number that decides how far. Ten points back takes the citadel and the camp from a caller scale
- * of 0.76 to 0.70, and it widens the band the men have to themselves by the same amount.
- */
-/**
  * Whether the two hosts have taken the whole field, so the scenery should stand aside.
  *
  * **Nothing on this screen has ever read how large a block comes out.** `hostHalfWidth` measures a
@@ -181,7 +161,9 @@ export function battleHostsCrowdField(battle: AscentBattle): boolean {
 
 export function battleRearY(self: ConquestUIScene): number {
   const { horizon, groundY } = battleBands(self);
-  return Math.round(horizon + (groundY - horizon) * 0.34);
+  // A distant camp leaves the middle ground to the armies. Its tents and banner
+  // shrink together through battleScaleAt, about 19% below the former 0.34 depth.
+  return Math.round(horizon + (groundY - horizon) * 0.12);
 }
 
 /**

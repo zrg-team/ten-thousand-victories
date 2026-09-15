@@ -100,13 +100,16 @@ export function showLandscape(self: MenuScene, shown: boolean): void {
  */
 function drawColumnVeil(self: MenuScene): void {
   const veil = self.add.graphics().setDepth(-5).setData('menuColumnVeil', true);
-  const band = (from: number, to: number, at: (t: number) => number) => {
+  // The title's plate is its own sheet so the opening can lift it while the name rises through it
+  // (`titleRise.ts`) without also un-washing the ground under the buttons.
+  const titleVeil = self.add.graphics().setDepth(-5).setData('menuColumnVeil', true).setData('menuTitleVeil', true);
+  const band = (from: number, to: number, at: (t: number) => number, target = veil) => {
     const SLICES = 30;
     for (let slice = 0; slice < SLICES; slice += 1) {
       const y0 = Math.round(from + (slice / SLICES) * (to - from));
       const y1 = Math.round(from + ((slice + 1) / SLICES) * (to - from));
-      veil.fillStyle(PIGMENT.diep, at((slice + 0.5) / SLICES));
-      veil.fillRect(0, y0, GAME_WIDTH, y1 - y0);
+      target.fillStyle(PIGMENT.diep, at((slice + 0.5) / SLICES));
+      target.fillRect(0, y0, GAME_WIDTH, y1 - y0);
     }
   };
 
@@ -114,7 +117,7 @@ function drawColumnVeil(self: MenuScene): void {
   // that puts a `clearPlate` behind a label on hatching. The karst tops reach 204 in the design,
   // well up into the title block, and a gold rule ruled straight across a mountain ridge is the
   // exact thing that rule is there to prevent.
-  band(0, self.vy(168), (t) => 0.94 * (1 - t) ** 1.5);
+  band(0, self.vy(168), (t) => 0.94 * (1 - t) ** 1.5, titleVeil);
 
   // And the wash the button column stands on. Squared rather than linear: a straight ramp greys
   // the mountains as much as it settles the foreground, and the mountains were already quiet.
@@ -285,16 +288,21 @@ function drawDongHoIllustration(self: MenuScene): void {
   // (`fitIllustrationToDesktop`), and a feather left at column size drew the old plate's
   // outline as a pale box over the mountains.
   const edge = Math.max(12, Math.min(22, width * 0.055));
+  // The top strip is its own sheet. Both plates are bare there (the peaks start about 28 units
+  // under the plate's top edge at the shortest sheet, the strip is at most 22), so over the
+  // landscape it is paper on paper — but the phone's opening lifts the name up through it, and
+  // left on it washed the lower half of every letter out (`titleRise.ts` lifts it for the rise).
+  const topFeather = self.add.graphics().setData('menuPlateTopFeather', true);
+  topFeather.fillGradientStyle(PIGMENT.diep, PIGMENT.diep, PIGMENT.diep, PIGMENT.diep, 1, 1, 0, 0);
+  topFeather.fillRect(left - 1, top - 1, width + 2, edge + 1);
   const feather = self.add.graphics();
-  feather.fillGradientStyle(PIGMENT.diep, PIGMENT.diep, PIGMENT.diep, PIGMENT.diep, 1, 1, 0, 0);
-  feather.fillRect(left - 1, top - 1, width + 2, edge + 1);
   feather.fillGradientStyle(PIGMENT.diep, PIGMENT.diep, PIGMENT.diep, PIGMENT.diep, 0, 0, 1, 1);
   feather.fillRect(left - 1, top + height - edge, width + 2, edge + 1);
   feather.fillGradientStyle(PIGMENT.diep, PIGMENT.diep, PIGMENT.diep, PIGMENT.diep, 1, 0, 1, 0);
   feather.fillRect(left - 1, top - 1, edge + 1, height + 2);
   feather.fillGradientStyle(PIGMENT.diep, PIGMENT.diep, PIGMENT.diep, PIGMENT.diep, 0, 1, 0, 1);
   feather.fillRect(left + width - edge, top - 1, edge + 1, height + 2);
-  artwork.add(feather);
+  artwork.add([topFeather, feather]);
 
   self.animateDongHoIllustration({ left, top, width, height }, layers);
 }

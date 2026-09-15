@@ -56,6 +56,7 @@ import { ChunkedMapLayer, type ConcealRegion } from './map/ChunkedMapLayer';
 import { SeasonRenderer, type SeasonScape } from './map/SeasonRenderer';
 import { SettlementRenderer } from './map/SettlementRenderer';
 import { BirdRenderer } from './map/BirdRenderer';
+import { MapLifeRenderer, type MapLifeSource } from './map/MapLifeRenderer';
 import { TrafficRenderer } from './map/TrafficRenderer';
 import type { StructureRect } from './map/settlementLayout';
 import { ViewIndex, type CullKind } from './map/ViewIndex';
@@ -204,6 +205,8 @@ export class MapScene extends Phaser.Scene {
   private settlements!: SettlementRenderer;
   private traffic!: TrafficRenderer;
   private birds!: BirdRenderer;
+  /** Kitchen smoke, rice wind, water and fight smoke — desktop only (`mapLifeLevel`). */
+  protected life!: MapLifeRenderer;
   /** Last state the ambient map motion was set to, so the sync acts only on a change. */
   private worldMotionHalted = false;
   private overlays!: OverlayRenderer;
@@ -636,6 +639,7 @@ export class MapScene extends Phaser.Scene {
     this.traffic = new TrafficRenderer(this, this.mapRenderer, this.mapItems);
     this.traffic.setObscuredTest((x, y) => this.isInsideVisibleLabelInk(x, y));
     this.birds = new BirdRenderer(this);
+    this.life = new MapLifeRenderer(this, this.lifeSource());
     this.overlays = new OverlayRenderer(this, this.mapRenderer);
     this.armies = new ArmyRenderer(this, this.mapItems);
     this.seasons = new SeasonRenderer(this);
@@ -721,6 +725,7 @@ export class MapScene extends Phaser.Scene {
     this.game.canvas.removeEventListener('webglcontextrestored', this.onContextRestored);
     this.seasons?.destroy();
     this.birds?.destroy();
+    this.life?.destroy();
     this.armies?.destroy();
     // The bake belongs to the display list, which Phaser tears down on shutdown — but the *scene
     // instance* is reused across `scene.start`, so this field survived pointing at a destroyed
@@ -910,6 +915,7 @@ export class MapScene extends Phaser.Scene {
     this.worldMotionHalted = halted;
     this.traffic.setPaused(halted);
     this.birds.setPaused(halted);
+    this.life.setPaused(halted);
     this.seasons.setPaused(halted);
     // The fog's drift belongs to the clock too; culling alone only ever stopped the clouds that
     // had scrolled off the edge.
@@ -1148,6 +1154,7 @@ export class MapScene extends Phaser.Scene {
     }
     // After the halt check, so a stopped clock stops the weather with the rest of the world.
     this.seasons.update(time, delta);
+    this.life.update(time, delta);
 
     this.state.realtimeSeconds += delta / 1000;
     this.realtimeAccumulator += delta;
@@ -1552,6 +1559,7 @@ export class MapScene extends Phaser.Scene {
           },
           isVisible: geometry.isVisible,
           settlementAnchors: this.settlementAnchors(),
+          cultivationAnchors: this.settlementAnchors(true),
         });
         return;
       } catch (error) {
@@ -2029,6 +2037,47 @@ export class MapScene extends Phaser.Scene {
    * houses on a limestone face every map. See `SettlementRenderer.getSeatCentre`.
    */
   /** Protected so subclasses can put their own marks on the seat rather than on the centroid. */
+  /**
+   * What the map-life layer reads: settlements with their house footprints, the forest and meadow
+   * hexes, and where a fight or siege is. Asked on a slow cadence by the layer, never per frame.
+   */
+  private lifeSource(): MapLifeSource {
+    const seatOf = (land: Land) => {
+      const anchor = this.getSettlementAnchor(land);
+      return { x: this.wx(anchor.x), y: this.wy(anchor.y), r: this.settlements.getVisualClearance(this.state, land) };
+    };
+    // Hex centres of the given terrains, on land the player can see.
+    const terrainCells = (types: string[]) => {
+      const visible = new Set(this.state.lands.filter((land) => land.isVisible).map((land) => land.id));
+      return this.state.hexTiles
+        .filter((tile) => types.includes(tile.terrain) && tile.landId !== undefined && visible.has(tile.landId))
+        .map((tile) => {
+          const point = axialToPixel(tile.coord, this.state.mapConfig.hexSize);
+          return { x: this.wx(point.x), y: this.wy(point.y) };
+        });
+    };
+    return {
+      settlements: () => this.state.lands
+        .filter((land) => land.isVisible && land.hasVillage)
+        .map((land) => {
+          const asset = this.settlements.getSettlementAssetId(this.state, land);
+          const tier: 1 | 2 | 3 = asset.includes('citadel') ? 3 : /market-town|shrine-village|settlement\.village/.test(asset) ? 2 : 1;
+          return { id: land.id, ...seatOf(land), tier, bounds: this.landStructureBounds.get(land.id) };
+        }),
+      forestCells: () => terrainCells(['forest', 'plains']),
+      cellRadius: () => this.state.mapConfig.hexSize * MAP_SCALE,
+      fights: () => {
+        const ids = new Set(liveBattles(this.state).map((battle) => battle.landId));
+        for (const land of this.state.lands) if (land.siege) ids.add(land.id);
+        return [...ids]
+          .map((id) => this.state.lands.find((land) => land.id === id))
+          .filter((land): land is Land => Boolean(land?.isVisible))
+          .map(seatOf);
+      },
+      season: () => this.state.season,
+    };
+  }
+
   protected getSettlementAnchor(land: Land): { x: number; y: number } {
     return this.settlements.getSeatCentre(this.state, land);
   }
@@ -2068,10 +2117,10 @@ export class MapScene extends Phaser.Scene {
    * `getSettlementAnchor` is the same source the label, the capital ring and the player's banner
    * already use, so the ground the scatter avoids is exactly the ground the town is drawn on.
    */
-  private settlementAnchors(): Array<{ x: number; y: number; r: number }> {
+  private settlementAnchors(includeHidden = false): Array<{ x: number; y: number; r: number }> {
     const anchors: Array<{ x: number; y: number; r: number }> = [];
     for (const land of this.state.lands) {
-      if (!land.isVisible || !land.hasVillage) {
+      if ((!includeHidden && !land.isVisible) || !land.hasVillage) {
         continue;
       }
       const anchor = this.getSettlementAnchor(land);
@@ -2226,9 +2275,12 @@ export class MapScene extends Phaser.Scene {
       // terrain fill being pinned. These names are the only type standing in the world rather than
       // in the chrome, so with no full-screen wash outside winter they are one more place the
       // calendar can be read. Rewritten by `rebakeScenery()` -> `redrawLandNodes()` when it turns.
-      color: foliagePalette().labelInk,
+      //
+      // The player's capital is the exception: its card is the capital's mark on the map (the seal
+      // beside the citadel is gone), so it is lettered in deep sỏi son, a size up.
+      color: isPlayerCapital ? '#8a2a1b' : foliagePalette().labelInk,
       fontFamily: UI_FONT,
-      fontSize: '10px',
+      fontSize: isPlayerCapital ? '11px' : '10px',
       align: 'center',
       fontStyle: '700',
       lineSpacing: -1,
@@ -2236,8 +2288,8 @@ export class MapScene extends Phaser.Scene {
     }).setOrigin(0.5);
     label.setResolution(Math.max(3, renderScaleNow() * 1.25));
 
-    const width = Math.max(44, Math.min(90, label.width + 12));
-    const height = label.height + 6;
+    const width = Math.max(44, Math.min(isPlayerCapital ? 100 : 90, label.width + (isPlayerCapital ? 18 : 12)));
+    const height = label.height + (isPlayerCapital ? 10 : 6);
     // A walled seat is tall. At the village offset the name landed across its gate tower, which is
     // the one building on the map worth looking at.
     //
@@ -2259,8 +2311,19 @@ export class MapScene extends Phaser.Scene {
       { x: width / 2, y: height / 2 }, { x: -width / 2, y: height / 2 },
     ];
     washFill(backing, plate, PIGMENT.diepHi, 318, 0.97, 0.2);
-    inkPath(backing, plate, 319, { width: 0.75, colour: isPlayerCapital ? PIGMENT.son : PIGMENT.muc,
-      alpha: 0.75, wobble: 0.2, closed: true, bleed: 0.1 });
+    if (isPlayerCapital) {
+      // The capital's card is framed like a seal: a firm sỏi son border and a fine inner rule, so it is
+      // the one name plate on the map that reads as the player's own at a glance.
+      inkPath(backing, plate, 319, { width: 1.8, colour: PIGMENT.son, alpha: 0.95, wobble: 0.2, closed: true, bleed: 0.1 });
+      const inset = 2.6;
+      const inner = [
+        { x: -width / 2 + inset, y: -height / 2 + inset }, { x: width / 2 - inset, y: -height / 2 + inset },
+        { x: width / 2 - inset, y: height / 2 - inset }, { x: -width / 2 + inset, y: height / 2 - inset },
+      ];
+      inkPath(backing, inner, 320, { width: 0.6, colour: PIGMENT.son, alpha: 0.7, wobble: 0.15, closed: true });
+    } else {
+      inkPath(backing, plate, 319, { width: 0.75, colour: PIGMENT.muc, alpha: 0.75, wobble: 0.2, closed: true, bleed: 0.1 });
+    }
 
     container.add([backing, label]);
 

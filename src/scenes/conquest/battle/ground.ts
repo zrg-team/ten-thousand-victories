@@ -27,6 +27,7 @@ import { registerGpuBake } from '../../../game/gpuBakes';
 import { conquestArtStamp, conquestKarstArtId, stampFootY, conquestTreeArtId, type ConquestArtSeason } from '../../../ui/conquestMapArt';
 import { placeStamp } from '../../../ui/ink/stamp';
 import { getFoliageSeason } from '../../../ui/ink/season';
+import { createGrassGroundArea } from '../../../ui/ink/grassGround';
 
 /**
  * One piece of authored scenery on the field, at the same caller scale the ink version takes.
@@ -150,6 +151,14 @@ export function buildBattleGround(self: ConquestUIScene, battle: AscentBattle): 
   const mountains = self.add.container(0, 0).setAlpha(0.64);
   field.add(mountains);
   clip.apply(mountains);
+  const grass = createGrassGroundArea(self, {
+    x: x0, y: horizon + 8, width: x1 - x0, height: bottom - horizon - 8,
+  });
+  if (grass) {
+    grass.setData('battleTileGround', true);
+    field.add(grass);
+    clip.apply(grass);
+  }
   const far = self.add.graphics();
   far.setAlpha(0.72);
   field.add(far);

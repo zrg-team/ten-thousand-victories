@@ -10,7 +10,9 @@
  * method card and the picker's confirmation, so a way in cannot be priced two ways on two sheets.
  */
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH, PLAYER_KINGDOM_ID } from '../../../game/constants';
+import { GAME_HEIGHT, GAME_WIDTH, HEADER_HEIGHT, PLAYER_KINGDOM_ID } from '../../../game/constants';
+import { hudSheetHeight } from '../../../game/cameraLayout';
+import { ASCENT_HUD_HEIGHT } from '../../../ui/ascent/AscentHud';
 import { cardStack, powerCardView, skipRefundAmount } from '../../../systems/ascent/PowerDraftSystem';
 import { stampCardFace } from '../../../ui/cardFace';
 import { soundDirector } from '../../../ui/sound/SoundDirector';
@@ -287,9 +289,13 @@ function revealTakenCard(self: ConquestUIScene,
   // A held card reaches here only after its merge plays, and Skip or Reroll can be pressed in
   // that time: then this draft is gone and the card was not taken, so there is nothing to show.
   if (self.modalLayer.getByName('draft-reveal') || self.state.pendingAscentPrompt !== prompt) return;
-  const sheetH = GAME_HEIGHT;
+  // Below the header and the POWER band, exactly where the draft sheet under it starts
+  // (`promptFrame`): laid from the top of the screen, the paper cut the header in two on the desktop
+  // sheet, hiding the column's half of the bar while the map's half stayed lit beside it.
+  const sheetTop = HEADER_HEIGHT + ASCENT_HUD_HEIGHT;
+  const sheetH = hudSheetHeight() - sheetTop;
   // Opaque: at 0.97 the draft beneath still printed through, lines under lines.
-  const scrim = self.add.rectangle(0, 0, GAME_WIDTH, sheetH, INK_UI.overlay, 1)
+  const scrim = self.add.rectangle(0, sheetTop, GAME_WIDTH, sheetH, INK_UI.overlay, 1)
     .setOrigin(0, 0).setInteractive().setName('draft-reveal-scrim');
   self.modalLayer.add(scrim);
   const reveal = self.add.container(0, 0).setName('draft-reveal');
@@ -333,7 +339,7 @@ function revealTakenCard(self: ConquestUIScene,
   ];
   const heightOf = (object: Phaser.GameObjects.Text | Phaser.GameObjects.Image) => (object === face ? cardH : object.height);
   const total = stack.reduce((sum, [object, gap]) => sum + (object ? heightOf(object) + gap : 0), 0);
-  let cursor = Math.max(24, (sheetH - total) / 2);
+  let cursor = sheetTop + Math.max(16, (sheetH - total) / 2);
   for (const [object, gap] of stack) {
     if (!object) continue;
     // The face is an image centred on its own position; the text is anchored at its top.

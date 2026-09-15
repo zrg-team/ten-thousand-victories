@@ -27,7 +27,8 @@ import {
   setMapTheme,
   type MapThemeId,
 } from '../ui/mapTheme';
-import { MOTION_LEVELS, TRAFFIC_DENSITIES, getLifeSettings, setLifeSettings } from '../game/lifeSettings';
+import { MAP_LIFE_LEVELS, MOTION_LEVELS, TRAFFIC_DENSITIES, getLifeSettings, setLifeSettings } from '../game/lifeSettings';
+import { tileAssetsEnabled, setTileAssetsEnabled } from '../game/groundSettings';
 import {
   desktopPinOverruled,
   isDesktopLayout,
@@ -206,6 +207,13 @@ export class SettingsScene extends Phaser.Scene {
     ];
     const picture: Row[] = [
       {
+        name: t('menu.tileAssets'),
+        options: onOff,
+        current: tileAssetsEnabled() ? 'on' : 'off',
+        note: t('menu.tileAssets.note'),
+        pick: (id) => { setTileAssetsEnabled(id === 'on'); this.render(true); },
+      },
+      {
         name: t('menu.graphics'),
         options: GRAPHICS_MODES.map((id) => ({ id, label: t(`menu.graphics.${id}` as 'menu.graphics.low') })),
         current: getGraphicsMode(),
@@ -362,6 +370,16 @@ export class SettingsScene extends Phaser.Scene {
         current: life.seasons ? 'on' : 'off',
         pick: (id) => { setLifeSettings({ seasons: id === 'on' }); this.render(true); },
       },
+      // The map breathing (MapLifeRenderer): kitchen smoke, rice wind, water, fight smoke. Offered on
+      // the desktop layout only — the effects never run on the phone column, so a row there would be
+      // a control that does nothing. Live: the renderer reads the level every frame.
+      ...(layoutKind() === 'desktop' ? [{
+        name: t('menu.mapLife'),
+        options: MAP_LIFE_LEVELS.map((id) => ({ id, label: t(`menu.mapLife.${id}` as 'menu.mapLife.off') })),
+        current: life.mapLife,
+        note: t('menu.mapLife.note'),
+        pick: (id: string) => { setLifeSettings({ mapLife: id as typeof MAP_LIFE_LEVELS[number] }); this.render(true); },
+      }] : []),
     ];
     // Difficulty is how fast an invader answers the shape you are standing in — the fight is a
     // race between spotting a matchup and being countered out of it, so reaction time is the one

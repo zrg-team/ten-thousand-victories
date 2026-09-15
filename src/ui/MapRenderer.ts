@@ -48,6 +48,8 @@ export interface LandscapeContext {
    * `addResourceCluster` on ordinary ground and had trees planted straight through their roofs.
    */
   settlementAnchors: Array<PixelPoint & { r?: number }>;
+  /** Full-map settlement clearances keep cultivation fixed as fog is revealed. */
+  cultivationAnchors?: Array<PixelPoint & { r?: number }>;
 }
 
 export interface MapRenderer {

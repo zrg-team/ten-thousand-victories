@@ -512,8 +512,11 @@ export class DongHoMapItemRenderer extends InkMapItemRenderer {
   }
 
   /**
-   * The capital's ring, in ink rather than in gold. A stamped seal says whose it is; the ring only
-   * has to say "this one", so it is the quietest mark on the map that still reads.
+   * The capital's ground, a faint sophora wash and nothing else. The capital is named by its card
+   * (`MapScene.createLandLabel`), which carries the player's red.
+   *
+   * A sỏi son seal used to stand at the wash's upper right. Beside the citadel's own banner it read as
+   * a stray red square floating off the compound, and was removed at the player's request.
    */
   override createCapitalHighlight(width = 88, height = 44): Phaser.GameObjects.Graphics {
     const graphics = (this.scene as Phaser.Scene).add.graphics();
@@ -529,7 +532,6 @@ export class DongHoMapItemRenderer extends InkMapItemRenderer {
     // No hard contour any more. The wash alone says "this seat is the realm's"; a 1.2-wide ellipse
     // outline around an ink-drawn town is the one mark on this map with a perfect geometric edge,
     // and at any size that is what makes it read as a rendering artefact rather than as paper.
-    seal(graphics, width * 0.45, -height * 0.27, 15, 'star');
     return graphics;
   }
 

@@ -425,7 +425,9 @@ export class TrafficRenderer {
 
   /** Draws dirt roads connecting each land's settlement (village/city/castle/mine) to its neighbors. */
   drawConnections(state: GameState, wx: WorldTransform, wy: WorldTransform, getAnchor: SettlementAnchor): Phaser.GameObjects.Graphics {
-    const graphics = this.scene.add.graphics();
+    // Roads and bridges must sit above every flat terrain surface (grass, water,
+    // paddies and coast), while remaining below standing scenery and settlements.
+    const graphics = this.scene.add.graphics().setDepth(0.5);
     const water = this.waterIndex(state, wx, wy);
     const crossings: Array<{ curve: Phaser.Curves.Spline; width: number }> = [];
 

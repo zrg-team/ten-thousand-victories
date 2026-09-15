@@ -1,0 +1,17 @@
+{
+  "status": "separate v2 preview; v1 preserved",
+  "mode": "built-in image_gen, style-transfer edit",
+  "asset": "public/art/ground/dongho-grass-v2.webp",
+  "master": "C:/Users/zerg/.codex/generated_images/01a0a5fc-eef3-7200-b815-9123195665ef/exec-c2858b01-4cc8-4195-bbf8-95e60ceddf7c.png",
+  "reference": "output/dongho-grass-ground/grass-tile-v1.webp",
+  "prompt": "Use case: style-transfer\nEdit target: the supplied seamless grass-and-earth ground texture tile from our strategy game. Create a sibling v2 with a modestly stronger Vietnamese Đông Hồ woodblock character while preserving its continuous grassy ground, scale, quiet warm sage/straw palette and evenly distributed small grass marks.\nMain change: remove most of the cloudy watercolor mottling and photographic-looking micrograin. Make the dominant pale sage ground flatter and calmer, using only three or four broad, very low-contrast areas of flat hand-printed pigment. Earth remains light straw in gentle connected passages, without becoming roads.\nGive the tiny grass marks a clearer economical carved rhythm: two or three simple curved blades, slightly irregular olive ink, varied short hooks and occasional horizontal grass cuts. Space them loosely and leave plenty of quiet grass-colored ground. These are tiny surface marks, not individual raised plants or ornaments. No enclosed grass patches, no dark outline around broad color areas. Slight woodblock registration irregularity only at the small marks; no fuzzy shading or dense noise.\nPreserve seamless edge-to-edge repetition on all four sides. Full opaque surface, square 1024x1024. No grid, no hex outlines, no border, no vignette, no centerpiece, no labels, no UI, no transparent background, no checkerboard. No trees, mountains, buildings, stones, flowers, decorative ribbons or separate sprites. No realistic lighting, 3D shading, thick black contour networks, or pixel-art treatment.\nThis image will be the continuous background beneath our game's existing Đông Hồ-style trees, temples, mountains and roads; it should support that art and keep roads readable.",
+  "packing": "scripts/conquest-art/pack-grass-ground.mjs <master.png> v2; alpha-preserving engine slicing only, existing targets refused",
+  "preview": "?groundart=grass-v2",
+  "backupPreview": "?groundart=grass",
+  "backup": {
+    "asset": "public/art/ground/dongho-grass-v1.webp",
+    "sha256": "9D48E4F0A7A728351888D0518073F865D2E0D810C8986BB5F2CD11E92B6F0078",
+    "sourceSnapshot": "output/dongho-grass-v2/backup"
+  },
+  "roadFix": "Move roads and bridges to depth 0.5, above terrain. Stronger ink edge and opaque pale-ochre road surface in both grass previews. Shared curve and movement logic unchanged."
+}

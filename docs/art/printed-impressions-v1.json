@@ -1,0 +1,19 @@
+{
+  "status": "rejected by user: decorative strips instead of requested grass tile background; excluded from runtime",
+  "mode": "built-in image_gen",
+  "asset": "output/dongho-ground-assets/rejected-strips-v1.webp",
+  "frames": [
+    "field banks",
+    "woodland floor",
+    "foothill contours",
+    "open earth"
+  ],
+  "master": "C:/Users/zerg/.codex/generated_images/01a0a5fc-eef3-7200-b815-9123195665ef/exec-e6407e0a-466a-47b9-9d8e-386abdc2a882.png",
+  "prompts": [
+    "Use case: stylized-concept\nAsset type: ONE production-ready transparent 2-by-2 game terrain impression atlas, square 1024x1024.\nPrimary request: create four sparse landscape-ground connector impressions for a Vietnamese Đông Hồ-inspired strategy map. The supplied rice-field and mountain images are STYLE REFERENCES only: match their flat muted mineral/plant pigments and slightly irregular carved ink contours. Do not copy their isolated mound silhouettes.\nLayout: exactly four equal square cells in a 2x2 grid, no separators, captions, labels, text, border or watermark. Each cell contains ONE very wide low horizontal impression centered vertically, occupying about 85% of cell width and 32% of cell height; generous genuine alpha transparency everywhere else, including between the marks. No solid background, no paper rectangle, no cast shadow.\nTop left: a meandering rice-field earthen bank with two adjoining open, gently bending rows of ochre and pale sage cultivation furrows. Broad flowing lines which trail off openly at both sides; omit enclosed outer boundary and omit individually detailed plants.\nTop right: woodland floor: one long low sage-green earth contour, with just three widely spaced tiny stylized broad-leaf sprouts and a few carved leaf-litter dashes. Ground contour is the subject, not a bush or tuft.\nBottom left: foothill ground: three nested long asymmetric earthen contour ribbons in warm ochre and muted olive, with a handful of carved stone strokes. Completely flat on the map surface, no mountains, no high mounds.\nBottom right: quiet open earth: a long broken curving ochre bank with two small flat olive pigment accents and a few widely spaced hooked carving marks. Simple and open.\nStyle: Vietnamese Đông Hồ folk woodblock vocabulary, bold economical flowing silhouette, flat color areas, restrained warm-brown contour block and slight hand-registration offset. Simplify strongly so each whole impression reads at 100 pixels wide in game. No gradients, no realistic texture, no dense grain, no speckling, no three-dimensional shading, no dense grass, no flowers. Keep negative transparent space dominant.\nPalette only: ink brown #5a4c39, earth ochre #b59150, pale straw #dcbe7e, leaf sage #a7b98d and olive #7d9160. Contours are warm and lighter than the near-black contours on the existing buildings so the land stays subordinate. Preserve real alpha transparency.",
+    "Use case: background-extraction\nEdit target: the supplied four-cell terrain atlas. Remove the entire gray-and-white checkerboard and all gray paper texture, leaving a genuinely TRANSPARENT alpha background. This is a technical transparent cutout, not a checkerboard illustration.\nPreserve exactly the four colored Đông Hồ-style ground impressions, their warm-brown outlines, colors, relative positions, scale and composition. Preserve transparent holes between the contour marks. No white background, no gray background, no checkerboard, no texture, no new marks, no shadow. Output RGBA PNG with actual zero-alpha empty pixels."
+  ],
+  "rejectedMaster": "First output painted an opaque checkerboard; rejected by alpha validation.",
+  "packing": "output/dongho-ground-assets/pack-rejected-strips.mjs: archived alpha-preserving crop, resize and packing only",
+  "experiment": "removed; replaced by groundart=grass"
+}

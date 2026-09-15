@@ -4,7 +4,7 @@ import { PIGMENT } from './palette';
 
 /**
  * The map's lens and the map's material — the Settings page's map filters. Off by default on the
- * phone; the desktop sheet opens on Sa bàn at 30% with far clouds (`DESKTOP_DEFAULTS`). One shader on the MAP camera only: the HUD scene draws over it afterwards and stays
+ * phone; the desktop sheet opens on Sa bàn at 26% with far clouds (`DESKTOP_DEFAULTS`). One shader on the MAP camera only: the HUD scene draws over it afterwards and stays
  * sharp, as do the fight screen and every page.
  *
  * Two families, chosen separately and combinable:
@@ -60,12 +60,12 @@ export interface DepthSettings {
 const STORAGE_KEY = 'mandate:map-depth:v1';
 const DEFAULTS: DepthSettings = { filter: 'off', style: 'off', depthAmount: 0.5, styleAmount: 0.65, clouds: false };
 /**
- * The desktop sheet opens on the sand table — Sa bàn at 30% with the far clouds — the look the user
+ * The desktop sheet opens on the sand table — Sa bàn at 26% with the far clouds — the look the user
  * picked for it. Only the desktop layout: its wide map is where a focus band has room to read, and a
  * phone column keeps the plain print. A default only; the first choice a player makes is stored and
  * wins from then on, "off" included.
  */
-const DESKTOP_DEFAULTS: DepthSettings = { ...DEFAULTS, filter: 'miniature', depthAmount: 0.3, clouds: true };
+const DESKTOP_DEFAULTS: DepthSettings = { ...DEFAULTS, filter: 'miniature', depthAmount: 0.26, clouds: true };
 
 function defaultSettings(): DepthSettings {
   return layoutKind() === 'desktop' ? DESKTOP_DEFAULTS : DEFAULTS;
