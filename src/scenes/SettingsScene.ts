@@ -44,6 +44,7 @@ import { createMapRenderer, type MapRenderer } from '../ui/MapRenderer';
 import { applyPaperFX } from '../ui/ink/PaperFX';
 import { attachPagePaper } from '../ui/ink/paperSheet';
 import { attachDesktopBackdrop } from '../ui/desktopBackdrop';
+import { DEPTH_FILTERS, MAP_STYLES, getDepthSettings, setDepthSettings } from '../ui/ink/DepthFX';
 import { isShell, shellDisplayMode, shellDisplayModes, setShellDisplayMode, type DisplayMode } from '../platform/shell';
 
 const SIDE = 12;
@@ -64,6 +65,11 @@ type Row = {
   pick: (id: string) => void;
   /** A line under the row, in caption type: what the choice will do, or why it is not doing it. */
   note?: string;
+  /**
+   * A dial instead of tiles (`options` is then empty): a 0..1 value with its percentage beside it.
+   * `preview` runs on every movement — live, cheap — and `change` once, on release.
+   */
+  slider?: { value: number; preview: (value: number) => void; change: (value: number) => void };
 };
 type Section = { key: string; heading: string; rows: Row[] };
 
@@ -223,6 +229,51 @@ export class SettingsScene extends Phaser.Scene {
         current: fullRefreshEnabled() ? 'display' : '60',
         pick: (id) => { setFullRefresh(id === 'display'); this.scene.restart({ returnTo: this.returnTo }); },
       },
+      // The map filters (ui/ink/DepthFX.ts), on the map camera only — the bars and pages stay sharp.
+      // Two families that combine: depth (where the viewer stands) and material (what the map is
+      // made of), each with its own slider for how heavy it lies. Live: no restart. Clouds belong
+      // to depth.
+      {
+        name: t('menu.mapDepth'),
+        options: DEPTH_FILTERS.map((id) => ({ id, label: t(`menu.mapDepth.${id}` as 'menu.mapDepth.off') })),
+        current: getDepthSettings().filter,
+        note: getDepthSettings().filter === 'off' ? undefined : t(`menu.mapDepth.${getDepthSettings().filter}.note` as 'menu.mapDepth.mist.note'),
+        pick: (id) => { setDepthSettings({ filter: id as typeof DEPTH_FILTERS[number] }); this.render(true); },
+      },
+      ...(getDepthSettings().filter === 'off' ? [] : [{
+        name: t('menu.mapDepth.amount'),
+        options: [],
+        current: '',
+        pick: () => {},
+        slider: {
+          value: getDepthSettings().depthAmount,
+          preview: (value: number) => setDepthSettings({ depthAmount: value }),
+          change: (value: number) => setDepthSettings({ depthAmount: value }),
+        },
+      }, {
+        name: t('menu.mapDepth.clouds'),
+        options: onOff,
+        current: getDepthSettings().clouds ? 'on' : 'off',
+        pick: (id: string) => { setDepthSettings({ clouds: id === 'on' }); this.render(true); },
+      }]),
+      {
+        name: t('menu.mapStyle'),
+        options: MAP_STYLES.map((id) => ({ id, label: t(`menu.mapStyle.${id}` as 'menu.mapStyle.off') })),
+        current: getDepthSettings().style,
+        note: getDepthSettings().style === 'off' ? undefined : t(`menu.mapStyle.${getDepthSettings().style}.note` as 'menu.mapStyle.pixel.note'),
+        pick: (id) => { setDepthSettings({ style: id as typeof MAP_STYLES[number] }); this.render(true); },
+      },
+      ...(getDepthSettings().style === 'off' ? [] : [{
+        name: t('menu.mapStyle.amount'),
+        options: [],
+        current: '',
+        pick: () => {},
+        slider: {
+          value: getDepthSettings().styleAmount,
+          preview: (value: number) => setDepthSettings({ styleAmount: value }),
+          change: (value: number) => setDepthSettings({ styleAmount: value }),
+        },
+      }]),
       // How the cabinet's window covers the screen. Only inside a cabinet that says it has modes:
       // a browser tab does not own a window, and the document fullscreen API the web build uses is
       // a different thing that the F key already reaches. The tiles are whatever the shell lists —
@@ -514,12 +565,12 @@ export class SettingsScene extends Phaser.Scene {
    * marks selection with a cinnabar edge on paper and leaves the unselected ones filled gold,
    * which is the game's action-versus-quiet convention and reads backwards on a row of choices.
    */
-  private settingRow(holder: Phaser.GameObjects.Container, y: number, row: Row): number {
+  private settingRow(holder: Phaser.GameObjects.Container, top: number, row: Row): number {
     const LABEL_WIDTH = 96;
     const GAP = 5;
     const x = CARD_PAD;
     const width = this.cardWidth - CARD_PAD * 2;
-    const label = this.ui.label(x, y + ROW_HEIGHT / 2, row.name, 'caption', {
+    const label = this.ui.label(x, top + ROW_HEIGHT / 2, row.name, 'caption', {
       color: INK_UI_HEX.mutedText,
       fontSize: '10px',
       fontStyle: '700',
@@ -530,11 +581,43 @@ export class SettingsScene extends Phaser.Scene {
 
     const trackX = x + LABEL_WIDTH + 8;
     const trackWidth = width - LABEL_WIDTH - 8;
-    const tileWidth = (trackWidth - GAP * (row.options.length - 1)) / row.options.length;
+
+    if (row.slider) {
+      const dial = row.slider;
+      const PERCENT_WIDTH = 34;
+      const percent = this.ui.label(x + width, top + ROW_HEIGHT / 2, `${Math.round(dial.value * 100)}%`, 'button', {
+        color: INK_UI_HEX.inkText,
+        fontSize: '11px',
+      }).setOrigin(1, 0.5);
+      const slider = this.ui.slider(
+        { x: trackX, y: top + 4, width: trackWidth - PERCENT_WIDTH, height: ROW_HEIGHT - 8 },
+        {
+          value: dial.value,
+          onPreview: (value) => { percent.setText(`${Math.round(value * 100)}%`); dial.preview(value); },
+          onChange: (value) => { percent.setText(`${Math.round(value * 100)}%`); dial.change(value); },
+        },
+      );
+      // The list scrolls from the scene's raw pointer stream, so a sideways drag on the dial would
+      // also nudge the page. Held still from the press on the dial until the finger lifts.
+      const zone = slider.list.find((child) => child instanceof Phaser.GameObjects.Zone);
+      zone?.on('pointerdown', () => {
+        this.scroll?.setLocked(true);
+        this.input.once('pointerup', () => this.scroll?.setLocked(false));
+      });
+      holder.add([slider, percent]);
+      return ROW_HEIGHT;
+    }
+    // More than five choices wrap into lines of three: six tiles in one line are too narrow to read
+    // or hit on a phone. Every row of five or fewer is laid out exactly as before.
+    const perLine = row.options.length > 5 ? 3 : row.options.length;
+    const lines = Math.ceil(row.options.length / perLine);
+    const tileWidth = (trackWidth - GAP * (perLine - 1)) / perLine;
+    const rowHeight = lines * ROW_HEIGHT + (lines - 1) * GAP;
 
     row.options.forEach((option, index) => {
       const selected = row.current === option.id;
-      const tileX = trackX + index * (tileWidth + GAP);
+      const tileX = trackX + (index % perLine) * (tileWidth + GAP);
+      const y = top + Math.floor(index / perLine) * (ROW_HEIGHT + GAP);
       holder.add(this.ui.panel({ x: tileX, y, width: tileWidth, height: ROW_HEIGHT }, selected
         ? { fill: INK_UI.goldLight, fillShade: INK_UI.gold, border: INK_UI.cinnabar, borderWidth: 2 }
         : { fill: INK_UI.parchment, fillAlpha: 0.5, border: INK_UI.softBrush, borderWidth: 1.2, muted: true }));
@@ -546,7 +629,7 @@ export class SettingsScene extends Phaser.Scene {
         wordWrap: { width: tileWidth - 6 },
       }).setOrigin(0.5));
       const hit = this.add
-        .rectangle(tileX + tileWidth / 2, y + ROW_HEIGHT / 2, tileWidth, ROW_HEIGHT + 6, 0xffffff, 0.001)
+        .rectangle(tileX + tileWidth / 2, y + ROW_HEIGHT / 2, tileWidth, ROW_HEIGHT + (lines > 1 ? GAP : 6), 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
       hit.on('pointerup', (pointer: Phaser.Input.Pointer) => {
         // A drag that ends on a tile is a scroll, not a choice.
@@ -557,8 +640,8 @@ export class SettingsScene extends Phaser.Scene {
       holder.add(hit);
     });
 
-    if (!row.note) return ROW_HEIGHT;
-    const note = this.add.text(x, y + ROW_HEIGHT + 4, row.note, {
+    if (!row.note) return rowHeight;
+    const note = this.add.text(x, top + rowHeight + 4, row.note, {
       color: INK_UI_HEX.mutedText,
       fontFamily: UI_FONT,
       fontSize: '9.5px',
@@ -566,7 +649,7 @@ export class SettingsScene extends Phaser.Scene {
       wordWrap: { width },
     });
     holder.add(note);
-    return ROW_HEIGHT + 4 + note.height;
+    return rowHeight + 4 + note.height;
   }
 
   /**
