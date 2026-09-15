@@ -100,7 +100,7 @@ function setupOrder(state: GameState, owned: Land[]): { land: Land; focus: keyof
   if (!ascent || ascent.wave > 0 || ascent.setupOrderOffered) return undefined;
   const seat = owned.find((land) => land.id === ascent.capitalLandId) ?? owned[0];
   if (!seat || getLandSpecialization(seat) !== 'balanced') return undefined;
-  const aptitude = getLandAptitude(seat);
+  const aptitude = getLandAptitude(seat, state);
   // The ground first, the books second: a deficit at the founding weighs the focus that answers
   // it up to double, but never past what the ground pays back — the founding's rates swing as
   // the first farm and market land, and the seat is set for the run, not for season four.
@@ -215,7 +215,7 @@ export function draftProvinceOrder(state: GameState): Draft | undefined {
       .filter((candidate) => getLandSpecialization(candidate) !== focus)
       // A focus set this cycle is given the cycle to work. See `FOCUS_SETTLE_TICKS`.
       .filter((candidate) => state.turn - (candidate.focusSetTurn ?? -FOCUS_SETTLE_TICKS) >= FOCUS_SETTLE_TICKS)
-      .sort((a, b) => getLandAptitude(b)[focus] - getLandAptitude(a)[focus])[0]
+      .sort((a, b) => getLandAptitude(b, state)[focus] - getLandAptitude(a, state)[focus])[0]
     : setup
       ? setup.land
       : mostExposed(state);

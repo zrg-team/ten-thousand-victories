@@ -38,7 +38,11 @@ import {
   STORE_WASTE_FLOOR,
   STORE_WASTE_RATE,
   STORE_WASTE_SEASONS,
+  GLUT_DECAY,
+  GLUT_DEPTH,
+  GLUT_FLOOR,
 } from '../../game/ascentConfig';
+import { rulesOf } from '../../game/ascentRuleset';
 import { pushToast } from '../empire/notifications';
 import { resourceLabel, resourceToken, t } from '../../i18n';
 import type { GameState } from '../../state/types';
@@ -90,6 +94,29 @@ export function saleGoldPerUnit(key: StoreKey): number {
   return key === 'food' ? SALE_GOLD_PER_FOOD : SALE_GOLD_PER_SUPPLY;
 }
 
+/**
+ * Units of a store the markets have taken lately, decayed to this season (marketGlut).
+ *
+ * Reported 2026-09-15: a realm selling its full lot of goods every season turned 1,120 goods into
+ * 224 gold, half its gross, at a price that never moved. A market that is fed the same glut season
+ * after season pays less for it; one left to rest recovers.
+ */
+export function recentSales(state: GameState, key: StoreKey): number {
+  const sale = state.ascent?.storeSales?.[key];
+  if (!sale?.recent || sale.recentTurn === undefined) return 0;
+  return sale.recent * Math.pow(GLUT_DECAY, Math.max(0, state.turn - sale.recentTurn));
+}
+
+/** The share of the base price the market pays right now: 1 when rested, never under `GLUT_FLOOR`. The literal 1 when the rule is off. */
+export function marketGlutFactor(state: GameState, key: StoreKey): number {
+  if (state.gameMode !== 'ascent' || !rulesOf(state).marketGlut) return 1;
+  const capacity = marketCapacity(state);
+  if (capacity <= 0) return 1;
+  const recent = recentSales(state, key);
+  if (recent <= 0) return 1;
+  return Math.max(GLUT_FLOOR, 1 / (1 + recent / (GLUT_DEPTH * capacity)));
+}
+
 /** Lots of this store already sold this season. The markets take `SALE_LOTS_PER_SEASON`. */
 export function lotsSoldThisSeason(state: GameState, key: StoreKey): number {
   const sale = state.ascent?.storeSales?.[key];
@@ -105,6 +132,8 @@ export interface SaleQuote {
   capacity: number;
   /** True for the season's second lot, which the thinned market pays less for. */
   thin: boolean;
+  /** Share of the base price a glutted market pays (1 = rested). */
+  glut: number;
   /** Why it cannot be sold right now, when it cannot. */
   blocked?: 'no-market' | 'nothing' | 'sold';
 }
@@ -115,11 +144,14 @@ export function saleQuote(state: GameState, key: StoreKey): SaleQuote {
   const lots = lotsSoldThisSeason(state, key);
   const thin = lots >= 1;
   const units = Math.max(0, Math.min(capacity, Math.floor(state.resources[key])));
-  const gold = Math.floor(units * saleGoldPerUnit(key) * (thin ? SALE_THIN_LOT_RATE : 1));
+  const glut = marketGlutFactor(state, key);
+  const gold = glut === 1
+    ? Math.floor(units * saleGoldPerUnit(key) * (thin ? SALE_THIN_LOT_RATE : 1))
+    : Math.floor(units * saleGoldPerUnit(key) * glut * (thin ? SALE_THIN_LOT_RATE : 1));
   const blocked = capacity <= 0
     ? 'no-market'
     : lots >= SALE_LOTS_PER_SEASON ? 'sold' : units <= 0 ? 'nothing' : undefined;
-  return { key, units, gold, capacity, thin, blocked };
+  return { key, units, gold, capacity, thin, glut, blocked };
 }
 
 /**
@@ -133,12 +165,21 @@ export function sellStores(state: GameState, key: StoreKey, units?: number): boo
   if (quote.blocked) return false;
   const sold = Math.max(0, Math.min(quote.units, Math.floor(units ?? quote.units)));
   if (sold <= 0) return false;
-  const gold = Math.floor(sold * saleGoldPerUnit(key) * (quote.thin ? SALE_THIN_LOT_RATE : 1));
+  const gold = quote.glut === 1
+    ? Math.floor(sold * saleGoldPerUnit(key) * (quote.thin ? SALE_THIN_LOT_RATE : 1))
+    : Math.floor(sold * saleGoldPerUnit(key) * quote.glut * (quote.thin ? SALE_THIN_LOT_RATE : 1));
   state.resources[key] -= sold;
   state.resources.gold += gold;
   ascent.storeSales ??= {};
   const prior = ascent.storeSales[key];
-  ascent.storeSales[key] = { turn: state.turn, lots: (prior && prior.turn === state.turn ? prior.lots : 0) + 1 };
+  const next: NonNullable<typeof prior> = { turn: state.turn, lots: (prior && prior.turn === state.turn ? prior.lots : 0) + 1 };
+  // marketGlut: the lot joins what the market has taken lately. Written only under the rule, so a
+  // v1 save carries exactly the fields it always did.
+  if (rulesOf(state).marketGlut) {
+    next.recent = recentSales(state, key) + sold;
+    next.recentTurn = state.turn;
+  }
+  ascent.storeSales[key] = next;
   ascent.laneStats.storesSold = (ascent.laneStats.storesSold ?? 0) + sold;
   pushToast(state, t('ascent.ledger.soldToast', { units: `${resourceToken(key)}${sold}`, resource: resourceLabel(key), gold }), 'info');
   return true;

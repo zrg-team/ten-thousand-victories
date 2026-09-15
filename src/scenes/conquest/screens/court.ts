@@ -10,6 +10,8 @@
  * is the only fixed-height widget on the screen (72px), and its slider commits on `onChange` while
  * `onPreview` merely retitles the effect line under the player's thumb.
  */
+import { heroRaisesActive, heroTemperament } from '../../../systems/heroes/heroPay';
+import { heroAsking } from '../../../systems/ascent/HeroRaiseSystem';
 import { getCourtBonuses, ALL_COURT_POSITIONS, getCourtPositionLabel } from '../../../systems/CourtSystem';
 import { showHeroDepth, showHeroChronicle, showHeroAftermath } from './heroDepth';
 import { protectHero } from '../../../systems/heroes/HeroService';
@@ -206,7 +208,7 @@ export function showHeroesScreen(self: ConquestUIScene): void {
         title: `${heroName(hero)}  ·  ${rarityLabel(hero.rarity)}`,
         // The bio stays on the hero's own card; a roster row is read at a glance, and three lines
         // of history under every name pushed the fourth champion off a phone screen.
-        subtitle: [heroSituationLine(self, hero, status), heroStatLine(hero)].filter(Boolean).join('\n'),
+        subtitle: [heroSituationLine(self, hero, status), heroPayStatLine(state, hero)].filter(Boolean).join('\n'),
         // What the hero costs, then where they serve — as glyphs, one strip each, so a wage is
         // never read as a posting and a land name never wraps in beside a number.
         stats: [heroWageChip(state, hero)],
@@ -356,6 +358,17 @@ function buildTalentSearch(
       resting ? INK_UI.jade : INK_UI.gold,
     ));
   }
+}
+
+/**
+ * The stat line, and under `heroRaises` the champion's temperament after it — and "asks for a raise"
+ * while their card is waiting — on the same line, so every roster row keeps its height.
+ */
+function heroPayStatLine(state: GameState, hero: Hero): string {
+  if (!heroRaisesActive(state) || hero.id === 'king') return heroStatLine(hero);
+  const parts = [heroStatLine(hero), t(`hero.temper.${heroTemperament(hero)}` as Parameters<typeof t>[0])];
+  if (heroAsking(state, hero.id)) parts.push(t('ascent.payRaise.asking'));
+  return parts.join('  ·  ');
 }
 
 /** A hero's wage this season as a coin chip. Half-pay shows its half: 2.5, not a rounded 3. */

@@ -1,7 +1,7 @@
 import { writtenCodeSeverity } from './decree/rules';
 import { applyResourceDelta, canSpend, progressBuildOrders, refreshAllLandOutputs } from './ResourceSystem';
 import { scaledGain } from './ascent/priceScale';
-import { storiesScaled, storyCost, storyGain } from './ascent/storyValue';
+import { storiesScaled, storyCost, storyGain, tradeBagScale } from './ascent/storyValue';
 import { createHeroDraft } from './HeroSystem';
 import { getBuildingLevelCap } from './empire/MandateSystem';
 import { PLAYER_KINGDOM_ID } from '../game/constants';
@@ -204,7 +204,17 @@ export function courtResourceDelta(state: GameState, effect: CourtEffect): Parti
   const delta = effect.resourceDelta ?? {};
   if (!storiesScaled(state)) return scaledGain(state, delta);
   const values = Object.values(delta).filter((value): value is number => typeof value === 'number');
-  if (values.some((value) => value > 0) && values.some((value) => value < 0)) return delta;
+  if (values.some((value) => value > 0) && values.some((value) => value < 0)) {
+    // A trade: one factor on both sides under par prices, so the rate holds and the sums are not
+    // tens of coin beside a treasury of thousands (`tradeBagScale`). As written otherwise.
+    const scale = tradeBagScale(state, delta);
+    if (scale === 1) return delta;
+    const scaled: Partial<ResourceBag> = {};
+    for (const [key, value] of Object.entries(delta) as [keyof ResourceBag, number | undefined][]) {
+      if (value !== undefined) scaled[key] = key === 'humans' ? value : Math.round(value * scale);
+    }
+    return scaled;
+  }
   if (values.every((value) => value <= 0)) {
     const cost: Partial<ResourceBag> = {};
     for (const [key, value] of Object.entries(delta) as [keyof ResourceBag, number | undefined][]) {

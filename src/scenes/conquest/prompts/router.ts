@@ -33,6 +33,7 @@ export function renderPrompt(self: ConquestUIScene, prompt: AscentPrompt): void 
     case 'envoy': self.showEnvoy(prompt); break;
     case 'world-event': self.showWorldEvent(prompt); break;
     case 'famine': self.showFamine(prompt); break;
+    case 'hero-raise': self.showHeroRaise(prompt); break;
     case 'restore-land': self.showRestoreLand(prompt); break;
     case 'province-order': self.showProvinceOrder(prompt); break;
     case 'muster-proposal': self.showMusterProposal(prompt); break;

@@ -236,12 +236,17 @@ export function resolveEnvoy(state: GameState, kingdomId: string, optionId: stri
   // returns false, which is the case the re-arming behaviour was written for.
   let ok = false;
   let known = true;
+  // The card's own prices. The gift was quoted as max(two seasons of income, 5% of the treasury)
+  // and charged the income figure alone, and the pact quoted max(12 seasons, 25% of the treasury)
+  // and charged the 12 seasons — so a rich court paid less than the card said, and the sweetener
+  // that decides whether the pact is accepted was smaller than the one the player agreed to.
+  const quoted = (id: string): number | undefined => buildEnvoyOptions(state, kingdom).find((option) => option.id === id)?.cost?.gold;
   switch (optionId) {
     case 'gift':
-      ok = sendGift(state, kingdomId, 'standard');
+      ok = sendGift(state, kingdomId, 'standard', quoted('gift'));
       break;
     case 'gift-lavish':
-      ok = sendGift(state, kingdomId, 'lavish');
+      ok = sendGift(state, kingdomId, 'lavish', quoted('gift-lavish'));
       break;
     case 'grain':
       ok = sendGrain(state, kingdomId, Math.max(40, Math.round(state.resources.food * 0.12)));
@@ -259,7 +264,7 @@ export function resolveEnvoy(state: GameState, kingdomId: string, optionId: stri
       // The sweetener is the price quoted on the card; `proposePact` still has to be accepted,
       // which is what keeps a treaty something the other side agrees to rather than something
       // bought outright.
-      ok = proposePact(state, kingdomId, Math.round(Math.max(0, state.resourceRates.gold) * 12));
+      ok = proposePact(state, kingdomId, quoted('pact') ?? Math.round(Math.max(0, state.resourceRates.gold) * 12));
       break;
     case 'aid':
       ok = callForAid(state, kingdomId);

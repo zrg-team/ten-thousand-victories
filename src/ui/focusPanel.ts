@@ -92,7 +92,7 @@ function suitabilityOf(focus: LandSpecialization, aptitude: number): FocusSuitab
  * `isBest` flag instead.
  */
 export function buildFocusRows(state: GameState, land: Land): FocusRow[] {
-  const aptitude = getLandAptitude(land);
+  const aptitude = getLandAptitude(land, state);
   const current = getLandSpecialization(land);
   const order = orderFor(state);
 

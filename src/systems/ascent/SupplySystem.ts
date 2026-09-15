@@ -178,7 +178,7 @@ export function supplyFactor(state: GameState, land: Land): number {
  * Returns the plain count of owned neighbours outside Dragon Ascent, which is what the caller did
  * before and what keeps the classic modes identical.
  */
-export function neighborTradeWeight(state: GameState, land: Land): number {
+export function neighborTradeWeight(state: GameState, land: Land, ownWeight: number = SUPPLY_NEIGHBOR_WEIGHTS.own): number {
   const weights = SUPPLY_NEIGHBOR_WEIGHTS;
   const active = supplyLinesActive(state);
   let sum = 0;
@@ -186,7 +186,7 @@ export function neighborTradeWeight(state: GameState, land: Land): number {
     const neighbor = state.lands.find((other) => other.id === neighborId);
     if (!neighbor) continue;
     if (neighbor.ownerId === PLAYER_KINGDOM_ID) {
-      sum += weights.own;
+      sum += ownWeight;
       continue;
     }
     if (!active) continue;

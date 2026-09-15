@@ -19,6 +19,7 @@ import { goalCapitalAloneWave, goalHold, goalNeed, goalProvincesPhrase } from '.
 import { heatFor } from './AmbitionSystem';
 import { contestedFronts } from './battleReport';
 import { landSupply } from './SupplySystem';
+import { waterTradeActive, waterTradeBonus } from './WaterTrade';
 
 /**
  * The in-run advisor: what the numbers mean, and what to do about them.
@@ -447,6 +448,33 @@ export function adviseAscent(state: GameState): Advice[] {
         },
         lane: 'build',
       });
+    }
+  }
+
+  // ── Water trade ──────────────────────────────────────────────────────────
+  // The coin moved from land beside land to land on the water (`waterTrade`), and a player who
+  // learned the old economy has no way to know it. Said once the realm holds no water of its own and
+  // a province on a river or the coast borders it — the moment the lever is actually in reach.
+  if (waterTradeActive(state)) {
+    const mine = state.lands.filter((land) => land.ownerId === PLAYER_KINGDOM_ID);
+    if (mine.length > 0 && !mine.some((land) => waterTradeBonus(state, land) > 0)) {
+      const owned = new Set(mine.map((land) => land.id));
+      const wet = state.lands
+        .filter((land) => !owned.has(land.id) && land.neighbors.some((id) => owned.has(id)))
+        .map((land) => ({ land, bonus: waterTradeBonus(state, land) }))
+        .filter((entry) => entry.bonus > 0)
+        .sort((a, b) => b.bonus - a.bonus)[0];
+      if (wet) {
+        add({
+          id: 'water-trade',
+          tone: 'chance',
+          priority: 54,
+          line: 'advice.waterTrade.line',
+          body: 'advice.waterTrade.body',
+          params: { land: wet.land.name, pct: pct(wet.bonus) },
+          lane: 'build',
+        });
+      }
     }
   }
 

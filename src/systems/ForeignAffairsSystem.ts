@@ -160,13 +160,15 @@ export const GIFT_TIERS = {
 } as const;
 export type GiftTier = keyof typeof GIFT_TIERS;
 
-export function sendGift(state: GameState, kingdomId: string, tier: GiftTier = 'standard'): boolean {
+export function sendGift(state: GameState, kingdomId: string, tier: GiftTier = 'standard', quotedCost?: number): boolean {
   if (!canConductForeignAffairs(state.gameMode)) return false;
   const kingdom = state.kingdoms.find((k) => k.id === kingdomId);
   if (!kingdom || kingdom.isDefeated) return false;
 
   const band = GIFT_TIERS[tier] ?? GIFT_TIERS.standard;
-  const cost = Math.ceil(giftCost(kingdom, state) * band.mult);
+  // A card that quoted its own price (the Ascent envoy floors a gift at a share of the treasury)
+  // charges that price; without one, the classic price.
+  const cost = quotedCost ?? Math.ceil(giftCost(kingdom, state) * band.mult);
   if (state.resources.gold < cost) {
     state.message = t('diplo.giftNoGold', { cost });
     return false;

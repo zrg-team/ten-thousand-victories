@@ -81,7 +81,7 @@ export function scoreHero(state: GameState, land: Land, hero: Hero): number {
   const keyStat = governorKeyStat(land);
   const focus = getLandSpecialization(land);
   // `balanced` has no ground to suit or fight, so it neither helps nor penalises the match.
-  const aptitude = focus === 'balanced' ? 0.65 : getLandAptitude(land)[focus];
+  const aptitude = focus === 'balanced' ? 0.65 : getLandAptitude(land, state)[focus];
 
   const keyTerm = (stats[keyStat] / 100) * (0.55 + aptitude * 0.35);
   const adminTerm = (stats.administration / 100) * 0.3;

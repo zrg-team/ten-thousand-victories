@@ -57,7 +57,18 @@ import {
 import { ARMY_PROVISION_USE_PER_150, ARMY_RATION_USE_PER_100 } from '../game/gameplayConfig';
 import { palisadeMilitiaBonus } from './ascent/DoctrineSystem';
 import { doctrineMilitiaMult } from './ascent/RealmDoctrineSystem';
-import { scaledCost, treasuryGraftFrom } from './ascent/priceScale';
+import { scaledCost, treasuryGraftFrom, upkeepRoundScale } from './ascent/priceScale';
+import { rulesOf } from '../game/ascentRuleset';
+import {
+  ARMY_GOODS_PER_SOLDIER,
+  GOODS_UPKEEP_PER_LEVEL,
+  NETWORK_OWN_NEIGHBOUR_WEIGHT,
+  NETWORK_TRADE_MAX,
+  NETWORK_TRADE_PER_LAND,
+  PRODUCTION_LEVEL_CURVE,
+} from '../game/ascentConfig';
+import { heroEarnedPayMult, heroPayExtra } from './heroes/heroPay';
+import { canHarbour, waterIrrigation, waterMarketFlat, waterTradeActive, waterTradeMult, waterWetness } from './ascent/WaterTrade';
 import { eraIndex, eraLabel, getBuildingLevelCap } from './empire/MandateSystem';
 import { pushToast } from './empire/notifications';
 import { getCourtBonuses, getLandGovernorOutputMult } from './CourtSystem';
@@ -732,13 +743,16 @@ export function getLandSpecialization(land: Land): LandSpecialization {
  * Read off `land.terrainSummary` (counted once at world-gen, so this is O(1)) and
  * `land.neighbors.length`, which is the province's road connectivity.
  */
-export function getLandAptitude(land: Land): Record<LandSpecialization, number> {
+export function getLandAptitude(land: Land, state?: GameState): Record<LandSpecialization, number> {
   const ts = land.terrainSummary;
   const workable = Math.max(1, ts.plains + ts.fields + ts.riceFields + ts.forest + ts.mountains + ts.hills);
   const share = (n: number): number => Math.min(1, n / workable);
   // Connectivity saturates at six, the most neighbours a hex-built province can realistically hold.
   const roads = Math.min(1, land.neighbors.length / 6);
-  const wet = Math.min(1, ts.water / 3);
+  // `ts.water` is always 0 (water hexes never join a province), so under water trade the wet term
+  // reads the province's hexes on the bank instead — see `WaterTrade.ts`. Without a state, or
+  // without the rule, it is the old reading.
+  const wet = waterWetness(state, land) ?? Math.min(1, ts.water / 3);
 
   // What the province is *for* counts as much as what it is made of.
   //
@@ -813,7 +827,7 @@ function focusTerrainDividend(state: GameState, land: Land): Partial<ResourceBag
   if (!key || (state.gameMode === 'ascent' && ASCENT_NO_DIVIDEND.has(focus))) {
     return {};
   }
-  return { [key]: getLandAptitude(land)[focus] * 7 };
+  return { [key]: getLandAptitude(land, state)[focus] * 7 };
 }
 
 function clamp01(value: number): number {
@@ -835,7 +849,7 @@ export function getFocusOutputMult(state: GameState, land: Land): { food: number
     return base;
   }
   // 0 aptitude -> 0.7 of the promised gain, 1 aptitude -> 1.15 of it.
-  const aptitude = getLandAptitude(land)[focus];
+  const aptitude = getLandAptitude(land, state)[focus];
   const scale = 0.7 + aptitude * 0.45;
   // The penalties on the other two resources are paid in full in the classic modes. In Dragon
   // Ascent they shrink with aptitude — see `FOCUS_PENALTY_AT_WORST` / `_AT_BEST`: ground made for
@@ -883,6 +897,17 @@ function buildOrderKindLabel(kind: BuildOrder['kind']): string {
 
 function outputMultiplier(level: number): number {
   return OUTPUT_MULTIPLIERS[Math.max(0, Math.min(level - 1, OUTPUT_MULTIPLIERS.length - 1))] ?? 1;
+}
+
+/**
+ * What a district's goods climb by per level. goodsSink: a flatter climb — at 5.6x a level-5 mine
+ * made 45 goods a season on its own and the only thing to do with them was sell them. Coin and
+ * grain keep the old curve (see `PRODUCTION_LEVEL_CURVE`). The same number as `outputMultiplier`
+ * when the rule is off.
+ */
+function goodsMultiplier(level: number, state?: GameState): number {
+  if (!state || state.gameMode !== 'ascent' || !rulesOf(state).goodsSink) return outputMultiplier(level);
+  return PRODUCTION_LEVEL_CURVE[Math.max(0, Math.min(level - 1, PRODUCTION_LEVEL_CURVE.length - 1))] ?? 1;
 }
 
 function upkeepMultiplier(level: number): number {
@@ -1097,7 +1122,18 @@ function getTradeNetworkMult(state: GameState, land: Land): number {
   const reach = supplyLinesActive(state) && land.ownerId === PLAYER_KINGDOM_ID
     ? landSupply(state, land.id).block
     : state.lands.filter((other) => other.ownerId === PLAYER_KINGDOM_ID).length;
+  // damperNetwork: the block still pays, a little. +9% a province compounding with every other coin
+  // multiplier was the main reason a six-province realm's gold ran away (see `NETWORK_TRADE_PER_LAND`).
+  if (state.gameMode === 'ascent' && rulesOf(state).damperNetwork) {
+    return 1 + Math.min(NETWORK_TRADE_MAX, Math.max(0, reach - 1) * NETWORK_TRADE_PER_LAND);
+  }
   return 1 + Math.min(1.6, Math.max(0, reach - 1) * 0.09);
+}
+
+/** The share the connected block adds to this province's trade coin (0 when none), for the Books page. */
+export function landTradeNetworkBonus(state: GameState, land: Land): number {
+  if (land.ownerId !== PLAYER_KINGDOM_ID) return 0;
+  return Math.max(0, getTradeNetworkMult(state, land) - 1);
 }
 
 /**
@@ -1165,14 +1201,25 @@ export function calculateLandOutputs(state: GameState, land: Land, efficiency = 
   // plain count did; a neutral district with a village, empty ground and a rival's border score a
   // descending share of that instead of the flat zero all three used to get. Outside Dragon Ascent
   // this returns the identical owned-neighbour count, so the term is unchanged there.
-  const ownedNeighbors = neighborTradeWeight(state, land);
+  // damperNetwork: an owned neighbour weighs barely more than a neutral village, so taking the land
+  // next door adds a trickle rather than two roads — the lever that made every coin line compound
+  // with the realm's size. The value moves to water instead (`WaterTrade.ts`).
+  const ownedNeighbors = state.gameMode === 'ascent' && rulesOf(state).damperNetwork
+    ? neighborTradeWeight(state, land, NETWORK_OWN_NEIGHBOUR_WEIGHT)
+    : neighborTradeWeight(state, land);
   const roads = Math.floor(land.neighbors.length / 3) + ownedNeighbors * 2;
+  // waterTrade: a river bank or a coast multiplies the coin that trade carries, and only there.
+  // `waterTradeMult` is the literal 1 without water or without the rule, so the lines below stay
+  // the old arithmetic byte for byte.
+  const water = waterTradeMult(state, land);
+  const quay = waterMarketFlat(state, land);
   // The trade network is the biggest thing the realm gives a province — up to +160% — and it is
   // given by *being part of this realm*, so a province that has stopped answering the throne stops
   // receiving it. See `realmShare`; realised is 1 outside empire/ascent, leaving this untouched.
   const tradeMult = land.ownerId === PLAYER_KINGDOM_ID
     ? realmShare(getTradeNetworkMult(state, land), state.mandate ? landRealised(land) : 1)
     : 1;
+  const coinTrade = water === 1 ? tradeMult : tradeMult * water;
   // Terrain bonuses scale with how much of it there is, rather than asking whether there is any.
   //
   // These were `water > 0 ? 2 : 0`, `riceFields > 0 ? 2 : 0` and `mountains > hills ? 2 : 0` —
@@ -1180,17 +1227,17 @@ export function calculateLandOutputs(state: GameState, land: Land, efficiency = 
   // river delta. Counting is what lets a good site actually be a good site, and it is the same
   // reading `getLandAptitude` uses, so the number the focus selector shows matches what is paid.
   const ts = land.terrainSummary;
-  const waterBonus = Math.min(4, ts.water * 1.2);
+  const waterBonus = waterTradeActive(state) ? waterIrrigation(state, land) : Math.min(4, ts.water * 1.2);
   const riceBonus = Math.min(4, (ts.riceFields + ts.fields * 0.5) * 0.6);
   const mountainBonus = Math.min(4, ts.mountains * 0.7 + ts.hills * 0.3);
 
   if (land.type === 'castle' || land.type === 'enemyCastle') {
-    outputs.gold += (8 + roads) * tradeMult;
+    outputs.gold += (8 + roads) * coinTrade;
     outputs.supplies += 3 + Math.floor(roads);
   }
 
   if (land.type === 'market' || land.type === 'temple') {
-    outputs.gold += (3 + roads) * tradeMult;
+    outputs.gold += (3 + roads) * coinTrade;
     outputs.supplies += Math.max(1, Math.floor(roads / 2));
   }
 
@@ -1201,21 +1248,22 @@ export function calculateLandOutputs(state: GameState, land: Land, efficiency = 
     }
 
     const multiplier = outputMultiplier(building.level) * efficiency;
+    const goodsLevel = goodsMultiplier(building.level, state) * efficiency;
     if (building.type === 'farm') {
       outputs.food += (spec.output.food ?? 0) * multiplier + (waterBonus + riceBonus) * multiplier;
     } else if (building.type === 'mine') {
-      outputs.supplies += ((spec.output.supplies ?? 0) + mountainBonus) * multiplier;
+      outputs.supplies += ((spec.output.supplies ?? 0) + mountainBonus) * goodsLevel;
       outputs.gold += (spec.output.gold ?? 0) * multiplier;
     } else if (building.type === 'market') {
       const marketMult = land.ownerId === PLAYER_KINGDOM_ID ? getCourtBonuses(state).marketGoldOutputMult : 1;
-      outputs.gold += ((spec.output.gold ?? 0) + roads * 2) * multiplier * marketMult * tradeMult;
-      outputs.supplies += ((spec.output.supplies ?? 0) + Math.floor(roads / 2)) * multiplier;
+      outputs.gold += ((spec.output.gold ?? 0) + roads * 2 + quay) * multiplier * marketMult * coinTrade;
+      outputs.supplies += ((spec.output.supplies ?? 0) + Math.floor(roads / 2)) * goodsLevel;
     } else {
       // Advanced production districts (harbor / workshop / guild): gold flows through the
       // trade network, other yields scale with level. Harbor also rides the local water bonus.
       const harborWater = building.type === 'harbor' ? waterBonus * multiplier : 0;
-      outputs.gold += (spec.output.gold ?? 0) * multiplier * tradeMult;
-      outputs.supplies += ((spec.output.supplies ?? 0) * multiplier) + harborWater;
+      outputs.gold += (spec.output.gold ?? 0) * multiplier * coinTrade;
+      outputs.supplies += ((spec.output.supplies ?? 0) * goodsLevel) + harborWater;
       outputs.food += (spec.output.food ?? 0) * multiplier;
     }
   }
@@ -1325,8 +1373,10 @@ export function ascentArmyUpkeep(state: GameState): { gold: number; food: number
   const burden = 1 + troops / ARMY_UPKEEP_SCALE;
   const foodDraw = garrisonTroops * ARMY_FOOD_PER_SOLDIER
     + campaignTroops * ARMY_FOOD_PER_SOLDIER * ARMY_CAMPAIGN_FOOD_MULT;
+  // upkeepRound: a soldier's pay climbs with the round (literal 1 when the rule is off).
+  const roundScale = upkeepRoundScale(state);
   return {
-    gold: Math.ceil(troops * ARMY_GOLD_PER_SOLDIER * burden),
+    gold: roundScale === 1 ? Math.ceil(troops * ARMY_GOLD_PER_SOLDIER * burden) : Math.ceil(troops * ARMY_GOLD_PER_SOLDIER * burden * roundScale),
     // Negative is allowed and intended: enough hosts at home under ngụ binh ư nông and the army
     // becomes a net food *producer*. That is the decree working, not an accounting slip.
     food: Math.ceil(foodDraw * burden) - idleHosts * IDLE_HOST_FOOD,
@@ -1446,6 +1496,8 @@ function getPopulationFoodMultiplier(season: Season): number {
 function calculateBuildingUpkeep(state: GameState): ResourceBag {
   const upkeep = emptyResourceBag();
   const courtBonuses = getCourtBonuses(state);
+  const sinking = state.gameMode === 'ascent' && rulesOf(state).goodsSink;
+  const roundScale = upkeepRoundScale(state);
 
   for (const land of state.lands) {
     if (land.ownerId !== PLAYER_KINGDOM_ID) {
@@ -1462,8 +1514,18 @@ function calculateBuildingUpkeep(state: GameState): ResourceBag {
             : 1;
         upkeep[resourceKey] += Math.ceil((value ?? 0) * building.level * upkeepMultiplier(building.level) * courtMult);
       }
+      // goodsSink: the garrison and civic districts are kept with timber and iron. Before this no
+      // building in the game consumed a single unit of goods, which left the market as the only
+      // thing goods were for.
+      const goods = sinking ? GOODS_UPKEEP_PER_LEVEL[building.type as keyof typeof GOODS_UPKEEP_PER_LEVEL] : undefined;
+      if (goods) {
+        upkeep.supplies += Math.ceil(goods * building.level * upkeepMultiplier(building.level) * courtBonuses.buildingSuppliesUpkeepMult);
+      }
     }
   }
+
+  // upkeepRound: the coin a district costs to keep climbs with the round, never with wealth.
+  if (roundScale !== 1 && upkeep.gold > 0) upkeep.gold = Math.ceil(upkeep.gold * roundScale);
 
   return upkeep;
 }
@@ -1577,8 +1639,15 @@ export function calculatePlayerResourceRates(state: GameState): ResourceBag {
       : sum
   ), 0);
   const armyRealmFoodPressure = Math.ceil(playerTroops / 300) + homeSupplyFood;
-  const suppliesUpkeep = Math.ceil(playerTroops / 650) + homeSupplySupplies;
-  const armyGoldUpkeep = Math.ceil(getTotalArmyGoldUpkeep(state) * courtBonuses.armyGoldUpkeepMult);
+  // goodsSink: a host wears out its kit — 1.5 goods a hundred men a season, where one unit per 650
+  // men was a rounding error (a 145-man host wore one unit a season).
+  const suppliesUpkeep = state.gameMode === 'ascent' && rulesOf(state).goodsSink
+    ? Math.ceil(playerTroops * ARMY_GOODS_PER_SOLDIER) + homeSupplySupplies
+    : Math.ceil(playerTroops / 650) + homeSupplySupplies;
+  const hostRound = upkeepRoundScale(state);
+  const armyGoldUpkeep = hostRound === 1
+    ? Math.ceil(getTotalArmyGoldUpkeep(state) * courtBonuses.armyGoldUpkeepMult)
+    : Math.ceil(getTotalArmyGoldUpkeep(state) * courtBonuses.armyGoldUpkeepMult * hostRound);
 
   // Dragon Ascent charges armies what they are actually worth to keep.
   //
@@ -1943,7 +2012,13 @@ export function heroWage(state: GameState, hero: GameState['heroes'][number]): n
   if (hero.life?.kind === 'captive' || hero.life?.kind === 'dead') return 0;
   const kingMult = hero.id === 'king' ? ASCENT_KING_UPKEEP_MULT : 1;
   const postingMult = hero.assignedTo || (hero.life && hero.life.kind !== 'active') ? 1 : HERO_RESERVE_UPKEEP_SHARE;
-  return upkeep * kingMult * postingMult;
+  // heroRaises: a champion is paid for their level and for the raises the court has granted; and
+  // upkeepRound: every wage climbs with the round. Both are the literal 1 when their rule is off.
+  const earned = heroEarnedPayMult(state, hero);
+  const round = upkeepRoundScale(state);
+  const extra = heroPayExtra(state, hero);
+  if (earned === 1 && round === 1 && extra === 0) return upkeep * kingMult * postingMult;
+  return (upkeep * earned * round + extra) * kingMult * postingMult;
 }
 
 export function getBuildOrder(state: GameState, landId: string): BuildOrder | undefined {
@@ -1965,7 +2040,7 @@ export function getBuildOptions(state: GameState, land: Land): BuildOption[] {
 
   return BUILDING_ORDER.map((type) => {
     const spec = BUILDING_ECONOMY[type];
-    const terrainReason = getBuildingTerrainBlocker(land, type);
+    const terrainReason = getBuildingTerrainBlocker(state, land, type);
     const capacityReason = land.buildings.length >= land.buildingCapacity ? t('reason.noCapacity') : undefined;
     const singletonTypes: LandBuildingType[] = ['wall', 'tower', 'barracks', 'communalHall', 'harbor', 'workshop', 'guild', 'university'];
     const duplicateReason = type === 'market' && land.buildings.filter((building) => building.type === 'market').length >= getMarketLimit(land)
@@ -1998,7 +2073,7 @@ export function getBuildOptions(state: GameState, land: Land): BuildOption[] {
       ticks: Math.max(1, spec.buildTicks - getCourtBonuses(state).buildSpeedBonus),
       category: spec.category,
       upkeep: getScaledUpkeep(type, 1),
-      output: getScaledOutput(type, 1),
+      output: getScaledOutput(type, 1, state),
       canBuild: !reason,
       reason,
     };
@@ -2040,7 +2115,7 @@ export function getUpgradeOptions(state: GameState, land: Land): UpgradeOption[]
       ticks: Math.max(1, spec.buildTicks - getCourtBonuses(state).buildSpeedBonus - getCourtBonuses(state).upgradeSpeedBonus),
       category: spec.category,
       upkeep: getScaledUpkeep(building.type, nextLevel),
-      output: getScaledOutput(building.type, nextLevel),
+      output: getScaledOutput(building.type, nextLevel, state),
       canUpgrade: !reason,
       reason,
     };
@@ -2190,9 +2265,13 @@ export function progressBuildOrders(state: GameState): boolean {
   return true;
 }
 
-function getScaledOutput(type: LandBuildingType, level: number): Partial<ResourceBag> {
+function getScaledOutput(type: LandBuildingType, level: number, state?: GameState): Partial<ResourceBag> {
   const output = BUILDING_ECONOMY[type].output;
-  return scaleResourceBag(output, outputMultiplier(level));
+  if (!state || !output.supplies) return scaleResourceBag(output, outputMultiplier(level));
+  // The preview shows what the level will pay: goods on their own curve under goodsSink.
+  const scaled = scaleResourceBag({ ...output, supplies: 0 }, outputMultiplier(level));
+  const goods = scaleResourceBag({ supplies: output.supplies }, goodsMultiplier(level, state));
+  return { ...scaled, ...goods };
 }
 
 function getScaledUpkeep(type: LandBuildingType, level: number): Partial<ResourceBag> {
@@ -2200,7 +2279,7 @@ function getScaledUpkeep(type: LandBuildingType, level: number): Partial<Resourc
   return scaleResourceBag(upkeep, level * upkeepMultiplier(level));
 }
 
-function getBuildingTerrainBlocker(land: Land, building: LandBuildingType): string | undefined {
+function getBuildingTerrainBlocker(state: GameState, land: Land, building: LandBuildingType): string | undefined {
   if (building === 'farm') {
     const grassTiles = land.terrainSummary.plains + land.terrainSummary.fields + land.terrainSummary.riceFields + land.terrainSummary.forest;
     const existingFarms = land.buildings.filter((candidate) => candidate.type === 'farm').length;
@@ -2214,6 +2293,9 @@ function getBuildingTerrainBlocker(land: Land, building: LandBuildingType): stri
   }
 
   if (building === 'harbor') {
+    // `terrainSummary.water` is structurally 0, so the harbour could never be built anywhere; under
+    // water trade a province with a hex on the bank or the coast can take one.
+    if (waterTradeActive(state)) return canHarbour(state, land) ? undefined : t('reason.needWater');
     return land.terrainSummary.water > 0 ? undefined : t('reason.needWater');
   }
 

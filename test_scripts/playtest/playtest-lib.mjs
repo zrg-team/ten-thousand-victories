@@ -46,7 +46,7 @@ window.__ptOptions = (forState) => {
     case 'envoy': // The province card: take the free, permanent lever where there is one —
     case 'envoy': // posting a champion spends the one person the court has.
     case 'envoy': case 'province-order': return p.options.map((o) => o.id);
-    case 'envoy': case 'famine': case 'rival-demand': return p.options.filter((o) => o.affordable).map((o) => o.id);
+    case 'envoy': case 'famine': case 'rival-demand': case 'hero-raise': return p.options.filter((o) => o.affordable).map((o) => o.id);
     // The restore card: haste first, so the engaged policy pays the bill and the cost is measured.
     case 'restore-land': return p.options.filter((o) => o.affordable).map((o) => o.id);
     case 'empire-response': return p.options.map((o) => o.id);

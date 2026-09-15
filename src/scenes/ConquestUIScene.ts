@@ -925,6 +925,7 @@ export class ConquestUIScene extends Phaser.Scene {
   showHeroChoice(prompt: Extract<AscentPrompt, { kind: 'hero-choice' }>): void { promptsCourt.showHeroChoice(this, prompt); }
 
   showAppointment(prompt: Extract<AscentPrompt, { kind: 'court-appointment' }>): void { promptsCourt.showAppointment(this, prompt); }
+  showHeroRaise(prompt: Extract<AscentPrompt, { kind: 'hero-raise' }>): void { promptsCourt.showHeroRaise(this, prompt); }
 
   showDecreeOffer(prompt: Extract<AscentPrompt, { kind: 'decree-offer' }>): void { promptsCourt.showDecreeOffer(this, prompt); }
 

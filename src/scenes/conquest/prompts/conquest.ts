@@ -413,6 +413,8 @@ function provinceCard(self: ConquestUIScene,
         target.suits
           ? t('ascent.conquer.suits', { focus: focusTitle(self.state, target.suits.focus), pct: target.suits.pct })
           : '',
+        // Water is what a trading province is chosen for now; say it where the claim is decided.
+        target.waterPct ? t('ascent.water.claimTag', { pct: target.waterPct }) : '',
       ].filter(Boolean).join('  ·  '),
       target.rewardTag !== 'plain' ? t(`ascent.march.reward.${target.rewardTag}` as Parameters<typeof t>[0]) : '',
     ].filter(Boolean).join('\n'),

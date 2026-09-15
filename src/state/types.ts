@@ -1796,6 +1796,8 @@ export interface ConquestTarget {
    * on the card.
    */
   suits?: { focus: LandSpecialization; pct: number };
+  /** Share water trade adds to this ground's coin, as a percentage (`waterTrade`); absent when none. */
+  waterPct?: number;
   /** Best chance across every takeable method. Drives ordering, not the card's headline. */
   bestChance: number;
   /** True when at least one open method cannot fail — the province is takeable at no risk. */
@@ -1803,6 +1805,15 @@ export interface ConquestTarget {
   methods: ConquestMethodOption[];
   /** Set when a claim or siege is already running here. */
   busyReason?: string;
+}
+
+/** One answer to a champion asking for more pay (`HeroRaiseSystem`). */
+export interface HeroRaiseOption {
+  id: 'grant' | 'reward' | 'refuse';
+  cost?: Partial<ResourceBag>;
+  /** Coin a season the grant adds to the wage. */
+  perSeason?: number;
+  affordable: boolean;
 }
 
 /** One answer to a famine. Each spends a different store, so the choice is a real trade. */
@@ -1984,6 +1995,23 @@ export type AscentPrompt =
   | { kind: 'parliament'; cardId: string }
   /** The granary is empty and still draining. What the realm does about it. */
   | { kind: 'famine'; shortfall: number; options: FamineOption[] }
+  /**
+   * A champion asks for more pay (`heroRaises`): sized to the realm's gross, by level and
+   * temperament. `warn` is set once a refusal would send them away.
+   */
+  | {
+      kind: 'hero-raise';
+      heroId: string;
+      /** Coin a season asked for. */
+      ask: number;
+      /** What they draw now at full pay. */
+      wage: number;
+      temperament: 'modest' | 'steady' | 'ambitious' | 'greedy';
+      /** Seasons since the clock last reset. */
+      seasons: number;
+      warn: boolean;
+      options: HeroRaiseOption[];
+    }
   /**
    * A province was fought over and the fight cost it: how hard does the throne push the
    * rebuilding? Raised by `chargeProvinceForDefence` once per province per wave, only for damage
@@ -3123,7 +3151,13 @@ export interface AscentState {
   /** The opening's "what is the seat for?" card has been offered; it is asked once. */
   setupOrderOffered?: boolean;
   /** Lots of each store sold through the markets this season (`SALE_LOTS_PER_SEASON`), by turn. */
-  storeSales?: Partial<Record<'food' | 'supplies', { turn: number; lots: number }>>;
+  storeSales?: Partial<Record<'food' | 'supplies', {
+    turn: number;
+    lots: number;
+    /** Units sold lately, as of `recentTurn` (marketGlut): decays `GLUT_DECAY` a season and depresses the price. */
+    recent?: number;
+    recentTurn?: number;
+  }>>;
   /** Wave in which Twice-Born last reformed a broken host, so it fires once per wave. */
   twiceBornWave: number;
 

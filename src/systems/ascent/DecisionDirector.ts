@@ -23,6 +23,7 @@ import { offerEnvoy, pickEnvoyTarget } from './EnvoySystem';
 import { maybeOfferWorldEvent } from './WorldEventSystem';
 import { offerProvinceOrder, provinceOrderReady } from './ProvinceOrderSystem';
 import { famineReady, offerFamine, tickFamineCooldown } from './FamineSystem';
+import { heroRaiseReady, offerHeroRaise, tickHeroPay } from './HeroRaiseSystem';
 import { offerRivalDemand, rivalDemandReady, tickRivalCooldowns } from './RivalDirector';
 import { offerHeroSummon } from './SummonSystem';
 import { offerPowerDraft } from './PowerDraftSystem';
@@ -177,6 +178,9 @@ const CONSIDER_ORDER: AscentPromptKind[] = [
   'decree-offer',
   'power-draft',
   'hero-choice',
+  // A champion's ask waits behind the summon (a new hero outranks an old one's pay) and ahead of the
+  // laws. Ready only under `heroRaises`, so v1 never ages it and never raises it.
+  'hero-raise',
   'law-choice',
   'parliament',
   'envoy',
@@ -229,6 +233,7 @@ export function tickPromptCooldowns(state: GameState): void {
   }
   progressAscentCourtCooldown(state);
   tickFamineCooldown(state);
+  tickHeroPay(state);
   tickRivalCooldowns(state);
 }
 
@@ -312,6 +317,9 @@ function isReady(state: GameState, kind: AscentPromptKind): boolean {
     case 'famine':
       return famineReady(state);
 
+    case 'hero-raise':
+      return heroRaiseReady(state);
+
     case 'province-order':
       return provinceOrderReady(state);
 
@@ -368,6 +376,9 @@ function raise(state: GameState, kind: AscentPromptKind): boolean {
 
     case 'famine':
       return offerFamine(state);
+
+    case 'hero-raise':
+      return offerHeroRaise(state);
 
     case 'province-order':
       return offerProvinceOrder(state);
