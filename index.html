@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#2a2118" />
+    <title>Vạn Thắng — Ten Thousand Victories</title>
+
+    <!-- ── what a link to this page turns into ──────────────────────────────────────────────────
+         A share card is the only part of this game most people will ever see. Pasted into Discord,
+         Zalo, iMessage or a group chat without this block, the game was a grey rectangle with
+         `zrg-team.github.io` under it and no words at all — an unfurler reads none of the manifest
+         and cannot run the bundle, so everything it knows has to be here in the served HTML.
+
+         `https://zrg-team.github.io/ten-thousand-victories/` is filled by vite from `homepage` in package.json (see vite.config.ts). It is
+         absolute, and it has to be: a crawler has no document to resolve `./share/og-card.jpg`
+         against, and Facebook, X and Slack drop a relative one without reporting it. The card
+         itself is cut by `scripts/build-share.mjs` and lives outside the service worker's precache,
+         so it costs an installed player nothing. -->
+    <meta
+      name="description"
+      content="Vietnamese history, played one-handed on a phone. A grand-strategy roguelite drawn in Đông Hồ woodblock ink — free, no ads, plays offline, in English and Tiếng Việt."
+    />
+    <link rel="canonical" href="https://zrg-team.github.io/ten-thousand-victories/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Vạn Thắng" />
+    <meta property="og:title" content="Vạn Thắng — Ten Thousand Victories" />
+    <meta
+      property="og:description"
+      content="Vietnamese history, played one-handed on a phone. A grand-strategy roguelite drawn in Đông Hồ woodblock ink — free, no ads, plays offline, in English and Tiếng Việt."
+    />
+    <meta property="og:url" content="https://zrg-team.github.io/ten-thousand-victories/" />
+    <meta property="og:image" content="https://zrg-team.github.io/ten-thousand-victories/share/og-card.jpg" />
+    <!-- Stated rather than left to be discovered. An unfurler that has not fetched the image yet
+         lays the card out from these two numbers; without them the first render of a preview is a
+         collapsed box that fills in a beat later, and some clients never re-lay it out at all. -->
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="The Vạn Thắng wordmark on điệp paper beside two phone screens — a woodblock-ink map of the realm, and a battle."
+    />
+    <!-- The page's own default is Vietnamese, which is what `lang` above says and what the game
+         boots into; English is the other half of the audience, not a fallback. -->
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- X reads og:* for everything except the card shape, which only this tag can set. Without it
+         the same picture is cropped to a small square thumbnail beside the text. -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Vạn Thắng — Ten Thousand Victories" />
+    <meta
+      name="twitter:description"
+      content="Vietnamese history, played one-handed on a phone. A grand-strategy roguelite drawn in Đông Hồ woodblock ink — free, no ads, plays offline, in English and Tiếng Việt."
+    />
+    <meta name="twitter:image" content="https://zrg-team.github.io/ten-thousand-victories/share/og-card.jpg" />
+    <meta
+      name="twitter:image:alt"
+      content="The Vạn Thắng wordmark on điệp paper beside two phone screens — a woodblock-ink map of the realm, and a battle."
+    />
+
+    <!-- For the one reader that is not a person: schema.org is how a search result gets the name,
+         the price and the platform rather than guessing them out of the prose. Every field here is
+         a fact the game can be held to — no rating, no review count, nothing invented. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Vạn Thắng",
+        "alternateName": "Ten Thousand Victories",
+        "url": "https://zrg-team.github.io/ten-thousand-victories/",
+        "image": "https://zrg-team.github.io/ten-thousand-victories/share/og-card.jpg",
+        "description": "A grand-strategy roguelite of Vietnamese history, drawn in the ink of Đông Hồ woodblock prints and played one-handed on a phone.",
+        "inLanguage": ["vi", "en"],
+        "genre": ["Strategy", "Roguelite"],
+        "gamePlatform": ["Web browser", "Android", "iOS"],
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+    <!-- Approved river icon exports. Relative URLs also work under the Pages repository path. -->
+    <link rel="preload" href="./app-emblem.webp" as="image" />
+    <link rel="icon" href="./favicon-river-v9.ico" sizes="16x16 32x32 48x48" type="image/x-icon" />
+    <link rel="icon" href="./favicon-river-v9-16.png" sizes="16x16" type="image/png" />
+    <link rel="icon" href="./favicon-river-v9-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="./favicon-river-v9-96.png" sizes="96x96" type="image/png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" />
+    <meta name="apple-mobile-web-app-title" content="Vạn Thắng" />
+    <!-- iOS reads the manifest's `display` only from 16.4; before that this meta is the *only*
+         thing that makes an added-to-home-screen icon open without Safari's chrome. Harmless
+         where the manifest is honoured, and `mobile-web-app-capable` is the standard spelling
+         every other engine looks for. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <!-- Self-hosted so the game's Vietnamese renders the same on every device, and so an
+         offline load never falls back to whatever the phone happened to have.
+
+         Taken *off* the critical path — `media="print"` until it arrives, then promoted. A plain
+         stylesheet link in the head blocks the first paint of the whole document on a second
+         network round trip, and on a phone that is the difference between the splash below showing
+         at one round trip and showing at two. Nothing is lost by waiting: every face declares
+         `font-display: swap`, so the splash prints in Georgia and swaps when Source Serif lands,
+         and `BootScene` holds the canvas back until `__fontsCss` (declared at the foot of this
+         file) resolves — a Phaser `Text` is rasterised once when it is created and never
+         re-rendered when a webfont turns up later. -->
+    <link
+      id="fonts-css"
+      rel="stylesheet"
+      href="./fonts/fonts.css"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript><link rel="stylesheet" href="./fonts/fonts.css" /></noscript>
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="./fonts/BeVietnamPro-400-vietnamese.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="./fonts/SourceSerif4-700-vietnamese.woff2" />
+    <style>
+      html,
+      body,
+      #game-root {
+        width: 100%;
+        /* `100%` on iOS resolves against the LARGE viewport, so the canvas is laid out for a
+           height the page does not actually have while Safari's toolbars are showing, and Phaser
+           fits the game into the wrong box. `dvh` tracks the visible viewport instead. */
+        height: 100vh;
+        height: 100dvh;
+        margin: 0;
+        overflow: hidden;
+        /* Diep, the shell-coated paper the whole game is printed on - not the near-black it used
+           to be.
+
+           Phaser fits a fixed 390-wide design surface into whatever window it is given, so on
+           anything wider than that aspect it letterboxes: measured at 900x450 the canvas is 283
+           wide with 308px of page showing on the left and 309 on the right. In portrait on a phone
+           the gaps are zero and nobody sees this; rotate the phone, or open it on a desktop, and
+           the sheet floats on two black slabs. The battle screen's own ground is this exact colour,
+           so the bars now read as the sheet simply continuing past the picture. */
+        background: #e9dfc2;
+        touch-action: none;
+        overscroll-behavior: none;
+        font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto,
+          sans-serif;
+        /* Vietnamese stacks two marks above the letter; anything tighter clips them. */
+        line-height: 1.45;
+      }
+
+      canvas {
+        display: block;
+        image-rendering: auto;
+      }
+
+      /* Keeps the action bar clear of the home indicator on a notched phone.
+         **Padding cannot do this.** Phaser's `ScaleManager.getParentBounds` measures the parent
+         with `getBoundingClientRect()`, which returns the *border* box — padding included — so
+         the canvas was fitted to the whole 100dvh and then centred inside a content box 34px
+         shorter, which put its bottom edge under the home indicator. In Safari the toolbar hides
+         that strip and nobody sees it; installed to the home screen there is no toolbar, and the
+         action bar is simply cut off. The element itself has to be shorter, so it is.
+
+         Insets are subtracted rather than the box being positioned inside them, because
+         `viewport-fit=cover` is what lets the điệp paper reach the screen edges in the first
+         place: `body` keeps its background under both strips, and only the canvas moves. */
+      /* The insets go through two custom properties rather than being written into the rules
+         below, because an installed iOS app sometimes lays this page out before WebKit knows what
+         they are and every `env(safe-area-inset-*)` answers `0px` for the rest of the session.
+         The script at the foot of the body substitutes the device's real numbers when — and only
+         when — that has happened; see `applyInsets` there. In every other case these resolve to
+         exactly what they always did. */
+      :root {
+        --sa-top: env(safe-area-inset-top, 0px);
+        --sa-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      #game-root {
+        height: calc(100vh - var(--sa-top) - var(--sa-bottom));
+        height: calc(100dvh - var(--sa-top) - var(--sa-bottom));
+        margin-top: var(--sa-top);
+        box-sizing: border-box;
+      }
+
+      /* ── the splash ──────────────────────────────────────────────────────────────────────────
+         The bundle is 3.5 MB (955 kB gzipped) and Phaser cannot draw a single pixel until all of
+         it has arrived and parsed, so nothing done inside the game moves the moment the player
+         first sees something. Measured against the built app on a 4x-throttled CPU over fast 3G,
+         the same bundle with this file's splash and without it, five runs each way:
+
+             first ink       6,400 ms  ->  350 ms
+             menu drawn     14,500 ms  ->  12,900 ms   (noise; the splash costs nothing)
+
+         The second row is the one worth stating plainly: this screen costs the boot it is
+         covering nothing at all.
+
+         The first screen is therefore not the game's. It is this, and it obeys four rules:
+
+           1. **It fetches nothing.** Every mark below is inline SVG and inline CSS in the document
+              that has already arrived — no image, no font, no module to wait on — so it paints on
+              the document's own first frame instead of a round trip later.
+           2. **It is drawn on the canvas's own sheet.** `fitSheet` puts this page in exactly the
+              box Phaser's FIT scaler gives the canvas, and snaps to the real canvas rect the
+              moment one exists. A splash on a differently shaped sheet turns the handover into a
+              jump cut between two page sizes, which is the thing a splash is for avoiding.
+           3. **Only `transform` and `opacity` are animated.** Those run on the compositor thread.
+              The main thread is *pinned* for seconds while a megabyte of Phaser parses, and an
+              animation driven through layout or paint would freeze solid for all of it — which is
+              worse than a still image, because a stopped animation reads as a hung app.
+           4. **It leaves when the game is drawn**, not on a timer: `MenuScene` calls
+              `__splashDone` after Phaser's first `postrender`, so there is never a frame with
+              neither the splash nor the menu on it.
+
+         The look is the front page's — điệp paper, mực soot, sỏi son for the player's own colour,
+         hoa hòe for gold, values from `src/ui/ink/palette.ts` — and the seal is the same 44-unit
+         drum face at the same radii as `MenuScene.drawDaiVietDrumSeal`.
+
+         It is a seal, a name and a bar, and that is the whole design. A loading screen that draws
+         the game's own subject competes with the game: it goes stale the moment the thing it
+         imitates is redrawn, and it spends the main thread on the one screen that cannot afford
+         it. What stays here is the identity and the fact that something is happening. */
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        /* The same điệp as the page under it, not a dark surround. Outside the sheet this is the
+           letterbox, and the game's letterbox is paper — a black slab here means the handover
+           from splash to menu changes the colour of the whole screen edge. */
+        background: #e9dfc2;
+        opacity: 1;
+        transition: opacity 0.38s ease-out;
+        /* Never takes a tap. There is nothing on this screen to press, and a full-screen overlay
+           that swallows input is one that eats the player's first press on the menu underneath
+           during the 380 ms it spends fading — and eats a headless driver's first click with it. */
+        pointer-events: none;
+      }
+
+      #splash.sp-out {
+        opacity: 0;
+      }
+
+      /* The sheet: the canvas's box, to the pixel. Position and size are written by `fitSheet`,
+         which reproduces Phaser's FIT arithmetic against `#game-root` until a canvas exists and
+         then simply copies the canvas's own rect. */
+      .sp-sheet {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        /* Flat điệp, and flat on purpose.
+           It was a radial gradient — diepHi in the middle falling to diepLo at the edges — on the
+           argument that điệp is never evenly coated. Measured against the menu it hands over to at
+           the same six points, the bottom corners came out #ddcfad against the game's #e9dfc2:
+           the splash was a third of a shade darker down every edge, and the handover read as the
+           background changing colour. The game paints flat #e9dfc2 and grains it in the paper
+           pass, so this does too. */
+        background: #e9dfc2;
+        color: #2a2118;
+      }
+
+      /* Inside it, the game's own design surface: 390 units wide, scaled by exactly what the FIT
+         scaler scales the canvas by. So every number below this line is a design unit, read off
+         the same ruler `GAME_WIDTH`, `HEADER_HEIGHT` and the rest are read off. */
+      .sp-page {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 390px;
+        transform-origin: 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .sp-mark {
+        width: 104px;
+        height: 104px;
+        flex: none;
+      }
+
+      /* The wordmark, printed twice with the lower copy two units off in the ink's own colour
+         family. That is a woodblock pulled twice, not a drop shadow, which is why the offset is
+         #301509 and not a grey. Same construction as `MenuScene.renderTitle`. */
+      .sp-name {
+        margin: 18px 0 0;
+        font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+        font-weight: 700;
+        font-size: 46px;
+        letter-spacing: 0.05em;
+        text-shadow: 2px 3px 0 #301509;
+        white-space: nowrap;
+      }
+
+      .sp-gloss {
+        margin: 10px 0 0;
+        font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.24em;
+        color: #4a3520;
+        white-space: nowrap;
+      }
+
+      /* Stops short of the sheet's margin: a rule ruled the full width is a border, and this is
+         the bottom of the wordmark. */
+      .sp-rule {
+        width: 168px;
+        height: 2px;
+        margin-top: 12px;
+        flex: none;
+        background: linear-gradient(
+          90deg,
+          rgba(192, 138, 46, 0) 0%,
+          #c08a2e 22%,
+          #c08a2e 78%,
+          rgba(192, 138, 46, 0) 100%
+        );
+      }
+
+      /* ── what it is doing ───────────────────────────────────────────────────────────────── */
+      .sp-status {
+        margin-top: 34px;
+        flex: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .sp-caption {
+        margin: 0;
+        font-size: 13px;
+        letter-spacing: 0.03em;
+        color: #5a4c39;
+      }
+
+      /* One thing worth knowing, while the bundle parses.
+         This screen is up for six seconds on a mid phone over a slow network, and until now it
+         asked the player to spend all six watching a bar. The line is set quietly and given fixed
+         room for three lines, because it is *replaced* by the game's own cached copy a frame after
+         this document parses (see the script below) and a growing block would push the bar down
+         under the reader's eyes. Its words cannot come from `src/i18n` — those catalogs are inside
+         the bundle this screen exists to cover — so they arrive from the previous visit's cache,
+         and the fallback below is the one line a first-ever visit gets. */
+      .sp-tip {
+        margin: 18px 0 0;
+        max-width: 300px;
+        min-height: 3.2em;
+        font-size: 12px;
+        line-height: 1.45;
+        color: #6f6250;
+        text-align: center;
+      }
+
+      .sp-tip b {
+        font-weight: 700;
+        color: #8a2a1b;
+      }
+
+      .sp-bar {
+        width: 132px;
+        height: 3px;
+        overflow: hidden;
+        background: rgba(42, 33, 24, 0.14);
+      }
+
+      .sp-bar i {
+        display: block;
+        width: 38%;
+        height: 100%;
+        background: #b33a26;
+        animation: sp-sweep 1.55s ease-in-out infinite;
+        will-change: transform;
+      }
+
+      @keyframes sp-sweep {
+        from {
+          transform: translate3d(-110%, 0, 0);
+        }
+        to {
+          transform: translate3d(295%, 0, 0);
+        }
+      }
+
+      /* A still print, for anyone who asked not to be moved. The bar stops sweeping and simply
+         states that work is under way. */
+      @media (prefers-reduced-motion: reduce) {
+        .sp-bar i {
+          animation: none;
+          width: 100%;
+          opacity: 0.45;
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="/ten-thousand-victories/assets/index-DmdpTUVp.js"></script>
+  </head>
+  <body>
+    <div id="game-root"></div>
+
+    <div id="splash" role="status" aria-live="polite" aria-label="Vạn Thắng — đang tải">
+      <div class="sp-sheet" id="sp-sheet">
+        <div class="sp-page" id="sp-page">
+          <!-- The same transparent river emblem used by the game menu. -->
+          <img class="sp-mark" src="./app-emblem.webp" alt="" aria-hidden="true" />
+
+          <!-- The name does not change with the language: the game is called Vạn Thắng in
+               Vietnamese and in English, and the line under it says what that means to the half of
+               the audience it does not mean anything to yet. -->
+          <h1 class="sp-name">VẠN THẮNG</h1>
+          <p class="sp-gloss">TEN THOUSAND VICTORIES</p>
+          <div class="sp-rule"></div>
+
+          <div class="sp-status">
+            <p class="sp-caption" id="sp-caption">Đang tập hợp quân…</p>
+            <div class="sp-bar"><i></i></div>
+            <p class="sp-tip" id="sp-tip">
+              <b>Mẹo</b> · Tạm dừng không mất gì. Đồng hồ dừng thì không lời mời nào rút lại, không
+              đợt giặc nào lọt qua.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ the sheet this page is printed on ═══════════════════════════════════════════════
+         Everything below runs from a *synchronous* script in the body: the parser has not yielded
+         yet, so the sheet is sized before the document's first paint. Nothing here waits on a
+         network or a module, and nothing here draws — the seal and the wordmark above are already
+         in the document that arrived. ════════════════════════════════════════════════════════ -->
+    <script>
+      (function () {
+        'use strict';
+
+        // ── the notch, when iOS forgets it ───────────────────────────────────────────────────
+        /**
+         * Why the insets are read in script at all, when the stylesheet already asks for them.
+         *
+         * Launched from the home screen, WebKit sometimes lays this page out before it knows the
+         * window's safe-area insets, and every `env(safe-area-inset-*)` resolves to `0px` — for
+         * the whole session, because nothing invalidates the style again afterwards. Reported
+         * from an iPhone 16 Pro: the seal printed under the Dynamic Island and the support links
+         * under the home indicator, and reopening the app fixed it, which is the signature of a
+         * first-layout race rather than a wrong rule. Phaser is not the stuck part —
+         * `ScaleManager.step` re-reads the parent box every 500 ms, so an inset that arrived
+         * *late* would have corrected itself without any of this.
+         *
+         * So the two values the page uses go through custom properties, and this substitutes the
+         * device's own numbers only when they are both absent *and* impossible: an installed iOS
+         * web app, in portrait, on a screen whose point size belongs to a phone that certainly
+         * has a notch. Anything else — Safari with a toolbar, a shell that pads its own WebView,
+         * an iPad, a launch where `env` answered — keeps exactly what CSS resolved.
+         *
+         * This runs before the module below, so `designHeight()` in `src/game/constants.ts` takes
+         * the design aspect off a root box that is already the right height.
+         */
+        // Portrait point size -> [top, bottom], as `env` reports them on that device in
+        // standalone portrait. The 375x812 row takes the 12 mini's 50 over the X's 44: too much
+        // prints a strip of empty paper, too little prints under a notch.
+        var IOS_INSETS = {
+          '375x812': [50, 34], '390x844': [47, 34], '393x852': [59, 34],
+          '402x874': [62, 34], '414x896': [48, 34], '428x926': [47, 34],
+          '430x932': [59, 34], '440x956': [62, 34]
+        };
+
+        // Read through an element rather than off `document.documentElement`'s own style: `env()`
+        // inside a custom property is not resolved by `getPropertyValue`, but a padding is.
+        var probe = document.createElement('div');
+        probe.style.cssText =
+          'position:fixed;left:-9999px;top:0;width:0;height:0;visibility:hidden;' +
+          'padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)';
+        document.documentElement.appendChild(probe);
+
+        function guessInsets() {
+          // A native shell pads its own WebView (see `apps/mobile/App.tsx`) and reports zero here
+          // deliberately; adding to that would inset the game twice.
+          if (window.__shell) return null;
+          var standalone = window.navigator.standalone === true ||
+            (!!window.matchMedia && (window.matchMedia('(display-mode: standalone)').matches ||
+              window.matchMedia('(display-mode: fullscreen)').matches));
+          if (!standalone) return null;
+          var ios = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+          if (!ios) return null;
+          var short = Math.min(screen.width, screen.height);
+          var tall = Math.max(screen.width, screen.height);
+          var known = IOS_INSETS[short + 'x' + tall];
+          // An unlisted screen is only guessed at when it is phone-shaped and longer than any
+          // phone without a notch (the 8 Plus is 1.78); every iPad is nearer 1.4.
+          if (!known && short > 0 && tall / short >= 1.95) known = [59, 34];
+          if (!known) return null;
+          // Rotated, the insets are the sides: the top goes to zero and the pill gets slimmer.
+          if (window.innerWidth > window.innerHeight) return [0, 21];
+          return known;
+        }
+
+        var applied = null;
+        /** Returns true when the root box just changed height, so callers can re-fit. */
+        function applyInsets() {
+          var style = getComputedStyle(probe);
+          var top = parseFloat(style.paddingTop) || 0;
+          var bottom = parseFloat(style.paddingBottom) || 0;
+          // Only a launch that reports *nothing* is disbelieved. A notched phone in landscape
+          // still reports a bottom inset, so the sideways case is never mistaken for the bug.
+          var guess = (top === 0 && bottom === 0) ? guessInsets() : null;
+          var chosen = guess || [top, bottom];
+          if (applied && chosen[0] === applied[0] && chosen[1] === applied[1]) return false;
+          applied = chosen;
+          if (guess) {
+            document.documentElement.style.setProperty('--sa-top', guess[0] + 'px');
+            document.documentElement.style.setProperty('--sa-bottom', guess[1] + 'px');
+          } else {
+            // `env` is answering, so hand the rules back to it.
+            document.documentElement.style.removeProperty('--sa-top');
+            document.documentElement.style.removeProperty('--sa-bottom');
+          }
+          window.__safeArea = { top: chosen[0], bottom: chosen[1], measured: !guess };
+          return true;
+        }
+
+        applyInsets();
+
+        // ── the sheet ────────────────────────────────────────────────────────────────────────
+        /**
+         * Put this page in exactly the box the canvas will occupy.
+         *
+         * Phaser is configured `Scale.FIT` + `CENTER_BOTH` against a design surface — on a phone
+         * 390 wide with a height derived from the device's own aspect ratio, on a desktop 760 tall
+         * and as wide as the window (`resolveSurface` below, mirroring `src/platform/layout.ts` and
+         * `src/game/constants.ts`). So the canvas is not always the viewport: a phone-shaped sheet
+         * in a wide window is a letterboxed column, and a splash drawn edge to edge would hand over
+         * to it by visibly changing shape.
+         *
+         * The arithmetic is only needed for the first frames. The moment `new Phaser.Game()` has
+         * put a canvas in `#game-root` — which happens long before any scene draws — this stops
+         * predicting and copies the canvas's own rect, so the two sheets agree even if the scale
+         * manager decides something this does not know about.
+         */
+        var sheet = document.getElementById('sp-sheet');
+        var page = document.getElementById('sp-page');
+        var root = document.getElementById('game-root');
+
+        /**
+         * Which sheet the game is about to draw on — the phone column, or the desktop's wide
+         * sheet with the column at its right edge.
+         *
+         * This is `resolveLayoutKind` from `src/platform/layout.ts`, rule for rule, run here
+         * first because the bundle that holds the real one is what this screen is covering. The
+         * answer is published as `window.__designSurface` and the game takes it as given, so the
+         * two sheets cannot disagree; `verify-desktop-layout` holds the two copies to each other.
+         * Off the root's own box, exactly as `designHeight()` in `src/game/constants.ts` does —
+         * the root is shorter than the window by the safe-area insets, and a splash sized to the
+         * window would hand over to a canvas of a different shape.
+         */
+        function resolveSurface() {
+          var rr = root ? root.getBoundingClientRect() : null;
+          var w = (rr && rr.width) || window.innerWidth;
+          var h = (rr && rr.height) || window.innerHeight;
+          var aspect = w && h ? w / h : 0;
+          // `mobile` is an alias of `phone`; `auto` sets a stored choice aside for this page.
+          var asked = /[?&]layout=(phone|mobile|desktop|auto)\b/.exec(window.location.search);
+          var ask = asked ? (asked[1] === 'mobile' ? 'phone' : asked[1]) : null;
+          var stored = null;
+          try { stored = localStorage.getItem('mandate:layout:v1'); } catch (e) { /* no storage */ }
+          var shell = window.__shell && window.__shell.kind;
+          var wanted;
+          if (ask && ask !== 'auto') wanted = ask;
+          else if (!ask && (stored === 'phone' || stored === 'desktop')) wanted = stored;
+          else if (shell) wanted = shell === 'desktop' ? 'desktop' : 'phone';
+          else {
+            // A computer: not a phone or tablet by its own account, and any one sign of one —
+            // `looksLikeComputer` in `src/platform/layout.ts`, rule for rule.
+            var ua = navigator.userAgent || '';
+            var uaData = navigator.userAgentData;
+            var touch = navigator.maxTouchPoints || 0;
+            var media = function (q) { return !!window.matchMedia && window.matchMedia(q).matches; };
+            var mobileUA = (uaData && uaData.mobile === true) || /Android.*Mobile|iPhone|iPod|Windows Phone|Mobile Safari/i.test(ua);
+            var tablet = /iPad/i.test(ua) || (/Macintosh/i.test(ua) && touch > 1) || (/Android/i.test(ua) && !/Mobile/i.test(ua));
+            // A big tablet in landscape takes the sheet too — `TABLET_DESKTOP_SHORT_SIDE`.
+            var bigTablet = tablet && Math.min(screen.width, screen.height) >= 600;
+            var computer = !mobileUA && (bigTablet || (!tablet && (media('(pointer: fine)') || media('(hover: hover)') ||
+              touch === 0 || (uaData && uaData.mobile === false) || screen.width >= 1024)));
+            wanted = !navigator.webdriver && computer ? 'desktop' : 'phone';
+          }
+          // Any landscape box on a computer takes the sheet (DESKTOP_MIN_ASPECT is 1.0).
+          if (wanted === 'desktop' && aspect >= 1.0) {
+            // As tall as the interface size says (`UI_SCALE_HEIGHTS` in layout.ts: small 900,
+            // normal 760, large 640), and as wide as the box, within [780, 1824].
+            var size = null;
+            try { size = localStorage.getItem('mandate:uiscale:v1'); } catch (e) { /* no storage */ }
+            var tall = size === 'small' ? 900 : size === 'large' ? 640 : 760;
+            return { kind: 'desktop', width: Math.round(Math.max(780, Math.min(1824, tall * aspect))), height: tall };
+          }
+          return { kind: 'phone', width: 390, height: Math.round(Math.max(620, Math.min(1040, 390 * (h / w)))) };
+        }
+        var surface = resolveSurface();
+        window.__designSurface = surface;
+
+        function fitSheet() {
+          if (!sheet || !page || !root) return true;
+          var canvas = root.querySelector('canvas');
+          var box = null;
+          if (canvas) {
+            var cr = canvas.getBoundingClientRect();
+            if (cr.width > 0 && cr.height > 0) box = { x: cr.left, y: cr.top, w: cr.width, h: cr.height };
+          }
+          if (!box) {
+            var rr = root.getBoundingClientRect();
+            var s = Math.min(rr.width / surface.width, rr.height / surface.height);
+            box = {
+              x: rr.left + (rr.width - surface.width * s) / 2,
+              y: rr.top + (rr.height - surface.height * s) / 2,
+              w: surface.width * s,
+              h: surface.height * s
+            };
+          }
+          sheet.style.left = box.x + 'px';
+          sheet.style.top = box.y + 'px';
+          sheet.style.width = box.w + 'px';
+          sheet.style.height = box.h + 'px';
+          // The page is laid out in design units and scaled by the same factor the canvas is, so
+          // every number in the stylesheet above is read off the same ruler the game is. It stays
+          // a 390-wide column, centred: on the phone that is the whole sheet, on the desktop it is
+          // the middle of it.
+          var scale = box.w / surface.width;
+          page.style.left = (box.w - 390 * scale) / 2 + 'px';
+          page.style.height = box.h / scale + 'px';
+          page.style.transform = 'scale(' + scale + ')';
+          return !!canvas;
+        }
+
+        fitSheet();
+        window.addEventListener('resize', fitSheet);
+
+        /**
+         * The insets can also arrive, or change, after this line: a rotation, a launch where
+         * WebKit answers a beat late, an app coming back from the background. Re-asking costs one
+         * computed style, and only a value that actually moved re-fits anything.
+         *
+         * The poll runs only while the page is on substituted numbers, and stops the moment `env`
+         * answers: with no substitution in place the stylesheet is live and there is nothing left
+         * to catch, and with one in place this is the only thing that can hand the rules back.
+         */
+        function recheckInsets() {
+          if (!applyInsets()) return;
+          fitSheet();
+          // The canvas is fitted to `#game-root`, whose height just changed. Phaser finds this
+          // itself within `resizeInterval` (500 ms); there is no reason to make the player watch.
+          if (window.__phaserGame && window.__phaserGame.scale) window.__phaserGame.scale.refresh();
+        }
+        ['resize', 'orientationchange', 'pageshow', 'focus'].forEach(function (name) {
+          window.addEventListener(name, recheckInsets);
+        });
+        document.addEventListener('visibilitychange', recheckInsets);
+        var polls = 0;
+        (function pollInsets() {
+          recheckInsets();
+          polls += 1;
+          if (polls < 12 && window.__safeArea && !window.__safeArea.measured) {
+            setTimeout(pollInsets, polls < 4 ? 200 : 1000);
+          }
+        })();
+
+        /**
+         * Until the canvas exists the box above is a prediction; once it exists it is a copy, so
+         * this waits for one and re-fits exactly once.
+         *
+         * On a `requestAnimationFrame` loop — which is what this was — it is a measured disaster.
+         * `fitSheet` reads two `getBoundingClientRect`s and writes six style properties, so a
+         * per-frame poll is a forced style-and-layout pass sixty times a second over a document
+         * that has a couple of thousand SVG nodes in it, on the one thread the bundle is trying to
+         * parse on. Measured on a 4x-throttled CPU over fast 3G, that alone put 2.4 s between the
+         * player and the menu. The check here touches no geometry at all, and asks four times a
+         * second rather than sixty.
+         */
+        (function waitForCanvas() {
+          if (root && root.querySelector('canvas')) {
+            fitSheet();
+            return;
+          }
+          setTimeout(waitForCanvas, 250);
+        })();
+
+        // The caption is the only sentence on this screen, so it follows the language the player
+        // chose. It cannot come from `src/i18n` — those catalogs are inside the bundle this screen
+        // exists to cover — so the two lines live here, and only here.
+        try {
+          var english = localStorage.getItem('mandate:language:v1') === 'en';
+          if (english) {
+            document.documentElement.lang = 'en';
+            document.getElementById('sp-caption').textContent = 'Mustering the host…';
+            document.getElementById('splash').setAttribute('aria-label', 'Vạn Thắng — loading');
+            document.getElementById('sp-tip').innerHTML =
+              '<b>Tip</b> · Pause is free. Nothing expires while the clock is stopped — no offer'
+              + ' withdrawn, no wave slipped past.';
+          }
+
+          /**
+           * The tip, from the game's own catalog by way of the previous visit.
+           *
+           * `src/data/tips.ts` writes all fifty lines here on every launch, tagged with the
+           * language they were written in and paired with the catalog key they came from. This
+           * reads one at random, and records the key it printed in the same place the game's
+           * picker reads — so the boot tip and the first loading screen after it are never the
+           * same sentence. Anything unexpected in storage leaves the inline fallback above alone:
+           * a malformed cache must cost the player a better tip, not the splash.
+           */
+          var cached = JSON.parse(localStorage.getItem('mandate:tips:v1') || 'null');
+          if (cached && cached.lang === (english ? 'en' : 'vi') && cached.tips && cached.tips.length) {
+            var last = localStorage.getItem('mandate:tip:last:v1');
+            var pool = cached.tips.filter(function (entry) { return entry && entry[0] !== last; });
+            if (!pool.length) pool = cached.tips;
+            var pick = pool[Math.floor(Math.random() * pool.length)];
+            if (pick && pick[1]) {
+              var tip = document.getElementById('sp-tip');
+              // `textContent` on a fresh <b>, never `innerHTML` with the cached string in it:
+              // this text has been through storage, and storage is writable by anything else
+              // served from this origin.
+              tip.textContent = '';
+              var lead = document.createElement('b');
+              lead.textContent = cached.label || (english ? 'Tip' : 'Mẹo');
+              tip.appendChild(lead);
+              tip.appendChild(document.createTextNode(' · ' + pick[1]));
+              localStorage.setItem('mandate:tip:last:v1', pick[0]);
+            }
+          }
+        } catch (e) {
+          // Storage blocked, or a cache this build cannot read. The splash still prints; it just
+          // prints the default line and the fallback tip.
+        }
+
+        /**
+         * Taking it down.
+         *
+         * `MenuScene` calls this after Phaser's first `postrender`, so the menu is genuinely on
+         * the canvas underneath before the fade begins. Dismissing on a timer, or on `load`, puts
+         * a frame of empty brown between the two screens — which is the exact thing this file
+         * exists to remove.
+         *
+         * The failsafe is long, and deliberately so: if the bundle never arrives, this screen is
+         * the most honest thing that can be on the glass. Thirty seconds is there only so a boot
+         * that throws does not leave the page permanently covered by something with no way out.
+         */
+        var splash = document.getElementById('splash');
+        var downed = false;
+        window.__splashDone = function () {
+          if (downed || !splash) return;
+          downed = true;
+          splash.classList.add('sp-out');
+          setTimeout(function () {
+            if (splash.parentNode) splash.parentNode.removeChild(splash);
+            window.removeEventListener('resize', fitSheet);
+          }, 420);
+        };
+        setTimeout(function () { window.__splashDone(); }, 30000);
+
+        // `BootScene` waits on this before it measures a face: the stylesheet that declares them
+        // is deliberately off the critical path in the head, and `document.fonts.load` for a
+        // family the document has not heard of yet resolves instantly, with nothing.
+        var link = document.getElementById('fonts-css');
+        window.__fontsCss = new Promise(function (resolve) {
+          if (!link || link.sheet) return resolve();
+          link.addEventListener('load', function () { resolve(); });
+          link.addEventListener('error', function () { resolve(); });
+          // A stylesheet that never answers must not hold the menu back for ever.
+          setTimeout(resolve, 4000);
+        });
+      })();
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,3372 @@
+{
+  "id": "dongho-v2",
+  "generator": "built-in ImageGen",
+  "wardrobeCount": 140,
+  "generatedCount": 272,
+  "compatibilityCount": 24,
+  "sourceScale": 3,
+  "atlasScale": 2,
+  "research": "docs/research/vietnamese-wardrobe-v2.md",
+  "parts": [
+    {
+      "id": "plate-common",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "plate-rare",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "plate-epic",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "plate-legendary",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "robe-body",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 40,
+        "top": 73,
+        "right": 378,
+        "bottom": 295
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-broad",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 434,
+        "top": 66,
+        "right": 812,
+        "bottom": 295
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-slim",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 870,
+        "top": 66,
+        "right": 1211,
+        "bottom": 295
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-sloped",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 1274,
+        "top": 78,
+        "right": 1639,
+        "bottom": 295
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-square",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 44,
+        "top": 372,
+        "right": 376,
+        "bottom": 591
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-armour",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 427,
+        "top": 364,
+        "right": 811,
+        "bottom": 591
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-armour-lamellar",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 844,
+        "top": 365,
+        "right": 1228,
+        "bottom": 591
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-armour-scale",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 1260,
+        "top": 365,
+        "right": 1648,
+        "bottom": 591
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-armour-brigandine",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 17,
+        "top": 662,
+        "right": 398,
+        "bottom": 886
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-armour-leather",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 428,
+        "top": 662,
+        "right": 812,
+        "bottom": 885
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-armour-fanscale",
+      "origin": "generated",
+      "sheet": "bodies",
+      "sourceBounds": {
+        "left": 845,
+        "top": 664,
+        "right": 1227,
+        "bottom": 885
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-hem-gold",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 60,
+        "top": 102,
+        "right": 296,
+        "bottom": 173
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-hem-dark",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 368,
+        "top": 106,
+        "right": 606,
+        "bottom": 176
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-sheen",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 754,
+        "top": 52,
+        "right": 867,
+        "bottom": 212
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "robe-sheen-soft",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 1081,
+        "top": 52,
+        "right": 1194,
+        "bottom": 214
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "guard-shoulder",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 91,
+        "top": 105,
+        "right": 410,
+        "bottom": 266
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "guard-shoulder-gilt",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 497,
+        "top": 104,
+        "right": 812,
+        "bottom": 267
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "guard-beastmask",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 893,
+        "top": 119,
+        "right": 1231,
+        "bottom": 272
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "neck",
+      "origin": "generated",
+      "sheet": "anatomy",
+      "sourceBounds": {
+        "left": 121,
+        "top": 72,
+        "right": 380,
+        "bottom": 327
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "neck-slim",
+      "origin": "generated",
+      "sheet": "anatomy",
+      "sourceBounds": {
+        "left": 605,
+        "top": 51,
+        "right": 822,
+        "bottom": 339
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "neck-broad",
+      "origin": "generated",
+      "sheet": "anatomy",
+      "sourceBounds": {
+        "left": 1066,
+        "top": 59,
+        "right": 1421,
+        "bottom": 339
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "ears",
+      "origin": "generated",
+      "sheet": "anatomy",
+      "sourceBounds": {
+        "left": 1585,
+        "top": 128,
+        "right": 1988,
+        "bottom": 301
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "ears-small",
+      "origin": "generated",
+      "sheet": "anatomy",
+      "sourceBounds": {
+        "left": 73,
+        "top": 531,
+        "right": 432,
+        "bottom": 664
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "ears-long",
+      "origin": "generated",
+      "sheet": "anatomy",
+      "sourceBounds": {
+        "left": 543,
+        "top": 481,
+        "right": 919,
+        "bottom": 698
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-oval",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 100,
+        "top": 40,
+        "right": 248,
+        "bottom": 247
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-narrow",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 460,
+        "top": 39,
+        "right": 587,
+        "bottom": 247
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-broad",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 786,
+        "top": 40,
+        "right": 963,
+        "bottom": 243
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-square",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 1148,
+        "top": 40,
+        "right": 1306,
+        "bottom": 242
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-soft",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 100,
+        "top": 314,
+        "right": 249,
+        "bottom": 520
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-round",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 432,
+        "top": 319,
+        "right": 614,
+        "bottom": 522
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-long",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 813,
+        "top": 310,
+        "right": 937,
+        "bottom": 518
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-heart",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 1142,
+        "top": 320,
+        "right": 1311,
+        "bottom": 525
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-angular",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 99,
+        "top": 593,
+        "right": 250,
+        "bottom": 802
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-wide",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 429,
+        "top": 593,
+        "right": 620,
+        "bottom": 800
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-slim",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 813,
+        "top": 594,
+        "right": 935,
+        "bottom": 799
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-full",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 1133,
+        "top": 597,
+        "right": 1320,
+        "bottom": 800
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-tapered",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 102,
+        "top": 864,
+        "right": 246,
+        "bottom": 1078
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-blunt",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 431,
+        "top": 869,
+        "right": 617,
+        "bottom": 1077
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-fine",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 814,
+        "top": 864,
+        "right": 936,
+        "bottom": 1077
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "head-stern",
+      "origin": "generated",
+      "sheet": "heads",
+      "sourceBounds": {
+        "left": 1153,
+        "top": 863,
+        "right": 1299,
+        "bottom": 1078
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "collar-giaolinh",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 17,
+        "top": 34,
+        "right": 347,
+        "bottom": 251
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-giaolinh-over",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 72,
+        "top": 283,
+        "right": 255,
+        "bottom": 456
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-giaolinh-wide",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 370,
+        "top": 29,
+        "right": 703,
+        "bottom": 252
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-giaolinh-wide-over",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 385,
+        "top": 290,
+        "right": 588,
+        "bottom": 453
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-giaolinh-trim",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 733,
+        "top": 281,
+        "right": 884,
+        "bottom": 444
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-twoflap",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 732,
+        "top": 36,
+        "right": 1064,
+        "bottom": 251
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-twoflap-over",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 1037,
+        "top": 287,
+        "right": 1233,
+        "bottom": 451
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-band-brocade",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 64,
+        "top": 526,
+        "right": 265,
+        "bottom": 689
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-band-oxblood",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 388,
+        "top": 527,
+        "right": 589,
+        "bottom": 693
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-placket-square",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 773,
+        "top": 528,
+        "right": 841,
+        "bottom": 700
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-vienlinh",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 1088,
+        "top": 44,
+        "right": 1414,
+        "bottom": 254
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-vienlinh-trim",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 1006,
+        "top": 562,
+        "right": 1258,
+        "bottom": 671
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-doikham",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 11,
+        "top": 304,
+        "right": 332,
+        "bottom": 532
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-doikham-over",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 140,
+        "top": 766,
+        "right": 184,
+        "bottom": 938
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-tuthan",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 378,
+        "top": 300,
+        "right": 695,
+        "bottom": 530
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-tuthan-over",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 436,
+        "top": 768,
+        "right": 535,
+        "bottom": 936
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-tuthan-knot",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 707,
+        "top": 803,
+        "right": 904,
+        "bottom": 904
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-baba",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 733,
+        "top": 316,
+        "right": 1049,
+        "bottom": 531
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-baba-front",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 1122,
+        "top": 770,
+        "right": 1158,
+        "bottom": 939
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "sash-ochre",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 55,
+        "top": 109,
+        "right": 332,
+        "bottom": 250
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "sash-baldric",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 424,
+        "top": 102,
+        "right": 688,
+        "bottom": 255
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "sash-baldric-red",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 764,
+        "top": 109,
+        "right": 1038,
+        "bottom": 249
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "sash-silk",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 1108,
+        "top": 119,
+        "right": 1404,
+        "bottom": 229
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "sash-cord",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 54,
+        "top": 349,
+        "right": 327,
+        "bottom": 485
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "sash-waist",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 417,
+        "top": 392,
+        "right": 687,
+        "bottom": 530
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "sash-waist-red",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 770,
+        "top": 391,
+        "right": 1033,
+        "bottom": 529
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "belt-jade",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 1115,
+        "top": 402,
+        "right": 1409,
+        "bottom": 444
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "belt-gold",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 43,
+        "top": 678,
+        "right": 339,
+        "bottom": 720
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "belt-rope-coil",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 415,
+        "top": 662,
+        "right": 702,
+        "bottom": 735
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-nguthan",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 1091,
+        "top": 304,
+        "right": 1418,
+        "bottom": 530
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-nguthan-body",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 64,
+        "top": 1005,
+        "right": 263,
+        "bottom": 1186
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-nguthan-tall",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 16,
+        "top": 578,
+        "right": 328,
+        "bottom": 795
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "buttons-five",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 901,
+        "top": 603,
+        "right": 926,
+        "bottom": 795
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "buttons-jade",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 1250,
+        "top": 603,
+        "right": 1274,
+        "bottom": 795
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "buttons-knot",
+      "origin": "generated",
+      "sheet": "fasteners",
+      "sourceBounds": {
+        "left": 164,
+        "top": 853,
+        "right": 215,
+        "bottom": 1018
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-yem-wrap",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 369,
+        "top": 584,
+        "right": 687,
+        "bottom": 796
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "yem",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 373,
+        "top": 1015,
+        "right": 596,
+        "bottom": 1188
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "yem-cream",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 697,
+        "top": 1008,
+        "right": 923,
+        "bottom": 1189
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "yem-indigo",
+      "origin": "generated",
+      "sheet": "cloth-details-1",
+      "sourceBounds": {
+        "left": 1022,
+        "top": 1008,
+        "right": 1243,
+        "bottom": 1189
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "yem-jade",
+      "origin": "generated",
+      "sheet": "cloth-details-2",
+      "sourceBounds": {
+        "left": 60,
+        "top": 192,
+        "right": 469,
+        "bottom": 655
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-nhatbinh",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 724,
+        "top": 578,
+        "right": 1044,
+        "bottom": 798
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-nhatbinh-trim",
+      "origin": "generated",
+      "sheet": "cloth-details-2",
+      "sourceBounds": {
+        "left": 568,
+        "top": 194,
+        "right": 999,
+        "bottom": 655
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "collar-nhatbinh-phoenix",
+      "origin": "generated",
+      "sheet": "cloth-details-2",
+      "sourceBounds": {
+        "left": 1107,
+        "top": 269,
+        "right": 1459,
+        "bottom": 621
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "kesa",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 1079,
+        "top": 575,
+        "right": 1405,
+        "bottom": 799
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "kesa-red",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 16,
+        "top": 823,
+        "right": 331,
+        "bottom": 1046
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "kesa-grey",
+      "origin": "generated",
+      "sheet": "ensembles",
+      "sourceBounds": {
+        "left": 369,
+        "top": 825,
+        "right": 681,
+        "bottom": 1049
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "kesa-patches",
+      "origin": "generated",
+      "sheet": "cloth-details-2",
+      "sourceBounds": {
+        "left": 1587,
+        "top": 254,
+        "right": 1916,
+        "bottom": 629
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "badge-crane",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 1321,
+        "top": 70,
+        "right": 1550,
+        "bottom": 299
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "badge-pheasant",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 128,
+        "top": 359,
+        "right": 359,
+        "bottom": 585
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "badge-peacock",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 525,
+        "top": 359,
+        "right": 760,
+        "bottom": 585
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "badge-dragon",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 918,
+        "top": 360,
+        "right": 1156,
+        "bottom": 585
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "badge-tiger",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 1311,
+        "top": 361,
+        "right": 1543,
+        "bottom": 587
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "badge-lion",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 128,
+        "top": 649,
+        "right": 358,
+        "bottom": 874
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "badge-bear",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 529,
+        "top": 649,
+        "right": 759,
+        "bottom": 873
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "badge-rhino",
+      "origin": "generated",
+      "sheet": "insignia",
+      "sourceBounds": {
+        "left": 922,
+        "top": 648,
+        "right": 1155,
+        "bottom": 873
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hair-crown",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 54,
+        "top": 67,
+        "right": 280,
+        "bottom": 161
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-cropped",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 339,
+        "top": 60,
+        "right": 565,
+        "bottom": 155
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-low",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 624,
+        "top": 51,
+        "right": 859,
+        "bottom": 162
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-high",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 907,
+        "top": 70,
+        "right": 1131,
+        "bottom": 143
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-peak",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 49,
+        "top": 288,
+        "right": 278,
+        "bottom": 383
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-swept",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 341,
+        "top": 289,
+        "right": 558,
+        "bottom": 376
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-receding",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 612,
+        "top": 295,
+        "right": 843,
+        "bottom": 373
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-thick",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 908,
+        "top": 278,
+        "right": 1129,
+        "bottom": 388
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-parted",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 52,
+        "top": 508,
+        "right": 277,
+        "bottom": 599
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-wavy",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 340,
+        "top": 507,
+        "right": 560,
+        "bottom": 599
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-long",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 656,
+        "top": 455,
+        "right": 798,
+        "bottom": 650
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-long-full",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 949,
+        "top": 456,
+        "right": 1086,
+        "bottom": 642
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-long-short",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 90,
+        "top": 689,
+        "right": 240,
+        "bottom": 865
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-braid",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 394,
+        "top": 681,
+        "right": 509,
+        "bottom": 863
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-tail",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 619,
+        "top": 690,
+        "right": 836,
+        "bottom": 865
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "topknot",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 929,
+        "top": 700,
+        "right": 1097,
+        "bottom": 848
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "topknot-tall",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 89,
+        "top": 890,
+        "right": 231,
+        "bottom": 1074
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "topknot-small",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 382,
+        "top": 909,
+        "right": 526,
+        "bottom": 1073
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "topknot-side",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 664,
+        "top": 890,
+        "right": 782,
+        "bottom": 1060
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "knot-nape",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 944,
+        "top": 895,
+        "right": 1079,
+        "bottom": 1072
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "topknot-wrapped",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 72,
+        "top": 1120,
+        "right": 243,
+        "bottom": 1272
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-high",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 350,
+        "top": 1119,
+        "right": 546,
+        "bottom": 1276
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-low",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 620,
+        "top": 1115,
+        "right": 819,
+        "bottom": 1275
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-double",
+      "origin": "generated",
+      "sheet": "hair-1",
+      "sourceBounds": {
+        "left": 896,
+        "top": 1145,
+        "right": 1116,
+        "bottom": 1241
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-coil",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 71,
+        "top": 68,
+        "right": 319,
+        "bottom": 230
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-wide",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 424,
+        "top": 89,
+        "right": 686,
+        "bottom": 208
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-wrapped",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 776,
+        "top": 65,
+        "right": 1057,
+        "bottom": 238
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-tall-fore",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 1198,
+        "top": 53,
+        "right": 1335,
+        "bottom": 242
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-woman-center",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 57,
+        "top": 333,
+        "right": 337,
+        "bottom": 513
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-woman-temple",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 463,
+        "top": 321,
+        "right": 655,
+        "bottom": 529
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-woman-short",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 834,
+        "top": 321,
+        "right": 1005,
+        "bottom": 526
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-woman-loose",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 1188,
+        "top": 322,
+        "right": 1343,
+        "bottom": 531
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-woman-wrapped",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 59,
+        "top": 616,
+        "right": 337,
+        "bottom": 798
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hair-woman-tran-short",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 421,
+        "top": 621,
+        "right": 695,
+        "bottom": 792
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-fan-high",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 784,
+        "top": 609,
+        "right": 1055,
+        "bottom": 801
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-snail-coil",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 1174,
+        "top": 608,
+        "right": 1353,
+        "bottom": 803
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-side-loops",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 57,
+        "top": 910,
+        "right": 337,
+        "bottom": 1008
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-tran-brush",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 466,
+        "top": 874,
+        "right": 659,
+        "bottom": 1048
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-nape-right",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 846,
+        "top": 880,
+        "right": 990,
+        "bottom": 1048
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "bun-nape-left",
+      "origin": "generated",
+      "sheet": "hair-2",
+      "sourceBounds": {
+        "left": 1192,
+        "top": 880,
+        "right": 1337,
+        "bottom": 1048
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "hairpin",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 156,
+        "top": 25,
+        "right": 212,
+        "bottom": 271
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hairpin-jade",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 518,
+        "top": 26,
+        "right": 567,
+        "bottom": 271
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hairpin-long",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 753,
+        "top": 93,
+        "right": 1042,
+        "bottom": 217
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hairpin-plain",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 1132,
+        "top": 86,
+        "right": 1412,
+        "bottom": 224
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hair-comb",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 32,
+        "top": 336,
+        "right": 329,
+        "bottom": 511
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hair-flower",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 461,
+        "top": 341,
+        "right": 625,
+        "bottom": 504
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hair-ribbon",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 760,
+        "top": 320,
+        "right": 1049,
+        "bottom": 537
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hair-cord",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 1122,
+        "top": 382,
+        "right": 1406,
+        "bottom": 469
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hairpin-nape-right",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 43,
+        "top": 623,
+        "right": 321,
+        "bottom": 770
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hairpin-nape-right-jade",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 402,
+        "top": 629,
+        "right": 680,
+        "bottom": 771
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hairpin-nape-left",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 798,
+        "top": 620,
+        "right": 1044,
+        "bottom": 757
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hairpin-nape-left-jade",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 1132,
+        "top": 627,
+        "right": 1405,
+        "bottom": 770
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-khanvan",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 47,
+        "top": 106,
+        "right": 338,
+        "bottom": 232
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-khanvan-tall",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 413,
+        "top": 74,
+        "right": 698,
+        "bottom": 251
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-khanvan-low",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 772,
+        "top": 127,
+        "right": 1052,
+        "bottom": 230
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-khanvan-brown",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 1126,
+        "top": 122,
+        "right": 1408,
+        "bottom": 237
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-khanvan-indigo",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 41,
+        "top": 381,
+        "right": 321,
+        "bottom": 498
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-khandong",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 401,
+        "top": 375,
+        "right": 687,
+        "bottom": 499
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-khandong-jewel",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 765,
+        "top": 374,
+        "right": 1053,
+        "bottom": 498
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-khandong-gold",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 1126,
+        "top": 376,
+        "right": 1414,
+        "bottom": 498
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-khanxep",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 49,
+        "top": 657,
+        "right": 325,
+        "bottom": 760
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-khanvuong",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 408,
+        "top": 633,
+        "right": 687,
+        "bottom": 790
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-dinhtu",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 93,
+        "top": 135,
+        "right": 353,
+        "bottom": 299
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-dinhtu-streamers",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 445,
+        "top": 135,
+        "right": 772,
+        "bottom": 343
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-phocdau-short",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 826,
+        "top": 149,
+        "right": 1204,
+        "bottom": 313
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-phocdau-long",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 1236,
+        "top": 154,
+        "right": 1647,
+        "bottom": 314
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-phocdau-grand",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 24,
+        "top": 417,
+        "right": 447,
+        "bottom": 581
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-xungthien",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 543,
+        "top": 413,
+        "right": 783,
+        "bottom": 581
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-osa",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 937,
+        "top": 415,
+        "right": 1132,
+        "bottom": 585
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-binhdinh",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 1309,
+        "top": 431,
+        "right": 1552,
+        "bottom": 588
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-tamson",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 269,
+        "top": 693,
+        "right": 447,
+        "bottom": 854
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-duongcan",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 687,
+        "top": 689,
+        "right": 865,
+        "bottom": 855
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-muni",
+      "origin": "generated",
+      "sheet": "caps",
+      "sourceBounds": {
+        "left": 1134,
+        "top": 710,
+        "right": 1283,
+        "bottom": 854
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-helm",
+      "origin": "generated",
+      "sheet": "helmets",
+      "sourceBounds": {
+        "left": 128,
+        "top": 99,
+        "right": 374,
+        "bottom": 300
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-helm-plume",
+      "origin": "generated",
+      "sheet": "helmets",
+      "sourceBounds": {
+        "left": 516,
+        "top": 57,
+        "right": 752,
+        "bottom": 300
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-helm-horned",
+      "origin": "generated",
+      "sheet": "helmets",
+      "sourceBounds": {
+        "left": 922,
+        "top": 105,
+        "right": 1158,
+        "bottom": 306
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-helm-lamellar",
+      "origin": "generated",
+      "sheet": "helmets",
+      "sourceBounds": {
+        "left": 1317,
+        "top": 102,
+        "right": 1561,
+        "bottom": 306
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-helm-daumau",
+      "origin": "generated",
+      "sheet": "helmets",
+      "sourceBounds": {
+        "left": 133,
+        "top": 352,
+        "right": 369,
+        "bottom": 594
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-helm-leather",
+      "origin": "generated",
+      "sheet": "helmets",
+      "sourceBounds": {
+        "left": 519,
+        "top": 402,
+        "right": 754,
+        "bottom": 596
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-helm-cheeks",
+      "origin": "generated",
+      "sheet": "helmets",
+      "sourceBounds": {
+        "left": 910,
+        "top": 387,
+        "right": 1167,
+        "bottom": 630
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-helm-crest",
+      "origin": "generated",
+      "sheet": "helmets",
+      "sourceBounds": {
+        "left": 1317,
+        "top": 371,
+        "right": 1559,
+        "bottom": 599
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-helm-dinh",
+      "origin": "generated",
+      "sheet": "helmets",
+      "sourceBounds": {
+        "left": 130,
+        "top": 671,
+        "right": 367,
+        "bottom": 879
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-non",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 47,
+        "top": 73,
+        "right": 331,
+        "bottom": 226
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-non-chop",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 388,
+        "top": 63,
+        "right": 633,
+        "bottom": 230
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-non-dau",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 711,
+        "top": 77,
+        "right": 901,
+        "bottom": 216
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-non-quaithao",
+      "origin": "generated",
+      "sheet": "headwear-fit",
+      "sourceBounds": {
+        "left": 54,
+        "top": 82,
+        "right": 856,
+        "bottom": 811
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-non-batam",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 52,
+        "top": 385,
+        "right": 308,
+        "bottom": 475
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-non-worker",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 367,
+        "top": 324,
+        "right": 611,
+        "bottom": 490
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-moqua",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 756,
+        "top": 619,
+        "right": 1052,
+        "bottom": 790
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-moqua-brown",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 1119,
+        "top": 621,
+        "right": 1408,
+        "bottom": 792
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-moqua-tied",
+      "origin": "generated",
+      "sheet": "headwear-fit",
+      "sourceBounds": {
+        "left": 948,
+        "top": 117,
+        "right": 1744,
+        "bottom": 744
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-vanhday",
+      "origin": "generated",
+      "sheet": "wraps",
+      "sourceBounds": {
+        "left": 403,
+        "top": 865,
+        "right": 678,
+        "bottom": 1037
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-coronet",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 672,
+        "top": 343,
+        "right": 915,
+        "bottom": 497
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-coronet-jade",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 982,
+        "top": 346,
+        "right": 1222,
+        "bottom": 499
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-crown-nhatbinh",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 53,
+        "top": 575,
+        "right": 294,
+        "bottom": 733
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-crown-phoenix",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 366,
+        "top": 575,
+        "right": 602,
+        "bottom": 733
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-crown-seven",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 676,
+        "top": 583,
+        "right": 908,
+        "bottom": 738
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-veil",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 69,
+        "top": 795,
+        "right": 268,
+        "bottom": 951
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-band",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 355,
+        "top": 808,
+        "right": 612,
+        "bottom": 981
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-band-cloth",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 671,
+        "top": 804,
+        "right": 919,
+        "bottom": 981
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-band-warrior",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 988,
+        "top": 809,
+        "right": 1238,
+        "bottom": 988
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-band-gold",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 73,
+        "top": 1016,
+        "right": 314,
+        "bottom": 1181
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "hat-fur",
+      "origin": "generated",
+      "sheet": "hats-bands",
+      "sourceBounds": {
+        "left": 385,
+        "top": 1021,
+        "right": 621,
+        "bottom": 1171
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "scalp-shaven",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "scalp-dots",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "scalp-dots-nine",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "earring-jade",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 41,
+        "top": 919,
+        "right": 318,
+        "bottom": 991
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "earring-gold",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 402,
+        "top": 906,
+        "right": 681,
+        "bottom": 997
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "earring-drop",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 777,
+        "top": 890,
+        "right": 1029,
+        "bottom": 1014
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "earring-pearl",
+      "origin": "generated",
+      "sheet": "jewellery",
+      "sourceBounds": {
+        "left": 1134,
+        "top": 929,
+        "right": 1396,
+        "bottom": 979
+      },
+      "sourcePack": "dongho-v2"
+    },
+    {
+      "id": "brow-flat",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 37,
+        "top": 110,
+        "right": 261,
+        "bottom": 139
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-arched",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 310,
+        "top": 104,
+        "right": 523,
+        "bottom": 142
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-angled",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 571,
+        "top": 111,
+        "right": 780,
+        "bottom": 138
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-thick",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 826,
+        "top": 108,
+        "right": 1061,
+        "bottom": 143
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-thin",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 39,
+        "top": 305,
+        "right": 258,
+        "bottom": 331
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-straight",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 305,
+        "top": 307,
+        "right": 524,
+        "bottom": 328
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-bushy",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 562,
+        "top": 300,
+        "right": 793,
+        "bottom": 337
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-sparse",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 843,
+        "top": 310,
+        "right": 1049,
+        "bottom": 335
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-raised",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 37,
+        "top": 496,
+        "right": 254,
+        "bottom": 533
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-low",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 304,
+        "top": 507,
+        "right": 528,
+        "bottom": 535
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-sharp",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 576,
+        "top": 509,
+        "right": 795,
+        "bottom": 528
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-soft",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 846,
+        "top": 500,
+        "right": 1056,
+        "bottom": 536
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-heavy",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 38,
+        "top": 712,
+        "right": 253,
+        "bottom": 741
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "brow-short",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 295,
+        "top": 710,
+        "right": 513,
+        "bottom": 742
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-almond",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 569,
+        "top": 709,
+        "right": 786,
+        "bottom": 747
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-wide",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 839,
+        "top": 711,
+        "right": 1059,
+        "bottom": 747
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-narrow",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 34,
+        "top": 915,
+        "right": 247,
+        "bottom": 951
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-hooded",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 297,
+        "top": 919,
+        "right": 518,
+        "bottom": 954
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-round",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 565,
+        "top": 923,
+        "right": 791,
+        "bottom": 954
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-upturned",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 837,
+        "top": 913,
+        "right": 1060,
+        "bottom": 953
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-downturned",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 32,
+        "top": 1124,
+        "right": 256,
+        "bottom": 1156
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-sharp",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 296,
+        "top": 1126,
+        "right": 518,
+        "bottom": 1165
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-gentle",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 567,
+        "top": 1126,
+        "right": 789,
+        "bottom": 1160
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-deepset",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 834,
+        "top": 1125,
+        "right": 1060,
+        "bottom": 1164
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-bright",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 32,
+        "top": 1330,
+        "right": 256,
+        "bottom": 1363
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-crescent",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 298,
+        "top": 1325,
+        "right": 520,
+        "bottom": 1366
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-keen",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 567,
+        "top": 1325,
+        "right": 792,
+        "bottom": 1361
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "eyes-tired",
+      "origin": "generated",
+      "sheet": "upper-face",
+      "sourceBounds": {
+        "left": 834,
+        "top": 1326,
+        "right": 1057,
+        "bottom": 1366
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-straight",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 104,
+        "top": 56,
+        "right": 170,
+        "bottom": 187
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-long",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 374,
+        "top": 52,
+        "right": 443,
+        "bottom": 196
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-soft",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 642,
+        "top": 64,
+        "right": 724,
+        "bottom": 188
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-broad",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 911,
+        "top": 55,
+        "right": 1008,
+        "bottom": 198
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-snub",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 81,
+        "top": 266,
+        "right": 184,
+        "bottom": 395
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-aquiline",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 370,
+        "top": 268,
+        "right": 431,
+        "bottom": 408
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-narrow",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 651,
+        "top": 269,
+        "right": 705,
+        "bottom": 406
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-flat",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 914,
+        "top": 276,
+        "right": 1006,
+        "bottom": 404
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-round",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 82,
+        "top": 481,
+        "right": 164,
+        "bottom": 595
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-fine",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 384,
+        "top": 481,
+        "right": 445,
+        "bottom": 599
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-strong",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 645,
+        "top": 480,
+        "right": 728,
+        "bottom": 600
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "nose-short",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 925,
+        "top": 486,
+        "right": 1013,
+        "bottom": 591
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-neutral",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 44,
+        "top": 735,
+        "right": 225,
+        "bottom": 780
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-smile",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 317,
+        "top": 729,
+        "right": 511,
+        "bottom": 788
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-firm",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 595,
+        "top": 739,
+        "right": 777,
+        "bottom": 764
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-wide",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 862,
+        "top": 739,
+        "right": 1041,
+        "bottom": 771
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-small",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 42,
+        "top": 923,
+        "right": 224,
+        "bottom": 973
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-downturned",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 305,
+        "top": 926,
+        "right": 494,
+        "bottom": 977
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-pursed",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 595,
+        "top": 906,
+        "right": 775,
+        "bottom": 986
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-thin",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 876,
+        "top": 937,
+        "right": 1040,
+        "bottom": 959
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-full",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 33,
+        "top": 1115,
+        "right": 230,
+        "bottom": 1186
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-grim",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 314,
+        "top": 1135,
+        "right": 506,
+        "bottom": 1171
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-soft",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 587,
+        "top": 1118,
+        "right": 783,
+        "bottom": 1176
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-broad-smile",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 849,
+        "top": 1129,
+        "right": 1047,
+        "bottom": 1173
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-lacquered",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 39,
+        "top": 1315,
+        "right": 230,
+        "bottom": 1378
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-lacquered-smile",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 315,
+        "top": 1318,
+        "right": 504,
+        "bottom": 1380
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-lacquered-firm",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 585,
+        "top": 1320,
+        "right": 777,
+        "bottom": 1384
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mouth-betel",
+      "origin": "generated",
+      "sheet": "lower-face",
+      "sourceBounds": {
+        "left": 876,
+        "top": 1339,
+        "right": 1038,
+        "bottom": 1381
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-moustache",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 60,
+        "top": 91,
+        "right": 338,
+        "bottom": 151
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-moustache-thin",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 440,
+        "top": 103,
+        "right": 691,
+        "bottom": 144
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-moustache-wide",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 771,
+        "top": 95,
+        "right": 1051,
+        "bottom": 157
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-goatee",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 1161,
+        "top": 71,
+        "right": 1376,
+        "bottom": 192
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-goatee-long",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 116,
+        "top": 318,
+        "right": 270,
+        "bottom": 483
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-long",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 463,
+        "top": 309,
+        "right": 633,
+        "bottom": 489
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-full",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 783,
+        "top": 310,
+        "right": 1044,
+        "bottom": 483
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-full-short",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 1145,
+        "top": 333,
+        "right": 1399,
+        "bottom": 456
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-threepart",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 75,
+        "top": 587,
+        "right": 316,
+        "bottom": 772
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-forked",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 483,
+        "top": 580,
+        "right": 608,
+        "bottom": 776
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-wispy",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 844,
+        "top": 578,
+        "right": 976,
+        "bottom": 776
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-chinstrap",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 1140,
+        "top": 600,
+        "right": 1403,
+        "bottom": 743
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-stubble",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 59,
+        "top": 875,
+        "right": 331,
+        "bottom": 1002
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "beard-patriarch",
+      "origin": "generated",
+      "sheet": "beards",
+      "sourceBounds": {
+        "left": 474,
+        "top": 856,
+        "right": 621,
+        "bottom": 1038
+      },
+      "sourcePack": "dongho-v1"
+    },
+    {
+      "id": "mark-age",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-age-deep",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-scar",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-scar-cheek",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-scar-brow",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-mole",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-freckles",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-dimples",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-brand",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-tattoo",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-tattoo-court",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-tattoo-drum",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-tattoo-wave",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "mark-warpaint",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "rank-rare",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "rank-epic",
+      "origin": "legacy-raster-compatibility"
+    },
+    {
+      "id": "rank-legendary",
+      "origin": "legacy-raster-compatibility"
+    }
+  ]
+}
