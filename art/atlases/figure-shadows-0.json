@@ -1,0 +1,3912 @@
+{
+  "frames": {
+    "conquest-art:figure.champa.levy.bow": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.champa.levy.mounted": {
+      "frame": {
+        "x": 114,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.champa.levy.skirmish": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.champa.levy.spear": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.champa.levy.sword": {
+      "frame": {
+        "x": 212,
+        "y": 37,
+        "w": 100,
+        "h": 33
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 33
+      },
+      "sourceSize": {
+        "w": 100,
+        "h": 33
+      }
+    },
+    "conquest-art:figure.champa.royal.bow": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.champa.royal.mounted": {
+      "frame": {
+        "x": 336,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 106,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.champa.royal.skirmish": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.champa.royal.spear": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.champa.royal.sword": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.champa.trained.bow": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.champa.trained.mounted": {
+      "frame": {
+        "x": 108,
+        "y": 37,
+        "w": 104,
+        "h": 34
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 104,
+        "h": 34
+      },
+      "sourceSize": {
+        "w": 104,
+        "h": 34
+      }
+    },
+    "conquest-art:figure.champa.trained.skirmish": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.champa.trained.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.champa.trained.sword": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.dinh.levy.bow": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.dinh.levy.mounted": {
+      "frame": {
+        "x": 224,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.dinh.levy.skirmish": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.dinh.levy.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.dinh.levy.sword": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.dinh.royal.bow": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.dinh.royal.mounted": {
+      "frame": {
+        "x": 114,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.dinh.royal.skirmish": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.dinh.royal.spear": {
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "w": 98,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 98,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 98,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.dinh.royal.sword": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.dinh.trained.bow": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.dinh.trained.mounted": {
+      "frame": {
+        "x": 114,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.dinh.trained.skirmish": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.dinh.trained.spear": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.dinh.trained.sword": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.le.levy.bow": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.le.levy.mounted": {
+      "frame": {
+        "x": 224,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.le.levy.skirmish": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.le.levy.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.le.levy.sword": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.le.royal.bow": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.le.royal.mounted": {
+      "frame": {
+        "x": 336,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 106,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.le.royal.skirmish": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.le.royal.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.le.royal.sword": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.le.trained.bow": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.le.trained.mounted": {
+      "frame": {
+        "x": 114,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.le.trained.skirmish": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.le.trained.spear": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.le.trained.sword": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.ly.levy.bow": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.ly.levy.mounted": {
+      "frame": {
+        "x": 224,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.ly.levy.skirmish": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.ly.levy.spear": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.ly.levy.sword": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.ly.royal.bow": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.ly.royal.mounted": {
+      "frame": {
+        "x": 336,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 106,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.ly.royal.skirmish": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.ly.royal.spear": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.ly.royal.sword": {
+      "frame": {
+        "x": 170,
+        "y": 104,
+        "w": 80,
+        "h": 27
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 80,
+        "h": 27
+      },
+      "sourceSize": {
+        "w": 80,
+        "h": 27
+      }
+    },
+    "conquest-art:figure.ly.trained.bow": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.ly.trained.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 37,
+        "w": 108,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 108,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 108,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.ly.trained.skirmish": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.ly.trained.spear": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.ly.trained.sword": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.ming.levy.bow": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.ming.levy.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 37,
+        "w": 108,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 108,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 108,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.ming.levy.skirmish": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.ming.levy.spear": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.ming.levy.sword": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.ming.royal.bow": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.ming.royal.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 37,
+        "w": 108,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 108,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 108,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.ming.royal.skirmish": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.ming.royal.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.ming.royal.sword": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.ming.trained.bow": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.ming.trained.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 37,
+        "w": 108,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 108,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 108,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.ming.trained.skirmish": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.ming.trained.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.ming.trained.sword": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyen.levy.bow": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.nguyen.levy.mounted": {
+      "frame": {
+        "x": 108,
+        "y": 37,
+        "w": 104,
+        "h": 34
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 104,
+        "h": 34
+      },
+      "sourceSize": {
+        "w": 104,
+        "h": 34
+      }
+    },
+    "conquest-art:figure.nguyen.levy.skirmish": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.nguyen.levy.spear": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyen.levy.sword": {
+      "frame": {
+        "x": 212,
+        "y": 37,
+        "w": 100,
+        "h": 33
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 33
+      },
+      "sourceSize": {
+        "w": 100,
+        "h": 33
+      }
+    },
+    "conquest-art:figure.nguyen.royal.bow": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyen.royal.mounted": {
+      "frame": {
+        "x": 108,
+        "y": 37,
+        "w": 104,
+        "h": 34
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 104,
+        "h": 34
+      },
+      "sourceSize": {
+        "w": 104,
+        "h": 34
+      }
+    },
+    "conquest-art:figure.nguyen.royal.skirmish": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyen.royal.spear": {
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "w": 98,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 98,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 98,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyen.royal.sword": {
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "w": 98,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 98,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 98,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyen.trained.bow": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.nguyen.trained.mounted": {
+      "frame": {
+        "x": 336,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 106,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.nguyen.trained.skirmish": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.nguyen.trained.spear": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyen.trained.sword": {
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "w": 98,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 98,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 98,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyenLord.levy.bow": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyenLord.levy.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 37,
+        "w": 108,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 108,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 108,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.nguyenLord.levy.skirmish": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyenLord.levy.spear": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.nguyenLord.levy.sword": {
+      "frame": {
+        "x": 212,
+        "y": 37,
+        "w": 100,
+        "h": 33
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 33
+      },
+      "sourceSize": {
+        "w": 100,
+        "h": 33
+      }
+    },
+    "conquest-art:figure.nguyenLord.royal.bow": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.nguyenLord.royal.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 37,
+        "w": 108,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 108,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 108,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.nguyenLord.royal.skirmish": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.nguyenLord.royal.spear": {
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "w": 98,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 98,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 98,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyenLord.royal.sword": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyenLord.trained.bow": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.nguyenLord.trained.mounted": {
+      "frame": {
+        "x": 114,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.nguyenLord.trained.skirmish": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.nguyenLord.trained.spear": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.nguyenLord.trained.sword": {
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "w": 98,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 98,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 98,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.qing.levy.bow": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.qing.levy.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 37,
+        "w": 108,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 108,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 108,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.qing.levy.skirmish": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.qing.levy.spear": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.qing.levy.sword": {
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "w": 98,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 98,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 98,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.qing.royal.bow": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.qing.royal.mounted": {
+      "frame": {
+        "x": 336,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 106,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.qing.royal.skirmish": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.qing.royal.spear": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.qing.royal.sword": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.qing.trained.bow": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.qing.trained.mounted": {
+      "frame": {
+        "x": 336,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 106,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.qing.trained.skirmish": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.qing.trained.spear": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.qing.trained.sword": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.song.levy.bow": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.song.levy.mounted": {
+      "frame": {
+        "x": 224,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.song.levy.skirmish": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.song.levy.spear": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.song.levy.sword": {
+      "frame": {
+        "x": 0,
+        "y": 72,
+        "w": 98,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 98,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 98,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.song.royal.bow": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.song.royal.mounted": {
+      "frame": {
+        "x": 336,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 106,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.song.royal.skirmish": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.song.royal.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.song.royal.sword": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.song.trained.bow": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.song.trained.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 37,
+        "w": 108,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 108,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 108,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.song.trained.skirmish": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.song.trained.spear": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.song.trained.sword": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.tayson.levy.bow": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tayson.levy.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 114,
+        "h": 37
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 114,
+        "h": 37
+      },
+      "sourceSize": {
+        "w": 114,
+        "h": 37
+      }
+    },
+    "conquest-art:figure.tayson.levy.skirmish": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tayson.levy.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tayson.levy.sword": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tayson.royal.bow": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.tayson.royal.mounted": {
+      "frame": {
+        "x": 224,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.tayson.royal.skirmish": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.tayson.royal.spear": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.tayson.royal.sword": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tayson.trained.bow": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tayson.trained.mounted": {
+      "frame": {
+        "x": 114,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 110,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 110,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.tayson.trained.skirmish": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tayson.trained.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tayson.trained.sword": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tran.levy.bow": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.tran.levy.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 37,
+        "w": 108,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 108,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 108,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.tran.levy.skirmish": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.tran.levy.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tran.levy.sword": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.tran.royal.bow": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.tran.royal.mounted": {
+      "frame": {
+        "x": 108,
+        "y": 37,
+        "w": 104,
+        "h": 34
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 104,
+        "h": 34
+      },
+      "sourceSize": {
+        "w": 104,
+        "h": 34
+      }
+    },
+    "conquest-art:figure.tran.royal.skirmish": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.tran.royal.spear": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.tran.royal.sword": {
+      "frame": {
+        "x": 86,
+        "y": 104,
+        "w": 84,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 84,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 84,
+        "h": 28
+      }
+    },
+    "conquest-art:figure.tran.trained.bow": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.tran.trained.mounted": {
+      "frame": {
+        "x": 108,
+        "y": 37,
+        "w": 104,
+        "h": 34
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 104,
+        "h": 34
+      },
+      "sourceSize": {
+        "w": 104,
+        "h": 34
+      }
+    },
+    "conquest-art:figure.tran.trained.skirmish": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.tran.trained.spear": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.tran.trained.sword": {
+      "frame": {
+        "x": 374,
+        "y": 72,
+        "w": 88,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.trinh.levy.bow": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.trinh.levy.mounted": {
+      "frame": {
+        "x": 336,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 106,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.trinh.levy.skirmish": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.trinh.levy.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.trinh.levy.sword": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.trinh.royal.bow": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.trinh.royal.mounted": {
+      "frame": {
+        "x": 312,
+        "y": 37,
+        "w": 102,
+        "h": 33
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 102,
+        "h": 33
+      },
+      "sourceSize": {
+        "w": 102,
+        "h": 33
+      }
+    },
+    "conquest-art:figure.trinh.royal.skirmish": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.trinh.royal.spear": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.trinh.royal.sword": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.trinh.trained.bow": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.trinh.trained.mounted": {
+      "frame": {
+        "x": 336,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 106,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 106,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.trinh.trained.skirmish": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.trinh.trained.spear": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.trinh.trained.sword": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    },
+    "conquest-art:figure.yuan.levy.bow": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.yuan.levy.mounted": {
+      "frame": {
+        "x": 224,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.yuan.levy.skirmish": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.yuan.levy.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.yuan.levy.sword": {
+      "frame": {
+        "x": 212,
+        "y": 37,
+        "w": 100,
+        "h": 33
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 33
+      },
+      "sourceSize": {
+        "w": 100,
+        "h": 33
+      }
+    },
+    "conquest-art:figure.yuan.royal.bow": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.yuan.royal.mounted": {
+      "frame": {
+        "x": 0,
+        "y": 37,
+        "w": 108,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 108,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 108,
+        "h": 35
+      }
+    },
+    "conquest-art:figure.yuan.royal.skirmish": {
+      "frame": {
+        "x": 284,
+        "y": 72,
+        "w": 90,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 90,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 90,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.yuan.royal.spear": {
+      "frame": {
+        "x": 98,
+        "y": 72,
+        "w": 94,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 94,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 94,
+        "h": 31
+      }
+    },
+    "conquest-art:figure.yuan.royal.sword": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.yuan.trained.bow": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.yuan.trained.mounted": {
+      "frame": {
+        "x": 224,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 36
+      }
+    },
+    "conquest-art:figure.yuan.trained.skirmish": {
+      "frame": {
+        "x": 0,
+        "y": 104,
+        "w": 86,
+        "h": 29
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 86,
+        "h": 29
+      },
+      "sourceSize": {
+        "w": 86,
+        "h": 29
+      }
+    },
+    "conquest-art:figure.yuan.trained.spear": {
+      "frame": {
+        "x": 192,
+        "y": 72,
+        "w": 92,
+        "h": 30
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 92,
+        "h": 30
+      },
+      "sourceSize": {
+        "w": 92,
+        "h": 30
+      }
+    },
+    "conquest-art:figure.yuan.trained.sword": {
+      "frame": {
+        "x": 414,
+        "y": 37,
+        "w": 96,
+        "h": 32
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 96,
+        "h": 32
+      }
+    }
+  },
+  "meta": {
+    "image": "figure-shadows-0.webp",
+    "scale": "1",
+    "size": {
+      "w": 512,
+      "h": 256
+    }
+  }
+}

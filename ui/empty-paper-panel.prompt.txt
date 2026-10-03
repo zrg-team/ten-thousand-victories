@@ -1,0 +1,6 @@
+Use case: style-transfer
+Asset type: one empty parchment background panel for a historical strategy game's UI.
+Input image: supplied screenshot is the visual style reference only.
+Primary request: generate exactly ONE blank rectangular paper panel using the same warm cream and pale golden aged parchment, fine subtle paper grain, gently mottled edge wear, thin dark brown and antique gold double-line border, and small Southeast Asian geometric ornamental corner details as the reference. A single uninterrupted large empty interior, ready for text and UI to be overlaid later.
+Composition: wide landscape rectangle, approximately 3:1 aspect ratio, straight-on flat 2D game UI texture, border fully visible on all four sides and close to the image edges. Panel fills the complete canvas. Restrained decorative flourishes confined to the corners and narrow perimeter. Opaque paper throughout.
+Constraints: remove every character, portrait, soldier, illustration, icon, label, letter, number, title, header tab, button, internal divider, bar, cursor, tooltip, and watermark from the reference. Absolutely no text or content inside the panel. Do not reproduce the three-column UI layout. No desk, no outside environment, no perspective, no curled paper, no extra panels. Match the reference's hand-painted parchment and antique gold linework closely.
