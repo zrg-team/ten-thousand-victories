@@ -1,0 +1,18 @@
+{
+  "asset": "art/story/army-camp-v1.webp",
+  "generator": "Built-in image_gen tool",
+  "style": "Đông Hồ woodblock print",
+  "transparent": true,
+  "dimensions": [
+    1536,
+    1024
+  ],
+  "initial_prompt": "Create one production game sprite: a small medieval Vietnamese army rest camp, for Vạn Thắng, a strategy game drawn in authentic Đông Hồ folk woodblock print style. Exactly one compact cluster of three low triangular cream and ochre canvas tents on bamboo poles, the central tent slightly larger, rolled straw sleeping mats, two woven rice baskets and a small unlit cooking pot between tents, one short bamboo flagpole with a plain cinnabar pennant. No people, no weapons, no text, no letters. South-west three-quarter dimetric view matching a map seen from above at 30 degrees. Bold dark brown hand-carved ink contours, flat natural pigments of muted hòe yellow, burnt ochre, warm cream and cinnabar red, subtle woodgrain inside color shapes. Readable simple silhouette at tiny map sizes, no photorealism, no gradients, no digital glow, no cast shadow, no ground or terrain or scenery. Transparent background with generous margins, entire camp fully visible, tents form a coherent group with a wide low footprint. This is an isolated transparent-background bitmap structure sprite, not a framed illustration or paper print.",
+  "final_edit_prompt": "Remove the red pennant flag and its entire tall vertical bamboo flagpole behind the center tent from this army camp sprite. Preserve the three tents, all tent support poles, mats, two rice baskets, small cooking pot, composition, Đông Hồ woodblock style and pigment colors exactly. Fill the removed flag and flagpole region with fully transparent pixels. Keep all existing background transparency. No new flag, banner, standard, lettering or objects. This camp is used beside an army that already has its own flag.",
+  "export": {
+    "format": "webp",
+    "quality": 92,
+    "alpha": "preserved"
+  },
+  "placement": "Beside the host on the map; the army's existing banner remains visible."
+}
