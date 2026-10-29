@@ -1,0 +1,3 @@
+Use case: precise-object-edit
+Asset type: one blank parchment texture for a historical strategy game UI.
+Edit the supplied paper panel: remove ALL gold and dark brown border lines, all corner ornaments and all decorative motifs. Fill those areas naturally with the same warm cream and pale golden aged paper texture. The entire canvas must be paper only, edge to edge, without a frame, outline, trim, decorations, text, icons, or any objects. Preserve the existing subtle grain, soft mottling, restrained aged surface, pale center and warm color palette. Keep the same wide landscape dimensions and flat straight-on composition. Opaque paper across the whole image; no transparency, no outside background, no shadow or curled edges. Produce exactly one asset.
