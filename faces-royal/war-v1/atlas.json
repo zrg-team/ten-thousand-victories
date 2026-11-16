@@ -1,0 +1,132 @@
+{
+  "frames": {
+    "royal-ly-hat-2": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 204,
+        "h": 143
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 143
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 143
+      }
+    },
+    "royal-ly-robe-2": {
+      "frame": {
+        "x": 210,
+        "y": 2,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-tran-hat-2": {
+      "frame": {
+        "x": 550,
+        "y": 2,
+        "w": 204,
+        "h": 131
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 204,
+        "h": 131
+      },
+      "sourceSize": {
+        "w": 204,
+        "h": 131
+      }
+    },
+    "royal-tran-robe-2": {
+      "frame": {
+        "x": 2,
+        "y": 216,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    },
+    "royal-tayson-hat-2": {
+      "frame": {
+        "x": 342,
+        "y": 216,
+        "w": 222,
+        "h": 126
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 222,
+        "h": 126
+      },
+      "sourceSize": {
+        "w": 222,
+        "h": 126
+      }
+    },
+    "royal-tayson-robe-2": {
+      "frame": {
+        "x": 568,
+        "y": 216,
+        "w": 336,
+        "h": 210
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 336,
+        "h": 210
+      },
+      "sourceSize": {
+        "w": 336,
+        "h": 210
+      }
+    }
+  },
+  "meta": {
+    "image": "atlas.png",
+    "size": {
+      "w": 1024,
+      "h": 428
+    },
+    "scale": "1"
+  }
+}

@@ -1,0 +1,332 @@
+{
+  "frames": {
+    "conquest-art:flora.grass.spring": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 112,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 84
+      }
+    },
+    "conquest-art:flora.grass.summer": {
+      "frame": {
+        "x": 118,
+        "y": 2,
+        "w": 112,
+        "h": 92
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 92
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 92
+      }
+    },
+    "conquest-art:flora.grass.autumn": {
+      "frame": {
+        "x": 234,
+        "y": 2,
+        "w": 112,
+        "h": 101
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 101
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 101
+      }
+    },
+    "conquest-art:flora.grass.winter": {
+      "frame": {
+        "x": 350,
+        "y": 2,
+        "w": 112,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 100
+      }
+    },
+    "conquest-art:flora.grass-blades.spring": {
+      "frame": {
+        "x": 2,
+        "y": 110,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-blades.summer": {
+      "frame": {
+        "x": 118,
+        "y": 110,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-blades.autumn": {
+      "frame": {
+        "x": 234,
+        "y": 110,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-blades.winter": {
+      "frame": {
+        "x": 350,
+        "y": 110,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-tussock.spring": {
+      "frame": {
+        "x": 2,
+        "y": 218,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-tussock.summer": {
+      "frame": {
+        "x": 118,
+        "y": 218,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-tussock.autumn": {
+      "frame": {
+        "x": 234,
+        "y": 218,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-tussock.winter": {
+      "frame": {
+        "x": 350,
+        "y": 218,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-plume.spring": {
+      "frame": {
+        "x": 2,
+        "y": 326,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-plume.summer": {
+      "frame": {
+        "x": 118,
+        "y": 326,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-plume.autumn": {
+      "frame": {
+        "x": 234,
+        "y": 326,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    },
+    "conquest-art:flora.grass-plume.winter": {
+      "frame": {
+        "x": 350,
+        "y": 326,
+        "w": 112,
+        "h": 104
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 112,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 112,
+        "h": 104
+      }
+    }
+  },
+  "meta": {
+    "image": "grass-varieties-v1.webp",
+    "scale": "1",
+    "size": {
+      "w": 464,
+      "h": 432
+    }
+  }
+}
